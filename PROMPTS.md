@@ -1,8 +1,8 @@
 # PROMPTS - 문장군 중앙 브랜드 문서 적용 프롬프트
 
-> 버전: v1.2  
+> 버전: v1.3  
 > 최종 업데이트: 2026-06-25  
-> 변경 요약: DESIGN.md v3.0 고도화 방향을 신규 웹앱/랜딩 제작 프롬프트에 반영
+> 변경 요약: 디자인 운영 문서와 구현 토큰 참조 추가
 
 ## 1. 프로젝트 총괄 세션 공통 적용 프롬프트
 
@@ -15,6 +15,11 @@
 C:\Users\hjh\안티그래비티\문장군_브랜드\BRAND_CONTEXT.md
 C:\Users\hjh\안티그래비티\문장군_브랜드\FIELD_JUDGMENT_RULES.md
 C:\Users\hjh\안티그래비티\문장군_브랜드\DESIGN.md
+C:\Users\hjh\안티그래비티\문장군_브랜드\DESIGN_QUICKSTART.md
+C:\Users\hjh\안티그래비티\문장군_브랜드\PHOTO_TREATMENT.md
+C:\Users\hjh\안티그래비티\문장군_브랜드\ANTI_PATTERNS.md
+C:\Users\hjh\안티그래비티\문장군_브랜드\tokens\brand.tokens.json
+C:\Users\hjh\안티그래비티\문장군_브랜드\tokens\brand.css
 C:\Users\hjh\안티그래비티\문장군_브랜드\PROJECT_ADAPTERS.md
 C:\Users\hjh\안티그래비티\문장군_브랜드\CHANGELOG.md
 
@@ -29,6 +34,10 @@ C:\Users\hjh\안티그래비티\문장군_브랜드\CHANGELOG.md
 - 필요하면 프로젝트 내부에는 중앙 원본 경로를 안내하는 얇은 참조 문서만 두세요.
 - 이 프로젝트 특화 규칙이 있다면 중앙 원본과 충돌하지 않도록 별도 섹션으로 분리하세요.
 - 실제 상담·실측·시공 가능 여부·추가금·고객 오해·AppSheet 현장 활용 기준은 FIELD_JUDGMENT_RULES.md를 우선 확인하세요.
+- 디자인을 빠르게 적용할 때는 DESIGN_QUICKSTART.md를 먼저 보고, 세부 기준은 DESIGN.md를 확인하세요.
+- 실제 시공 사진, 썸네일, Before/After 이미지는 PHOTO_TREATMENT.md를 기준으로 공개 가능 여부와 보정 기준을 판단하세요.
+- 디자인이 싸구려 전단지형, 네이비 대기업형, 파스텔 생활앱형, AI 카드뉴스형으로 흐르지 않는지 ANTI_PATTERNS.md로 검수하세요.
+- 웹앱/랜딩 구현 시 tokens/brand.css 또는 tokens/brand.tokens.json을 우선 사용하고, 토큰 변경이 필요하면 DESIGN.md부터 수정해야 합니다.
 - 채널별 파일 저장 방식, QA, 발행 방식, 통계 분석 방식은 중앙 원본에 섞지 말고 프로젝트 어댑터로 분리하세요.
 - 중앙 원본과 프로젝트 기존 규칙이 충돌하면 바로 수정하지 말고 충돌 지점을 요약해주세요.
 - 적용 후 어떤 파일을 바꿨는지, 앞으로 어떤 문서를 기준으로 삼는지 요약해주세요.
@@ -46,6 +55,9 @@ C:\Users\hjh\안티그래비티\문장군_브랜드\CHANGELOG.md
 C:\Users\hjh\안티그래비티\문장군_브랜드\BRAND_CONTEXT.md
 C:\Users\hjh\안티그래비티\문장군_브랜드\FIELD_JUDGMENT_RULES.md
 C:\Users\hjh\안티그래비티\문장군_브랜드\DESIGN.md
+C:\Users\hjh\안티그래비티\문장군_브랜드\DESIGN_QUICKSTART.md
+C:\Users\hjh\안티그래비티\문장군_브랜드\PHOTO_TREATMENT.md
+C:\Users\hjh\안티그래비티\문장군_브랜드\ANTI_PATTERNS.md
 C:\Users\hjh\안티그래비티\문장군_브랜드\PROJECT_ADAPTERS.md
 
 이 프로젝트는 문장군 콘텐츠 생성의 기준 프로젝트일 가능성이 높으므로, 기존 BRAND_CONTEXT.md와 콘텐츠 생성 프롬프트가 중앙 원본과 어떻게 겹치는지 먼저 비교해주세요.
@@ -53,6 +65,8 @@ C:\Users\hjh\안티그래비티\문장군_브랜드\PROJECT_ADAPTERS.md
 요청:
 - 기존 브랜드 컨텍스트 파일을 바로 덮어쓰지 말고, 중앙 원본 참조 방식으로 바꾸는 최선의 위치를 제안해주세요.
 - 콘텐츠 생성 시 BRAND_CONTEXT.md는 말할 내용의 기준으로, DESIGN.md는 썸네일/카드/웹앱/시각 표현 기준으로 참조하게 해주세요.
+- 썸네일과 카드뉴스 사진 기준은 PHOTO_TREATMENT.md를 함께 반영해주세요.
+- 디자인 빠른 기준은 DESIGN_QUICKSTART.md를 우선 적용하고, 금지 패턴 검수는 ANTI_PATTERNS.md를 활용해주세요.
 - 기존 프로젝트에만 필요한 운영 규칙은 프로젝트 보조 규칙으로 분리해주세요.
 - 적용 전후 차이를 요약해주세요.
 ```
@@ -66,6 +80,9 @@ C:\Users\hjh\안티그래비티\문장군_브랜드\PROJECT_ADAPTERS.md
 C:\Users\hjh\안티그래비티\문장군_브랜드\BRAND_CONTEXT.md
 C:\Users\hjh\안티그래비티\문장군_브랜드\FIELD_JUDGMENT_RULES.md
 C:\Users\hjh\안티그래비티\문장군_브랜드\DESIGN.md
+C:\Users\hjh\안티그래비티\문장군_브랜드\DESIGN_QUICKSTART.md
+C:\Users\hjh\안티그래비티\문장군_브랜드\PHOTO_TREATMENT.md
+C:\Users\hjh\안티그래비티\문장군_브랜드\ANTI_PATTERNS.md
 C:\Users\hjh\안티그래비티\문장군_브랜드\PROJECT_ADAPTERS.md
 
 이 프로젝트는 인스타그램 카드뉴스, 리뷰/후기 콘텐츠, 향후 예쁜 시공 사례 콘텐츠를 다루므로 DESIGN.md의 인스타그램 카드뉴스 기준과 사진 톤 기준을 우선 확인해주세요.
@@ -75,6 +92,8 @@ C:\Users\hjh\안티그래비티\문장군_브랜드\PROJECT_ADAPTERS.md
 - 중앙 원본을 우선 참조하도록 프롬프트나 지침을 조정해주세요.
 - 인스타그램 특화 규칙은 중앙 원본과 분리해서 유지해주세요.
 - AI 느낌 나는 문구, 빨간 가격 강조, 복잡한 배너형 디자인을 피하도록 생성 규칙을 점검해주세요.
+- 인스타 카드뉴스가 텍스트 카드만 반복되거나 파스텔 생활앱형으로 흐르지 않도록 ANTI_PATTERNS.md 기준을 적용해주세요.
+- 실제 시공 사진 사용 전 PHOTO_TREATMENT.md의 개인정보, 색온도, 수직선, crop safe zone 기준을 확인해주세요.
 - 적용 후 변경 파일과 적용 방식을 요약해주세요.
 ```
 
@@ -87,6 +106,9 @@ C:\Users\hjh\안티그래비티\문장군_브랜드\PROJECT_ADAPTERS.md
 C:\Users\hjh\안티그래비티\문장군_브랜드\BRAND_CONTEXT.md
 C:\Users\hjh\안티그래비티\문장군_브랜드\FIELD_JUDGMENT_RULES.md
 C:\Users\hjh\안티그래비티\문장군_브랜드\DESIGN.md
+C:\Users\hjh\안티그래비티\문장군_브랜드\DESIGN_QUICKSTART.md
+C:\Users\hjh\안티그래비티\문장군_브랜드\PHOTO_TREATMENT.md
+C:\Users\hjh\안티그래비티\문장군_브랜드\ANTI_PATTERNS.md
 C:\Users\hjh\안티그래비티\문장군_브랜드\PROJECT_ADAPTERS.md
 
 이 프로젝트는 블로그 전략, 검색 유입, 고객 고민형 제목, 실제 시공 사진 기반 썸네일 기준이 중요합니다.
@@ -97,6 +119,8 @@ C:\Users\hjh\안티그래비티\문장군_브랜드\PROJECT_ADAPTERS.md
 - 기존 블로그 글 생성 규칙이 중앙 BRAND_CONTEXT.md의 말투, 금지 표현, 고객 언어 사전과 맞는지 점검해주세요.
 - FIELD_JUDGMENT_RULES.md의 현장 판단 기준이 신규 원고의 `실제 시공 현장` 단락에 반영되는지 확인해주세요.
 - 블로그 썸네일 또는 이미지 생성 규칙이 DESIGN.md의 블로그 썸네일 기준과 맞는지 확인해주세요.
+- 블로그 썸네일 사진은 PHOTO_TREATMENT.md의 `blogThumbnail` 기준과 개인정보 기준을 함께 확인해주세요.
+- 어두운 스마트스토어 썸네일 남발형이나 AI 카드뉴스형으로 흐르지 않도록 ANTI_PATTERNS.md를 검수 기준에 넣어주세요.
 - 특히 기존 "리뷰 15,000개+" 표현은 전체 브랜드 리뷰 표현으로 쓰지 말고, 중앙 원본의 리뷰 기준으로 정정해주세요.
 - 네이버 블로그 전용 단일 MD, AppSheet 현장 서사 슬롯, 발행 하드게이트, 일일 SEO 관제는 블로그 어댑터에 둡니다.
 - 적용 후 변경 파일과 적용 방식을 요약해주세요.
@@ -113,6 +137,11 @@ C:\Users\hjh\안티그래비티\문장군_브랜드\PROJECT_ADAPTERS.md
 C:\Users\hjh\안티그래비티\문장군_브랜드\BRAND_CONTEXT.md
 C:\Users\hjh\안티그래비티\문장군_브랜드\FIELD_JUDGMENT_RULES.md
 C:\Users\hjh\안티그래비티\문장군_브랜드\DESIGN.md
+C:\Users\hjh\안티그래비티\문장군_브랜드\DESIGN_QUICKSTART.md
+C:\Users\hjh\안티그래비티\문장군_브랜드\PHOTO_TREATMENT.md
+C:\Users\hjh\안티그래비티\문장군_브랜드\ANTI_PATTERNS.md
+C:\Users\hjh\안티그래비티\문장군_브랜드\tokens\brand.css
+C:\Users\hjh\안티그래비티\문장군_브랜드\tokens\brand.tokens.json
 C:\Users\hjh\안티그래비티\문장군_브랜드\PROJECT_ADAPTERS.md
 
 핵심 기준:
@@ -122,6 +151,9 @@ C:\Users\hjh\안티그래비티\문장군_브랜드\PROJECT_ADAPTERS.md
 - 큰 제목과 브랜드 문장은 Noto Serif KR 계열을 우선하고, 본문/UI/버튼/폼은 Pretendard 또는 Noto Sans KR 계열을 사용합니다.
 - 메인 비주얼은 제품이 인테리어와 예쁘게 어울리는 밝은 주거 공간 이미지여야 합니다.
 - 첫 화면 신뢰 배지는 무료 방문실측, 직접 제작·전속 시공, 고객 리뷰 검증 3개를 우선합니다.
+- 구현 토큰은 tokens/brand.css 또는 tokens/brand.tokens.json을 사용하고, 토큰 자체를 바꿔야 하면 중앙 DESIGN.md부터 갱신합니다.
+- 사진 보정과 crop safe zone은 PHOTO_TREATMENT.md를 따릅니다.
+- 출시 전 DESIGN_QUICKSTART.md의 12문항 체크를 통과해야 합니다.
 - 가격은 숨기지 말고 가격대와 조건 설명, 무료 실측 후 정확 견적 안내를 함께 보여주세요.
 - 빨간 가격 강조, 할인 전단지 느낌, 근거 없는 최고/최저가/No.1 표현, 차가운 대기업 느낌, 둥글둥글한 생활앱 느낌은 피해주세요.
 
