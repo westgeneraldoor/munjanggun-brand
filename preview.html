@@ -1,0 +1,1109 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>문장군 디자인 시스템 v3.0 미리보기</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Serif+KR:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cocoa-oak: #2C221E;
+      --clay-terracotta: #B35D43;
+      --clay-terracotta-hover: #9E4F39;
+      --cashmere-cream: #F5EFE6;
+      --toasted-almond: #C5B9A5;
+      --verified-navy: #1D3858;
+      --paper-white: #FFFCF7;
+      --warm-line: #E2D7C8;
+      --warm-line-strong: #C5B9A5;
+      --ink-warm: #171512;
+      --body-warm: #443B34;
+      --muted-warm: #6B6259;
+      --cream-soft: #FAF7F0;
+      --almond-soft: #EFE6DA;
+      --navy-soft: #E7EEF5;
+      --caution-red: #C74332;
+      --success-green: #5C8A62;
+      --on-dark: #FFFCF7;
+      --serif: "Noto Serif KR", "Noto Serif CJK KR", serif;
+      --sans: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+      --latin: "Manrope", "Inter", system-ui, sans-serif;
+      --shadow-soft: 0 18px 44px rgba(44, 34, 30, .08);
+      --shadow-lift: 0 28px 70px rgba(44, 34, 30, .12);
+      --container: min(1180px, calc(100% - 40px));
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      background: var(--cashmere-cream);
+      color: var(--ink-warm);
+      font-family: var(--sans);
+      line-height: 1.72;
+      letter-spacing: 0;
+      word-break: keep-all;
+      overflow-wrap: anywhere;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button, input { font: inherit; letter-spacing: 0; }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(255, 252, 247, .9);
+      border-bottom: 1px solid var(--warm-line);
+      backdrop-filter: blur(18px);
+    }
+
+    .topbar-inner {
+      width: var(--container);
+      min-height: 68px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      min-width: max-content;
+    }
+
+    .brand-ko {
+      font-family: var(--serif);
+      font-size: 28px;
+      font-weight: 700;
+      line-height: 1;
+      color: var(--cocoa-oak);
+    }
+
+    .brand-en {
+      font-family: var(--latin);
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--muted-warm);
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--body-warm);
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .nav a {
+      padding: 9px 11px;
+      border-radius: 6px;
+    }
+
+    .nav a:hover { background: var(--cream-soft); }
+
+    .top-cta {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 10px 15px;
+      border-radius: 8px;
+      background: var(--clay-terracotta);
+      color: #fff;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .top-cta:hover { background: var(--clay-terracotta-hover); }
+
+    main { overflow: hidden; }
+
+    .hero {
+      width: var(--container);
+      min-height: calc(100vh - 68px);
+      margin: 0 auto;
+      padding: 76px 0 48px;
+      display: grid;
+      grid-template-columns: minmax(0, .92fr) minmax(420px, 1.08fr);
+      gap: 54px;
+      align-items: center;
+    }
+
+    .hero-copy {
+      display: grid;
+      gap: 26px;
+      align-content: center;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-family: var(--serif);
+      font-size: clamp(38px, 4vw, 56px);
+      line-height: 1.14;
+      font-weight: 700;
+      color: var(--cocoa-oak);
+    }
+
+    .hero p {
+      max-width: 620px;
+      margin: 0;
+      color: var(--body-warm);
+      font-size: 18px;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .button {
+      min-height: 50px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 20px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform .18s ease, background .18s ease, border-color .18s ease;
+    }
+
+    .button.primary {
+      background: var(--clay-terracotta);
+      color: #fff;
+    }
+
+    .button.primary:hover {
+      background: var(--clay-terracotta-hover);
+      transform: translateY(-1px);
+    }
+
+    .button.secondary {
+      background: var(--paper-white);
+      color: var(--cocoa-oak);
+      border-color: var(--warm-line);
+    }
+
+    .button.secondary:hover {
+      background: var(--cream-soft);
+      border-color: var(--warm-line-strong);
+    }
+
+    .trust-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .trust-badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      background: var(--cocoa-oak);
+      color: var(--cashmere-cream);
+      font-family: var(--latin), var(--sans);
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1.3;
+    }
+
+    .hero-visual {
+      position: relative;
+      min-height: 560px;
+      border-radius: 12px;
+      overflow: hidden;
+      background:
+        linear-gradient(90deg, rgba(44,34,30,.12), transparent 30%),
+        linear-gradient(180deg, #fff7e9 0%, #f0ddc3 100%);
+      box-shadow: var(--shadow-lift);
+      isolation: isolate;
+    }
+
+    .interior-scene {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 72% 18%, rgba(255,255,255,.9), transparent 18%),
+        linear-gradient(180deg, #f7e7d1 0 38%, #efd9b8 38% 39%, #c89461 100%);
+    }
+
+    .interior-scene::before {
+      content: "";
+      position: absolute;
+      left: 8%;
+      right: 8%;
+      bottom: 0;
+      height: 36%;
+      background:
+        repeating-linear-gradient(88deg, rgba(44,34,30,.16) 0 2px, transparent 2px 88px),
+        linear-gradient(180deg, #d9aa72, #bd8352);
+      transform: perspective(720px) rotateX(58deg);
+      transform-origin: bottom;
+      border-top: 2px solid rgba(44,34,30,.16);
+    }
+
+    .interior-scene::after {
+      content: "";
+      position: absolute;
+      inset: 8% 7% 18%;
+      border-radius: 10px;
+      background:
+        linear-gradient(90deg, transparent 0 24%, rgba(255,255,255,.32) 24% 25%, transparent 25% 49%, rgba(255,255,255,.32) 49% 50%, transparent 50% 74%, rgba(255,255,255,.32) 74% 75%, transparent 75%),
+        linear-gradient(90deg, #8b552f 0 2.2%, transparent 2.2% 31%, #8b552f 31% 33.2%, transparent 33.2% 64.5%, #8b552f 64.5% 66.7%, transparent 66.7% 97.8%, #8b552f 97.8%),
+        linear-gradient(180deg, rgba(255,252,247,.7), rgba(255,252,247,.18));
+      border: 14px solid #8b552f;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.45), 0 20px 60px rgba(44,34,30,.18);
+    }
+
+    .room-door {
+      position: absolute;
+      right: 8%;
+      top: 21%;
+      width: 19%;
+      height: 52%;
+      border-radius: 2px;
+      background: linear-gradient(90deg, #f5eadc, #d6c1a8);
+      border: 3px solid rgba(44,34,30,.18);
+      box-shadow: 0 18px 34px rgba(44,34,30,.12);
+      z-index: 2;
+    }
+
+    .room-door::after {
+      content: "";
+      position: absolute;
+      right: 12px;
+      top: 48%;
+      width: 18px;
+      height: 4px;
+      border-radius: 999px;
+      background: #7d7467;
+    }
+
+    .plant {
+      position: absolute;
+      left: 6%;
+      bottom: 20%;
+      width: 14%;
+      height: 26%;
+      z-index: 3;
+    }
+
+    .plant::before {
+      content: "";
+      position: absolute;
+      left: 28%;
+      bottom: 0;
+      width: 46%;
+      height: 30%;
+      border-radius: 50% 50% 42% 42%;
+      background: #b49b7f;
+      box-shadow: inset -12px 0 rgba(44,34,30,.08);
+    }
+
+    .plant::after {
+      content: "";
+      position: absolute;
+      left: 48%;
+      bottom: 26%;
+      width: 2px;
+      height: 72%;
+      background: #65724a;
+      box-shadow:
+        -28px 22px 0 #65724a,
+        24px 10px 0 #65724a,
+        -12px -2px 0 #65724a;
+      transform: rotate(-5deg);
+    }
+
+    .visual-note {
+      position: absolute;
+      left: 22px;
+      right: 22px;
+      bottom: 22px;
+      z-index: 4;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 14px;
+      align-items: end;
+      padding: 18px;
+      border-radius: 12px;
+      background: rgba(44, 34, 30, .84);
+      color: var(--on-dark);
+      backdrop-filter: blur(10px);
+    }
+
+    .visual-note strong {
+      font-family: var(--serif);
+      font-size: 22px;
+      line-height: 1.34;
+    }
+
+    .visual-note span {
+      display: block;
+      margin-top: 4px;
+      color: rgba(255,252,247,.78);
+      font-size: 13px;
+    }
+
+    .metric {
+      font-family: var(--latin);
+      font-size: 32px;
+      font-weight: 850;
+      line-height: 1;
+      color: var(--cashmere-cream);
+    }
+
+    section {
+      padding: 88px 0;
+      border-top: 1px solid rgba(197, 185, 165, .38);
+    }
+
+    .section-inner {
+      width: var(--container);
+      margin: 0 auto;
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: minmax(0, 520px) minmax(280px, 1fr);
+      gap: 42px;
+      align-items: end;
+      margin-bottom: 38px;
+    }
+
+    .section-head h2 {
+      margin: 0;
+      font-family: var(--serif);
+      font-size: clamp(30px, 4vw, 44px);
+      line-height: 1.22;
+      color: var(--cocoa-oak);
+    }
+
+    .section-head p {
+      margin: 0;
+      color: var(--body-warm);
+      font-size: 16px;
+    }
+
+    .palette-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .swatch {
+      min-height: 260px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 18px;
+      border-radius: 8px;
+      border: 1px solid var(--warm-line);
+      background: var(--paper-white);
+    }
+
+    .swatch-chip {
+      aspect-ratio: 1 / 1;
+      border-radius: 6px;
+      box-shadow: inset 0 0 0 1px rgba(44,34,30,.08);
+    }
+
+    .swatch strong {
+      display: block;
+      margin-top: 18px;
+      font-size: 18px;
+      color: var(--ink-warm);
+    }
+
+    .swatch code {
+      display: block;
+      margin-top: 2px;
+      font-family: var(--latin);
+      color: var(--muted-warm);
+    }
+
+    .swatch p {
+      margin: 12px 0 0;
+      color: var(--body-warm);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .surface-stack {
+      display: grid;
+      gap: 16px;
+    }
+
+    .surface-row {
+      display: grid;
+      grid-template-columns: 220px minmax(0, 1fr) 210px;
+      gap: 18px;
+      align-items: center;
+      padding: 22px;
+      border-radius: 8px;
+      border: 1px solid var(--warm-line);
+    }
+
+    .surface-row strong {
+      font-family: var(--latin), var(--sans);
+      font-size: 15px;
+      font-weight: 850;
+    }
+
+    .surface-row p { margin: 0; color: var(--body-warm); }
+    .surface-row code { font-family: var(--latin); color: inherit; opacity: .76; }
+
+    .cream { background: var(--cashmere-cream); }
+    .paper { background: var(--paper-white); }
+    .almond { background: var(--almond-soft); }
+    .cocoa { background: var(--cocoa-oak); color: var(--on-dark); border-color: rgba(255,252,247,.18); }
+    .cocoa p { color: rgba(255,252,247,.82); }
+    .navy { background: var(--verified-navy); color: var(--on-dark); border-color: rgba(255,252,247,.18); }
+    .navy p { color: rgba(255,252,247,.82); }
+    .terracotta { background: var(--clay-terracotta); color: #fff; border-color: transparent; }
+    .terracotta p { color: rgba(255,255,255,.86); }
+
+    .type-lab {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(320px, .9fr);
+      gap: 26px;
+      align-items: stretch;
+    }
+
+    .type-display,
+    .type-scale {
+      border-radius: 8px;
+      border: 1px solid var(--warm-line);
+      background: var(--paper-white);
+      padding: 28px;
+    }
+
+    .type-display h3 {
+      margin: 0 0 16px;
+      font-family: var(--serif);
+      font-size: clamp(34px, 5vw, 56px);
+      line-height: 1.16;
+      color: var(--cocoa-oak);
+    }
+
+    .type-display p {
+      margin: 0;
+      color: var(--body-warm);
+      max-width: 640px;
+    }
+
+    .type-row {
+      display: grid;
+      grid-template-columns: 150px minmax(0, 1fr);
+      gap: 16px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--warm-line);
+    }
+
+    .type-row:last-child { border-bottom: 0; }
+
+    .type-row span {
+      font-family: var(--latin);
+      color: var(--muted-warm);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .type-row strong {
+      display: block;
+      line-height: 1.25;
+      color: var(--ink-warm);
+    }
+
+    .components {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(360px, .9fr);
+      gap: 24px;
+    }
+
+    .component-panel {
+      border-radius: 8px;
+      border: 1px solid var(--warm-line);
+      background: var(--paper-white);
+      padding: 24px;
+    }
+
+    .component-panel h3 {
+      margin: 0 0 16px;
+      font-family: var(--serif);
+      font-size: 24px;
+      line-height: 1.34;
+      color: var(--cocoa-oak);
+    }
+
+    .button-demo,
+    .field-demo {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 22px;
+    }
+
+    .field {
+      width: min(100%, 320px);
+      min-height: 48px;
+      border: 1px solid var(--warm-line);
+      border-radius: 8px;
+      background: var(--paper-white);
+      color: var(--ink-warm);
+      padding: 12px 14px;
+    }
+
+    .field:focus {
+      outline: 2px solid var(--clay-terracotta);
+      outline-offset: 2px;
+      border-color: var(--clay-terracotta);
+    }
+
+    .field.error {
+      border-color: var(--caution-red);
+      color: var(--ink-warm);
+    }
+
+    .error-text {
+      width: 100%;
+      margin: -12px 0 0;
+      color: var(--caution-red);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .proof-panel {
+      min-height: 100%;
+      display: grid;
+      gap: 20px;
+      align-content: start;
+      border-radius: 12px;
+      background: var(--cocoa-oak);
+      color: var(--on-dark);
+      padding: 28px;
+    }
+
+    .proof-panel h3 {
+      margin: 0;
+      font-family: var(--serif);
+      font-size: 28px;
+      line-height: 1.34;
+      color: var(--on-dark);
+    }
+
+    .proof-list {
+      display: grid;
+      gap: 14px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .proof-list li {
+      display: grid;
+      grid-template-columns: 30px minmax(0, 1fr);
+      gap: 12px;
+      align-items: start;
+      color: rgba(255,252,247,.86);
+    }
+
+    .proof-list b {
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .check {
+      width: 30px;
+      height: 30px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 50%;
+      background: rgba(245,239,230,.14);
+      color: var(--cashmere-cream);
+      font-family: var(--latin);
+      font-weight: 800;
+    }
+
+    .price-box {
+      margin-top: 20px;
+      padding: 22px;
+      border-radius: 8px;
+      background: var(--paper-white);
+      border: 1px solid var(--warm-line);
+    }
+
+    .price-box strong {
+      display: block;
+      font-family: var(--serif);
+      font-size: 23px;
+      line-height: 1.34;
+      color: var(--cocoa-oak);
+    }
+
+    .price-box p {
+      margin: 10px 0 0;
+      color: var(--body-warm);
+      font-size: 14px;
+    }
+
+    .media-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, .9fr) minmax(0, .9fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .media-frame {
+      min-width: 0;
+      min-height: 280px;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+      background:
+        linear-gradient(180deg, rgba(255,252,247,.25), rgba(44,34,30,.05)),
+        linear-gradient(135deg, #f8ead8 0%, #fff7e7 44%, #c7935d 100%);
+      border: 1px solid rgba(44,34,30,.08);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .media-frame.case { aspect-ratio: 4 / 3; min-height: auto; }
+    .media-frame.blog { aspect-ratio: 16 / 9; min-height: auto; }
+
+    .media-frame::before {
+      content: "";
+      position: absolute;
+      left: 18%;
+      right: 16%;
+      bottom: 20%;
+      height: 54%;
+      border: 10px solid rgba(92, 58, 34, .84);
+      background:
+        linear-gradient(90deg, transparent 0 48%, rgba(255,255,255,.38) 48% 51%, transparent 51%),
+        linear-gradient(180deg, rgba(255,255,255,.68), rgba(255,255,255,.18));
+      box-shadow: 0 20px 40px rgba(44,34,30,.12);
+    }
+
+    .media-frame::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 34%;
+      background:
+        repeating-linear-gradient(92deg, rgba(44,34,30,.16) 0 2px, transparent 2px 68px),
+        linear-gradient(180deg, #d6a26d, #bd8555);
+      opacity: .9;
+    }
+
+    .media-label {
+      position: absolute;
+      left: 16px;
+      right: 16px;
+      bottom: 16px;
+      z-index: 2;
+      padding: 12px;
+      border-radius: 8px;
+      background: rgba(255,252,247,.92);
+      color: var(--body-warm);
+      font-size: 13px;
+      line-height: 1.45;
+      overflow-wrap: anywhere;
+    }
+
+    .media-label b {
+      display: block;
+      color: var(--cocoa-oak);
+      font-family: var(--latin), var(--sans);
+      font-size: 13px;
+      font-weight: 850;
+    }
+
+    .callout {
+      background: var(--clay-terracotta);
+      color: #fff;
+      padding: 72px 0;
+    }
+
+    .callout .section-inner {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 28px;
+      align-items: center;
+    }
+
+    .callout h2 {
+      margin: 0;
+      font-family: var(--serif);
+      font-size: clamp(30px, 4vw, 48px);
+      line-height: 1.22;
+    }
+
+    .callout p {
+      margin: 12px 0 0;
+      color: rgba(255,255,255,.86);
+    }
+
+    .callout .button {
+      background: var(--paper-white);
+      color: var(--clay-terracotta);
+      border-color: transparent;
+    }
+
+    @media (max-width: 940px) {
+      .topbar-inner {
+        min-height: auto;
+        padding: 14px 0;
+        align-items: flex-start;
+      }
+
+      .nav { display: none; }
+
+      .hero {
+        min-height: auto;
+        grid-template-columns: 1fr;
+        padding: 56px 0 40px;
+      }
+
+      .hero-visual { min-height: 520px; }
+
+      .section-head,
+      .type-lab,
+      .components,
+      .callout .section-inner {
+        grid-template-columns: 1fr;
+      }
+
+      .palette-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .surface-row {
+        grid-template-columns: 1fr;
+      }
+
+      .media-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      :root { --container: min(100% - 28px, 1180px); }
+
+      .brand-ko { font-size: 24px; }
+      .brand-en { display: none; }
+      .top-cta { min-height: 40px; padding: 9px 12px; }
+
+      .hero {
+        gap: 34px;
+        padding-top: 44px;
+      }
+
+      .hero h1 {
+        font-size: 34px;
+        line-height: 1.18;
+      }
+
+      .hero p { font-size: 16px; }
+      .button { width: 100%; }
+      .trust-row { display: grid; }
+      .hero-visual { min-height: 500px; }
+
+      .visual-note {
+        grid-template-columns: 1fr;
+        padding: 15px;
+      }
+
+      section { padding: 64px 0; }
+
+      .palette-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .swatch {
+        min-height: 220px;
+      }
+
+      .type-row {
+        grid-template-columns: 1fr;
+        gap: 2px;
+      }
+
+      .component-panel,
+      .proof-panel,
+      .type-display,
+      .type-scale {
+        padding: 20px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="#top" aria-label="문장군 디자인 미리보기 상단으로 이동">
+        <span class="brand-ko">문장군</span>
+        <span class="brand-en">MUNJANGGUN</span>
+      </a>
+      <nav class="nav" aria-label="미리보기 섹션">
+        <a href="#palette">색</a>
+        <a href="#surfaces">표면</a>
+        <a href="#type">타이포</a>
+        <a href="#components">컴포넌트</a>
+        <a href="#media">이미지</a>
+      </nav>
+      <a class="top-cta" href="#components">상담 CTA 보기</a>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <h1 id="hero-title">좋은 문을 고르는 일,<br>따뜻하게 정확하게</h1>
+        <p>문장군 디자인 v3.0은 따뜻한 주거 첫인상 위에 무료 방문실측, 직접 제작, 전속 시공, 리뷰와 A/S 근거를 차분하게 쌓는 시스템입니다.</p>
+        <div class="hero-actions">
+          <a class="button primary" href="#components">무료 방문실측 신청</a>
+          <a class="button secondary" href="#media">우리 집과 비슷한 사례 보기</a>
+        </div>
+        <div class="trust-row" aria-label="첫 화면 신뢰 배지">
+          <span class="trust-badge">무료 방문실측</span>
+          <span class="trust-badge">직접 제작·전속 시공</span>
+          <span class="trust-badge">고객 리뷰 검증</span>
+        </div>
+      </div>
+
+      <div class="hero-visual" role="img" aria-label="밝은 주거 공간 안에 완성된 중문과 도어가 놓인 문장군 히어로 이미지 예시">
+        <div class="interior-scene"></div>
+        <div class="room-door"></div>
+        <div class="plant"></div>
+        <div class="visual-note">
+          <div>
+            <strong>밝은 집 안에서 제품이 분위기를 완성합니다.</strong>
+            <span>제품 단독 컷보다 완성된 주거 장면을 우선합니다.</span>
+          </div>
+          <div class="metric">v3.0</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="palette">
+      <div class="section-inner">
+        <div class="section-head">
+          <h2>장인 정신이 빚은 아늑함을 담은 팔레트</h2>
+          <p>따뜻한 크림 배경, 깊은 오크, 절제된 테라코타, 부드러운 아몬드, 제한적인 검증 네이비가 문장군의 기본 색 흐름입니다.</p>
+        </div>
+        <div class="palette-grid">
+          <article class="swatch">
+            <div class="swatch-chip" style="background: var(--cocoa-oak)"></div>
+            <div>
+              <strong>코코아 오크</strong>
+              <code>#2C221E</code>
+              <p>깊은 나무결, 장인성, 제목, 다크 신뢰 표면.</p>
+            </div>
+          </article>
+          <article class="swatch">
+            <div class="swatch-chip" style="background: var(--clay-terracotta)"></div>
+            <div>
+              <strong>클레이 테라코타</strong>
+              <code>#B35D43</code>
+              <p>상담 CTA와 핵심 행동. 할인 강조처럼 쓰지 않습니다.</p>
+            </div>
+          </article>
+          <article class="swatch">
+            <div class="swatch-chip" style="background: var(--cashmere-cream)"></div>
+            <div>
+              <strong>캐시미어 크림</strong>
+              <code>#F5EFE6</code>
+              <p>첫인상 배경과 브랜드 스토리의 기본 캔버스.</p>
+            </div>
+          </article>
+          <article class="swatch">
+            <div class="swatch-chip" style="background: var(--toasted-almond)"></div>
+            <div>
+              <strong>토스티드 아몬드</strong>
+              <code>#C5B9A5</code>
+              <p>소재감과 구분면. 공간의 차분함을 더합니다.</p>
+            </div>
+          </article>
+          <article class="swatch">
+            <div class="swatch-chip" style="background: var(--verified-navy)"></div>
+            <div>
+              <strong>검증 네이비</strong>
+              <code>#1D3858</code>
+              <p>검증, 운영, 리뷰 수치, A/S 근거에 제한 사용.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="surfaces">
+      <div class="section-inner">
+        <div class="section-head">
+          <h2>색을 흩뿌리지 않고 표면으로 리듬을 만듭니다</h2>
+          <p>모든 섹션을 카드처럼 감싸지 않고, 표면 모드의 역할을 분리해 페이지 흐름을 만듭니다.</p>
+        </div>
+        <div class="surface-stack">
+          <div class="surface-row cream">
+            <strong>Cream Canvas</strong>
+            <p>기본 페이지 배경, 브랜드 스토리, 첫 화면의 따뜻한 공기.</p>
+            <code>{colors.cashmere-cream}</code>
+          </div>
+          <div class="surface-row paper">
+            <strong>Paper Card</strong>
+            <p>본문 카드, FAQ, 가격 설명처럼 읽어야 하는 정보.</p>
+            <code>{colors.paper-white}</code>
+          </div>
+          <div class="surface-row almond">
+            <strong>Almond Band</strong>
+            <p>선택 가이드, 상담 흐름, 부드러운 정보 구간.</p>
+            <code>{colors.almond-soft}</code>
+          </div>
+          <div class="surface-row cocoa">
+            <strong>Cocoa Trust Surface</strong>
+            <p>직접 제작, 전속 시공, A/S처럼 깊은 신뢰가 필요한 근거.</p>
+            <code>{colors.cocoa-oak}</code>
+          </div>
+          <div class="surface-row navy">
+            <strong>Verified Navy Surface</strong>
+            <p>전산, 검증, 관리자, 운영 체계와 중요한 증거 영역.</p>
+            <code>{colors.verified-navy}</code>
+          </div>
+          <div class="surface-row terracotta">
+            <strong>Terracotta Callout</strong>
+            <p>무료 방문실측처럼 한 번만 강하게 밀어야 하는 전환 순간.</p>
+            <code>{colors.clay-terracotta}</code>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="type">
+      <div class="section-inner">
+        <div class="section-head">
+          <h2>Noto Serif KR은 문장군의 온도와 무게를 만듭니다</h2>
+          <p>큰 제목과 브랜드 문장은 세리프, 본문과 조작 UI는 산세리프로 분리해 감성과 사용성을 함께 지킵니다.</p>
+        </div>
+        <div class="type-lab">
+          <article class="type-display">
+            <h3>좋은 문을 고르는 일,<br>어렵지 않게 도와드립니다.</h3>
+            <p>공식 브랜드 핵심 문장은 중앙 원본의 기준입니다. “좋은 문을 고르는 일, 따뜻하게 정확하게”는 랜딩 히어로와 캠페인에서 사용할 수 있는 변형 문장입니다.</p>
+          </article>
+          <article class="type-scale">
+            <div class="type-row">
+              <span>display-hero</span>
+              <strong style="font-family: var(--serif); font-size: 34px;">따뜻하게 정확하게</strong>
+            </div>
+            <div class="type-row">
+              <span>display-card</span>
+              <strong style="font-family: var(--serif); font-size: 24px;">직접 제작과 전속 시공</strong>
+            </div>
+            <div class="type-row">
+              <span>body</span>
+              <strong style="font-size: 16px; font-weight: 400; line-height: 1.72;">무료 방문실측 후 집 구조와 조건에 맞춰 정확한 견적을 안내합니다.</strong>
+            </div>
+            <div class="type-row">
+              <span>metric</span>
+              <strong style="font-family: var(--latin); font-size: 34px; font-weight: 850;">30,000+</strong>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="components">
+      <div class="section-inner">
+        <div class="section-head">
+          <h2>따뜻한 첫인상 뒤에 확인 가능한 근거를 둡니다</h2>
+          <p>버튼, 배지, 폼, 가격 안내, Proof Panel은 모든 문장군 웹앱과 랜딩에서 같은 성격으로 반복되어야 합니다.</p>
+        </div>
+        <div class="components">
+          <article class="component-panel">
+            <h3>상담과 가격 안내</h3>
+            <div class="button-demo">
+              <button class="button primary" type="button">무료 방문실측 신청</button>
+              <button class="button secondary" type="button">시공 사례 보기</button>
+            </div>
+            <div class="field-demo">
+              <input class="field" value="서울 강동구 성내동" aria-label="방문실측 지역">
+              <input class="field error" value="상세 주소는 저장하지 않음" aria-label="상세 주소 주의 예시">
+              <p class="error-text">상세 주소와 연락처는 공개 미리보기에 남기지 않습니다.</p>
+            </div>
+            <div class="trust-row">
+              <span class="trust-badge">무료 방문실측</span>
+              <span class="trust-badge">직접 제작·전속 시공</span>
+              <span class="trust-badge">고객 리뷰 검증</span>
+            </div>
+            <div class="price-box">
+              <strong>가격은 숨기지 않고, 조건과 함께 안내합니다.</strong>
+              <p>문 종류, 사이즈, 문선, 철거 여부, 현장 구조에 따라 달라질 수 있어 무료 실측 후 정확 견적을 안내합니다.</p>
+            </div>
+          </article>
+
+          <aside class="proof-panel">
+            <h3>Proof Panel</h3>
+            <ul class="proof-list">
+              <li><span class="check">1</span><span><b>무료 방문실측</b><br>고객이 혼자 치수와 가능 여부를 판단하지 않도록 돕습니다.</span></li>
+              <li><span class="check">2</span><span><b>직접 제작·전속 시공</b><br>상담부터 제작, 시공, A/S까지 책임 흐름을 분명히 합니다.</span></li>
+              <li><span class="check">3</span><span><b>리뷰 근거</b><br>전체 상품 리뷰 3만 개+, 대표상품 단일 리뷰 1.4만 개+는 범위와 기준일을 확인해 사용합니다.</span></li>
+            </ul>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section id="media">
+      <div class="section-inner">
+        <div class="section-head">
+          <h2>제품은 단독 컷보다 집 안의 분위기로 보여줍니다</h2>
+          <p>히어로는 밝은 주거 공간, 시공 사례는 바닥과 벽 맥락, 썸네일은 고객 고민이 첫눈에 읽히는 구도를 우선합니다.</p>
+        </div>
+        <div class="media-grid">
+          <div class="media-frame">
+            <div class="media-label"><b>heroImage · 16 / 10</b>제품과 주거 분위기를 함께 보여주고 텍스트 안전영역을 남깁니다.</div>
+          </div>
+          <div class="media-frame case">
+            <div class="media-label"><b>caseCardImage · 4 / 3</b>도어·중문과 바닥, 벽, 조명 맥락을 함께 둡니다.</div>
+          </div>
+          <div class="media-frame blog">
+            <div class="media-label"><b>blogThumbnail · 16 / 9</b>제품, 전후 차이, 고객 고민 중 하나가 바로 읽혀야 합니다.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="callout" aria-labelledby="callout-title">
+      <div class="section-inner">
+        <div>
+          <h2 id="callout-title">문장군답게 보이면, 상담은 더 편해집니다.</h2>
+          <p>따뜻한 첫인상, 좁혀주는 선택 구조, 확인 가능한 근거를 모든 프로젝트에 같은 기준으로 적용합니다.</p>
+        </div>
+        <a class="button" href="#top">첫 화면 다시 보기</a>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
