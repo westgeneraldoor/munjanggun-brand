@@ -1,5 +1,13 @@
 # CHANGELOG - 문장군 중앙 브랜드 문서
 
+## v3.1 - 2026-06-25
+
+- README.md 경로 구조 정리
+  - GitHub 기준 경로와 로컬 Windows 작업 경로 분리
+  - GitHub Pages 디자인 미리보기 URL 추가
+- index.html 추가
+  - GitHub Pages 루트에서 preview.html로 이동할 수 있는 진입 페이지 제공
+
 ## v3.0 - 2026-06-25
 
 - DESIGN.md v3.0 고도화
