@@ -1,5 +1,19 @@
 # CHANGELOG - 문장군 중앙 브랜드 문서
 
+## v3.2 - 2026-06-25
+
+- 디자인 시스템 운영 문서 추가
+  - DESIGN_QUICKSTART.md: DESIGN.md v3.0 실무자용 1장 요약과 출시 전 12문항 체크
+  - PHOTO_TREATMENT.md: 실제 시공 사진의 밝기, 색온도, 수직선, 개인정보, 크롭 기준
+  - ANTI_PATTERNS.md: 문장군답지 않은 시각 패턴과 대체 기준
+- 구현 토큰 추가
+  - tokens/brand.tokens.json
+  - tokens/brand.css
+  - 토큰 권위 관계 명시: DESIGN.md front matter → tokens JSON → CSS variables → preview/project implementation
+- DESIGN.md Known Gaps 정정
+  - preview.html v3.0 재제작 필요 문장을 현재 배포 상태에 맞게 수정
+- README.md와 PROMPTS.md에 신규 운영 문서와 토큰 참조 추가
+
 ## v3.1 - 2026-06-25
 
 - README.md 경로 구조 정리

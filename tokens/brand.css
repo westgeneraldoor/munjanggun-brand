@@ -1,0 +1,308 @@
+/**
+ * MUNJANGGUN brand tokens v3.0
+ *
+ * Source of truth order:
+ * 1. DESIGN.md front matter
+ * 2. tokens/brand.tokens.json
+ * 3. tokens/brand.css
+ * 4. preview.html and project implementations
+ *
+ * Name mapping: DESIGN.md uses kebab-case and `rounded`; JSON uses camelCase
+ * and `radius`; CSS variables use --mg-* kebab-case. Values must match.
+ *
+ * When tokens change, update DESIGN.md first, then brand.tokens.json, this file,
+ * preview.html, and CHANGELOG.md together.
+ */
+
+:root {
+  --mg-cocoa-oak: #2C221E;
+  --mg-clay-terracotta: #B35D43;
+  --mg-clay-terracotta-hover: #9E4F39;
+  --mg-cashmere-cream: #F5EFE6;
+  --mg-toasted-almond: #C5B9A5;
+  --mg-verified-navy: #1D3858;
+  --mg-paper-white: #FFFCF7;
+  --mg-warm-line: #E2D7C8;
+  --mg-warm-line-strong: #C5B9A5;
+  --mg-ink-warm: #171512;
+  --mg-body-warm: #443B34;
+  --mg-muted-warm: #6B6259;
+  --mg-cream-soft: #FAF7F0;
+  --mg-almond-soft: #EFE6DA;
+  --mg-navy-soft: #E7EEF5;
+  --mg-caution-red: #C74332;
+  --mg-success-green: #5C8A62;
+  --mg-on-dark: #FFFCF7;
+  --mg-on-terracotta: #FFFFFF;
+
+  --mg-font-brand-ko: "Noto Serif KR", "Song Myung", "Noto Serif CJK KR", serif;
+  --mg-font-body: "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --mg-font-latin: "Manrope", "Inter", "Pretendard", system-ui, sans-serif;
+
+  --mg-font-size-brand-ko: 42px;
+  --mg-font-size-brand-ko-mobile: 30px;
+  --mg-font-size-brand-en: 16px;
+  --mg-font-size-brand-en-mobile: 13px;
+  --mg-font-size-display-hero: 56px;
+  --mg-font-size-display-hero-mobile: 34px;
+  --mg-font-size-display-section: 40px;
+  --mg-font-size-display-section-mobile: 29px;
+  --mg-font-size-display-card: 24px;
+  --mg-font-size-display-card-mobile: 21px;
+  --mg-font-size-body: 16px;
+  --mg-font-size-body-mobile: 15px;
+  --mg-font-size-label: 13px;
+  --mg-font-size-label-mobile: 12px;
+  --mg-font-size-caption: 13px;
+  --mg-font-size-caption-mobile: 12px;
+  --mg-font-size-metric: 34px;
+  --mg-font-size-metric-mobile: 28px;
+
+  --mg-line-height-display-hero: 1.16;
+  --mg-line-height-display-section: 1.22;
+  --mg-line-height-display-card: 1.34;
+  --mg-line-height-body: 1.72;
+  --mg-line-height-body-strong: 1.62;
+  --mg-line-height-label: 1.3;
+  --mg-line-height-caption: 1.55;
+  --mg-line-height-metric: 1;
+
+  --mg-font-weight-regular: 400;
+  --mg-font-weight-strong: 650;
+  --mg-font-weight-display: 700;
+  --mg-font-weight-label: 750;
+  --mg-font-weight-brand-en: 800;
+  --mg-font-weight-metric: 850;
+  --mg-letter-spacing: 0;
+
+  --mg-radius-xs: 4px;
+  --mg-radius-sm: 6px;
+  --mg-radius-md: 8px;
+  --mg-radius-lg: 12px;
+  --mg-radius-full: 999px;
+
+  --mg-space-xs: 6px;
+  --mg-space-sm: 10px;
+  --mg-space-md: 16px;
+  --mg-space-lg: 24px;
+  --mg-space-xl: 36px;
+  --mg-space-xxl: 56px;
+  --mg-space-section: 88px;
+
+  --mg-button-height: 50px;
+  --mg-button-padding: 14px 20px;
+  --mg-trust-badge-padding: 8px 12px;
+  --mg-proof-panel-padding: 24px;
+  --mg-price-box-padding: 24px;
+  --mg-review-stat-padding: 18px;
+  --mg-terracotta-callout-padding: 40px;
+  --mg-form-field-height: 48px;
+  --mg-form-field-padding: 12px 14px;
+
+  --mg-hero-image-aspect: 16 / 10;
+  --mg-hero-image-aspect-mobile: 4 / 5;
+  --mg-case-card-image-aspect: 4 / 3;
+  --mg-blog-thumbnail-aspect: 16 / 9;
+}
+
+@media (max-width: 640px) {
+  :root {
+    --mg-current-display-hero: var(--mg-font-size-display-hero-mobile);
+    --mg-current-display-section: var(--mg-font-size-display-section-mobile);
+    --mg-current-display-card: var(--mg-font-size-display-card-mobile);
+    --mg-current-body: var(--mg-font-size-body-mobile);
+    --mg-current-label: var(--mg-font-size-label-mobile);
+    --mg-current-caption: var(--mg-font-size-caption-mobile);
+    --mg-current-metric: var(--mg-font-size-metric-mobile);
+  }
+}
+
+@media (min-width: 641px) {
+  :root {
+    --mg-current-display-hero: var(--mg-font-size-display-hero);
+    --mg-current-display-section: var(--mg-font-size-display-section);
+    --mg-current-display-card: var(--mg-font-size-display-card);
+    --mg-current-body: var(--mg-font-size-body);
+    --mg-current-label: var(--mg-font-size-label);
+    --mg-current-caption: var(--mg-font-size-caption);
+    --mg-current-metric: var(--mg-font-size-metric);
+  }
+}
+
+.mg-type-display-hero {
+  font-family: var(--mg-font-brand-ko);
+  font-size: var(--mg-current-display-hero);
+  font-weight: var(--mg-font-weight-display);
+  line-height: var(--mg-line-height-display-hero);
+  letter-spacing: var(--mg-letter-spacing);
+}
+
+.mg-type-display-section {
+  font-family: var(--mg-font-brand-ko);
+  font-size: var(--mg-current-display-section);
+  font-weight: var(--mg-font-weight-display);
+  line-height: var(--mg-line-height-display-section);
+  letter-spacing: var(--mg-letter-spacing);
+}
+
+.mg-type-body {
+  font-family: var(--mg-font-body);
+  font-size: var(--mg-current-body);
+  font-weight: var(--mg-font-weight-regular);
+  line-height: var(--mg-line-height-body);
+  letter-spacing: var(--mg-letter-spacing);
+}
+
+.mg-button-primary {
+  min-height: var(--mg-button-height);
+  padding: var(--mg-button-padding);
+  border: 1px solid transparent;
+  border-radius: var(--mg-radius-md);
+  background: var(--mg-clay-terracotta);
+  color: var(--mg-on-terracotta);
+  font-family: var(--mg-font-body);
+  font-size: var(--mg-current-body);
+  font-weight: var(--mg-font-weight-strong);
+  line-height: var(--mg-line-height-body-strong);
+}
+
+.mg-button-primary:hover {
+  background: var(--mg-clay-terracotta-hover);
+  transform: translateY(-1px);
+}
+
+.mg-button-primary:focus-visible {
+  outline: 2px solid var(--mg-clay-terracotta);
+  outline-offset: 3px;
+}
+
+.mg-button-primary:disabled,
+.mg-button-primary[aria-disabled="true"] {
+  background: var(--mg-warm-line);
+  color: var(--mg-muted-warm);
+  cursor: not-allowed;
+}
+
+.mg-button-secondary {
+  min-height: var(--mg-button-height);
+  padding: var(--mg-button-padding);
+  border: 1px solid var(--mg-warm-line);
+  border-radius: var(--mg-radius-md);
+  background: var(--mg-paper-white);
+  color: var(--mg-cocoa-oak);
+  font-family: var(--mg-font-body);
+  font-size: var(--mg-current-body);
+  font-weight: var(--mg-font-weight-strong);
+  line-height: var(--mg-line-height-body-strong);
+}
+
+.mg-button-secondary:hover {
+  background: var(--mg-cream-soft);
+  border-color: var(--mg-warm-line-strong);
+}
+
+.mg-button-secondary:focus-visible {
+  outline: 2px solid var(--mg-cocoa-oak);
+  outline-offset: 3px;
+}
+
+.mg-button-secondary:disabled,
+.mg-button-secondary[aria-disabled="true"] {
+  background: var(--mg-cream-soft);
+  border-color: var(--mg-warm-line);
+  color: var(--mg-muted-warm);
+  cursor: not-allowed;
+}
+
+.mg-trust-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: var(--mg-trust-badge-padding);
+  border-radius: var(--mg-radius-sm);
+  background: var(--mg-cocoa-oak);
+  color: var(--mg-cashmere-cream);
+  font-family: var(--mg-font-latin);
+  font-size: var(--mg-current-label);
+  font-weight: var(--mg-font-weight-label);
+  line-height: var(--mg-line-height-label);
+}
+
+.mg-proof-panel {
+  padding: var(--mg-proof-panel-padding);
+  border-radius: var(--mg-radius-lg);
+  background: var(--mg-cocoa-oak);
+  color: var(--mg-on-dark);
+}
+
+.mg-price-box {
+  padding: var(--mg-price-box-padding);
+  border: 1px solid var(--mg-warm-line);
+  border-radius: var(--mg-radius-md);
+  background: var(--mg-paper-white);
+  color: var(--mg-ink-warm);
+}
+
+.mg-review-stat {
+  padding: var(--mg-review-stat-padding);
+  border-radius: var(--mg-radius-md);
+  background: var(--mg-navy-soft);
+  color: var(--mg-verified-navy);
+  font-family: var(--mg-font-latin);
+  font-size: var(--mg-current-metric);
+  font-weight: var(--mg-font-weight-metric);
+  line-height: var(--mg-line-height-metric);
+}
+
+.mg-terracotta-callout {
+  padding: var(--mg-terracotta-callout-padding);
+  border-radius: var(--mg-radius-lg);
+  background: var(--mg-clay-terracotta);
+  color: var(--mg-on-terracotta);
+  font-family: var(--mg-font-brand-ko);
+  font-size: var(--mg-current-display-card);
+  font-weight: var(--mg-font-weight-display);
+  line-height: var(--mg-line-height-display-card);
+}
+
+.mg-form-field {
+  min-height: var(--mg-form-field-height);
+  padding: var(--mg-form-field-padding);
+  border: 1px solid var(--mg-warm-line);
+  border-radius: var(--mg-radius-md);
+  background: var(--mg-paper-white);
+  color: var(--mg-ink-warm);
+  font-family: var(--mg-font-body);
+  font-size: var(--mg-current-body);
+  line-height: var(--mg-line-height-body);
+}
+
+.mg-form-field:focus-visible {
+  border-color: var(--mg-clay-terracotta);
+  outline: 2px solid var(--mg-clay-terracotta);
+  outline-offset: 2px;
+}
+
+.mg-form-field[aria-invalid="true"],
+.mg-form-field.is-error {
+  border-color: var(--mg-caution-red);
+}
+
+.mg-form-field:disabled,
+.mg-form-field[aria-disabled="true"] {
+  background: var(--mg-cream-soft);
+  color: var(--mg-muted-warm);
+  cursor: not-allowed;
+}
+
+.mg-error-message {
+  color: var(--mg-caution-red);
+  font-family: var(--mg-font-body);
+  font-size: var(--mg-current-caption);
+  line-height: var(--mg-line-height-caption);
+}
+
+.mg-disabled-surface {
+  background: var(--mg-warm-line);
+  color: var(--mg-muted-warm);
+}

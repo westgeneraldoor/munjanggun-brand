@@ -1,0 +1,289 @@
+{
+  "$schema": "https://tokens.studio/schemas/tokens.json",
+  "meta": {
+    "brand": "MUNJANGGUN",
+    "version": "v3.0",
+    "source": "DESIGN.md front matter",
+    "updated": "2026-06-25",
+    "authority": [
+      "DESIGN.md front matter",
+      "tokens/brand.tokens.json",
+      "tokens/brand.css",
+      "preview.html and project implementations"
+    ],
+    "nameMapping": {
+      "description": "DESIGN.md token names use kebab-case and `rounded`; JSON uses camelCase and `radius`; CSS variables use `--mg-*` kebab-case. Values must remain equivalent across formats.",
+      "rounded": "radius",
+      "button-primary": "buttonPrimary",
+      "button-secondary": "buttonSecondary",
+      "trust-badge": "trustBadge",
+      "proof-panel": "proofPanel",
+      "price-box": "priceBox",
+      "review-stat": "reviewStat",
+      "terracotta-callout": "terracottaCallout",
+      "form-field": "formField",
+      "error-message": "errorMessage"
+    },
+    "rule": "When tokens change, update DESIGN.md first, then regenerate this file, tokens/brand.css, preview.html, and CHANGELOG.md together."
+  },
+  "colors": {
+    "cocoaOak": { "value": "#2C221E", "type": "color", "description": "Deep wood tone for craft depth, headings, and trust surfaces." },
+    "clayTerracotta": { "value": "#B35D43", "type": "color", "description": "Consultation action color. Do not use as discount noise." },
+    "cashmereCream": { "value": "#F5EFE6", "type": "color", "description": "Default warm residential canvas." },
+    "toastedAlmond": { "value": "#C5B9A5", "type": "color", "description": "Support surface and material warmth." },
+    "verifiedNavy": { "value": "#1D3858", "type": "color", "description": "Restricted proof, operations, metrics, and system trust color." },
+    "paperWhite": { "value": "#FFFCF7", "type": "color", "description": "Card and reading surface." },
+    "warmLine": { "value": "#E2D7C8", "type": "color", "description": "Light warm border." },
+    "warmLineStrong": { "value": "#C5B9A5", "type": "color", "description": "Stronger warm border." },
+    "inkWarm": { "value": "#171512", "type": "color", "description": "Primary text." },
+    "bodyWarm": { "value": "#443B34", "type": "color", "description": "Body text." },
+    "mutedWarm": { "value": "#6B6259", "type": "color", "description": "Caption and secondary text." },
+    "creamSoft": { "value": "#FAF7F0", "type": "color", "description": "Soft cream background." },
+    "almondSoft": { "value": "#EFE6DA", "type": "color", "description": "Soft choice and consultation surface." },
+    "navySoft": { "value": "#E7EEF5", "type": "color", "description": "Soft navy proof background." },
+    "cautionRed": { "value": "#C74332", "type": "color", "description": "Errors and required warnings only. Do not use for price emphasis." },
+    "successGreen": { "value": "#5C8A62", "type": "color", "description": "Completion and confirmed state." },
+    "onDark": { "value": "#FFFCF7", "type": "color", "description": "Text on dark surfaces." },
+    "onTerracotta": { "value": "#FFFFFF", "type": "color", "description": "Text on terracotta surfaces." }
+  },
+  "typography": {
+    "brandKo": {
+      "fontFamily": "Noto Serif KR, Song Myung, Noto Serif CJK KR, serif",
+      "fontSize": "42px",
+      "mobileFontSize": "30px",
+      "fontWeight": 700,
+      "lineHeight": 1.18,
+      "letterSpacing": 0
+    },
+    "brandEn": {
+      "fontFamily": "Manrope, Inter, system-ui, sans-serif",
+      "fontSize": "16px",
+      "mobileFontSize": "13px",
+      "fontWeight": 800,
+      "lineHeight": 1.2,
+      "letterSpacing": 0
+    },
+    "displayHero": {
+      "fontFamily": "Noto Serif KR, Song Myung, Noto Serif CJK KR, serif",
+      "fontSize": "56px",
+      "mobileFontSize": "34px",
+      "fontWeight": 700,
+      "lineHeight": 1.16,
+      "letterSpacing": 0
+    },
+    "displaySection": {
+      "fontFamily": "Noto Serif KR, Song Myung, Noto Serif CJK KR, serif",
+      "fontSize": "40px",
+      "mobileFontSize": "29px",
+      "fontWeight": 700,
+      "lineHeight": 1.22,
+      "letterSpacing": 0
+    },
+    "displayCard": {
+      "fontFamily": "Noto Serif KR, Song Myung, Noto Serif CJK KR, serif",
+      "fontSize": "24px",
+      "mobileFontSize": "21px",
+      "fontWeight": 700,
+      "lineHeight": 1.34,
+      "letterSpacing": 0
+    },
+    "body": {
+      "fontFamily": "Pretendard, Noto Sans KR, Apple SD Gothic Neo, Malgun Gothic, sans-serif",
+      "fontSize": "16px",
+      "mobileFontSize": "15px",
+      "fontWeight": 400,
+      "lineHeight": 1.72,
+      "letterSpacing": 0
+    },
+    "bodyStrong": {
+      "fontFamily": "Pretendard, Noto Sans KR, Apple SD Gothic Neo, Malgun Gothic, sans-serif",
+      "fontSize": "16px",
+      "mobileFontSize": "15px",
+      "fontWeight": 650,
+      "lineHeight": 1.62,
+      "letterSpacing": 0
+    },
+    "label": {
+      "fontFamily": "Manrope, Pretendard, Inter, system-ui, sans-serif",
+      "fontSize": "13px",
+      "mobileFontSize": "12px",
+      "fontWeight": 750,
+      "lineHeight": 1.3,
+      "letterSpacing": 0
+    },
+    "caption": {
+      "fontFamily": "Pretendard, Noto Sans KR, Apple SD Gothic Neo, Malgun Gothic, sans-serif",
+      "fontSize": "13px",
+      "mobileFontSize": "12px",
+      "fontWeight": 400,
+      "lineHeight": 1.55,
+      "letterSpacing": 0
+    },
+    "metric": {
+      "fontFamily": "Manrope, Inter, Pretendard, system-ui, sans-serif",
+      "fontSize": "34px",
+      "mobileFontSize": "28px",
+      "fontWeight": 850,
+      "lineHeight": 1,
+      "letterSpacing": 0
+    }
+  },
+  "radius": {
+    "xs": { "value": "4px", "type": "borderRadius" },
+    "sm": { "value": "6px", "type": "borderRadius" },
+    "md": { "value": "8px", "type": "borderRadius" },
+    "lg": { "value": "12px", "type": "borderRadius" },
+    "full": { "value": "999px", "type": "borderRadius" }
+  },
+  "spacing": {
+    "xs": { "value": "6px", "type": "spacing" },
+    "sm": { "value": "10px", "type": "spacing" },
+    "md": { "value": "16px", "type": "spacing" },
+    "lg": { "value": "24px", "type": "spacing" },
+    "xl": { "value": "36px", "type": "spacing" },
+    "xxl": { "value": "56px", "type": "spacing" },
+    "section": { "value": "88px", "type": "spacing" }
+  },
+  "components": {
+    "buttonPrimary": {
+      "backgroundColor": "{colors.clayTerracotta}",
+      "textColor": "{colors.onTerracotta}",
+      "typography": "{typography.bodyStrong}",
+      "radius": "{radius.md}",
+      "padding": "14px 20px",
+      "height": "50px",
+      "states": {
+        "hover": {
+          "backgroundColor": "#9E4F39",
+          "transform": "translateY(-1px)"
+        },
+        "focus": {
+          "outline": "2px solid {colors.clayTerracotta}",
+          "outlineOffset": "3px"
+        },
+        "disabled": {
+          "backgroundColor": "{colors.warmLine}",
+          "textColor": "{colors.mutedWarm}",
+          "cursor": "not-allowed"
+        },
+        "loading": {
+          "backgroundColor": "{colors.clayTerracotta}",
+          "textColor": "{colors.onTerracotta}"
+        }
+      }
+    },
+    "buttonSecondary": {
+      "backgroundColor": "{colors.paperWhite}",
+      "textColor": "{colors.cocoaOak}",
+      "borderColor": "{colors.warmLine}",
+      "typography": "{typography.bodyStrong}",
+      "radius": "{radius.md}",
+      "padding": "14px 20px",
+      "height": "50px",
+      "states": {
+        "hover": {
+          "backgroundColor": "{colors.creamSoft}",
+          "borderColor": "{colors.warmLineStrong}"
+        },
+        "focus": {
+          "outline": "2px solid {colors.cocoaOak}",
+          "outlineOffset": "3px"
+        },
+        "disabled": {
+          "backgroundColor": "{colors.creamSoft}",
+          "textColor": "{colors.mutedWarm}",
+          "borderColor": "{colors.warmLine}",
+          "cursor": "not-allowed"
+        }
+      }
+    },
+    "trustBadge": {
+      "backgroundColor": "{colors.cocoaOak}",
+      "textColor": "{colors.cashmereCream}",
+      "typography": "{typography.label}",
+      "radius": "{radius.sm}",
+      "padding": "8px 12px"
+    },
+    "proofPanel": {
+      "backgroundColor": "{colors.cocoaOak}",
+      "textColor": "{colors.onDark}",
+      "typography": "{typography.body}",
+      "radius": "{radius.lg}",
+      "padding": "24px"
+    },
+    "priceBox": {
+      "backgroundColor": "{colors.paperWhite}",
+      "textColor": "{colors.inkWarm}",
+      "typography": "{typography.body}",
+      "radius": "{radius.md}",
+      "padding": "24px"
+    },
+    "reviewStat": {
+      "backgroundColor": "{colors.navySoft}",
+      "textColor": "{colors.verifiedNavy}",
+      "typography": "{typography.metric}",
+      "radius": "{radius.md}",
+      "padding": "18px"
+    },
+    "terracottaCallout": {
+      "backgroundColor": "{colors.clayTerracotta}",
+      "textColor": "{colors.onTerracotta}",
+      "typography": "{typography.displayCard}",
+      "radius": "{radius.lg}",
+      "padding": "40px"
+    },
+    "formField": {
+      "backgroundColor": "{colors.paperWhite}",
+      "textColor": "{colors.inkWarm}",
+      "borderColor": "{colors.warmLine}",
+      "typography": "{typography.body}",
+      "radius": "{radius.md}",
+      "height": "48px",
+      "padding": "12px 14px",
+      "states": {
+        "focus": {
+          "borderColor": "{colors.clayTerracotta}",
+          "outline": "2px solid {colors.clayTerracotta}",
+          "outlineOffset": "2px"
+        },
+        "error": {
+          "borderColor": "{colors.cautionRed}",
+          "textColor": "{colors.inkWarm}"
+        },
+        "disabled": {
+          "backgroundColor": "{colors.creamSoft}",
+          "textColor": "{colors.mutedWarm}",
+          "cursor": "not-allowed"
+        }
+      }
+    },
+    "errorMessage": {
+      "textColor": "{colors.cautionRed}",
+      "typography": "{typography.caption}"
+    },
+    "disabled": {
+      "backgroundColor": "{colors.warmLine}",
+      "textColor": "{colors.mutedWarm}"
+    }
+  },
+  "media": {
+    "heroImage": {
+      "aspectRatio": "16 / 10",
+      "mobileAspectRatio": "4 / 5",
+      "minWidth": "1600px",
+      "minHeight": "1000px",
+      "safeTextArea": "left or right 42% on desktop, top 35% on mobile"
+    },
+    "caseCardImage": {
+      "aspectRatio": "4 / 3",
+      "minWidth": "1200px",
+      "minHeight": "900px"
+    },
+    "blogThumbnail": {
+      "aspectRatio": "16 / 9",
+      "minWidth": "1280px",
+      "minHeight": "720px",
+      "safeTextArea": "outer 12% padding kept free from key product details"
+    }
+  }
+}
