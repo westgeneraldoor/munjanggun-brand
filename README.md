@@ -1,8 +1,8 @@
 # 문장군 중앙 브랜드 문서
 
-> 버전: v3.0  
+> 버전: v3.1  
 > 최종 업데이트: 2026-06-25  
-> 변경 요약: 중앙 DESIGN.md v3.0 디자인 시스템 고도화 반영
+> 변경 요약: GitHub 기준 경로와 GitHub Pages 디자인 미리보기 배포 경로 추가
 
 이 폴더는 문장군 브랜드의 중앙 원본입니다.
 
@@ -16,6 +16,7 @@
 | FIELD_JUDGMENT_RULES.md | 고객 오해, 시공 가능 여부, 추가금, AppSheet 현장 활용 등 실제 현장 판단 기준 |
 | DESIGN.md | 문장군이 어떻게 보여야 하는지 정리한 브랜드 디자인 기준 |
 | preview.html | DESIGN.md v3.0을 브라우저에서 확인하는 정적 디자인 미리보기 |
+| index.html | GitHub Pages 루트에서 preview.html로 안내하는 진입 페이지 |
 | PROJECT_ADAPTERS.md | 블로그, 인스타그램, 릴스, 웹앱 등 프로젝트별 어댑터 운영 방식 |
 | CHANGELOG.md | 브랜드 기준 변경 이력 |
 | PROMPTS.md | 각 프로젝트 총괄 세션에 전달할 적용 프롬프트 |
@@ -31,18 +32,45 @@
 
 프로젝트별 보조 규칙은 중앙 원본과 충돌하지 않게 분리해서 관리합니다. 충돌이 발생하면 중앙 원본을 우선 검토하고, 필요한 경우 중앙 원본 자체를 업데이트합니다.
 
-## 참조 경로
+## GitHub 기준 경로
+
+공개 중앙 원본 저장소:
 
 ```text
-C:\Users\hjh\안티그래비티\문장군_브랜드\BRAND_CONTEXT.md
-C:\Users\hjh\안티그래비티\문장군_브랜드\FIELD_JUDGMENT_RULES.md
-C:\Users\hjh\안티그래비티\문장군_브랜드\DESIGN.md
-C:\Users\hjh\안티그래비티\문장군_브랜드\PROJECT_ADAPTERS.md
-C:\Users\hjh\안티그래비티\문장군_브랜드\CHANGELOG.md
-C:\Users\hjh\안티그래비티\문장군_브랜드\PROMPTS.md
-C:\Users\hjh\안티그래비티\문장군_브랜드\AGENTS.md
-C:\Users\hjh\안티그래비티\문장군_브랜드\TEAM.md
-C:\Users\hjh\안티그래비티\문장군_브랜드\PROJECT_RELATIONSHIP_AUDIT_2026-06-25.md
+https://github.com/westgeneraldoor/munjanggun-brand
+```
+
+각 프로젝트와 GPT/Codex 세션은 GitHub 기준으로 아래 상대 경로를 우선 참조합니다.
+
+```text
+./BRAND_CONTEXT.md
+./FIELD_JUDGMENT_RULES.md
+./DESIGN.md
+./preview.html
+./index.html
+./PROJECT_ADAPTERS.md
+./CHANGELOG.md
+./PROMPTS.md
+./AGENTS.md
+./TEAM.md
+./PROJECT_RELATIONSHIP_AUDIT_2026-06-25.md
+```
+
+## 디자인 미리보기
+
+GitHub Pages에서 DESIGN.md v3.0 미리보기를 확인합니다.
+
+```text
+https://westgeneraldoor.github.io/munjanggun-brand/
+https://westgeneraldoor.github.io/munjanggun-brand/preview.html
+```
+
+## 로컬 작업 경로
+
+로컬 Windows 작업 폴더는 다음 위치입니다.
+
+```text
+C:\Users\hjh\안티그래비티\문장군_브랜드\
 ```
 
 ## 적용 방식
