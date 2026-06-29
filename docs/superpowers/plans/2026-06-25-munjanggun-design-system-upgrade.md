@@ -1,5 +1,9 @@
 # Munjanggun Design System Upgrade Implementation Plan
 
+> **Archive status:** Completed/superseded historical artifact. This plan was used during the 2026-06-25 design-system upgrade and is no longer an active execution plan. Current authority lives in root `README.md`, `AGENTS.md`, `DESIGN.md`, `DESIGN_QUICKSTART.md`, `PHOTO_TREATMENT.md`, `ANTI_PATTERNS.md`, `tokens/`, and `CHANGELOG.md`.
+>
+> **Current repo note:** The old Git note below is preserved as history only. The brand folder is now managed as a Git repository.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Upgrade the central Munjanggun `DESIGN.md` into a v3.0 design-system source using the approved "A palette + B messaging/structure + B typography" direction.
@@ -20,7 +24,7 @@
 | `README.md` | Modify if needed | Only update if file roles or latest version metadata should mention DESIGN v3.0. |
 | `preview.html` | Leave unchanged in this plan | Rebuild as a separate follow-up unless the user explicitly includes preview execution. |
 
-Git note: `C:\Users\hjh\안티그래비티\문장군_브랜드` is not currently a git repository. Do not run commit commands. Use `CHANGELOG.md` as the change record.
+Historical note from the original plan: at that time the folder was treated as a non-Git document workspace and `CHANGELOG.md` was used as the change record. This note is superseded; the current brand folder is managed as a Git repository.
 
 ## Source Documents
 
@@ -514,5 +518,5 @@ Completion report must include:
 - Whether README was updated.
 - Whether preview rebuild was deferred.
 - Any unresolved design questions.
-- Note that git commit was not run because this folder is not a git repository.
+- Historical note: git commit was not run during the original archived execution plan. This no longer describes the current repository state.
 

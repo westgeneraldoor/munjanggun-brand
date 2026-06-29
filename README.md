@@ -1,8 +1,8 @@
 # 문장군 중앙 브랜드 문서
 
-> 버전: v3.3  
-> 최종 업데이트: 2026-06-25  
-> 변경 요약: 중앙 총괄과 프로젝트 총괄의 적용 책임 분리 기준 추가
+> 버전: v3.4
+> 최종 업데이트: 2026-06-29
+> 변경 요약: 하달 전 중앙 governance cleanup, 변동 claim 근거표, 토큰/프롬프트 정합성 보강
 
 이 폴더는 문장군 브랜드의 중앙 원본입니다.
 
@@ -18,6 +18,7 @@
 | DESIGN_QUICKSTART.md | DESIGN.md v3.0을 실무자가 빠르게 적용하기 위한 1장 요약 |
 | PHOTO_TREATMENT.md | 실제 시공 사진의 밝기, 색온도, 수직선, 개인정보, 크롭 기준 |
 | ANTI_PATTERNS.md | 문장군답지 않은 디자인 패턴과 대체 기준 |
+| EVIDENCE_REGISTER.md | 리뷰 수, 가격, A/S, 일정 등 변동 claim의 기준일과 근거 관리 |
 | tokens/brand.tokens.json | DESIGN.md 토큰을 구현용 구조화 데이터로 옮긴 파일 |
 | tokens/brand.css | 웹앱과 랜딩에서 바로 쓸 수 있는 CSS 변수 토큰 |
 | preview.html | DESIGN.md v3.0을 브라우저에서 확인하는 정적 디자인 미리보기 |
@@ -54,6 +55,7 @@ https://github.com/westgeneraldoor/munjanggun-brand
 ./DESIGN_QUICKSTART.md
 ./PHOTO_TREATMENT.md
 ./ANTI_PATTERNS.md
+./EVIDENCE_REGISTER.md
 ./tokens/brand.tokens.json
 ./tokens/brand.css
 ./preview.html
@@ -88,6 +90,8 @@ DESIGN.md front matter
 
 색상, 타이포그래피, radius, spacing, 컴포넌트 토큰을 바꿀 때는 `DESIGN.md`를 먼저 수정하고, `tokens/brand.tokens.json`, `tokens/brand.css`, `preview.html`, `CHANGELOG.md`를 함께 갱신합니다.
 
+미디어 토큰의 구도, 최소 해상도, 텍스트 안전영역 같은 메타데이터는 `DESIGN.md`와 `tokens/brand.tokens.json`을 기준으로 확인합니다. `tokens/brand.css`는 웹 구현에 필요한 CSS 변수만 제공합니다.
+
 명칭 변환 규칙:
 
 - `DESIGN.md`는 kebab-case와 `rounded`를 사용합니다.
@@ -117,7 +121,7 @@ C:\Users\hjh\안티그래비티\문장군_브랜드\
 | 프로젝트 총괄 | 자기 프로젝트 구조 확인, 중앙 원본 연결 위치 결정, 프로젝트 내부 수정, 변경 파일 보고 |
 | 검수 담당 | 금지 표현, 현장 판단, 사진/디자인 기준, 민감 정보, 토큰 사용 여부 확인 |
 
-중앙 총괄은 긴급 보안 수정, 명백한 참조 오류, 프로젝트 총괄의 명시 요청이 없는 한 각 프로젝트 파일을 직접 덮어쓰지 않습니다.
+중앙 총괄의 직접 수정 예외는 `PROJECT_ADAPTERS.md` 8장을 기준으로 판단합니다. 요약하면 긴급 보안 수정, 명백한 참조 오류, 프로젝트 총괄의 명시 요청, 단순 링크/오탈자처럼 운영 위험이 낮고 범위가 좁은 경우에만 각 프로젝트 파일을 직접 수정합니다.
 
 권장 적용 방식:
 
@@ -137,6 +141,6 @@ C:\Users\hjh\안티그래비티\문장군_브랜드\
 - 실제 시공 사진의 공개 여부와 보정 기준은 PHOTO_TREATMENT.md를 확인합니다.
 - 디자인 검수 중 문장군답지 않은 방향이 보이면 ANTI_PATTERNS.md의 대체 기준을 확인합니다.
 - 블로그, 인스타그램, 릴스, 웹앱별 적용 방식은 각 프로젝트 어댑터에 두고, 공통 방식만 PROJECT_ADAPTERS.md에 둡니다.
-- 숫자, 리뷰, 가격, A/S, 시공 기간처럼 변할 수 있는 정보는 기준 날짜를 함께 남깁니다.
+- 숫자, 리뷰, 가격, A/S, 시공 기간처럼 변할 수 있는 정보는 `EVIDENCE_REGISTER.md`에 기준 날짜, 출처, 확인자, 재확인 주기를 함께 남깁니다.
 - 변경 후 CHANGELOG.md에 버전, 날짜, 변경 요약을 기록합니다.
 - 각 프로젝트 총괄에게 전달이 필요한 변경이면 PROMPTS.md도 갱신합니다.
