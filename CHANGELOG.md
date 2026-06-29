@@ -1,5 +1,26 @@
 # CHANGELOG - 문장군 중앙 브랜드 문서
 
+## v3.4 - 2026-06-29
+
+- 하달 전 중앙 governance cleanup 반영
+  - AGENTS.md 필수 읽기 순서에 DESIGN_QUICKSTART.md, PHOTO_TREATMENT.md, ANTI_PATTERNS.md, tokens/, EVIDENCE_REGISTER.md 추가
+  - CTA는 클레이 테라코타, verified-navy는 검증/운영 근거용이라는 v3 디자인 기준 정합성 보강
+  - 중앙 총괄 직접 수정 예외 기준을 PROJECT_ADAPTERS.md 8장으로 일원화
+- EVIDENCE_REGISTER.md 추가
+  - 리뷰 수, 가격, A/S, 일정, 시공 시간 등 변동 claim의 기준일, 출처, 확인자, 재확인 주기 관리
+  - BRAND_CONTEXT.md와 FIELD_JUDGMENT_RULES.md의 중문 시공 시간 기준을 2~3시간 안내로 정합화
+- PROMPTS.md 경로 구조 정리
+  - GitHub 저장소와 상대 경로를 우선 참조하도록 하달 프롬프트 수정
+  - 로컬 Windows 경로는 README.md의 로컬 작업 경로 fallback으로만 사용하도록 조정
+- 디자인 토큰 동기화 보강
+  - tokens/brand.tokens.json에 media focalPoint 동기화
+  - tokens/brand.css에 미디어 최소 크기, focal point, safe text area 메타 변수 추가
+  - preview.html에 비권위 시각 참고 보드 안내, 더미 지역 예시, 폰트 스택과 버튼/배지 weight 정합성 보강
+- 민감 정보와 보안 예방 기준 보강
+  - FIELD_JUDGMENT_RULES.md에 내부 운영/개별 견적 정보와 공개 콘텐츠 비식별 기준 분리
+  - .gitignore에 .env, service account, credential, pem/key 패턴 추가
+  - 과거 superpowers 계획/스펙과 프로젝트 관계 감사 문서에 historical/snapshot 안내 추가
+
 ## v3.3 - 2026-06-25
 
 - 중앙 브랜드 총괄과 프로젝트 총괄의 적용 책임 분리 기준 정리

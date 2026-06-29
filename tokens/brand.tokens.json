@@ -4,7 +4,7 @@
     "brand": "MUNJANGGUN",
     "version": "v3.0",
     "source": "DESIGN.md front matter",
-    "updated": "2026-06-25",
+    "updated": "2026-06-29",
     "authority": [
       "DESIGN.md front matter",
       "tokens/brand.tokens.json",
@@ -272,17 +272,20 @@
       "mobileAspectRatio": "4 / 5",
       "minWidth": "1600px",
       "minHeight": "1000px",
+      "focalPoint": "door-or-partition plus surrounding interior",
       "safeTextArea": "left or right 42% on desktop, top 35% on mobile"
     },
     "caseCardImage": {
       "aspectRatio": "4 / 3",
       "minWidth": "1200px",
-      "minHeight": "900px"
+      "minHeight": "900px",
+      "focalPoint": "finished door or partition with floor and wall context"
     },
     "blogThumbnail": {
       "aspectRatio": "16 / 9",
       "minWidth": "1280px",
       "minHeight": "720px",
+      "focalPoint": "product, before-after difference, or clear home mood",
       "safeTextArea": "outer 12% padding kept free from key product details"
     }
   }

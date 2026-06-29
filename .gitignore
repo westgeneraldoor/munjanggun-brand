@@ -3,3 +3,14 @@
 *.log
 Thumbs.db
 .DS_Store
+
+# Secrets and local credentials
+.env
+.env.*
+*.pem
+*.key
+*secret*
+*credential*
+*credentials*
+*service-account*.json
+*service_account*.json

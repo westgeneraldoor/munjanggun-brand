@@ -9,6 +9,9 @@
  *
  * Name mapping: DESIGN.md uses kebab-case and `rounded`; JSON uses camelCase
  * and `radius`; CSS variables use --mg-* kebab-case. Values must match.
+ * Media focal points and safe text areas are exposed as metadata variables for
+ * implementers. DESIGN.md and tokens/brand.tokens.json remain authoritative for
+ * non-CSS image selection guidance.
  *
  * When tokens change, update DESIGN.md first, then brand.tokens.json, this file,
  * preview.html, and CHANGELOG.md together.
@@ -101,8 +104,19 @@
 
   --mg-hero-image-aspect: 16 / 10;
   --mg-hero-image-aspect-mobile: 4 / 5;
+  --mg-hero-image-min-width: 1600px;
+  --mg-hero-image-min-height: 1000px;
+  --mg-hero-image-focal-point: "door-or-partition plus surrounding interior";
+  --mg-hero-image-safe-text-area: "left or right 42% on desktop, top 35% on mobile";
   --mg-case-card-image-aspect: 4 / 3;
+  --mg-case-card-image-min-width: 1200px;
+  --mg-case-card-image-min-height: 900px;
+  --mg-case-card-image-focal-point: "finished door or partition with floor and wall context";
   --mg-blog-thumbnail-aspect: 16 / 9;
+  --mg-blog-thumbnail-min-width: 1280px;
+  --mg-blog-thumbnail-min-height: 720px;
+  --mg-blog-thumbnail-focal-point: "product, before-after difference, or clear home mood";
+  --mg-blog-thumbnail-safe-text-area: "outer 12% padding kept free from key product details";
 }
 
 @media (max-width: 640px) {

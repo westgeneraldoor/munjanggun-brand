@@ -228,8 +228,8 @@ media:
 # DESIGN - 문장군
 
 > 버전: v3.0  
-> 최종 업데이트: 2026-06-25  
-> 변경 요약: A 색감 + B 문구/구조 + B 타이포그래피 기반 디자인 시스템 고도화  
+> 최종 업데이트: 2026-06-29
+> 변경 요약: A 색감 + B 문구/구조 + B 타이포그래피 기반 디자인 시스템 고도화, 미디어 토큰 focalPoint 동기화
 > 기준: 중앙 BRAND_CONTEXT.md, FIELD_JUDGMENT_RULES.md, 2026-06-25 디자인 상담, Claude DESIGN 문서 구조 벤치마킹
 
 ## Overview
