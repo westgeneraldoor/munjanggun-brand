@@ -1,8 +1,8 @@
 # 문장군 중앙 브랜드 문서
 
-> 버전: v3.4
-> 최종 업데이트: 2026-06-29
-> 변경 요약: 하달 전 중앙 governance cleanup, 변동 claim 근거표, 토큰/프롬프트 정합성 보강
+> 버전: v3.5
+> 최종 업데이트: 2026-06-30
+> 변경 요약: 브랜드 원료 은행, 원료 승격 절차, 고객/제품/현장/리뷰/증거/FAQ/카피 원료 문서 추가
 
 이 폴더는 문장군 브랜드의 중앙 원본입니다.
 
@@ -19,6 +19,16 @@
 | PHOTO_TREATMENT.md | 실제 시공 사진의 밝기, 색온도, 수직선, 개인정보, 크롭 기준 |
 | ANTI_PATTERNS.md | 문장군답지 않은 디자인 패턴과 대체 기준 |
 | EVIDENCE_REGISTER.md | 리뷰 수, 가격, A/S, 일정 등 변동 claim의 기준일과 근거 관리 |
+| OPEN_QUESTIONS_REGISTER.md | 사장 확인, 최신 캡처, 운영 정책 확인이 필요한 항목 추적 |
+| BRAND_MATERIAL_INDEX.md | 고객·제품·현장·리뷰·증거·FAQ·카피 원료 은행의 입구와 권위 관계 |
+| RAW_MATERIAL_INTAKE_PROTOCOL.md | 연계 프로젝트 자료를 중앙 브랜드 원료로 승격하는 절차 |
+| CUSTOMER_SEGMENTS.md | 고객을 상황, 집 구조, 불안 유형으로 분류한 원료 |
+| PRODUCT_SELECTION_GUIDE.md | 제품별 고려 조건, 주의 조건, 실측 질문, 콘텐츠 각도 |
+| FIELD_STORY_BANK.md | 개인정보 없이 활용 가능한 비식별 현장 이야기 패턴 |
+| REVIEW_PROOF_BANK.md | 리뷰 원문이 아니라 리뷰가 증명하는 불안 해소 유형과 안전 표현 |
+| PROOF_ASSET_INDEX.md | 사진, 리뷰, AppSheet, 운영 증거의 비식별 색인 |
+| FAQ_OBJECTION_BANK.md | 가격, 추가금, 일정, A/S, 거주중 시공 등 상담 FAQ 원료 |
+| COPY_ASSET_BANK.md | 블로그, 인스타그램, 릴스, 랜딩에서 쓰는 안전한 제목/CTA/후킹 원료 |
 | tokens/brand.tokens.json | DESIGN.md 토큰을 구현용 구조화 데이터로 옮긴 파일 |
 | tokens/brand.css | 웹앱과 랜딩에서 바로 쓸 수 있는 CSS 변수 토큰 |
 | preview.html | DESIGN.md v3.0을 브라우저에서 확인하는 정적 디자인 미리보기 |
@@ -28,6 +38,7 @@
 | PROMPTS.md | 각 프로젝트 총괄 세션에 전달할 적용 프롬프트 |
 | AGENTS.md | 중앙 브랜드 책임자와 에이전트 작업 지침 |
 | TEAM.md | 브랜드 운영팀 역할, 책임 범위, 협업 흐름 |
+| BRAND_RAW_MATERIAL_GAP_AUDIT_2026-06-30.md | 2026-06-30 기준 브랜드 원료 부족분과 보강 범위 감사 |
 | PROJECT_RELATIONSHIP_AUDIT_2026-06-25.md | 문장군 연계 프로젝트 조사 분석 |
 
 ## 운영 원칙
@@ -56,6 +67,16 @@ https://github.com/westgeneraldoor/munjanggun-brand
 ./PHOTO_TREATMENT.md
 ./ANTI_PATTERNS.md
 ./EVIDENCE_REGISTER.md
+./OPEN_QUESTIONS_REGISTER.md
+./BRAND_MATERIAL_INDEX.md
+./RAW_MATERIAL_INTAKE_PROTOCOL.md
+./CUSTOMER_SEGMENTS.md
+./PRODUCT_SELECTION_GUIDE.md
+./FIELD_STORY_BANK.md
+./REVIEW_PROOF_BANK.md
+./PROOF_ASSET_INDEX.md
+./FAQ_OBJECTION_BANK.md
+./COPY_ASSET_BANK.md
 ./tokens/brand.tokens.json
 ./tokens/brand.css
 ./preview.html
@@ -65,8 +86,30 @@ https://github.com/westgeneraldoor/munjanggun-brand
 ./PROMPTS.md
 ./AGENTS.md
 ./TEAM.md
+./BRAND_RAW_MATERIAL_GAP_AUDIT_2026-06-30.md
 ./PROJECT_RELATIONSHIP_AUDIT_2026-06-25.md
 ```
+
+## 브랜드 원료 은행
+
+브랜드 원료 은행은 중앙 기준을 대체하지 않고, 각 프로젝트가 안전하게 재사용할 수 있는 고객·제품·현장·리뷰·FAQ·카피 재료를 제공합니다.
+
+권위 순서:
+
+```text
+BRAND_CONTEXT.md
+FIELD_JUDGMENT_RULES.md
+DESIGN.md
+EVIDENCE_REGISTER.md
+OPEN_QUESTIONS_REGISTER.md
+RAW_MATERIAL_INTAKE_PROTOCOL.md
+BRAND_MATERIAL_INDEX.md
+각 원료 은행 문서
+PROJECT_ADAPTERS.md
+각 프로젝트 어댑터
+```
+
+원료 은행의 문구나 사례를 쓰기 전 상태값을 확인합니다. `publishable` 또는 `vetted`가 아니면 외부 발행물에 직접 사용하지 않고, 리뷰 수·가격·A/S·일정·이벤트 claim은 `EVIDENCE_REGISTER.md`와 연결된 경우에만 사용합니다.
 
 ## 디자인 미리보기
 
@@ -142,5 +185,7 @@ C:\Users\hjh\안티그래비티\문장군_브랜드\
 - 디자인 검수 중 문장군답지 않은 방향이 보이면 ANTI_PATTERNS.md의 대체 기준을 확인합니다.
 - 블로그, 인스타그램, 릴스, 웹앱별 적용 방식은 각 프로젝트 어댑터에 두고, 공통 방식만 PROJECT_ADAPTERS.md에 둡니다.
 - 숫자, 리뷰, 가격, A/S, 시공 기간처럼 변할 수 있는 정보는 `EVIDENCE_REGISTER.md`에 기준 날짜, 출처, 확인자, 재확인 주기를 함께 남깁니다.
+- 고객·제품·현장·리뷰·FAQ·카피 원료를 사용하거나 수정할 때는 `BRAND_MATERIAL_INDEX.md`를 먼저 확인합니다.
+- 연계 프로젝트 자료를 중앙 원료로 승격할 때는 `RAW_MATERIAL_INTAKE_PROTOCOL.md`의 채굴, 비식별화, claim 검증, 상태 부여 절차를 따릅니다.
 - 변경 후 CHANGELOG.md에 버전, 날짜, 변경 요약을 기록합니다.
 - 각 프로젝트 총괄에게 전달이 필요한 변경이면 PROMPTS.md도 갱신합니다.

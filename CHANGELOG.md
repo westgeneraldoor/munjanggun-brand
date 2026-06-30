@@ -1,5 +1,28 @@
 # CHANGELOG - 문장군 중앙 브랜드 문서
 
+## v3.5 - 2026-06-30
+
+- 브랜드 원료 은행 추가
+  - `BRAND_MATERIAL_INDEX.md`: 고객·제품·현장·리뷰·증거·FAQ·카피 원료 은행의 입구와 권위 관계 정의
+  - `RAW_MATERIAL_INTAKE_PROTOCOL.md`: 연계 프로젝트 자료를 중앙 원료로 승격하는 채굴, 비식별화, claim 검증, 상태 부여 절차 정의
+  - `OPEN_QUESTIONS_REGISTER.md`: 사장 확인, 최신 캡처, 운영 정책 확인이 필요한 항목 추적
+  - `BRAND_RAW_MATERIAL_GAP_AUDIT_2026-06-30.md`: 중앙 브랜드 원본의 부족한 원료와 이번 라운드 보강 범위 기록
+- 고객·제품·현장 원료 문서 추가
+  - `CUSTOMER_SEGMENTS.md`: 고객을 나이/성별이 아니라 상황, 집 구조, 불안 유형으로 분류
+  - `PRODUCT_SELECTION_GUIDE.md`: 제품별 고려 조건, 주의 조건, 실측 질문, 콘텐츠 각도 정리
+  - `FIELD_STORY_BANK.md`: 개인정보 없이 사용할 수 있는 비식별 현장 이야기 패턴 정리
+- 리뷰·증거·FAQ·카피 원료 문서 추가
+  - `REVIEW_PROOF_BANK.md`: 리뷰 원문이 아니라 리뷰가 증명하는 불안 해소 유형과 안전 표현 정리
+  - `PROOF_ASSET_INDEX.md`: 사진, 리뷰, AppSheet, 운영 증거의 비식별 색인과 공개 가능 상태 정의
+  - `FAQ_OBJECTION_BANK.md`: 가격, 추가금, 일정, A/S, 거주중 시공 등 상담 FAQ 원료 정리
+  - `COPY_ASSET_BANK.md`: 안전한 제목, CTA, 후킹, Proof Panel 문장 원료 정리
+- `EVIDENCE_REGISTER.md` v1.1 확장
+  - `publishable`, `vetted`, `candidate`, `needs_confirmation`, `restricted`, `expired` claim 상태값 추가
+  - 네이버 예약 리뷰 수, 중문 일정 충돌, 특수 구조 시공 시간, 무이자 할부, 리뷰 이벤트, 서비스 가능 지역, 보양/청소 표현, 건강/질병형 훅을 확인 필요 또는 제한 claim으로 등록
+  - 리뷰 수, 가격, A/S, 일정, 이벤트 claim의 안전 문장 규칙 추가
+- 운영 문서 연결 업데이트
+  - `README.md`, `AGENTS.md`, `PROJECT_ADAPTERS.md`, `PROMPTS.md`, `TEAM.md`에 원료 은행 사용 기준, 승격 절차, 프로젝트 하달/검수 기준 반영
+
 ## v3.4 - 2026-06-29
 
 - 하달 전 중앙 governance cleanup 반영
