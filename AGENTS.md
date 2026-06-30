@@ -1,7 +1,7 @@
 # 문장군 중앙 브랜드 책임자 지침
 
-> 버전: v1.2
-> 최종 업데이트: 2026-06-29
+> 버전: v1.3
+> 최종 업데이트: 2026-06-30
 > 목적: 문장군 중앙 브랜드 원본을 관리하는 책임자, 에이전트, 서브에이전트가 같은 기준으로 조사, 기획, 제작, 검수, 연계 프로젝트 운영을 수행하도록 한다.
 
 이 폴더는 문장군 브랜드의 중앙 원본이다.
@@ -20,11 +20,13 @@
 4. `DESIGN.md`
 5. 디자인 실무 작업이면 `DESIGN_QUICKSTART.md`, `PHOTO_TREATMENT.md`, `ANTI_PATTERNS.md`
 6. 웹앱, 랜딩, 자동화 구현이면 `tokens/brand.tokens.json`, `tokens/brand.css`
-7. 변동 정보가 포함되면 `EVIDENCE_REGISTER.md`
-8. `PROJECT_ADAPTERS.md`
-9. `CHANGELOG.md`
-10. 필요 시 `PROMPTS.md`
-11. 팀 운영이 필요한 경우 `TEAM.md`
+7. 변동 정보가 포함되면 `EVIDENCE_REGISTER.md`와 필요 시 `OPEN_QUESTIONS_REGISTER.md`
+8. 고객·제품·현장·리뷰·FAQ·카피 원료를 사용하거나 수정하면 `BRAND_MATERIAL_INDEX.md`와 필요한 개별 원료 은행 문서
+9. 연계 프로젝트 자료를 중앙 원료로 승격하면 `RAW_MATERIAL_INTAKE_PROTOCOL.md`
+10. `PROJECT_ADAPTERS.md`
+11. `CHANGELOG.md`
+12. 필요 시 `PROMPTS.md`
+13. 팀 운영이 필요한 경우 `TEAM.md`
 
 `preview.html`은 참고용 시각 보드다. 최신 권위 기준은 `DESIGN.md`다.
 
@@ -39,10 +41,15 @@
 | 색상, 서체, 이미지 무드, 컴포넌트, 웹/카드/썸네일 시각 기준 | `DESIGN.md` |
 | 디자인 빠른 적용, 사진 처리, 금지 패턴, 구현 토큰 | `DESIGN_QUICKSTART.md`, `PHOTO_TREATMENT.md`, `ANTI_PATTERNS.md`, `tokens/` |
 | 리뷰 수, 가격, A/S, 일정 등 변동 가능한 claim의 근거 관리 | `EVIDENCE_REGISTER.md` |
+| 사장 확인, 최신 캡처, 운영 정책 확인이 필요한 항목 | `OPEN_QUESTIONS_REGISTER.md` |
+| 고객 상황, 제품 선택, 현장 이야기, 리뷰/증거, FAQ, 카피 원료 | `BRAND_MATERIAL_INDEX.md`, `CUSTOMER_SEGMENTS.md`, `PRODUCT_SELECTION_GUIDE.md`, `FIELD_STORY_BANK.md`, `REVIEW_PROOF_BANK.md`, `PROOF_ASSET_INDEX.md`, `FAQ_OBJECTION_BANK.md`, `COPY_ASSET_BANK.md` |
+| 연계 프로젝트 자료를 중앙 원료로 승격하는 절차 | `RAW_MATERIAL_INTAKE_PROTOCOL.md` |
 | 프로젝트별 어댑터 분리, 충돌 처리, 민감 정보 기준 | `PROJECT_ADAPTERS.md` |
 | 프로젝트 총괄 세션 전달 문구 | `PROMPTS.md` |
 
 블로그, 인스타그램, 릴스, 웹앱, 디자인 OS 등 각 프로젝트의 특화 규칙은 중앙 원본에 섞지 않고 해당 프로젝트 어댑터에 둔다.
+
+원료 은행은 중앙 기준을 대체하지 않는다. 원료 은행의 문구가 좋아 보여도 `BRAND_CONTEXT.md`, `FIELD_JUDGMENT_RULES.md`, `DESIGN.md`, `EVIDENCE_REGISTER.md`와 충돌하면 사용할 수 없다.
 
 ## 3. 브랜드 핵심 기준
 
@@ -61,6 +68,7 @@
 - 가격은 숨기지 않되, 싸구려 할인 전단지처럼 보이게 만들지 않는다.
 - 리뷰, 전산 운영, 직접 제작, 전속 시공, A/S는 확인 가능한 근거로 다룬다.
 - 고객이 혼자 고르게 두지 않고, 전문가가 집 구조와 분위기에 맞춰 좁혀주는 방식으로 말한다.
+- 고객, 제품, 현장, FAQ, 카피 원료는 상태값을 확인하고 `publishable` 또는 `vetted` 중심으로 쓴다.
 
 ## 4. 금지 표현과 위험 표현
 
@@ -147,6 +155,8 @@
 
 기존 프로젝트 문서를 바로 덮어쓰지 않는다. 먼저 중앙 기준과 프로젝트 기준의 충돌을 분류한다.
 
+연계 프로젝트의 좋은 자료를 중앙에 올릴 때는 바로 복사하지 않는다. `RAW_MATERIAL_INTAKE_PROTOCOL.md`에 따라 채굴, 비식별화, 변동 claim 검증, 중앙 문서 위치 결정, 상태 부여를 거친다.
+
 ## 8. 충돌 처리
 
 중앙 원본과 프로젝트 문서가 다르면 아래 네 가지로 분류한다.
@@ -166,6 +176,7 @@
 - 연계 프로젝트 조사: 상위 폴더 프로젝트, 중앙 참조 여부, 레거시 위험 확인
 - 브랜드 전략: 핵심 메시지, 고객 불안, 포지셔닝, 금지 표현 관리
 - 카피/콘텐츠: 블로그, 인스타그램, 릴스, 랜딩 문구 작성과 톤 점검
+- 원료 은행 관리자: 고객·제품·현장·리뷰·FAQ·카피 원료의 상태값, 비식별화, 승격 감사표 관리
 - 디자인: `DESIGN.md` 토큰, 이미지 무드, 컴포넌트 적용 점검
 - 검수: 가격, 리뷰, A/S, 시공 가능 여부, 추가금, 민감 정보 검토
 - 프로젝트 운영: README, AGENTS, 어댑터, 프롬프트, 자동화 연결 관리
@@ -177,12 +188,13 @@
 중앙 원본을 수정할 때는 아래 순서를 따른다.
 
 1. 어떤 문서에 들어갈 내용인지 판단한다.
-2. 변동 정보라면 기준 날짜와 출처를 확인하고 `EVIDENCE_REGISTER.md`를 업데이트한다.
-3. 프로젝트 특화 규칙인지 공통 브랜드 기준인지 분리한다.
-4. 필요한 문서만 좁게 수정한다.
-5. `CHANGELOG.md`에 버전, 날짜, 변경 요약을 남긴다.
-6. 다른 프로젝트 총괄에게 전달할 필요가 있으면 `PROMPTS.md`도 갱신한다.
-7. 최종 보고에는 변경 파일과 남은 확인 사항을 적는다.
+2. 변동 정보라면 기준 날짜와 출처를 확인하고 `EVIDENCE_REGISTER.md`를 업데이트한다. 아직 확인되지 않은 항목은 `OPEN_QUESTIONS_REGISTER.md`에 남긴다.
+3. 연계 프로젝트 자료를 중앙 원료로 승격하는 경우 `RAW_MATERIAL_INTAKE_PROTOCOL.md`의 감사표 항목을 확인한다.
+4. 프로젝트 특화 규칙인지 공통 브랜드 기준인지 분리한다.
+5. 필요한 문서만 좁게 수정한다.
+6. `CHANGELOG.md`에 버전, 날짜, 변경 요약을 남긴다.
+7. 다른 프로젝트 총괄에게 전달할 필요가 있으면 `PROMPTS.md`도 갱신한다.
+8. 최종 보고에는 변경 파일과 남은 확인 사항을 적는다.
 
 ## 11. 작업 완료 보고 형식
 

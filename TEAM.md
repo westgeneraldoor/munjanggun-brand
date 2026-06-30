@@ -1,7 +1,7 @@
 # 문장군 브랜드 운영팀
 
-> 버전: v1.0
-> 최종 업데이트: 2026-06-25
+> 버전: v1.1
+> 최종 업데이트: 2026-06-30
 > 목적: 문장군 중앙 브랜드를 관리하는 책임자와 서브에이전트 팀의 역할, 산출물, 검수 기준을 정의한다.
 
 문장군 브랜드 운영팀은 중앙 브랜드 원본을 지키고, 각 연계 프로젝트가 같은 브랜드 기준 위에서 움직이도록 돕는다.
@@ -24,6 +24,8 @@
 | 리서치 담당 | 리뷰 수, 가격 기준, 경쟁 표현, 고객 질문, 변동 정보 확인 | 조사 요약, 중앙 업데이트 후보 |
 | 브랜드 전략 담당 | 브랜드 정의, 고객 불안 구조, 포지셔닝, 금지 표현 관리 | `BRAND_CONTEXT.md` 개선안 |
 | 현장 판단 담당 | 실측, 시공 가능 여부, 추가금, 도어/중문 현장 기준 관리 | `FIELD_JUDGMENT_RULES.md` 개선안 |
+| 원료 은행 관리자 | 고객·제품·현장·리뷰·증거·FAQ·카피 원료의 상태값, 비식별화, 중앙 승격 감사 관리 | `BRAND_MATERIAL_INDEX.md`, `RAW_MATERIAL_INTAKE_PROTOCOL.md`, 원료 은행 문서 |
+| 오픈 질문 관리자 | 사장 확인, 최신 캡처, 운영 정책 확인이 필요한 항목 추적 | `OPEN_QUESTIONS_REGISTER.md`, 확인 필요 보고 |
 | 카피/콘텐츠 담당 | 블로그, 인스타그램, 릴스, 랜딩 문구와 고객 언어 적용 | 채널별 카피 초안, 금지 표현 수정안 |
 | 디자인 담당 | 컬러, 서체, 이미지 무드, 컴포넌트, 썸네일/카드/웹 기준 관리 | `DESIGN.md` 개선안, 디자인 QA |
 | 검수 담당 | 가격, 리뷰, A/S, 일정, 가능 여부, 민감 정보, 근거 표현 검수 | 발행 전 체크 결과 |
@@ -109,6 +111,34 @@
 - 무료 방문실측으로 자연스럽게 연결한다.
 - 가격은 조건과 함께 보여준다.
 
+### 원료 은행 관리자
+
+책임:
+
+- 연계 프로젝트에서 발견한 고객 질문, 제품 선택 기준, 현장 이야기, 리뷰 근거, FAQ, 카피 원료를 중앙으로 승격할지 판단한다.
+- `RAW_MATERIAL_INTAKE_PROTOCOL.md`에 따라 원료를 비식별화하고 상태값을 부여한다.
+- `publishable`, `vetted`, `candidate`, `needs_confirmation`, `restricted`, `expired` 상태가 뒤섞이지 않도록 관리한다.
+- 리뷰 원문, AppSheet 원본, 관리자 캡처, 고객 개인정보가 중앙 원료 은행에 들어오지 않게 막는다.
+
+주요 문서:
+
+- `BRAND_MATERIAL_INDEX.md`
+- `RAW_MATERIAL_INTAKE_PROTOCOL.md`
+- `OPEN_QUESTIONS_REGISTER.md`
+- `CUSTOMER_SEGMENTS.md`
+- `PRODUCT_SELECTION_GUIDE.md`
+- `FIELD_STORY_BANK.md`
+- `REVIEW_PROOF_BANK.md`
+- `PROOF_ASSET_INDEX.md`
+- `FAQ_OBJECTION_BANK.md`
+- `COPY_ASSET_BANK.md`
+
+주의:
+
+- 원료 은행은 중앙 기준을 대체하지 않는다.
+- 변동 claim이 포함된 카피는 `EVIDENCE_REGISTER.md`와 연결되어야 한다.
+- 프로젝트 전용 운영법은 중앙 원료로 승격하지 않는다.
+
 ### 디자인 담당
 
 책임:
@@ -173,6 +203,16 @@
 | `BRAND_CONTEXT.md` | 브랜드 전략 담당 | 카피/콘텐츠, 검수 |
 | `FIELD_JUDGMENT_RULES.md` | 현장 판단 담당 | 리서치, 검수 |
 | `DESIGN.md` | 디자인 담당 | 브랜드 전략, 검수 |
+| `BRAND_MATERIAL_INDEX.md` | 원료 은행 관리자 | 브랜드 책임자, 검수 |
+| `RAW_MATERIAL_INTAKE_PROTOCOL.md` | 원료 은행 관리자 | 연계 프로젝트 운영, 검수 |
+| `OPEN_QUESTIONS_REGISTER.md` | 오픈 질문 관리자 | 브랜드 책임자, 리서치 |
+| `CUSTOMER_SEGMENTS.md` | 원료 은행 관리자 | 브랜드 전략, 카피/콘텐츠 |
+| `PRODUCT_SELECTION_GUIDE.md` | 현장 판단 담당 | 원료 은행 관리자, 검수 |
+| `FIELD_STORY_BANK.md` | 원료 은행 관리자 | 현장 판단, 카피/콘텐츠 |
+| `REVIEW_PROOF_BANK.md` | 검수 담당 | 원료 은행 관리자, 리서치 |
+| `PROOF_ASSET_INDEX.md` | 검수 담당 | 원료 은행 관리자, 디자인 |
+| `FAQ_OBJECTION_BANK.md` | 카피/콘텐츠 담당 | 현장 판단, 검수 |
+| `COPY_ASSET_BANK.md` | 카피/콘텐츠 담당 | 원료 은행 관리자, 검수 |
 | `PROJECT_ADAPTERS.md` | 연계 프로젝트 운영 담당 | 브랜드 책임자 |
 | `PROMPTS.md` | 연계 프로젝트 운영 담당 | 카피/콘텐츠 |
 | `CHANGELOG.md` | 브랜드 책임자 | 모든 담당 |
