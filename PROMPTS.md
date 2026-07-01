@@ -67,6 +67,7 @@ GitHub 기준 상대 경로를 우선 참조하세요.
 - 리뷰 수, 가격, A/S, 일정, 시공 시간처럼 변동 가능한 claim은 EVIDENCE_REGISTER.md의 기준일과 상태를 확인하세요.
 - 확인되지 않은 운영 기준이나 사장 확인이 필요한 항목은 OPEN_QUESTIONS_REGISTER.md를 확인하고, 외부 발행물에서 단정하지 마세요.
 - 상품, 상세페이지, 이미지, GIF, 썸네일 자산을 쓰면 BRAND_WIKI_ARCHITECTURE.md, SOURCE_REGISTRY.md, PRODUCT_WIKI_INDEX.md, 필요한 상품 위키, ASSET_SEMANTIC_INDEX.md, 상품별 asset-manifest.json을 확인하세요.
+- PRODUCT_WIKI_INDEX.md에서 `vetted`인 상품 위키는 상품 구조, 고객 고민, 상세페이지 이미지/GIF 탐색에 사용할 수 있습니다. 단 리뷰 수, 가격, A/S, 일정, 할부, 이벤트, 배송/반품, 패키지 구성 같은 변동 claim은 반드시 EVIDENCE_REGISTER.md의 상태를 우선하세요.
 - ASSET_SEMANTIC_INDEX.md는 대표 의미 태깅 인덱스입니다. 여기에 없는 자산은 위험 자산이 아니라 미태깅 자산으로 보고, 상품별 asset-manifest.json과 SOURCE_REGISTRY.md에서 경로와 공식 제작 여부를 확인하세요.
 - `문장군상품/` 아래 현재 등록된 상품별 상세페이지 자산처럼 문장군이 공식 제작·검토한 결과물은 privacyStatus를 official_reviewed로 보고 별도 OCR/육안 개인정보 검수를 반복하지 않습니다. 다만 가격, 이벤트, 월 납입, 스펙, 옵션, 전원/센서, 보강, 패키지 구성 문구를 원본 맥락 밖에서 재사용할 때는 최신성을 확인하세요.
 - 고객 상황, 제품 선택 기준, 현장 이야기, 리뷰/증거, FAQ, 카피 원료를 쓸 때는 BRAND_MATERIAL_INDEX.md와 필요한 개별 원료 은행 문서를 확인하세요.
@@ -174,6 +175,7 @@ GitHub 저장소: https://github.com/westgeneraldoor/munjanggun-brand
 - 리뷰 수, 가격, A/S, 일정, 시공 시간 claim은 EVIDENCE_REGISTER.md 기준일과 상태를 확인해주세요.
 - 확인되지 않은 운영 기준은 OPEN_QUESTIONS_REGISTER.md에서 확인하고 외부 발행물에서 단정하지 마세요.
 - 상품, 상세페이지, 이미지, GIF, 썸네일 자산은 BRAND_WIKI_ARCHITECTURE.md, SOURCE_REGISTRY.md, PRODUCT_WIKI_INDEX.md, 필요한 상품 위키, ASSET_SEMANTIC_INDEX.md, 상품별 asset-manifest.json의 상태를 확인한 뒤 사용해주세요.
+- PRODUCT_WIKI_INDEX.md에서 `vetted`인 상품 위키는 상품 구조, 고객 고민, 상세페이지 이미지/GIF 탐색에 사용할 수 있습니다. 단 리뷰 수, 가격, A/S, 일정, 할부, 이벤트, 배송/반품, 패키지 구성 같은 변동 claim은 반드시 EVIDENCE_REGISTER.md의 상태를 우선해주세요.
 - 고객 상황, 제품 선택, FAQ, 카피 원료는 BRAND_MATERIAL_INDEX.md와 개별 원료 은행의 상태값을 확인한 뒤 사용해주세요.
 - 리뷰 원문, 고객명, 닉네임, AppSheet 원본, 관리자 캡처는 중앙 원료로 복사하지 말고 PROOF_ASSET_INDEX.md 방식의 비식별 색인만 사용해주세요.
 - 중앙으로 올릴 원료 후보는 RAW_MATERIAL_INTAKE_PROTOCOL.md 기준으로 비식별화와 claim 검증을 거쳐 보고해주세요.
@@ -223,6 +225,7 @@ GitHub 저장소: https://github.com/westgeneraldoor/munjanggun-brand
 - 리뷰 수, 가격, A/S, 일정, 시공 시간 claim은 EVIDENCE_REGISTER.md 기준일과 상태를 확인해주세요.
 - 확인되지 않은 운영 기준은 OPEN_QUESTIONS_REGISTER.md에서 확인하고 외부 발행물에서 단정하지 마세요.
 - 상품, 상세페이지, 이미지, GIF, 썸네일 자산은 BRAND_WIKI_ARCHITECTURE.md, SOURCE_REGISTRY.md, PRODUCT_WIKI_INDEX.md, 필요한 상품 위키, ASSET_SEMANTIC_INDEX.md, 상품별 asset-manifest.json의 상태를 확인한 뒤 사용해주세요.
+- PRODUCT_WIKI_INDEX.md에서 `vetted`인 상품 위키는 상품 구조, 고객 고민, 상세페이지 이미지/GIF 탐색에 사용할 수 있습니다. 단 리뷰 수, 가격, A/S, 일정, 할부, 이벤트, 배송/반품, 패키지 구성 같은 변동 claim은 반드시 EVIDENCE_REGISTER.md의 상태를 우선해주세요.
 - 카드뉴스 소재는 CUSTOMER_SEGMENTS.md, PRODUCT_SELECTION_GUIDE.md, FAQ_OBJECTION_BANK.md, COPY_ASSET_BANK.md에서 상태값이 확인된 원료만 사용해주세요.
 - 실제 현장 사진이나 리뷰 근거는 PROOF_ASSET_INDEX.md와 REVIEW_PROOF_BANK.md 기준으로 개인정보와 원문 노출을 막아주세요.
 - 중앙으로 올릴 원료 후보는 RAW_MATERIAL_INTAKE_PROTOCOL.md 기준으로 비식별화와 claim 검증을 거쳐 보고해주세요.
@@ -272,6 +275,7 @@ GitHub 저장소: https://github.com/westgeneraldoor/munjanggun-brand
 - 리뷰 수, 가격, A/S, 일정, 시공 시간 claim은 EVIDENCE_REGISTER.md 기준일과 상태를 확인해주세요.
 - 확인되지 않은 운영 기준은 OPEN_QUESTIONS_REGISTER.md에서 확인하고 외부 발행물에서 단정하지 마세요.
 - 상품, 상세페이지, 이미지, GIF, 썸네일 자산은 BRAND_WIKI_ARCHITECTURE.md, SOURCE_REGISTRY.md, PRODUCT_WIKI_INDEX.md, 필요한 상품 위키, ASSET_SEMANTIC_INDEX.md, 상품별 asset-manifest.json의 상태를 확인한 뒤 사용해주세요.
+- PRODUCT_WIKI_INDEX.md에서 `vetted`인 상품 위키는 상품 구조, 고객 고민, 상세페이지 이미지/GIF 탐색에 사용할 수 있습니다. 단 리뷰 수, 가격, A/S, 일정, 할부, 이벤트, 배송/반품, 패키지 구성 같은 변동 claim은 반드시 EVIDENCE_REGISTER.md의 상태를 우선해주세요.
 - 블로그 주제와 본문 흐름은 CUSTOMER_SEGMENTS.md, PRODUCT_SELECTION_GUIDE.md, FIELD_STORY_BANK.md, FAQ_OBJECTION_BANK.md, COPY_ASSET_BANK.md의 원료를 참고하되 상태값을 확인해주세요.
 - AppSheet 현장 서사와 리뷰 근거는 중앙으로 원본 복사하지 말고, PROOF_ASSET_INDEX.md처럼 비식별 evidence_ref 또는 요약으로만 다뤄주세요.
 - 중앙으로 올릴 원료 후보는 RAW_MATERIAL_INTAKE_PROTOCOL.md 기준으로 비식별화와 claim 검증을 거쳐 보고해주세요.
@@ -329,6 +333,7 @@ GitHub 저장소: https://github.com/westgeneraldoor/munjanggun-brand
 - 리뷰 수, 가격, A/S, 일정, 시공 시간 claim은 EVIDENCE_REGISTER.md 기준일과 상태를 확인한 뒤 사용하세요.
 - 확인되지 않은 운영 기준은 OPEN_QUESTIONS_REGISTER.md를 확인하고 단정하지 마세요.
 - 상품, 상세페이지, 이미지, GIF, 썸네일 자산은 BRAND_WIKI_ARCHITECTURE.md, SOURCE_REGISTRY.md, PRODUCT_WIKI_INDEX.md, 필요한 상품 위키, ASSET_SEMANTIC_INDEX.md, 상품별 asset-manifest.json의 상태를 확인한 뒤 사용하세요.
+- PRODUCT_WIKI_INDEX.md에서 `vetted`인 상품 위키는 상품 구조, 고객 고민, 상세페이지 이미지/GIF 탐색에 사용할 수 있습니다. 단 리뷰 수, 가격, A/S, 일정, 할부, 이벤트, 배송/반품, 패키지 구성 같은 변동 claim은 반드시 EVIDENCE_REGISTER.md의 상태를 우선하세요.
 - 고객 고민별 화면 구조는 CUSTOMER_SEGMENTS.md를, 제품 추천 흐름은 PRODUCT_SELECTION_GUIDE.md를, FAQ는 FAQ_OBJECTION_BANK.md를, CTA/Proof Panel 문장은 COPY_ASSET_BANK.md를 참고하세요.
 - 실제 리뷰와 사진 근거는 REVIEW_PROOF_BANK.md와 PROOF_ASSET_INDEX.md 기준으로 공개 가능 상태를 확인하세요.
 - 웹앱/랜딩에서 새 원료 후보를 발견하면 RAW_MATERIAL_INTAKE_PROTOCOL.md 기준으로 중앙 승격 후보로만 보고하세요.
