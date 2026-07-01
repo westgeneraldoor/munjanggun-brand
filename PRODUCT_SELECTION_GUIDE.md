@@ -119,7 +119,7 @@ WIDE_SLIDING_MIDDLE_DOOR_DETAILPAGE_ASSET_INDEX_2026-07-01.md
 문장군상품/양개형중문 미서기/asset-manifest.json
 ```
 
-상품 선택 기준은 현장 판단의 방향을 제공하고, 상품 위키와 manifest는 상세 설명/이미지/GIF를 찾는 입구다. 현재 등록된 상품 위키는 상품 구조 설명과 자산 탐색에 사용할 수 있는 `vetted` 상태다. 가격, 이벤트, 월 납입, 리뷰 수, 옵션 운영 여부는 `EVIDENCE_REGISTER.md`를 함께 확인한다.
+상품 선택 기준은 현장 판단의 방향을 제공하고, 상품 위키와 manifest는 상세 설명/이미지/GIF를 찾는 입구다. 현재 등록된 상품 위키는 상품 구조 설명과 자산 탐색에 사용할 수 있는 `vetted` 상태다. 가격, 이벤트, 월 납입, 리뷰 수, A/S, 일정, 배송/반품, 할부, 패키지 구성, 옵션 운영 여부 같은 변동 claim은 `EVIDENCE_REGISTER.md`와 `OPEN_QUESTIONS_REGISTER.md`를 함께 확인한다.
 
 ## 6. 안전 문장
 

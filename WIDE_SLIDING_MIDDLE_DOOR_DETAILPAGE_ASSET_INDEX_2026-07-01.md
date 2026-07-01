@@ -4,6 +4,7 @@
 > 최종 업데이트: 2026-07-01
 > source_id: `SRC-2026-07-01-WIDE-SLIDING-DETAILPAGE`
 > product_id: `PROD-WIDE-SLIDING-MIDDLE-DOOR`
+> proof_id: `PROOF-WIDE-SLIDING-DETAILPAGE-ASSETS-2026-07-01`
 > manifest: `문장군상품/양개형중문 미서기/asset-manifest.json`
 
 ## 1. 소스 요약
@@ -25,6 +26,9 @@
 
 ## 3. 사용 기준
 
+- 운영 상태 요약: `usageStatus=candidate` 147개, `privacyStatus=official_reviewed` 147개, `claimRisk=high` 9개 / `medium` 128개 / `low` 10개.
+- 개별 자산의 최종 상태, 순서, 파일 경로, 해시는 manifest를 우선한다.
+- 증거 묶음 상태는 `PROOF_ASSET_INDEX.md`의 `PROOF-WIDE-SLIDING-DETAILPAGE-ASSETS-2026-07-01`을 함께 본다.
 - 넓은 현관 구조 비교와 이미지 탐색은 가능하다.
 - 폭, 좌우 벽공간, 중앙 개방 폭, 레일, 문짝 수는 무료 방문실측에서 확인한다고 안내한다.
 - 가격, 이벤트, 월 납입, 구조별 옵션 문구는 `EVIDENCE_REGISTER.md`를 확인한다.

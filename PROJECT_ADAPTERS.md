@@ -150,12 +150,13 @@
 5. 변동 claim이 있으면 `EVIDENCE_REGISTER.md` 읽기
 6. 확인되지 않은 운영 기준이 있으면 `OPEN_QUESTIONS_REGISTER.md` 읽기
 7. 상품, 상세페이지, 이미지, GIF, 썸네일 자산을 쓰면 `BRAND_WIKI_ARCHITECTURE.md`, `SOURCE_REGISTRY.md`, `PRODUCT_WIKI_INDEX.md`, 필요한 상품 위키, `ASSET_SEMANTIC_INDEX.md`, 상품별 `asset-manifest.json` 읽기
-8. 고객/제품/현장/리뷰/FAQ/카피 원료를 쓰면 `BRAND_MATERIAL_INDEX.md`와 필요한 개별 원료 은행 읽기
-9. 프로젝트 자료를 중앙으로 올릴 후보가 있으면 `RAW_MATERIAL_INTAKE_PROTOCOL.md` 읽기
-10. 해당 프로젝트의 어댑터 문서 만들기
-11. 기존 프로젝트 문서가 있다면 중앙 원본과 충돌 감사
-12. 충돌을 `중앙 우선 / 프로젝트 우선 / 중앙 업데이트 필요 / 확인 필요`로 분류
-13. 프로젝트 적용 결과는 프로젝트 내부 문서에 기록한다. 중앙 `CHANGELOG.md`에는 중앙 원본 변경 또는 중앙 승격이 확정된 내용만 기록한다.
+8. `vetted` 상품 위키는 상품 구조, 고객 고민, 이미지/GIF 탐색에 사용할 수 있지만 가격, 리뷰 수, A/S, 일정, 할부, 이벤트, 배송/반품, 패키지 구성 같은 변동 claim은 `EVIDENCE_REGISTER.md`와 `OPEN_QUESTIONS_REGISTER.md`를 우선한다.
+9. 고객/제품/현장/리뷰/FAQ/카피 원료를 쓰면 `BRAND_MATERIAL_INDEX.md`와 필요한 개별 원료 은행 읽기
+10. 프로젝트 자료를 중앙으로 올릴 후보가 있으면 `RAW_MATERIAL_INTAKE_PROTOCOL.md` 읽기
+11. 해당 프로젝트의 어댑터 문서 만들기
+12. 기존 프로젝트 문서가 있다면 중앙 원본과 충돌 감사
+13. 충돌을 `중앙 우선 / 프로젝트 우선 / 중앙 업데이트 필요 / 확인 필요`로 분류
+14. 프로젝트 적용 결과는 프로젝트 내부 문서에 기록한다. 중앙 `CHANGELOG.md`에는 중앙 원본 변경 또는 중앙 승격이 확정된 내용만 기록한다.
 
 ## 7. 프로젝트 총괄 적용 보고 형식
 
