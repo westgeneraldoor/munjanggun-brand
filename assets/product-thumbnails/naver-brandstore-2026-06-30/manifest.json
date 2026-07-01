@@ -1,0 +1,141 @@
+{
+  "version": "1.0",
+  "updatedAt": "2026-06-30",
+  "evidenceRef": "USER-SUPPLIED-2026-06-30-BRANDSTORE-PRODUCT-THUMBNAILS",
+  "sourceCsv": "Product_20260630_105531.csv",
+  "sourceColumn": "대표이미지 URL",
+  "scope": {
+    "included": "판매상태=판매중, 전시상태=전시중",
+    "excluded": "전시중지, 판매중지, 테스트 상품",
+    "count": 14
+  },
+  "usageStatus": "candidate",
+  "items": [
+    {
+      "no": 1,
+      "sellerProductCode": "연동양개형중문",
+      "productGroup": "양개형/미서기/4연동",
+      "localPath": "assets/product-thumbnails/naver-brandstore-2026-06-30/01-double-sliding-middle-door.jpg",
+      "width": 1000,
+      "height": 1000,
+      "sourceUrl": "http://shop1.phinf.naver.net/20260330_15/17748532284254EraQ_JPEG/54247175545722911_1900235814.jpg"
+    },
+    {
+      "no": 2,
+      "sellerProductCode": "방화문현관문",
+      "productGroup": "현관문/방화문",
+      "localPath": "assets/product-thumbnails/naver-brandstore-2026-06-30/02-fire-rated-front-door.jpg",
+      "width": 1000,
+      "height": 1000,
+      "sourceUrl": "http://shop1.phinf.naver.net/20260113_110/1768289752025JJAwM_JPEG/102422555321522922_778972064.jpg"
+    },
+    {
+      "no": 3,
+      "sellerProductCode": "3연동중문 자동문",
+      "productGroup": "자동 3연동중문",
+      "localPath": "assets/product-thumbnails/naver-brandstore-2026-06-30/03-automatic-three-panel-middle-door.jpg",
+      "width": 1000,
+      "height": 1000,
+      "sourceUrl": "http://shop1.phinf.naver.net/20260423_51/1776904895183OMyzx_JPEG/56817705049257839_669112348.jpg"
+    },
+    {
+      "no": 4,
+      "sellerProductCode": "3연동중문 더 모던",
+      "productGroup": "3연동 디자인 라인",
+      "localPath": "assets/product-thumbnails/naver-brandstore-2026-06-30/04-three-panel-modern.jpg",
+      "width": 1000,
+      "height": 1000,
+      "sourceUrl": "http://shop1.phinf.naver.net/20260423_274/1776904864139EcWeO_JPEG/3727226536441724_1377561377.jpg"
+    },
+    {
+      "no": 5,
+      "sellerProductCode": "3연동중문 더 클래식",
+      "productGroup": "3연동 디자인 라인",
+      "localPath": "assets/product-thumbnails/naver-brandstore-2026-06-30/05-three-panel-classic.jpg",
+      "width": 1000,
+      "height": 1000,
+      "sourceUrl": "http://shop1.phinf.naver.net/20260423_93/1776904881079yJlaW_JPEG/1944102089586259_421852784.jpg"
+    },
+    {
+      "no": 6,
+      "sellerProductCode": "3연동중문 디 아트",
+      "productGroup": "3연동 디자인 라인",
+      "localPath": "assets/product-thumbnails/naver-brandstore-2026-06-30/06-three-panel-the-art.jpg",
+      "width": 1000,
+      "height": 1000,
+      "sourceUrl": "http://shop1.phinf.naver.net/20260423_217/1776925029487dF5Ls_JPEG/26495241948833187_1609480553.jpg"
+    },
+    {
+      "no": 7,
+      "sellerProductCode": "몰딩걸레",
+      "productGroup": "천장몰딩/걸레받이",
+      "localPath": "assets/product-thumbnails/naver-brandstore-2026-06-30/07-molding-baseboard.jpg",
+      "width": 1000,
+      "height": 1000,
+      "sourceUrl": "http://shop1.phinf.naver.net/20260113_77/1768289835083bIKHP_JPEG/102422625213224023_307381614.jpg"
+    },
+    {
+      "no": 8,
+      "sellerProductCode": "ABS도어 짝 세트",
+      "productGroup": "ABS 문짝교체 시공",
+      "localPath": "assets/product-thumbnails/naver-brandstore-2026-06-30/08-abs-door-set.jpg",
+      "width": 1000,
+      "height": 1000,
+      "sourceUrl": "http://shop1.phinf.naver.net/20260113_4/17682897693528ukss_JPEG/17544962437724950_1866826723.jpg"
+    },
+    {
+      "no": 9,
+      "sellerProductCode": "원슬라이딩중문",
+      "productGroup": "원슬라이딩중문",
+      "localPath": "assets/product-thumbnails/naver-brandstore-2026-06-30/09-one-sliding-middle-door.jpg",
+      "width": 1000,
+      "height": 1000,
+      "sourceUrl": "http://shop1.phinf.naver.net/20260113_279/1768289727321sWnyS_JPEG/102422517450177632_260678265.jpg"
+    },
+    {
+      "no": 10,
+      "sellerProductCode": "스윙중문",
+      "productGroup": "폴딩도어/스윙중문",
+      "localPath": "assets/product-thumbnails/naver-brandstore-2026-06-30/10-swing-middle-door.jpg",
+      "width": 1000,
+      "height": 1000,
+      "sourceUrl": "http://shop1.phinf.naver.net/20260406_32/1775451995012YWCeR_JPEG/38443455136776412_972342673.jpg"
+    },
+    {
+      "no": 11,
+      "sellerProductCode": "3연동중문 ㄱ자",
+      "productGroup": "ㄱ자 3연동/가벽파티션",
+      "localPath": "assets/product-thumbnails/naver-brandstore-2026-06-30/11-l-shaped-three-panel-middle-door.jpg",
+      "width": 1000,
+      "height": 1000,
+      "sourceUrl": "http://shop1.phinf.naver.net/20260113_252/1768289713497B0AzB_JPEG/17859925928878864_628219228.jpg"
+    },
+    {
+      "no": 12,
+      "sellerProductCode": "3연동중문",
+      "productGroup": "3연동중문 베이직",
+      "localPath": "assets/product-thumbnails/naver-brandstore-2026-06-30/12-basic-three-panel-middle-door.jpg",
+      "width": 1000,
+      "height": 1000,
+      "sourceUrl": "http://shop1.phinf.naver.net/20260113_203/17682896280892PQFY_JPEG/5547823896436326_624437187.jpg"
+    },
+    {
+      "no": 13,
+      "sellerProductCode": "슬라이딩도어",
+      "productGroup": "ABS 슬라이딩도어/행거도어",
+      "localPath": "assets/product-thumbnails/naver-brandstore-2026-06-30/13-sliding-door.jpg",
+      "width": 1000,
+      "height": 1000,
+      "sourceUrl": "http://shop1.phinf.naver.net/20260113_162/1768289801318Vknsq_JPEG/113201521121807387_1935468867.jpg"
+    },
+    {
+      "no": 14,
+      "sellerProductCode": "ABS도어 전국배송",
+      "productGroup": "ABS 문짝/전국배송",
+      "localPath": "assets/product-thumbnails/naver-brandstore-2026-06-30/14-abs-door-shipping.jpg",
+      "width": 1000,
+      "height": 1000,
+      "sourceUrl": "http://shop1.phinf.naver.net/20260113_21/1768289786105Rlcn2_JPEG/17807025290044268_1942754881.jpg"
+    }
+  ]
+}

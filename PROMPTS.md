@@ -1,8 +1,8 @@
 # PROMPTS - 문장군 중앙 브랜드 문서 적용 프롬프트
 
-> 버전: v1.6
-> 최종 업데이트: 2026-06-30
-> 변경 요약: 브랜드 원료 은행과 원료 승격 절차 하달 기준 추가
+> 버전: v1.8
+> 최종 업데이트: 2026-07-01
+> 변경 요약: 상품별 상세페이지 자산 위키와 공식 제작 자산 재사용 기준을 프로젝트 하달 프롬프트에 반영
 
 ## 1. 프로젝트 총괄 세션 공통 적용 프롬프트
 
@@ -29,6 +29,10 @@ GitHub 기준 상대 경로를 우선 참조하세요.
 ./ANTI_PATTERNS.md
 ./EVIDENCE_REGISTER.md
 ./OPEN_QUESTIONS_REGISTER.md
+./BRAND_WIKI_ARCHITECTURE.md
+./SOURCE_REGISTRY.md
+./PRODUCT_WIKI_INDEX.md
+./ASSET_SEMANTIC_INDEX.md
 ./BRAND_MATERIAL_INDEX.md
 ./RAW_MATERIAL_INTAKE_PROTOCOL.md
 ./CUSTOMER_SEGMENTS.md
@@ -62,6 +66,9 @@ GitHub 기준 상대 경로를 우선 참조하세요.
 - 웹앱/랜딩 구현 시 tokens/brand.css 또는 tokens/brand.tokens.json을 우선 사용하고, 토큰 변경이 필요하면 DESIGN.md부터 수정해야 합니다.
 - 리뷰 수, 가격, A/S, 일정, 시공 시간처럼 변동 가능한 claim은 EVIDENCE_REGISTER.md의 기준일과 상태를 확인하세요.
 - 확인되지 않은 운영 기준이나 사장 확인이 필요한 항목은 OPEN_QUESTIONS_REGISTER.md를 확인하고, 외부 발행물에서 단정하지 마세요.
+- 상품, 상세페이지, 이미지, GIF, 썸네일 자산을 쓰면 BRAND_WIKI_ARCHITECTURE.md, SOURCE_REGISTRY.md, PRODUCT_WIKI_INDEX.md, 필요한 상품 위키, ASSET_SEMANTIC_INDEX.md, 상품별 asset-manifest.json을 확인하세요.
+- ASSET_SEMANTIC_INDEX.md는 대표 의미 태깅 인덱스입니다. 여기에 없는 자산은 위험 자산이 아니라 미태깅 자산으로 보고, 상품별 asset-manifest.json과 SOURCE_REGISTRY.md에서 경로와 공식 제작 여부를 확인하세요.
+- `문장군상품/` 아래 현재 등록된 상품별 상세페이지 자산처럼 문장군이 공식 제작·검토한 결과물은 privacyStatus를 official_reviewed로 보고 별도 OCR/육안 개인정보 검수를 반복하지 않습니다. 다만 가격, 이벤트, 월 납입, 스펙, 옵션, 전원/센서, 보강, 패키지 구성 문구를 원본 맥락 밖에서 재사용할 때는 최신성을 확인하세요.
 - 고객 상황, 제품 선택 기준, 현장 이야기, 리뷰/증거, FAQ, 카피 원료를 쓸 때는 BRAND_MATERIAL_INDEX.md와 필요한 개별 원료 은행 문서를 확인하세요.
 - 원료 은행의 문구나 사례를 쓰기 전 상태값을 확인하세요. publishable 또는 vetted가 아니면 외부 발행물에 직접 사용하지 마세요.
 - 연계 프로젝트 안에서 중앙으로 올릴 만한 좋은 자료를 발견하면 바로 복사하지 말고 RAW_MATERIAL_INTAKE_PROTOCOL.md 기준으로 비식별화, claim 검증, 상태 부여를 거쳐 후보로 보고하세요.
@@ -80,6 +87,12 @@ GitHub 기준 상대 경로를 우선 참조하세요.
 - 민감 정보 노출 여부:
 - 사진/디자인 기준 적용 여부:
 - 토큰 사용 여부:
+- 상품/자산 위키 확인 여부:
+- 자산 usageStatus/privacyStatus/claimRisk 확인 여부:
+- 사용한 source_id / asset_id / claim_id / proof_id:
+- review_due 또는 재확인 필요 시점:
+- retired/superseded 자료 사용 여부:
+- 외부 발행 가능 여부:
 - 원료 은행 사용 여부:
 - 원료 상태값 확인 여부:
 - 변동 claim 근거 확인 여부:
@@ -102,6 +115,12 @@ GitHub 기준 상대 경로를 우선 참조하세요.
 - DESIGN.md, DESIGN_QUICKSTART.md, PHOTO_TREATMENT.md, ANTI_PATTERNS.md 기준과 충돌하지 않는가
 - tokens/brand.css 또는 tokens/brand.tokens.json을 잘못 변형하지 않았는가
 - EVIDENCE_REGISTER.md 기준 없이 리뷰 수, 가격, A/S, 일정, 시공 시간 claim을 단정하지 않았는가
+- 상품/상세페이지/이미지/GIF/썸네일 자산을 썼다면 BRAND_WIKI_ARCHITECTURE.md, SOURCE_REGISTRY.md, PRODUCT_WIKI_INDEX.md, ASSET_SEMANTIC_INDEX.md, 상품별 asset-manifest.json의 상태를 확인했는가
+- ASSET_SEMANTIC_INDEX.md에 없는 자산을 안전 자산처럼 해석하지 않았는가
+- 문장군 공식 제작 자산과 외부 유입 원본의 privacyStatus를 구분했는가
+- claimRisk가 high/medium인 자산의 가격, 이벤트, 월 납입, 스펙, 운영 조건 문구를 원본 맥락 밖에서 재사용할 때 최신성을 확인했는가
+- 사용한 source_id, asset_id, claim_id, proof_id가 추적 가능한가
+- retired 또는 superseded 자료를 신규 원본처럼 쓰지 않았는가
 - BRAND_MATERIAL_INDEX.md의 원료 상태값을 확인했는가
 - CUSTOMER_SEGMENTS.md, PRODUCT_SELECTION_GUIDE.md, FIELD_STORY_BANK.md, REVIEW_PROOF_BANK.md, PROOF_ASSET_INDEX.md, FAQ_OBJECTION_BANK.md, COPY_ASSET_BANK.md를 중앙 기준보다 높은 권위처럼 쓰지 않았는가
 - 연계 프로젝트 자료를 중앙 원료로 승격한다면 RAW_MATERIAL_INTAKE_PROTOCOL.md의 비식별화와 claim 검증을 거쳤는가
@@ -130,6 +149,10 @@ GitHub 저장소: https://github.com/westgeneraldoor/munjanggun-brand
 ./ANTI_PATTERNS.md
 ./EVIDENCE_REGISTER.md
 ./OPEN_QUESTIONS_REGISTER.md
+./BRAND_WIKI_ARCHITECTURE.md
+./SOURCE_REGISTRY.md
+./PRODUCT_WIKI_INDEX.md
+./ASSET_SEMANTIC_INDEX.md
 ./RAW_MATERIAL_INTAKE_PROTOCOL.md
 ./BRAND_MATERIAL_INDEX.md
 ./CUSTOMER_SEGMENTS.md
@@ -150,6 +173,7 @@ GitHub 저장소: https://github.com/westgeneraldoor/munjanggun-brand
 - 디자인 빠른 기준은 DESIGN_QUICKSTART.md를 우선 적용하고, 금지 패턴 검수는 ANTI_PATTERNS.md를 활용해주세요.
 - 리뷰 수, 가격, A/S, 일정, 시공 시간 claim은 EVIDENCE_REGISTER.md 기준일과 상태를 확인해주세요.
 - 확인되지 않은 운영 기준은 OPEN_QUESTIONS_REGISTER.md에서 확인하고 외부 발행물에서 단정하지 마세요.
+- 상품, 상세페이지, 이미지, GIF, 썸네일 자산은 BRAND_WIKI_ARCHITECTURE.md, SOURCE_REGISTRY.md, PRODUCT_WIKI_INDEX.md, 필요한 상품 위키, ASSET_SEMANTIC_INDEX.md, 상품별 asset-manifest.json의 상태를 확인한 뒤 사용해주세요.
 - 고객 상황, 제품 선택, FAQ, 카피 원료는 BRAND_MATERIAL_INDEX.md와 개별 원료 은행의 상태값을 확인한 뒤 사용해주세요.
 - 리뷰 원문, 고객명, 닉네임, AppSheet 원본, 관리자 캡처는 중앙 원료로 복사하지 말고 PROOF_ASSET_INDEX.md 방식의 비식별 색인만 사용해주세요.
 - 중앙으로 올릴 원료 후보는 RAW_MATERIAL_INTAKE_PROTOCOL.md 기준으로 비식별화와 claim 검증을 거쳐 보고해주세요.
@@ -172,6 +196,10 @@ GitHub 저장소: https://github.com/westgeneraldoor/munjanggun-brand
 ./ANTI_PATTERNS.md
 ./EVIDENCE_REGISTER.md
 ./OPEN_QUESTIONS_REGISTER.md
+./BRAND_WIKI_ARCHITECTURE.md
+./SOURCE_REGISTRY.md
+./PRODUCT_WIKI_INDEX.md
+./ASSET_SEMANTIC_INDEX.md
 ./RAW_MATERIAL_INTAKE_PROTOCOL.md
 ./BRAND_MATERIAL_INDEX.md
 ./CUSTOMER_SEGMENTS.md
@@ -194,6 +222,7 @@ GitHub 저장소: https://github.com/westgeneraldoor/munjanggun-brand
 - 실제 시공 사진 사용 전 PHOTO_TREATMENT.md의 개인정보, 색온도, 수직선, crop safe zone 기준을 확인해주세요.
 - 리뷰 수, 가격, A/S, 일정, 시공 시간 claim은 EVIDENCE_REGISTER.md 기준일과 상태를 확인해주세요.
 - 확인되지 않은 운영 기준은 OPEN_QUESTIONS_REGISTER.md에서 확인하고 외부 발행물에서 단정하지 마세요.
+- 상품, 상세페이지, 이미지, GIF, 썸네일 자산은 BRAND_WIKI_ARCHITECTURE.md, SOURCE_REGISTRY.md, PRODUCT_WIKI_INDEX.md, 필요한 상품 위키, ASSET_SEMANTIC_INDEX.md, 상품별 asset-manifest.json의 상태를 확인한 뒤 사용해주세요.
 - 카드뉴스 소재는 CUSTOMER_SEGMENTS.md, PRODUCT_SELECTION_GUIDE.md, FAQ_OBJECTION_BANK.md, COPY_ASSET_BANK.md에서 상태값이 확인된 원료만 사용해주세요.
 - 실제 현장 사진이나 리뷰 근거는 PROOF_ASSET_INDEX.md와 REVIEW_PROOF_BANK.md 기준으로 개인정보와 원문 노출을 막아주세요.
 - 중앙으로 올릴 원료 후보는 RAW_MATERIAL_INTAKE_PROTOCOL.md 기준으로 비식별화와 claim 검증을 거쳐 보고해주세요.
@@ -215,6 +244,10 @@ GitHub 저장소: https://github.com/westgeneraldoor/munjanggun-brand
 ./ANTI_PATTERNS.md
 ./EVIDENCE_REGISTER.md
 ./OPEN_QUESTIONS_REGISTER.md
+./BRAND_WIKI_ARCHITECTURE.md
+./SOURCE_REGISTRY.md
+./PRODUCT_WIKI_INDEX.md
+./ASSET_SEMANTIC_INDEX.md
 ./RAW_MATERIAL_INTAKE_PROTOCOL.md
 ./BRAND_MATERIAL_INDEX.md
 ./CUSTOMER_SEGMENTS.md
@@ -238,6 +271,7 @@ GitHub 저장소: https://github.com/westgeneraldoor/munjanggun-brand
 - 어두운 스마트스토어 썸네일 남발형이나 AI 카드뉴스형으로 흐르지 않도록 ANTI_PATTERNS.md를 검수 기준에 넣어주세요.
 - 리뷰 수, 가격, A/S, 일정, 시공 시간 claim은 EVIDENCE_REGISTER.md 기준일과 상태를 확인해주세요.
 - 확인되지 않은 운영 기준은 OPEN_QUESTIONS_REGISTER.md에서 확인하고 외부 발행물에서 단정하지 마세요.
+- 상품, 상세페이지, 이미지, GIF, 썸네일 자산은 BRAND_WIKI_ARCHITECTURE.md, SOURCE_REGISTRY.md, PRODUCT_WIKI_INDEX.md, 필요한 상품 위키, ASSET_SEMANTIC_INDEX.md, 상품별 asset-manifest.json의 상태를 확인한 뒤 사용해주세요.
 - 블로그 주제와 본문 흐름은 CUSTOMER_SEGMENTS.md, PRODUCT_SELECTION_GUIDE.md, FIELD_STORY_BANK.md, FAQ_OBJECTION_BANK.md, COPY_ASSET_BANK.md의 원료를 참고하되 상태값을 확인해주세요.
 - AppSheet 현장 서사와 리뷰 근거는 중앙으로 원본 복사하지 말고, PROOF_ASSET_INDEX.md처럼 비식별 evidence_ref 또는 요약으로만 다뤄주세요.
 - 중앙으로 올릴 원료 후보는 RAW_MATERIAL_INTAKE_PROTOCOL.md 기준으로 비식별화와 claim 검증을 거쳐 보고해주세요.
@@ -263,6 +297,10 @@ GitHub 저장소: https://github.com/westgeneraldoor/munjanggun-brand
 ./ANTI_PATTERNS.md
 ./EVIDENCE_REGISTER.md
 ./OPEN_QUESTIONS_REGISTER.md
+./BRAND_WIKI_ARCHITECTURE.md
+./SOURCE_REGISTRY.md
+./PRODUCT_WIKI_INDEX.md
+./ASSET_SEMANTIC_INDEX.md
 ./RAW_MATERIAL_INTAKE_PROTOCOL.md
 ./BRAND_MATERIAL_INDEX.md
 ./CUSTOMER_SEGMENTS.md
@@ -290,6 +328,7 @@ GitHub 저장소: https://github.com/westgeneraldoor/munjanggun-brand
 - 가격은 숨기지 말고 가격대와 조건 설명, 무료 실측 후 정확 견적 안내를 함께 보여주세요.
 - 리뷰 수, 가격, A/S, 일정, 시공 시간 claim은 EVIDENCE_REGISTER.md 기준일과 상태를 확인한 뒤 사용하세요.
 - 확인되지 않은 운영 기준은 OPEN_QUESTIONS_REGISTER.md를 확인하고 단정하지 마세요.
+- 상품, 상세페이지, 이미지, GIF, 썸네일 자산은 BRAND_WIKI_ARCHITECTURE.md, SOURCE_REGISTRY.md, PRODUCT_WIKI_INDEX.md, 필요한 상품 위키, ASSET_SEMANTIC_INDEX.md, 상품별 asset-manifest.json의 상태를 확인한 뒤 사용하세요.
 - 고객 고민별 화면 구조는 CUSTOMER_SEGMENTS.md를, 제품 추천 흐름은 PRODUCT_SELECTION_GUIDE.md를, FAQ는 FAQ_OBJECTION_BANK.md를, CTA/Proof Panel 문장은 COPY_ASSET_BANK.md를 참고하세요.
 - 실제 리뷰와 사진 근거는 REVIEW_PROOF_BANK.md와 PROOF_ASSET_INDEX.md 기준으로 공개 가능 상태를 확인하세요.
 - 웹앱/랜딩에서 새 원료 후보를 발견하면 RAW_MATERIAL_INTAKE_PROTOCOL.md 기준으로 중앙 승격 후보로만 보고하세요.

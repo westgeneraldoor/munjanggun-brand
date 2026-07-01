@@ -1,5 +1,104 @@
 # CHANGELOG - 문장군 중앙 브랜드 문서
 
+## v3.9 - 2026-07-01
+
+- 신규 상품 상세페이지 자산 5종 추가 등록
+  - `문장군상품/3연동 자동중문/asset-manifest.json`: 131개 자산 색인화
+  - `문장군상품/3연동ㄱ자/asset-manifest.json`: 120개 자산 색인화
+  - `문장군상품/ABS도어 방문교체/asset-manifest.json`: 90개 자산 색인화
+  - `문장군상품/스윙중문/asset-manifest.json`: 84개 자산 색인화
+  - `문장군상품/양개형중문 미서기/asset-manifest.json`: 147개 자산 색인화
+- 신규 source/product/proof 연결
+  - `SRC-2026-07-01-3PANEL-AUTO-DETAILPAGE`, `PROD-3PANEL-AUTO-MIDDLE-DOOR`, `PROOF-3PANEL-AUTO-DETAILPAGE-ASSETS-2026-07-01`
+  - `SRC-2026-07-01-3PANEL-LSHAPE-DETAILPAGE`, `PROD-3PANEL-LSHAPE-MIDDLE-DOOR`, `PROOF-3PANEL-LSHAPE-DETAILPAGE-ASSETS-2026-07-01`
+  - `SRC-2026-07-01-ABS-DOOR-REPLACEMENT-DETAILPAGE`, `PROD-ABS-DOOR-REPLACEMENT`, `PROOF-ABS-DOOR-REPLACEMENT-DETAILPAGE-ASSETS-2026-07-01`
+  - `SRC-2026-07-01-SWING-DETAILPAGE`, `PROD-SWING-MIDDLE-DOOR`, `PROOF-SWING-DETAILPAGE-ASSETS-2026-07-01`
+  - `SRC-2026-07-01-WIDE-SLIDING-DETAILPAGE`, `PROD-WIDE-SLIDING-MIDDLE-DOOR`, `PROOF-WIDE-SLIDING-DETAILPAGE-ASSETS-2026-07-01`
+- 신규 상품 위키와 상세 자산 인덱스 생성
+  - `PRODUCT_WIKI_3PANEL_AUTO_MIDDLE_DOOR.md`, `THREE_PANEL_AUTO_MIDDLE_DOOR_DETAILPAGE_ASSET_INDEX_2026-07-01.md`
+  - `PRODUCT_WIKI_3PANEL_LSHAPE_MIDDLE_DOOR.md`, `THREE_PANEL_LSHAPE_MIDDLE_DOOR_DETAILPAGE_ASSET_INDEX_2026-07-01.md`
+  - `PRODUCT_WIKI_ABS_DOOR_REPLACEMENT.md`, `ABS_DOOR_REPLACEMENT_DETAILPAGE_ASSET_INDEX_2026-07-01.md`
+  - `PRODUCT_WIKI_SWING_MIDDLE_DOOR.md`, `SWING_MIDDLE_DOOR_DETAILPAGE_ASSET_INDEX_2026-07-01.md`
+  - `PRODUCT_WIKI_WIDE_SLIDING_MIDDLE_DOOR.md`, `WIDE_SLIDING_MIDDLE_DOOR_DETAILPAGE_ASSET_INDEX_2026-07-01.md`
+- 상품/자산 위키 연결 확대
+  - `PRODUCT_WIKI_INDEX.md`, `SOURCE_REGISTRY.md`, `PRODUCT_SELECTION_GUIDE.md`, `README.md`에 신규 상품 5종 연결
+  - `ASSET_SEMANTIC_INDEX.md` v1.4로 갱신하고 신규 상품 대표 의미 태그 28개 추가
+  - `EVIDENCE_REGISTER.md`, `OPEN_QUESTIONS_REGISTER.md`, `PROOF_ASSET_INDEX.md`에 자동중문, ㄱ자, ABS 패키지, 스윙, 와이드/미서기 변동 claim 확인 항목 추가
+
+## v3.8 - 2026-07-01
+
+- 3연동중문 상세페이지 자산 교체본 등록
+  - 사용자가 기존 `문장군상품/3연동중문/` 폴더를 삭제하고 새 폴더를 재투입함
+  - `문장군상품/3연동중문/asset-manifest.json`을 새로 생성하고 202개 자산을 색인화
+  - 기존 `SRC-2026-06-30-3PANEL-DETAILPAGE`는 `superseded`로 낮추고, 현재 기준을 `SRC-2026-07-01-3PANEL-DETAILPAGE-V2`로 등록
+  - `THREE_PANEL_MIDDLE_DOOR_DETAILPAGE_ASSET_INDEX_2026-07-01.md` 생성
+- 원슬라이딩중문 상품 위키 신규 편입
+  - `문장군상품/원슬라이딩중문/asset-manifest.json`을 생성하고 105개 자산을 색인화
+  - `SRC-2026-07-01-ONESLIDING-DETAILPAGE`, `PROD-ONE-SLIDING-MIDDLE-DOOR`, `PROOF-ONESLIDING-DETAILPAGE-ASSETS-2026-07-01` 연결
+  - `ONE_SLIDING_MIDDLE_DOOR_DETAILPAGE_ASSET_INDEX_2026-07-01.md`, `PRODUCT_WIKI_ONE_SLIDING_MIDDLE_DOOR.md` 생성
+- 이미지/GIF 의미 인덱스 정합화
+  - `ASSET_SEMANTIC_INDEX.md`를 새 manifest assetId 기준 v1.3으로 갱신
+  - 3연동 대표 14개, 원슬라이딩 대표 10개 의미 태깅
+  - 공식 제작 자산은 `official_reviewed`로 유지하되, 이벤트/가격/월 납입/스펙 문구는 원본 상세페이지 맥락 밖 재사용 시 최신성 확인하도록 분리
+- 근거/확인 항목 갱신
+  - `EVIDENCE_REGISTER.md`, `OPEN_QUESTIONS_REGISTER.md`, `PROOF_ASSET_INDEX.md`에 3연동 교체본과 원슬라이딩 신규 상세페이지 claim 확인 항목 추가
+  - `README.md`, `PRODUCT_WIKI_INDEX.md`, `PRODUCT_WIKI_3PANEL_MIDDLE_DOOR.md`, `SOURCE_REGISTRY.md` 연결 업데이트
+
+## v3.7 - 2026-07-01
+
+- 신규 프로젝트 총괄 온보딩 정리
+  - `README.md` 상단에 처음 온 프로젝트 총괄 5분 루트 추가
+  - 문서 삭제 없이 목적별 빠른 묶음 추가: 필수 기준, 디자인, claim/증거, 원료 은행, 상품/자산 위키, 프로젝트 하달, 감사/스냅샷
+- 상품/자산 위키 하달 drift 보정
+  - `AGENTS.md`, `PROJECT_ADAPTERS.md`, `PROMPTS.md`에 상품, 상세페이지, 이미지, GIF, 썸네일 자산 사용 시 확인해야 할 위키 4종과 상품별 manifest 확인 절차 추가
+  - 프로젝트 총괄 보고 형식에 상품/자산 위키 확인, `usageStatus`, `privacyStatus`, `claimRisk`, 외부 발행 가능 여부 항목 추가
+- 3연동중문 상세페이지 자산의 공식 제작 자산 기준 명시
+  - `README.md`와 `ASSET_SEMANTIC_INDEX.md`에 문장군 공식 제작·검토 결과물은 `privacyStatus/privacy_status: official_reviewed`로 관리함을 명시
+  - `ASSET_SEMANTIC_INDEX.md`가 전체 132개 자산이 아니라 대표 14개 의미 태깅 인덱스임을 명시하고, 미태깅은 위험 상태가 아니라 의미 검색 보강 대상임을 정리
+- 변동 claim 복사 위험 보강
+  - `BRAND_CONTEXT.md`의 월 납입/가격대 예시, A/S 기간, 제작·시공 일정에 발행 전 `EVIDENCE_REGISTER.md`와 `OPEN_QUESTIONS_REGISTER.md` 확인 라벨 추가
+- 원료/자산 상태 매핑 확장
+  - `BRAND_MATERIAL_INDEX.md`에 `SOURCE_REGISTRY.md`의 `index_status`/`review_status`, `ASSET_SEMANTIC_INDEX.md`의 `status`/`privacy_status`/`claim_risk`, 상품별 manifest의 `usageStatus`/`privacyStatus` 해석 기준 추가
+  - `PRODUCT_WIKI_INDEX.md`에서 "사용 가능한 원료" 표현을 "연결 원료와 검수 상태" 중심으로 낮춰 정리
+- 장기 운영/보존 규칙 보강
+  - `BRAND_WIKI_ARCHITECTURE.md`에 자료 생애주기, 대량 유입 최소 등록 요건, 상태 승급 게이트, 보존/대체/retired 원칙, CHANGELOG 기록 단위 추가
+  - `SOURCE_REGISTRY.md`에 `preservation_status`, `retention_policy`, `owner`, `review_due`, `superseded_by`, `retire_reason`, 민감 원본 위치 정책 필드 추가
+  - `RAW_MATERIAL_INTAKE_PROTOCOL.md`에 신규 자료 입수 체크리스트, 승격하지 않고 보존만 하는 경우, 대체/retired 처리, `publishable` 승급 조건 추가
+  - `ASSET_SEMANTIC_INDEX.md`에 미태깅 자산 큐, 우선 태깅 순서, semantic coverage 기준 추가
+  - `PRODUCT_WIKI_INDEX.md`에 신규 상품 위키 생성 최소 요건 추가
+  - `PROJECT_ADAPTERS.md`, `PROMPTS.md`에 `source_id`, `asset_id`, `claim_id`, `proof_id`, `review_due`, retired/superseded 사용 여부 보고 항목 추가
+  - review pass 반영: `SOURCE_REGISTRY.md`에 기존 4개 소스의 보존/재검토 추적표 추가, `claimRisk: medium` 승급 조건 보강, `PROMPTS.md` 프로젝트별 개별 프롬프트 2~5장에 상품/자산 위키 확인 경로 반복 반영
+  - `README.md`, `PRODUCT_WIKI_INDEX.md`, `BRAND_WIKI_ARCHITECTURE.md`의 상품/자산 사용 순서와 상태값 표기법을 정합화
+- 공식 제작 자산 검수 책임 정정
+  - 사용자 확인 기준에 따라 `문장군상품/3연동중문` 상세페이지 이미지/GIF는 문장군이 공식 제작·검토한 결과물로 보고 `privacyStatus/privacy_status: official_reviewed` 적용
+  - 중앙 브랜드 위키는 해당 공식 제작 자산에 대해 별도 OCR/육안 개인정보 검수를 요구하지 않으며, 원본 상세페이지 맥락 밖에서 가격/이벤트/월 납입/스펙/운영 조건을 재사용할 때 최신성만 확인
+  - `asset-manifest.json` v1.2로 갱신하고, `README.md`, `SOURCE_REGISTRY.md`, `ASSET_SEMANTIC_INDEX.md`, `BRAND_MATERIAL_INDEX.md`, `BRAND_WIKI_ARCHITECTURE.md`, `RAW_MATERIAL_INTAKE_PROTOCOL.md`, `PROMPTS.md`의 과잉 보류 문구 정정
+
+## v3.6 - 2026-06-30
+
+- 네이버 스마트스토어 상품 CSV export 기록 추가
+  - `NAVER_BRANDSTORE_PRODUCT_EXPORT_2026-06-30.md`: 사용자 제공 상품 CSV 기준 공개 판매 상품 14개, 기준 판매가, 할인가, 배송/반품 조건, 상품군 분석 기록
+  - CSV의 `판매가`를 기준 가격 후보로, `할인가`를 할인/예약할인/프로모션 가격 후보로 분리
+  - 공개 판매 상품 14개 기준 판매가 150,000원~1,490,000원, 할인가 125,000원~990,000원을 `EVIDENCE_REGISTER.md`에 분리 등록
+  - 화면 캡처의 리뷰 수 후보는 CSV에 없는 정보로 분리해 `candidate` 상태 유지
+  - `대표이미지 URL` 기준 공개 판매 상품 14개 썸네일을 `assets/product-thumbnails/naver-brandstore-2026-06-30/`에 저장하고 `manifest.json` 생성
+  - `PRODUCT_THUMBNAIL_ASSET_INDEX_2026-06-30.md`에 상품별 썸네일 파일, 상품군 판단, 사용 원칙 기록
+  - `문장군상품/3연동중문` 상세페이지 이미지/GIF 원본 132개를 `asset-manifest.json`으로 색인화
+  - `THREE_PANEL_MIDDLE_DOOR_DETAILPAGE_ASSET_INDEX_2026-06-30.md`에 공통 도입, 이벤트/공지, 컬러, 유리, 베이직/모던/클래식/아트 컬렉션 구조 기록
+  - 클래식 컬렉션 005 신규 추가와 기존 005→006 변경을 manifest v1.1에 반영하고 006 누락 확인 항목을 resolved 처리
+  - 상세페이지 이미지 안의 이벤트/가격성 문구를 변동 claim으로 분리하고 `EVIDENCE_REGISTER.md`, `OPEN_QUESTIONS_REGISTER.md`에 확인 필요 항목 등록
+  - `PRODUCT_SELECTION_GUIDE.md`에 3연동 디자인 라인, 폴딩도어/접이식 중문, 현관문/천장몰딩 CSV 확인 상태 반영
+  - `PROOF_ASSET_INDEX.md`에 상품 CSV export와 화면 캡처 증거 자산을 분리 등록
+  - `OPEN_QUESTIONS_REGISTER.md`에서 가격/리뷰/배송·반품 조건의 확인 필요 상태 정리
+- 브랜드 위키 운영 계층 추가
+  - `BRAND_WIKI_ARCHITECTURE.md`: codebase-memory MCP와 브랜드 위키의 차이, 권위 계층, ID/상태/검색 규칙 정의
+  - `SOURCE_REGISTRY.md`: CSV, 썸네일, 3연동중문 상세페이지, 캡처 소스 등록
+  - `PRODUCT_WIKI_INDEX.md`: 상품별 위키 입구 생성
+  - `PRODUCT_WIKI_3PANEL_MIDDLE_DOOR.md`: 3연동중문과 베이직/모던/클래식/아트 컬렉션 위키 생성
+  - `ASSET_SEMANTIC_INDEX.md`: 이미지/GIF 의미 태그와 추천/금지 용도 인덱스 생성
+  - `asset-manifest.json`과 `ASSET_SEMANTIC_INDEX.md`의 위험도/상태 충돌 방지를 위해 semantic index 우선 규칙과 보수적 상태 동기화 적용
+  - `SOURCE_REGISTRY.md`의 소스 상태를 `index_status`와 `review_status`로 분리
+
 ## v3.5 - 2026-06-30
 
 - 브랜드 원료 은행 추가

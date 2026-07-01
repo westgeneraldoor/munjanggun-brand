@@ -1,7 +1,7 @@
 # 문장군 중앙 브랜드 책임자 지침
 
-> 버전: v1.3
-> 최종 업데이트: 2026-06-30
+> 버전: v1.4
+> 최종 업데이트: 2026-07-01
 > 목적: 문장군 중앙 브랜드 원본을 관리하는 책임자, 에이전트, 서브에이전트가 같은 기준으로 조사, 기획, 제작, 검수, 연계 프로젝트 운영을 수행하도록 한다.
 
 이 폴더는 문장군 브랜드의 중앙 원본이다.
@@ -21,12 +21,13 @@
 5. 디자인 실무 작업이면 `DESIGN_QUICKSTART.md`, `PHOTO_TREATMENT.md`, `ANTI_PATTERNS.md`
 6. 웹앱, 랜딩, 자동화 구현이면 `tokens/brand.tokens.json`, `tokens/brand.css`
 7. 변동 정보가 포함되면 `EVIDENCE_REGISTER.md`와 필요 시 `OPEN_QUESTIONS_REGISTER.md`
-8. 고객·제품·현장·리뷰·FAQ·카피 원료를 사용하거나 수정하면 `BRAND_MATERIAL_INDEX.md`와 필요한 개별 원료 은행 문서
-9. 연계 프로젝트 자료를 중앙 원료로 승격하면 `RAW_MATERIAL_INTAKE_PROTOCOL.md`
-10. `PROJECT_ADAPTERS.md`
-11. `CHANGELOG.md`
-12. 필요 시 `PROMPTS.md`
-13. 팀 운영이 필요한 경우 `TEAM.md`
+8. 상품, 상세페이지, 이미지, GIF, 썸네일 자산을 다루면 `BRAND_WIKI_ARCHITECTURE.md`, `SOURCE_REGISTRY.md`, `PRODUCT_WIKI_INDEX.md`, 필요한 상품 위키, `ASSET_SEMANTIC_INDEX.md`, 상품별 `asset-manifest.json`
+9. 고객·제품·현장·리뷰·FAQ·카피 원료를 사용하거나 수정하면 `BRAND_MATERIAL_INDEX.md`와 필요한 개별 원료 은행 문서
+10. 연계 프로젝트 자료를 중앙 원료로 승격하면 `RAW_MATERIAL_INTAKE_PROTOCOL.md`
+11. `PROJECT_ADAPTERS.md`
+12. `CHANGELOG.md`
+13. 필요 시 `PROMPTS.md`
+14. 팀 운영이 필요한 경우 `TEAM.md`
 
 `preview.html`은 참고용 시각 보드다. 최신 권위 기준은 `DESIGN.md`다.
 
@@ -42,6 +43,7 @@
 | 디자인 빠른 적용, 사진 처리, 금지 패턴, 구현 토큰 | `DESIGN_QUICKSTART.md`, `PHOTO_TREATMENT.md`, `ANTI_PATTERNS.md`, `tokens/` |
 | 리뷰 수, 가격, A/S, 일정 등 변동 가능한 claim의 근거 관리 | `EVIDENCE_REGISTER.md` |
 | 사장 확인, 최신 캡처, 운영 정책 확인이 필요한 항목 | `OPEN_QUESTIONS_REGISTER.md` |
+| 상품 상세페이지, 이미지/GIF, 썸네일 자산의 출처·의미·사용 가능 상태 | `BRAND_WIKI_ARCHITECTURE.md`, `SOURCE_REGISTRY.md`, `PRODUCT_WIKI_INDEX.md`, `ASSET_SEMANTIC_INDEX.md`, 상품별 `asset-manifest.json` |
 | 고객 상황, 제품 선택, 현장 이야기, 리뷰/증거, FAQ, 카피 원료 | `BRAND_MATERIAL_INDEX.md`, `CUSTOMER_SEGMENTS.md`, `PRODUCT_SELECTION_GUIDE.md`, `FIELD_STORY_BANK.md`, `REVIEW_PROOF_BANK.md`, `PROOF_ASSET_INDEX.md`, `FAQ_OBJECTION_BANK.md`, `COPY_ASSET_BANK.md` |
 | 연계 프로젝트 자료를 중앙 원료로 승격하는 절차 | `RAW_MATERIAL_INTAKE_PROTOCOL.md` |
 | 프로젝트별 어댑터 분리, 충돌 처리, 민감 정보 기준 | `PROJECT_ADAPTERS.md` |
@@ -50,6 +52,8 @@
 블로그, 인스타그램, 릴스, 웹앱, 디자인 OS 등 각 프로젝트의 특화 규칙은 중앙 원본에 섞지 않고 해당 프로젝트 어댑터에 둔다.
 
 원료 은행은 중앙 기준을 대체하지 않는다. 원료 은행의 문구가 좋아 보여도 `BRAND_CONTEXT.md`, `FIELD_JUDGMENT_RULES.md`, `DESIGN.md`, `EVIDENCE_REGISTER.md`와 충돌하면 사용할 수 없다.
+
+상품/이미지 자산은 검색 가능 여부와 재사용 맥락을 분리한다. 문장군 공식 제작·검토 결과물은 `privacyStatus: official_reviewed`로 관리하며 중앙 브랜드 위키에서 별도 OCR/육안 개인정보 검수를 반복하지 않는다. `ASSET_SEMANTIC_INDEX.md`에 없는 자산은 위험 자산이 아니라 의미 태깅이 덜 된 자산이다. 다만 가격, 이벤트, 월 납입, 스펙, 운영 조건처럼 시간이 지나면 달라질 수 있는 문구를 원본 맥락 밖에서 재사용할 때는 `EVIDENCE_REGISTER.md`와 `OPEN_QUESTIONS_REGISTER.md`로 최신성을 확인한다.
 
 ## 3. 브랜드 핵심 기준
 

@@ -1,8 +1,8 @@
 # PROJECT_ADAPTERS - 문장군 프로젝트별 적용 방식
 
-> 버전: v1.3
-> 최종 업데이트: 2026-06-30
-> 목적: 여러 문장군 프로젝트가 중앙 브랜드 원본을 공유하되, 채널별 규칙과 적용 책임을 안전하게 분리하는 기준
+> 버전: v1.4
+> 최종 업데이트: 2026-07-01
+> 목적: 여러 문장군 프로젝트가 중앙 브랜드 원본과 상품/자산 위키를 공유하되, 채널별 규칙과 적용 책임을 안전하게 분리하는 기준
 
 ## 0. 적용 책임 원칙
 
@@ -36,6 +36,11 @@
   tokens/brand.css
   EVIDENCE_REGISTER.md
   OPEN_QUESTIONS_REGISTER.md
+  BRAND_WIKI_ARCHITECTURE.md
+  SOURCE_REGISTRY.md
+  PRODUCT_WIKI_INDEX.md
+  ASSET_SEMANTIC_INDEX.md
+  상품별 asset-manifest.json
   BRAND_MATERIAL_INDEX.md
   RAW_MATERIAL_INTAKE_PROTOCOL.md
   CUSTOMER_SEGMENTS.md
@@ -80,6 +85,7 @@
 - 리뷰와 증거 자산의 안전한 사용 기준
 - 상담 FAQ와 공통 카피 원료
 - 연계 프로젝트 자료를 중앙 원료로 승격하는 절차
+- 상품 상세페이지, 이미지/GIF, 썸네일 자산의 출처, 의미 태그, 사용 가능 상태, claim/privacy 위험
 
 ## 3. 프로젝트 어댑터에 넣는 것
 
@@ -143,12 +149,13 @@
 4. 디자인/사진/구현 작업이면 `DESIGN_QUICKSTART.md`, `PHOTO_TREATMENT.md`, `ANTI_PATTERNS.md`, `tokens/` 읽기
 5. 변동 claim이 있으면 `EVIDENCE_REGISTER.md` 읽기
 6. 확인되지 않은 운영 기준이 있으면 `OPEN_QUESTIONS_REGISTER.md` 읽기
-7. 고객/제품/현장/리뷰/FAQ/카피 원료를 쓰면 `BRAND_MATERIAL_INDEX.md`와 필요한 개별 원료 은행 읽기
-8. 프로젝트 자료를 중앙으로 올릴 후보가 있으면 `RAW_MATERIAL_INTAKE_PROTOCOL.md` 읽기
-9. 해당 프로젝트의 어댑터 문서 만들기
-10. 기존 프로젝트 문서가 있다면 중앙 원본과 충돌 감사
-11. 충돌을 `중앙 우선 / 프로젝트 우선 / 중앙 업데이트 필요 / 확인 필요`로 분류
-12. 프로젝트 적용 결과는 프로젝트 내부 문서에 기록한다. 중앙 `CHANGELOG.md`에는 중앙 원본 변경 또는 중앙 승격이 확정된 내용만 기록한다.
+7. 상품, 상세페이지, 이미지, GIF, 썸네일 자산을 쓰면 `BRAND_WIKI_ARCHITECTURE.md`, `SOURCE_REGISTRY.md`, `PRODUCT_WIKI_INDEX.md`, 필요한 상품 위키, `ASSET_SEMANTIC_INDEX.md`, 상품별 `asset-manifest.json` 읽기
+8. 고객/제품/현장/리뷰/FAQ/카피 원료를 쓰면 `BRAND_MATERIAL_INDEX.md`와 필요한 개별 원료 은행 읽기
+9. 프로젝트 자료를 중앙으로 올릴 후보가 있으면 `RAW_MATERIAL_INTAKE_PROTOCOL.md` 읽기
+10. 해당 프로젝트의 어댑터 문서 만들기
+11. 기존 프로젝트 문서가 있다면 중앙 원본과 충돌 감사
+12. 충돌을 `중앙 우선 / 프로젝트 우선 / 중앙 업데이트 필요 / 확인 필요`로 분류
+13. 프로젝트 적용 결과는 프로젝트 내부 문서에 기록한다. 중앙 `CHANGELOG.md`에는 중앙 원본 변경 또는 중앙 승격이 확정된 내용만 기록한다.
 
 ## 7. 프로젝트 총괄 적용 보고 형식
 
@@ -165,6 +172,12 @@
 민감 정보 노출 여부:
 사진/디자인 기준 적용 여부:
 토큰 사용 여부:
+상품/자산 위키 확인 여부:
+자산 usageStatus/privacyStatus/claimRisk 확인 여부:
+사용한 source_id / asset_id / claim_id / proof_id:
+review_due 또는 재확인 필요 시점:
+retired/superseded 자료 사용 여부:
+외부 발행 가능 여부:
 원료 은행 사용 여부:
 원료 상태값 확인 여부:
 변동 claim 근거 확인 여부:
