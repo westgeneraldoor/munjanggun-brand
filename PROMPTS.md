@@ -2,7 +2,7 @@
 
 > 버전: v1.8
 > 최종 업데이트: 2026-07-01
-> 변경 요약: 상품별 상세페이지 자산 위키와 공식 제작 자산 재사용 기준을 프로젝트 하달 프롬프트에 반영
+> 변경 요약: 상품별 상세페이지 자산 위키, 공식 제작 자산 재사용 기준, v4.0 claim gate 확인 규칙을 프로젝트 하달 프롬프트에 반영
 
 ## 1. 프로젝트 총괄 세션 공통 적용 프롬프트
 
@@ -261,10 +261,12 @@ GitHub 저장소: https://github.com/westgeneraldoor/munjanggun-brand
 ./FAQ_OBJECTION_BANK.md
 ./COPY_ASSET_BANK.md
 ./PROJECT_ADAPTERS.md
+./CHANGELOG.md
 
 이 프로젝트는 블로그 전략, 검색 유입, 고객 고민형 제목, 실제 시공 사진 기반 썸네일 기준이 중요합니다.
 
 요청:
+- 먼저 CHANGELOG.md의 최신 버전과 EVIDENCE_REGISTER.md의 claim 상태를 확인한 뒤 적용 범위를 정리해주세요.
 - 기존 docs/strategy/BRAND_CONTEXT.md와 중앙 원본의 차이를 확인해주세요.
 - docs/brand/BRAND_SOURCE.md와 docs/brand/BLOG_BRAND_ADAPTER.md가 있으면 먼저 읽고, 없으면 새로 만드세요.
 - 기존 블로그 글 생성 규칙이 중앙 BRAND_CONTEXT.md의 말투, 금지 표현, 고객 언어 사전과 맞는지 점검해주세요.

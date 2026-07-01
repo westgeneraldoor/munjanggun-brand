@@ -4,6 +4,7 @@
 > 최종 업데이트: 2026-07-01
 > source_id: `SRC-2026-07-01-ONESLIDING-DETAILPAGE`
 > product_id: `PROD-ONE-SLIDING-MIDDLE-DOOR`
+> proof_id: `PROOF-ONESLIDING-DETAILPAGE-ASSETS-2026-07-01`
 > manifest: `문장군상품/원슬라이딩중문/asset-manifest.json`
 
 ## 1. 소스 요약
@@ -24,7 +25,9 @@
 
 ## 3. 사용 기준
 
+- 운영 상태 요약: `usageStatus=candidate` 105개, `privacyStatus=official_reviewed` 105개, `claimRisk=high` 9개 / `medium` 86개 / `low` 10개.
+- 개별 자산의 최종 상태, 순서, 파일 경로, 해시는 manifest를 우선한다.
+- 증거 묶음 상태는 `PROOF_ASSET_INDEX.md`의 `PROOF-ONESLIDING-DETAILPAGE-ASSETS-2026-07-01`을 함께 본다.
 - 문장군 공식 제작·검토 결과물이므로 개인정보 OCR 재검수 대상이 아니다.
 - 상품 구조와 이미지 탐색은 `vetted`로 사용 가능하다.
 - 가격, 이벤트, 월 납입, 옵션, 스펙 문구는 원본 상세페이지 밖에서 재사용하기 전 `EVIDENCE_REGISTER.md`를 확인한다.
-- 실제 파일 경로, 순서, 해시는 manifest를 기준으로 한다.

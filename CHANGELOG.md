@@ -22,6 +22,11 @@
 
 - 프로젝트 하달 프롬프트 보강
   - `PROMPTS.md`에 상품 위키 `vetted` 사용 범위와 변동 claim 우선 확인 규칙 추가
+- PR #8 협업 재검수 후 보강
+  - `README.md`, `FAQ_OBJECTION_BANK.md`, `PROMPTS.md`, `PROJECT_ADAPTERS.md`의 최신 버전/하달 기준 보강
+  - `COPY_ASSET_BANK.md`의 네이버 상품 리뷰 3.5만 문장을 네이버 상품 리뷰 범위 안으로 축소
+  - 6개 상세페이지 자산 인덱스에 `proof_id`, manifest 상태 요약, `PROOF_ASSET_INDEX.md` 연결 복원
+  - ABS도어 방문교체 원본 패키지3/4 자산과 현재 발행 기준 패키지1/2의 경계 문구 추가
 
 ## v3.9 - 2026-07-01
 
