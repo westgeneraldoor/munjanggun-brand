@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>문장군 브랜드 가이드라인 v4.0 · 동네 온기</title>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css" />
+<link rel="stylesheet" href="tokens/brand.css">
+<style>
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;background:var(--mg-ivory);color:var(--mg-text);
+    font-family:var(--mg-font-body);line-height:1.68;-webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px;}
+  section{padding:var(--mg-space-section) 0;border-bottom:1px solid var(--mg-border);}
+  section:last-of-type{border-bottom:none;}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    font-size:13px;font-weight:700;letter-spacing:.02em;
+    color:var(--mg-clay);margin-bottom:var(--mg-space-md);
+    background:var(--mg-badge-clay-bg);padding:6px 14px;border-radius:var(--mg-radius-full);
+  }
+  h1,h2,h3,h4{margin:0;font-weight:800;color:var(--mg-text);}
+  h2{font-size:30px;margin-bottom:var(--mg-space-lg);letter-spacing:-.01em;}
+  h2 .num{color:var(--mg-clay-light);margin-right:10px;}
+  p{margin:0 0 var(--mg-space-md);color:var(--mg-text-sub);}
+  .lede{font-size:17px;max-width:680px;}
+  a{color:var(--mg-clay);}
+
+  /* NAV */
+  nav.top{position:sticky;top:0;background:rgba(251,247,241,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--mg-border);z-index:20;}
+  nav.top .wrap{display:flex;justify-content:space-between;align-items:center;padding:12px 24px;gap:16px;}
+  .brand-mini{display:flex;align-items:center;gap:8px;font-weight:800;font-size:14px;flex-shrink:0;}
+  .brand-mini svg{flex-shrink:0;}
+  .toc{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;}
+  .toc::-webkit-scrollbar{display:none;}
+  .toc a{white-space:nowrap;font-size:12.5px;font-weight:700;color:var(--mg-text-sub);text-decoration:none;padding:6px 10px;border-radius:var(--mg-radius-full);}
+  .toc a:hover{background:var(--mg-surface-alt);color:var(--mg-clay);}
+
+  /* HERO */
+  .hero{
+    background:radial-gradient(circle at 12% 15%, #E9C79A 0%, transparent 45%),
+               radial-gradient(circle at 88% 85%, #C9DCC4 0%, transparent 45%),
+               linear-gradient(160deg,#F3E4D0 0%, #F8EFE2 100%);
+    padding:64px 0 var(--mg-space-xxl);border-bottom:none;
+  }
+  .hero .wrap{display:flex;flex-direction:column;gap:var(--mg-space-lg);}
+  .hero .tag-row{display:flex;gap:8px;flex-wrap:wrap;}
+  .hero .concept-tag{
+    background:#fff;color:var(--mg-clay);font-size:13px;font-weight:700;
+    padding:7px 16px;border-radius:var(--mg-radius-full);box-shadow:var(--mg-shadow-soft);
+  }
+  .hero .mission{font-size:15px;font-weight:700;color:var(--mg-sage-text);letter-spacing:.01em;}
+  .hero h1{font-size:42px;line-height:1.4;max-width:760px;letter-spacing:-.01em;}
+  .hero h1 em{color:var(--mg-clay);font-style:normal;}
+  .hero .sub{color:var(--mg-text-sub);font-size:17px;max-width:620px;}
+  .hero .meta{display:flex;gap:var(--mg-space-lg);margin-top:var(--mg-space-md);flex-wrap:wrap;}
+  .hero .meta div{font-size:13px;color:var(--mg-text-sub);}
+  .hero .meta b{display:block;color:var(--mg-text);font-size:15px;font-weight:700;margin-bottom:2px;}
+
+  /* MISSION/PHILOSOPHY */
+  .mission-statement{
+    background:var(--mg-ink);color:var(--mg-ink-text);border-radius:var(--mg-radius-lg);
+    padding:var(--mg-space-xxl) var(--mg-space-xl);text-align:center;margin-bottom:var(--mg-space-xl);
+  }
+  .mission-statement .kicker{font-size:13px;font-weight:700;color:var(--mg-ink-subtext);letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px;}
+  .mission-statement .line{font-size:30px;font-weight:800;line-height:1.5;max-width:640px;margin:0 auto;}
+  .philosophy-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--mg-space-lg);}
+  .philosophy-card{background:var(--mg-surface);border:1px solid var(--mg-border);border-radius:var(--mg-radius-md);padding:var(--mg-space-lg);}
+  .philosophy-card .n{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:var(--mg-radius-full);background:var(--mg-badge-clay-bg);color:var(--mg-clay);font-weight:800;font-size:14px;margin-bottom:var(--mg-space-md);}
+  .philosophy-card h4{font-size:17px;margin-bottom:8px;}
+  .philosophy-card p{font-size:14px;margin:0;}
+  .not-believe{margin-top:var(--mg-space-lg);background:var(--mg-badge-ochre-bg);border-radius:var(--mg-radius-md);padding:var(--mg-space-lg);}
+  .not-believe h4{font-size:14px;color:var(--mg-ochre-dark);margin-bottom:10px;}
+  .not-believe ul{margin:0;padding-left:18px;}
+  .not-believe li{font-size:14px;color:var(--mg-text);margin-bottom:6px;}
+
+  /* BRAND LINE */
+  .brandline-card{background:var(--mg-surface);border:1px solid var(--mg-border);border-radius:var(--mg-radius-lg);padding:var(--mg-space-lg);}
+  .brandline-card .main{font-size:25px;line-height:1.6;color:var(--mg-text);margin-bottom:var(--mg-space-md);font-weight:800;}
+  .brandline-card .support{font-size:15px;color:var(--mg-text-sub);margin:0;}
+  .variant{margin-top:var(--mg-space-md);font-size:14px;color:var(--mg-clay);font-weight:700;}
+  .impression-row{display:flex;gap:var(--mg-space-lg);margin-top:var(--mg-space-lg);flex-wrap:wrap;}
+  .impression-col{flex:1;min-width:220px;}
+  .impression-col h4{font-size:13px;color:var(--mg-text-sub);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;}
+  .chip-row{display:flex;flex-wrap:wrap;gap:8px;}
+  .chip{font-size:13px;font-weight:700;padding:6px 12px;border-radius:var(--mg-radius-full);}
+  .chip-good{background:var(--mg-badge-sage-bg);color:var(--mg-sage-text);}
+  .chip-bad{background:#F7EAE6;color:var(--mg-error);text-decoration:line-through;text-decoration-thickness:1.5px;}
+
+  /* MOOD */
+  .mood-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--mg-space-md);margin-top:var(--mg-space-lg);}
+  .mood-block{aspect-ratio:4/3;border-radius:var(--mg-radius-md);display:flex;align-items:flex-end;padding:var(--mg-space-md);font-size:13px;font-weight:700;color:#fff;}
+  .mood-1{background:linear-gradient(135deg,#E9C79A,#BD6A44);}
+  .mood-2{background:linear-gradient(135deg,#C9DCC4,#5C7A62);}
+  .mood-3{background:linear-gradient(135deg,#D9A441,#A9781F);}
+  .mood-note{font-size:14px;color:var(--mg-text-sub);margin-top:var(--mg-space-md);}
+  .imagery-list{margin-top:var(--mg-space-lg);display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+  .imagery-list li{list-style:none;font-size:14px;background:var(--mg-surface);border:1px solid var(--mg-border);border-radius:var(--mg-radius-sm);padding:12px 14px;}
+
+  /* PALETTE */
+  .palette-group-title{font-size:13px;font-weight:700;color:var(--mg-text-sub);text-transform:uppercase;letter-spacing:.05em;margin:var(--mg-space-lg) 0 10px;}
+  .palette-group-title:first-child{margin-top:0;}
+  .swatch-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--mg-space-md);}
+  .swatch{border:1px solid var(--mg-border);border-radius:var(--mg-radius-md);overflow:hidden;background:var(--mg-surface);}
+  .swatch .chip-color{height:88px;}
+  .swatch .info{padding:var(--mg-space-md);}
+  .swatch .info b{display:block;font-size:14px;margin-bottom:2px;}
+  .swatch .info span{display:block;font-size:12px;color:var(--mg-text-sub);font-family:monospace;}
+  .swatch .info .role{font-size:12px;color:var(--mg-text-sub);margin-top:6px;line-height:1.5;}
+  .wcag{display:inline-block;margin-top:8px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:var(--mg-radius-full);}
+  .wcag.pass{background:var(--mg-badge-sage-bg);color:var(--mg-sage-text);}
+  .wcag.large{background:var(--mg-badge-ochre-bg);color:var(--mg-ochre-dark);}
+  .wcag.na{background:var(--mg-surface-alt);color:var(--mg-text-sub);}
+  .forbidden-box{margin-top:var(--mg-space-lg);background:#F7EAE6;border:1px solid #E7C9C0;border-radius:var(--mg-radius-md);padding:var(--mg-space-lg);}
+  .forbidden-box h4{font-size:14px;color:var(--mg-error);margin-bottom:10px;}
+  .forbidden-box ul{margin:0;padding-left:18px;}
+  .forbidden-box li{font-size:14px;margin-bottom:6px;color:var(--mg-text);}
+
+  /* TYPE */
+  .type-row{padding:var(--mg-space-md) 0;border-bottom:1px dashed var(--mg-border);display:flex;justify-content:space-between;align-items:baseline;gap:var(--mg-space-lg);flex-wrap:wrap;}
+  .type-row:last-child{border-bottom:none;}
+  .type-sample{flex:1;min-width:280px;color:var(--mg-text);}
+  .type-label{font-size:12px;color:var(--mg-text-sub);font-family:monospace;white-space:nowrap;}
+
+  /* SPACING/RADIUS */
+  .scale-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:var(--mg-space-md);margin-top:var(--mg-space-lg);}
+  .scale-item{text-align:center;}
+  .scale-box{background:var(--mg-clay-light);margin:0 auto 10px;}
+  .scale-item .label{font-size:12px;font-family:monospace;color:var(--mg-text-sub);}
+  .radius-demo{width:64px;height:64px;background:var(--mg-sage);}
+
+  /* LOGO */
+  .logo-stage{background:var(--mg-surface-alt);border-radius:var(--mg-radius-lg);padding:var(--mg-space-xxl);display:flex;align-items:center;justify-content:center;gap:var(--mg-space-xxl);flex-wrap:wrap;margin-top:var(--mg-space-lg);}
+  .wordmark{display:flex;align-items:center;gap:14px;}
+  .wordmark .word{font-size:38px;font-weight:800;color:var(--mg-clay);letter-spacing:-.01em;}
+  .wordmark .word em{color:var(--mg-sage);font-style:normal;}
+  .logo-note{font-size:13px;color:var(--mg-text-sub);text-align:center;max-width:220px;}
+  .misuse-row{display:flex;gap:var(--mg-space-md);margin-top:var(--mg-space-lg);flex-wrap:wrap;}
+  .misuse-item{flex:1;min-width:160px;text-align:center;padding:var(--mg-space-md);background:var(--mg-surface);border:1px solid var(--mg-border);border-radius:var(--mg-radius-sm);}
+  .misuse-item .x{color:var(--mg-error);font-size:12px;font-weight:700;margin-top:8px;}
+
+  /* COMPONENTS */
+  .comp-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--mg-space-lg);margin-top:var(--mg-space-lg);}
+  .comp-block{background:var(--mg-surface);border:1px solid var(--mg-border);border-radius:var(--mg-radius-md);padding:var(--mg-space-lg);}
+  .comp-block h4{font-size:14px;margin-bottom:var(--mg-space-md);color:var(--mg-text-sub);font-weight:700;}
+  .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;}
+  .card-demo{border:1px solid var(--mg-border);border-radius:var(--mg-radius-md);overflow:hidden;background:var(--mg-surface);}
+  .card-demo .thumb{height:130px;background:linear-gradient(135deg,#E9C79A,#9C4E2C);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700;}
+  .card-demo .body{padding:var(--mg-space-md);}
+  .card-demo .name{font-weight:800;font-size:15px;margin-bottom:4px;}
+  .card-demo .desc{font-size:13px;color:var(--mg-text-sub);margin-bottom:10px;}
+  .field-demo{margin-bottom:var(--mg-space-md);}
+  .field-demo:last-child{margin-bottom:0;}
+  .field-demo .mg-form-label{margin-bottom:6px;}
+  .field-state-label{font-size:11px;font-weight:700;color:var(--mg-text-sub);margin-left:8px;}
+
+  /* DO/DONT */
+  .dd-table{width:100%;border-collapse:collapse;margin-top:var(--mg-space-lg);}
+  .dd-table th,.dd-table td{text-align:left;padding:10px 14px;font-size:14px;border-bottom:1px solid var(--mg-border);}
+  .dd-table th{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--mg-text-sub);}
+  .dd-table td.do{color:var(--mg-sage-text);}
+  .dd-table td.dont{color:var(--mg-error);}
+
+  /* CHANNEL MOCKUPS */
+  .channel-block{margin-bottom:var(--mg-space-xxl);}
+  .channel-block:last-child{margin-bottom:0;}
+  .channel-label{display:flex;align-items:center;gap:10px;margin-bottom:var(--mg-space-md);}
+  .channel-label .dot{width:8px;height:8px;border-radius:50%;background:var(--mg-clay);}
+  .channel-label h3{font-size:18px;}
+
+  .mock-home{background:radial-gradient(circle at 15% 20%,#E9C79A,transparent 45%),radial-gradient(circle at 85% 80%,#C9DCC4,transparent 45%),linear-gradient(160deg,#F3E4D0,#F8EFE2);border-radius:var(--mg-radius-lg);padding:var(--mg-space-xxl) var(--mg-space-xl);}
+  .mock-home h2{font-size:32px;max-width:520px;line-height:1.4;}
+  .mock-home p{font-size:15px;max-width:440px;}
+  .mock-trust{display:flex;gap:10px;margin-top:var(--mg-space-lg);flex-wrap:wrap;}
+
+  .mock-blog{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--mg-space-md);}
+  .mock-blog .post{background:var(--mg-surface);border:1px solid var(--mg-border);border-radius:var(--mg-radius-md);overflow:hidden;}
+  .mock-blog .post .thumb{aspect-ratio:16/9;background:linear-gradient(135deg,#C9DCC4,#5C7A62);}
+  .mock-blog .post .thumb.t2{background:linear-gradient(135deg,#E9C79A,#BD6A44);}
+  .mock-blog .post .thumb.t3{background:linear-gradient(135deg,#F7E7C4,#D9A441);}
+  .mock-blog .post .body{padding:14px;}
+  .mock-blog .post .title{font-size:15px;font-weight:700;margin-bottom:6px;}
+  .mock-blog .post .date{font-size:12px;color:var(--mg-text-sub);}
+
+  .mock-form{background:var(--mg-surface);border:1px solid var(--mg-border);border-radius:var(--mg-radius-lg);padding:var(--mg-space-xl);max-width:480px;}
+  .mock-form .steps{display:flex;gap:6px;margin-bottom:var(--mg-space-lg);}
+  .mock-form .step{flex:1;height:4px;border-radius:var(--mg-radius-full);background:var(--mg-border);}
+  .mock-form .step.active{background:var(--mg-clay);}
+  .mock-form .step-label{font-size:12px;font-weight:700;color:var(--mg-clay);margin-bottom:var(--mg-space-md);}
+
+  footer{padding:var(--mg-space-xxl) 0;text-align:center;}
+  footer p{font-size:13px;color:var(--mg-text-sub);}
+
+  @media (max-width:820px){
+    .hero h1{font-size:30px;}
+    .mission-statement .line{font-size:22px;}
+    .philosophy-grid{grid-template-columns:1fr;}
+    .mood-grid{grid-template-columns:1fr 1fr;}
+    .imagery-list{grid-template-columns:1fr;}
+    .comp-grid{grid-template-columns:1fr;}
+    .mock-blog{grid-template-columns:1fr;}
+    .toc{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<nav class="top"><div class="wrap">
+  <div class="brand-mini">
+    <svg width="22" height="22" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="20" y="14" width="80" height="92" rx="24" stroke="#9C4E2C" stroke-width="8"/>
+      <path d="M60 20 V100" stroke="#5C7A62" stroke-width="8" stroke-linecap="round"/>
+      <circle cx="72" cy="60" r="6" fill="#D9A441"/><circle cx="48" cy="60" r="6" fill="#D9A441"/>
+    </svg>
+    문장군 브랜드 가이드라인
+  </div>
+  <div class="toc">
+    <a href="#mission">미션·철학</a>
+    <a href="#identity">정체성</a>
+    <a href="#mood">무드</a>
+    <a href="#color">컬러</a>
+    <a href="#type">타이포</a>
+    <a href="#logo">로고</a>
+    <a href="#components">컴포넌트</a>
+    <a href="#voice">보이스</a>
+    <a href="#channels">채널 적용</a>
+    <a href="#a11y">접근성</a>
+  </div>
+</div></nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="tag-row">
+      <span class="concept-tag">v4.0 · 동네 온기 (Neighborhood Warmth)</span>
+    </div>
+    <div class="mission">문을 고르는 부담을, 고객 대신 짊어진다</div>
+    <h1>편하게 물어보세요,<br><em>가까운 문 전문가</em>니까요</h1>
+    <p class="sub">문장군 홈페이지, 자체제작 블로그, 무료 방문실측 상담접수 웹앱 전체에 적용하는 종합 브랜드 가이드라인입니다. 미션과 철학부터 컬러·타이포·컴포넌트, 채널별 적용 예시까지 하나의 문서에 담았습니다.</p>
+    <div class="meta">
+      <div><b>적용 범위</b>홈 · 블로그 · 상담접수</div>
+      <div><b>핵심 컬러</b>클레이 · 세이지 · 오커</div>
+      <div><b>서체</b>Pretendard (Medium 이상)</div>
+      <div><b>토큰 소스</b>tokens/brand.css · brand.tokens.json</div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section id="mission">
+    <span class="eyebrow">01 · Mission &amp; Philosophy</span>
+    <h2>브랜드 미션과 철학</h2>
+    <div class="mission-statement">
+      <div class="kicker">Mission</div>
+      <div class="line">문을 고르는 부담을,<br>고객 대신 짊어진다</div>
+    </div>
+    <p class="lede">문장군은 고객이 가격, 선택, 시공, 일정, A/S를 혼자 판단하지 않아도 되도록, 무료 방문실측부터 A/S까지 전 과정을 직접 책임지는 도어·중문 전문가가 되는 것을 미션으로 삼습니다. 이것은 감성 슬로건이 아니라 영업부의 무료 실측, 화성 공장 자체 제작, 전속 시공 3개팀, A/S 접수 체계로 실제 구현되어 있는 약속입니다.</p>
+    <div class="philosophy-grid">
+      <div class="philosophy-card">
+        <span class="n">1</span>
+        <h4>선택은 전문가와 함께</h4>
+        <p>고객이 색상·유리·프레임을 온라인에서 혼자 확정하게 두지 않습니다. 담당 매니저가 집 구조와 분위기를 보고 함께 좁혀드립니다.</p>
+      </div>
+      <div class="philosophy-card">
+        <span class="n">2</span>
+        <h4>가격은 숨기지 않는다</h4>
+        <p>대략적인 가격대를 먼저 보여드리되, 단일 확정가처럼 말하지 않습니다. 실측에서 추가 가능 항목을 미리 안내해 "현장에서 갑자기"라는 불안을 없앱니다.</p>
+      </div>
+      <div class="philosophy-card">
+        <span class="n">3</span>
+        <h4>책임은 시공 이후까지</h4>
+        <p>직접 제작하고 전속 시공팀이 직접 시공하기 때문에, 문제가 생기면 외주가 아니라 문장군이 답합니다. 도어 3년, 중문 2년 A/S가 그 증거입니다.</p>
+      </div>
+    </div>
+    <div class="not-believe">
+      <h4>우리가 믿지 않는 것</h4>
+      <ul>
+        <li>근거 없는 "최저가", "대한민국 No.1", "업계 최고" 같은 단정은 신뢰를 만들지 않는다고 믿습니다.</li>
+        <li>"절대 추가금 없음", "100% 만족"처럼 예외를 지우는 말은 나중에 고객을 배신한다고 믿습니다.</li>
+        <li>화려한 배너보다 실제 후기와 실측 데이터가 더 오래가는 신뢰라고 믿습니다.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="identity">
+    <span class="eyebrow">02 · Brand Identity</span>
+    <h2>브랜드 정체성</h2>
+    <div class="brandline-card">
+      <p class="main">"좋은 문을 고르는 일, 어렵지 않게 도와드립니다."</p>
+      <p class="support">무료 방문실측으로 집에 맞는 선택을 안내하고, 직접 제작과 전속 시공으로 끝까지 책임집니다.</p>
+      <p class="variant">변형 카피 — 가격은 부담 없이, 선택은 전문가와 함께, 시공은 끝까지 책임지게.</p>
+    </div>
+    <div class="impression-row">
+      <div class="impression-col">
+        <h4>지향하는 인상</h4>
+        <div class="chip-row">
+          <span class="chip chip-good">친절한 동네 전문가</span>
+          <span class="chip chip-good">따뜻한 주거 전문가</span>
+          <span class="chip chip-good">리뷰로 검증된 브랜드</span>
+        </div>
+      </div>
+      <div class="impression-col">
+        <h4>피해야 할 인상</h4>
+        <div class="chip-row">
+          <span class="chip chip-bad">할인 전단지</span>
+          <span class="chip chip-bad">차가운 대기업</span>
+          <span class="chip chip-bad">낡은 시공업체 블로그</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="mood">
+    <span class="eyebrow">03 · Mood &amp; Imagery</span>
+    <h2>무드 &amp; 이미지 방향</h2>
+    <p class="lede">담당 매니저, 시공프로 등 사람이 드러나는 상담·실측 장면의 비중을 가장 높게 둡니다. 밝은 자연광과 따뜻한 가족집 분위기를 기본으로 하고, 과도한 보정이나 그래픽 오버레이는 피합니다.</p>
+    <div class="mood-grid">
+      <div class="mood-block mood-1">따뜻한 가족집 · 우드톤</div>
+      <div class="mood-block mood-2">상담·후기 · 사람 중심</div>
+      <div class="mood-block mood-3">밝은 현관 · 편안함</div>
+    </div>
+    <p class="mood-note">무드 비율 — 사람·상담 장면 4 : 완성 시공 사진 4 : 소재/컬러 클로즈업 2</p>
+    <ul class="imagery-list">
+      <li>인물 표정이 드러나는 컷 우선 선정 (담당 매니저, 시공프로, 고객 후기)</li>
+      <li>과장된 보정·필터 없이 사실적인 톤 유지</li>
+      <li>시공/실측 데이터 장면은 그래픽 오버레이 없이 있는 그대로</li>
+      <li>어둡거나 차가운 톤의 사진은 대표 이미지로 사용하지 않음</li>
+    </ul>
+  </section>
+
+  <section id="color">
+    <span class="eyebrow">04 · Color System</span>
+    <h2>컬러 시스템</h2>
+    <p class="lede">배경 65~70%는 아이보리/화이트 중립톤, 20%는 클레이, 나머지 10%는 세이지·오커로 구성합니다. 빨강 계열 할인 강조는 사용하지 않습니다. 모든 조합은 WCAG AA 기준으로 검증했습니다.</p>
+
+    <div class="palette-group-title">기본 서피스</div>
+    <div class="swatch-grid">
+      <div class="swatch"><div class="chip-color" style="background:var(--mg-ivory);border-bottom:1px solid var(--mg-border);"></div><div class="info"><b>Ivory</b><span>#FBF7F1</span><p class="role">기본 배경</p><span class="wcag pass">본문 텍스트 14.2:1 PASS</span></div></div>
+      <div class="swatch"><div class="chip-color" style="background:var(--mg-surface);border-bottom:1px solid var(--mg-border);"></div><div class="info"><b>Surface</b><span>#FFFFFF</span><p class="role">카드, 폼 배경</p><span class="wcag pass">본문 텍스트 14.9:1 PASS</span></div></div>
+      <div class="swatch"><div class="chip-color" style="background:var(--mg-text);"></div><div class="info"><b>Text</b><span>#2E241C</span><p class="role">본문 텍스트</p><span class="wcag pass">아이보리 대비 14.2:1 PASS</span></div></div>
+      <div class="swatch"><div class="chip-color" style="background:var(--mg-text-sub);"></div><div class="info"><b>Text Sub</b><span>#78685A</span><p class="role">보조 설명, 캡션</p><span class="wcag pass">아이보리 대비 5.01:1 PASS</span></div></div>
+    </div>
+
+    <div class="palette-group-title">브랜드 컬러</div>
+    <div class="swatch-grid">
+      <div class="swatch"><div class="chip-color" style="background:var(--mg-clay);"></div><div class="info"><b>Clay</b><span>#9C4E2C</span><p class="role">주 버튼, 링크, CTA</p><span class="wcag pass">White 텍스트 5.93:1 PASS</span></div></div>
+      <div class="swatch"><div class="chip-color" style="background:var(--mg-clay-light);"></div><div class="info"><b>Clay Light</b><span>#BD6A44</span><p class="role">배지·장식·큰 텍스트 전용</p><span class="wcag large">White 텍스트 3.96:1 Large만 PASS</span></div></div>
+      <div class="swatch"><div class="chip-color" style="background:var(--mg-sage);"></div><div class="info"><b>Sage</b><span>#5C7A62</span><p class="role">보조 버튼, 배지 배경</p><span class="wcag pass">White 텍스트 4.76:1 PASS</span></div></div>
+      <div class="swatch"><div class="chip-color" style="background:var(--mg-ochre);"></div><div class="info"><b>Ochre</b><span>#D9A441</span><p class="role">아이콘·소형 포인트</p><span class="wcag large">Dark 텍스트 6.74:1 Large만 PASS</span></div></div>
+    </div>
+
+    <div class="palette-group-title">상태 · 다크 섹션</div>
+    <div class="swatch-grid">
+      <div class="swatch"><div class="chip-color" style="background:var(--mg-error);"></div><div class="info"><b>Error</b><span>#A3392A</span><p class="role">폼 에러</p><span class="wcag pass">White 텍스트 6.61:1 PASS</span></div></div>
+      <div class="swatch"><div class="chip-color" style="background:var(--mg-success);"></div><div class="info"><b>Success</b><span>#2C6B3F</span><p class="role">완료·확인 상태</p><span class="wcag pass">White 텍스트 6.40:1 PASS</span></div></div>
+      <div class="swatch"><div class="chip-color" style="background:var(--mg-ink);"></div><div class="info"><b>Ink</b><span>#2E241C</span><p class="role">푸터, 다크 섹션</p><span class="wcag pass">Ivory 텍스트 14.2:1 PASS</span></div></div>
+      <div class="swatch"><div class="chip-color" style="background:var(--mg-disabled-bg);"></div><div class="info"><b>Disabled</b><span>#EDE0D3</span><p class="role">비활성 배경</p><span class="wcag na">비활성 컨트롤 AA 예외</span></div></div>
+    </div>
+
+    <div class="forbidden-box">
+      <h4>금지 조합</h4>
+      <ul>
+        <li>Ochre 배경에 흰색 작은 텍스트 금지 (2.25:1 FAIL)</li>
+        <li>Clay Light 배경에 흰색 작은 텍스트 금지 — 24px/굵게 이상 큰 텍스트만 허용</li>
+        <li>Sage를 아이보리 배경 위 텍스트 색으로 직접 쓰지 말 것 — 텍스트는 반드시 Sage Text(#3F5643) 사용</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="type">
+    <span class="eyebrow">05 · Typography</span>
+    <h2>타이포그래피</h2>
+    <p class="lede">Pretendard 단일 서체를 사용합니다. Thin/ExtraLight처럼 얇은 웨이트는 쓰지 않습니다 — 가볍되 신뢰감을 잃지 않기 위함입니다.</p>
+    <div class="type-row"><div class="type-sample" style="font-size:44px;font-weight:800;line-height:1.4;">편하게 물어보세요</div><span class="type-label">Hero · 800 · 44px/30px</span></div>
+    <div class="type-row"><div class="type-sample" style="font-size:30px;font-weight:800;">담당 매니저가 함께 골라드립니다</div><span class="type-label">Section · 800 · 30px/24px</span></div>
+    <div class="type-row"><div class="type-sample" style="font-size:21px;font-weight:700;">무료 방문실측 견적상담</div><span class="type-label">Card · 700 · 21px/19px</span></div>
+    <div class="type-row"><div class="type-sample" style="font-size:16px;font-weight:500;color:var(--mg-text);">잘 모르겠다면, 무료 방문실측에서 담당 매니저가 함께 골라드립니다. 컬러 샘플북과 유리 샘플로 실물도 미리 확인하실 수 있어요.</div><span class="type-label">Body · 500 · 16px/15px</span></div>
+    <div class="type-row"><div class="type-sample" style="font-size:32px;font-weight:800;color:var(--mg-clay);">3.5만+<span style="display:block;font-size:12px;font-weight:600;color:var(--mg-text-sub);margin-top:4px;">네이버 상품 리뷰 기준, 2026-07-01 · EVIDENCE_REGISTER.md 최신 상태 확인 후 사용</span></div><span class="type-label">Metric · 800 · 32px/26px</span></div>
+    <div class="type-row"><div class="type-sample" style="font-size:13px;font-weight:600;color:var(--mg-text-sub);">고객센터 1599-6065 · 네이버 톡톡 상담 가능</div><span class="type-label">Caption · 600 · 13px/12px</span></div>
+
+    <div class="palette-group-title">여백 &amp; 형태</div>
+    <div class="scale-grid">
+      <div class="scale-item"><div class="scale-box" style="width:8px;height:8px;border-radius:2px;"></div><div class="label">space-xs 8px</div></div>
+      <div class="scale-item"><div class="scale-box" style="width:12px;height:12px;border-radius:2px;"></div><div class="label">space-sm 12px</div></div>
+      <div class="scale-item"><div class="scale-box" style="width:16px;height:16px;border-radius:2px;"></div><div class="label">space-md 16px</div></div>
+      <div class="scale-item"><div class="scale-box" style="width:24px;height:24px;border-radius:2px;"></div><div class="label">space-lg 24px</div></div>
+      <div class="scale-item"><div class="scale-box" style="width:36px;height:36px;border-radius:2px;"></div><div class="label">space-xl 36px</div></div>
+    </div>
+    <div class="scale-grid">
+      <div class="scale-item"><div class="radius-demo" style="border-radius:8px;"></div><div class="label">radius-xs 8px</div></div>
+      <div class="scale-item"><div class="radius-demo" style="border-radius:14px;"></div><div class="label">radius-sm 14px</div></div>
+      <div class="scale-item"><div class="radius-demo" style="border-radius:20px;"></div><div class="label">radius-md 20px</div></div>
+      <div class="scale-item"><div class="radius-demo" style="border-radius:28px;"></div><div class="label">radius-lg 28px</div></div>
+      <div class="scale-item"><div class="radius-demo" style="border-radius:999px;"></div><div class="label">radius-full</div></div>
+    </div>
+  </section>
+
+  <section id="logo">
+    <span class="eyebrow">06 · Wordmark</span>
+    <h2>로고 · 워드마크</h2>
+    <p class="lede">정식 로고 제작 전 단계의 방향입니다. 각진 프레임 대신 라운드 프레임으로 문 형태를 표현해 편안한 이웃 전문가 인상을 냅니다.</p>
+    <div class="logo-stage">
+      <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="20" y="14" width="80" height="92" rx="24" stroke="#9C4E2C" stroke-width="6"/>
+        <path d="M60 20 V100" stroke="#5C7A62" stroke-width="6" stroke-linecap="round"/>
+        <circle cx="72" cy="60" r="5" fill="#D9A441"/><circle cx="48" cy="60" r="5" fill="#D9A441"/>
+      </svg>
+      <div class="wordmark"><span class="word">문장<em>군</em></span></div>
+      <p class="logo-note">라운드 프레임 + 세이지 중심선 + 오커 손잡이로 "부드러운 전문성"을 표현합니다.</p>
+    </div>
+    <div class="misuse-row">
+      <div class="misuse-item">세이프존 25% 이상 확보<div class="x">✕ 여백 없이 붙여쓰기 금지</div></div>
+      <div class="misuse-item">최소 96px (인라인) / 24px (파비콘)<div class="x">✕ 임의 축소 금지</div></div>
+      <div class="misuse-item">지정 컬러만 사용<div class="x">✕ 그림자·입체 엠보싱 금지</div></div>
+    </div>
+  </section>
+
+  <section id="components">
+    <span class="eyebrow">07 · Components</span>
+    <h2>컴포넌트 라이브러리</h2>
+    <div class="comp-grid">
+      <div class="comp-block">
+        <h4>버튼</h4>
+        <div class="row">
+          <button class="mg-button-primary">무료 방문실측 신청</button>
+          <button class="mg-button-secondary">제품 더보기</button>
+          <button class="mg-button-tertiary">후기 보러가기</button>
+          <button class="mg-button-primary" disabled>선택 필요</button>
+        </div>
+      </div>
+      <div class="comp-block">
+        <h4>배지</h4>
+        <div class="row">
+          <span class="mg-badge mg-badge-clay">전속 시공팀 직접 시공</span>
+          <span class="mg-badge mg-badge-sage">A/S 도어 3년 · 중문 2년</span>
+          <span class="mg-badge mg-badge-ochre">고객 리뷰로 검증</span>
+        </div>
+      </div>
+      <div class="comp-block">
+        <h4>제품 카드</h4>
+        <div class="card-demo" style="max-width:260px;">
+          <div class="thumb">시공 사진 영역</div>
+          <div class="body">
+            <div class="name">3연동 중문</div>
+            <div class="desc">화성 공장 자체제작 · 전속 시공</div>
+            <span class="mg-badge mg-badge-clay">월 4만원대~</span>
+          </div>
+        </div>
+      </div>
+      <div class="comp-block">
+        <h4>CTA 배너</h4>
+        <div class="mg-cta-banner-clay" style="margin-bottom:10px;">
+          <b style="display:block;font-size:18px;margin-bottom:4px;">잘 모르겠다면, 함께 골라드립니다</b>
+          <span style="font-size:13px;opacity:.85;">무료 방문실측 견적상담</span>
+        </div>
+      </div>
+      <div class="comp-block" style="grid-column:1 / -1;">
+        <h4>폼 필드 — 상태별 (상담접수 핵심 컴포넌트)</h4>
+        <div class="row" style="align-items:flex-start;">
+          <div class="field-demo" style="flex:1;min-width:200px;">
+            <label class="mg-form-label">이름</label>
+            <input class="mg-form-field" placeholder="홍길동" value="홍길동">
+            <span class="field-state-label">Default</span>
+          </div>
+          <div class="field-demo" style="flex:1;min-width:200px;">
+            <label class="mg-form-label">연락처</label>
+            <input class="mg-form-field is-error" placeholder="010-0000-0000">
+            <p class="mg-error-message">연락처 형식을 확인해주세요.</p>
+          </div>
+          <div class="field-demo" style="flex:1;min-width:200px;">
+            <label class="mg-form-label">방문 희망일</label>
+            <input class="mg-form-field" value="2026-07-10">
+            <p class="mg-success-message">선택하신 날짜로 조정 가능합니다.</p>
+          </div>
+          <div class="field-demo" style="flex:1;min-width:200px;">
+            <label class="mg-form-label">지역 (서비스 불가)</label>
+            <input class="mg-form-field" value="비활성" disabled>
+            <span class="field-state-label">Disabled</span>
+          </div>
+        </div>
+      </div>
+      <div class="comp-block" style="grid-column:1 / -1;">
+        <h4>다크 섹션 (푸터 예시)</h4>
+        <div class="mg-dark-section" style="border-radius:var(--mg-radius-lg);padding:24px;">
+          <div style="font-weight:800;margin-bottom:8px;">문장군</div>
+          <div class="mg-subtext" style="font-size:13px;">경기도 화성 · 고객센터 1599-6065 · A/S 도어 3년 · 중문 2년</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="voice">
+    <span class="eyebrow">08 · Voice &amp; Tone</span>
+    <h2>보이스 &amp; 톤 — Do &amp; Don't</h2>
+    <p class="lede">전체 금지 표현 목록은 <code>BRAND_CONTEXT.md</code> 15장을 그대로 따릅니다. 아래는 화면에 자주 노출되는 핵심 항목입니다.</p>
+    <table class="dd-table">
+      <thead><tr><th>말해야 하는 것</th><th>말하면 안 되는 것</th></tr></thead>
+      <tbody>
+        <tr><td class="do">무료 방문실측 견적상담</td><td class="dont">근거 없는 최저가, 최고, No.1</td></tr>
+        <tr><td class="do">합리적인 가격과 오래 쓰는 품질</td><td class="dont">빨간 가격 강조, 할인 전단지식 문구</td></tr>
+        <tr><td class="do">집 분위기에 맞는 전문가 가이드</td><td class="dont">고객에게 알아서 고르라는 식의 표현</td></tr>
+        <tr><td class="do">직접 제작 · 직접 시공</td><td class="dont">외주 시공처럼 보이는 표현</td></tr>
+        <tr><td class="do">전속 시공팀과 담당 매니저 책임 관리</td><td class="dont">100% 보장, 절대 문제 없음</td></tr>
+        <tr><td class="do">도어 3년, 중문 2년 A/S</td><td class="dont">보양 작업을 한다는 표현</td></tr>
+        <tr><td class="do">실측 후 특이사항 사전 안내</td><td class="dont">현장 갑작스런 추가금 없음만 단정적으로 반복</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="channels">
+    <span class="eyebrow">09 · Channel Application</span>
+    <h2>채널별 적용 예시</h2>
+
+    <div class="channel-block">
+      <div class="channel-label"><span class="dot"></span><h3>홈페이지</h3></div>
+      <div class="mock-home">
+        <h2>편하게 물어보세요,<br>가까운 문 전문가니까요</h2>
+        <p>무료 방문실측으로 집에 맞는 선택을 안내하고, 직접 제작과 전속 시공으로 끝까지 책임집니다.</p>
+        <div class="row" style="margin-top:16px;">
+          <button class="mg-button-primary">무료 방문실측 신청</button>
+          <button class="mg-button-secondary">시공 사례 보기</button>
+        </div>
+        <div class="mock-trust">
+          <span class="mg-badge mg-badge-clay">전속 시공팀 직접 시공</span>
+          <span class="mg-badge mg-badge-sage">A/S 도어 3년 · 중문 2년</span>
+          <span class="mg-badge mg-badge-ochre">고객 리뷰로 검증</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="channel-block">
+      <div class="channel-label"><span class="dot"></span><h3>자체제작 블로그</h3></div>
+      <div class="mock-blog">
+        <div class="post"><div class="thumb"></div><div class="body"><div class="title">중문 종류, 우리 집엔 뭐가 맞을까?</div><div class="date">2026.07.02</div></div></div>
+        <div class="post"><div class="thumb t2"></div><div class="body"><div class="title">도어 교체 비용, 왜 집마다 다를까?</div><div class="date">2026.06.28</div></div></div>
+        <div class="post"><div class="thumb t3"></div><div class="body"><div class="title">현관이 답답하다면 중문부터 봐야 할까?</div><div class="date">2026.06.20</div></div></div>
+      </div>
+    </div>
+
+    <div class="channel-block">
+      <div class="channel-label"><span class="dot"></span><h3>무료 방문실측 상담접수</h3></div>
+      <div class="mock-form">
+        <div class="steps"><div class="step active"></div><div class="step"></div><div class="step"></div></div>
+        <div class="step-label">STEP 1 / 3 · 기본 정보</div>
+        <div class="field-demo">
+          <label class="mg-form-label">이름</label>
+          <input class="mg-form-field" placeholder="이름을 입력해주세요">
+        </div>
+        <div class="field-demo">
+          <label class="mg-form-label">연락처</label>
+          <input class="mg-form-field" placeholder="010-0000-0000">
+        </div>
+        <button class="mg-button-primary" style="width:100%;margin-top:8px;">다음</button>
+        <p style="text-align:center;font-size:12px;margin:14px 0 0;">전화 상담 1599-6065 · 네이버 톡톡으로도 문의 가능합니다</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="a11y">
+    <span class="eyebrow">10 · Accessibility &amp; Anti-slop</span>
+    <h2>접근성 &amp; 안티-슬롭 체크리스트</h2>
+    <div class="impression-row">
+      <div class="impression-col" style="flex:1.3;">
+        <h4>접근성</h4>
+        <ul style="padding-left:18px;margin:0;">
+          <li style="margin-bottom:8px;font-size:14px;">본문/링크는 AA(4.5:1), 큰 텍스트는 3:1 이상 유지</li>
+          <li style="margin-bottom:8px;font-size:14px;">색으로만 정보를 구분하지 않음 — 에러/성공은 아이콘·텍스트 병행</li>
+          <li style="margin-bottom:8px;font-size:14px;">포커스 아웃라인 임의 제거 금지</li>
+          <li style="margin-bottom:8px;font-size:14px;">폼 라벨은 placeholder로 대체하지 않음</li>
+          <li style="margin-bottom:8px;font-size:14px;">터치 타깃 최소 44px 이상 (버튼/폼필드 52px)</li>
+        </ul>
+      </div>
+      <div class="impression-col" style="flex:1.3;">
+        <h4>안티-슬롭</h4>
+        <ul style="padding-left:18px;margin:0;">
+          <li style="margin-bottom:8px;font-size:14px;">그라디언트 2색 이내, 네온·무지개 조합 금지</li>
+          <li style="margin-bottom:8px;font-size:14px;">그림자는 은은하게, 과도한 드롭섀도우 금지</li>
+          <li style="margin-bottom:8px;font-size:14px;">아이콘은 2px 스트로크 라운드 라인, 이모지형 금지</li>
+          <li style="margin-bottom:8px;font-size:14px;">폰트 웨이트 Medium(500) 이상만 사용</li>
+          <li style="margin-bottom:8px;font-size:14px;">반짝임·바운스 애니메이션 금지, 전환은 150~200ms</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <p>문장군 브랜드 가이드라인 v4.0 · 동네 온기 (Neighborhood Warmth) — 2026-07-03</p>
+  <p>토큰 소스: tokens/brand.css · tokens/brand.tokens.json · 전체 규칙: DESIGN.md · 변경 이력: CHANGELOG.md</p>
+</footer>
+
+</body>
+</html>

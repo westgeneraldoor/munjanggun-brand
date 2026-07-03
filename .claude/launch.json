@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "brand-guideline-preview",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "4321", "--directory", "브랜드가이드라인_시안"],
+      "port": 4321
+    },
+    {
+      "name": "brand-guideline-root",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "4322"],
+      "port": 4322
+    }
+  ]
+}

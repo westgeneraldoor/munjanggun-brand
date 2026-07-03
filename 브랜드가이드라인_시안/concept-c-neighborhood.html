@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>문장군 브랜드 가이드라인 · 컨셉 C — 동네 온기</title>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css" />
+<style>
+  :root{
+    --color-bg:#FBF7F1;
+    --color-surface:#FFFFFF;
+    --color-surface-alt:#F3E9DC;
+    --color-text:#2E241C;
+    --color-text-sub:#78685A;
+    --color-border:#EDE0D3;
+    --color-primary:#9C4E2C;
+    --color-primary-light:#BD6A44;
+    --color-secondary:#5C7A62;
+    --color-accent:#D9A441;
+    --color-accent-dark:#A9781F;
+    --radius-sm:10px;
+    --radius-md:18px;
+    --radius-lg:28px;
+    --space-3:16px;--space-4:24px;--space-5:32px;--space-6:48px;--space-7:64px;--space-8:96px;
+    --font-sans:'Pretendard Variable', Pretendard, -apple-system, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--color-bg);color:var(--color-text);font-family:var(--font-sans);line-height:1.68;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1040px;margin:0 auto;padding:0 var(--space-4);}
+  section{padding:var(--space-8) 0;border-bottom:1px solid var(--color-border);}
+  section:last-of-type{border-bottom:none;}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    font-size:13px;font-weight:700;letter-spacing:.02em;
+    color:var(--color-primary);margin-bottom:var(--space-3);
+    background:var(--color-surface-alt);padding:6px 14px;border-radius:999px;
+  }
+  h1,h2,h3,h4{margin:0;font-weight:800;color:var(--color-text);}
+  h2{font-size:27px;margin-bottom:var(--space-4);letter-spacing:-.01em;}
+  p{margin:0 0 var(--space-3);color:var(--color-text-sub);}
+  .lede{font-size:17px;max-width:640px;}
+
+  /* HERO */
+  .hero{
+    background:radial-gradient(circle at 15% 20%, #E9C79A 0%, transparent 45%),
+               radial-gradient(circle at 85% 80%, #C9DCC4 0%, transparent 45%),
+               linear-gradient(160deg,#F3E4D0 0%, #F8EFE2 100%);
+    padding:var(--space-8) 0 var(--space-7);border-bottom:none;
+  }
+  .hero .wrap{display:flex;flex-direction:column;gap:var(--space-4);}
+  .hero .concept-tag{
+    align-self:flex-start;background:#fff;color:var(--color-primary);
+    font-size:13px;font-weight:700;letter-spacing:.02em;
+    padding:7px 16px;border-radius:999px;box-shadow:0 2px 6px rgba(0,0,0,.06);
+  }
+  .hero h1{font-size:46px;line-height:1.35;font-weight:800;max-width:720px;color:var(--color-text);letter-spacing:-.01em;}
+  .hero h1 em{color:var(--color-primary);font-style:normal;}
+  .hero .sub{color:var(--color-text-sub);font-size:17px;max-width:600px;}
+  .hero .meta{display:flex;gap:var(--space-5);margin-top:var(--space-4);flex-wrap:wrap;}
+  .hero .meta div{font-size:13px;color:var(--color-text-sub);}
+  .hero .meta b{display:block;color:var(--color-text);font-size:15px;font-weight:700;margin-bottom:2px;}
+
+  /* BRAND LINE */
+  .brandline-card{
+    background:var(--color-surface);border:1px solid var(--color-border);
+    border-radius:var(--radius-lg);padding:var(--space-5);
+  }
+  .brandline-card .main{font-size:25px;line-height:1.6;color:var(--color-text);margin-bottom:var(--space-3);font-weight:800;}
+  .brandline-card .support{font-size:15px;color:var(--color-text-sub);margin:0;}
+  .variant{margin-top:var(--space-3);font-size:14px;color:var(--color-primary);font-weight:700;}
+
+  /* MOOD */
+  .mood-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-3);margin-top:var(--space-4);}
+  .mood-block{
+    aspect-ratio:4/3;border-radius:var(--radius-md);
+    display:flex;align-items:flex-end;padding:var(--space-3);
+    font-size:13px;font-weight:700;color:#fff;
+  }
+  .mood-1{background:linear-gradient(135deg,#E9C79A,#BD6A44);}
+  .mood-2{background:linear-gradient(135deg,#C9DCC4,#5C7A62);}
+  .mood-3{background:linear-gradient(135deg,#D9A441,#A9781F);}
+  .mood-note{font-size:14px;color:var(--color-text-sub);margin-top:var(--space-3);}
+
+  /* PALETTE */
+  .swatch-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--space-3);margin-top:var(--space-4);}
+  .swatch{border:1px solid var(--color-border);border-radius:var(--radius-md);overflow:hidden;background:var(--color-surface);}
+  .swatch .chip{height:96px;}
+  .swatch .info{padding:var(--space-3);}
+  .swatch .info b{display:block;font-size:14px;margin-bottom:2px;}
+  .swatch .info span{display:block;font-size:12px;color:var(--color-text-sub);font-family:monospace;}
+  .swatch .info .role{font-size:12px;color:var(--color-text-sub);margin-top:6px;line-height:1.5;}
+  .wcag{display:inline-block;margin-top:8px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;}
+  .wcag.pass{background:#E4EFE7;color:#2C6B3F;}
+  .wcag.large{background:#FBF0DD;color:#8A5A12;}
+  .wcag.fail{background:#FBE3E1;color:#A3392A;}
+
+  /* TYPE */
+  .type-row{padding:var(--space-3) 0;border-bottom:1px dashed var(--color-border);display:flex;justify-content:space-between;align-items:baseline;gap:var(--space-4);flex-wrap:wrap;}
+  .type-row:last-child{border-bottom:none;}
+  .type-sample{flex:1;min-width:280px;}
+  .type-label{font-size:12px;color:var(--color-text-sub);font-family:monospace;white-space:nowrap;}
+  .t-h1{font-size:42px;font-weight:800;line-height:1.4;letter-spacing:-.01em;}
+  .t-h2{font-size:28px;font-weight:800;}
+  .t-h3{font-size:21px;font-weight:700;}
+  .t-body{font-size:16px;font-weight:400;color:var(--color-text);}
+  .t-caption{font-size:13px;font-weight:600;color:var(--color-text-sub);}
+
+  /* LOGO */
+  .logo-stage{background:var(--color-surface-alt);border-radius:var(--radius-lg);padding:var(--space-6);display:flex;align-items:center;justify-content:center;gap:var(--space-6);flex-wrap:wrap;margin-top:var(--space-4);}
+  .wordmark{display:flex;align-items:center;gap:14px;}
+  .wordmark .word{font-size:38px;font-weight:800;color:var(--color-primary);letter-spacing:-.01em;}
+  .wordmark .word em{color:var(--color-secondary);font-style:normal;}
+  .logo-note{font-size:13px;color:var(--color-text-sub);text-align:center;max-width:210px;}
+
+  /* COMPONENTS */
+  .comp-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-5);margin-top:var(--space-4);}
+  .comp-block{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-md);padding:var(--space-4);}
+  .comp-block h4{font-size:14px;margin-bottom:var(--space-3);color:var(--color-text-sub);font-weight:700;}
+  .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;}
+  .btn{font-family:var(--font-sans);font-weight:700;font-size:14px;padding:13px 24px;border-radius:999px;border:none;cursor:default;}
+  .btn-primary{background:var(--color-primary);color:#fff;}
+  .btn-secondary{background:transparent;color:var(--color-primary);border:1.5px solid var(--color-primary-light);}
+  .btn-sage{background:var(--color-secondary);color:#fff;}
+  .badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:7px 14px;border-radius:999px;}
+  .badge-clay{background:#F3E1D4;color:var(--color-primary);}
+  .badge-sage{background:#E3ECE1;color:#3F5643;}
+  .badge-ochre{background:#F7E7C4;color:var(--color-accent-dark);}
+  .card-demo{border:1px solid var(--color-border);border-radius:var(--radius-md);overflow:hidden;background:var(--color-surface);}
+  .card-demo .thumb{height:140px;background:linear-gradient(135deg,#E9C79A,#9C4E2C);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700;}
+  .card-demo .body{padding:var(--space-3);}
+  .card-demo .name{font-weight:800;font-size:15px;margin-bottom:4px;}
+  .card-demo .desc{font-size:13px;color:var(--color-text-sub);margin-bottom:10px;}
+  .cta-banner{background:var(--color-secondary);color:#fff;border-radius:var(--radius-lg);padding:var(--space-5);display:flex;justify-content:space-between;align-items:center;gap:var(--space-4);flex-wrap:wrap;}
+  .cta-banner h3{color:#fff;font-size:20px;}
+  .cta-banner p{color:#DCE6DA;margin:4px 0 0;}
+
+  /* DO/DONT */
+  .dd-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4);margin-top:var(--space-4);}
+  .dd-col{border-radius:var(--radius-md);padding:var(--space-4);}
+  .dd-do{background:#EEF3EC;border:1px solid #CFE0CB;}
+  .dd-dont{background:#F7EAE6;border:1px solid #E7C9C0;}
+  .dd-col h4{font-size:14px;margin-bottom:var(--space-3);}
+  .dd-do h4{color:#2C6B3F;}
+  .dd-dont h4{color:#A3392A;}
+  .dd-col ul{margin:0;padding-left:18px;}
+  .dd-col li{font-size:14px;margin-bottom:8px;color:var(--color-text);}
+
+  footer{padding:var(--space-6) 0;text-align:center;}
+  footer p{font-size:13px;color:var(--color-text-sub);}
+  nav.top{position:sticky;top:0;background:rgba(251,247,241,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--color-border);z-index:10;}
+  nav.top .wrap{display:flex;justify-content:space-between;align-items:center;padding:14px var(--space-4);}
+  nav.top a{color:var(--color-text-sub);text-decoration:none;font-size:13px;font-weight:700;}
+  nav.top a:hover{color:var(--color-primary);}
+
+  @media (max-width:720px){
+    .hero h1{font-size:32px;}
+    .mood-grid{grid-template-columns:1fr 1fr;}
+    .comp-grid{grid-template-columns:1fr;}
+    .dd-grid{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<nav class="top"><div class="wrap">
+  <a href="index.html">← 컨셉 3종 비교로 돌아가기</a>
+  <a href="#">컨셉 C · 동네 온기</a>
+</div></nav>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="concept-tag">CONCEPT C · 동네 온기</span>
+    <h1>편하게 물어보세요,<br><em>가까운 문 전문가</em>니까요</h1>
+    <p class="sub">"동네 업체처럼 부담 없이 문의할 수 있어야 한다"는 문장군의 인상을 가장 앞세운 컨셉입니다. 클레이·세이지의 따뜻한 배색과 둥근 형태로 친근함을 먼저 전달하고, 신뢰는 배지·후기로 보강합니다.</p>
+    <div class="meta">
+      <div><b>추천 톤</b>친절하고 현실적인 동네 전문가</div>
+      <div><b>핵심 컬러</b>클레이 + 세이지 + 오커</div>
+      <div><b>서체</b>Pretendard (Medium~Bold 중심)</div>
+      <div><b>인상 키워드</b>친근함 · 편안함 · 사람 냄새</div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section>
+    <span class="eyebrow">01 · Brand Line</span>
+    <h2>브랜드 한 줄</h2>
+    <div class="brandline-card">
+      <p class="main">"좋은 문을 고르는 일, 어렵지 않게 도와드립니다."</p>
+      <p class="support">무료 방문실측으로 집에 맞는 선택을 안내하고, 직접 제작과 전속 시공으로 끝까지 책임집니다.</p>
+      <p class="variant">변형 카피 — 가격은 부담 없이, 선택은 전문가와 함께, 시공은 끝까지 책임지게.</p>
+    </div>
+  </section>
+
+  <section>
+    <span class="eyebrow">02 · Mood</span>
+    <h2>무드 방향</h2>
+    <p class="lede">고객과 직접 대화하는 순간(방문실측 상담, 담당 매니저와의 대화, 리뷰 후기)의 비중을 가장 높입니다. 둥근 모서리, 넉넉한 여백으로 "따뜻한 가족집" 분위기를 살립니다.</p>
+    <div class="mood-grid">
+      <div class="mood-block mood-1">따뜻한 가족집 · 우드톤</div>
+      <div class="mood-block mood-2">상담·후기 · 사람 중심</div>
+      <div class="mood-block mood-3">밝은 현관 · 편안함</div>
+    </div>
+    <p class="mood-note">인물 사진(담당 매니저, 시공프로)의 표정이 드러나는 컷을 우선 선정합니다.</p>
+  </section>
+
+  <section>
+    <span class="eyebrow">03 · Color Palette</span>
+    <h2>컬러 팔레트</h2>
+    <p class="lede">아이보리 배경 위에 클레이(따뜻함)와 세이지(안정감)를 함께 쓰고, 오커는 포인트 배지에만 절제해서 사용합니다.</p>
+    <div class="swatch-grid">
+      <div class="swatch">
+        <div class="chip" style="background:#9C4E2C;"></div>
+        <div class="info"><b>Primary Clay</b><span>#9C4E2C</span><p class="role">주요 버튼, CTA</p><span class="wcag pass">White 텍스트 5.93:1 PASS</span></div>
+      </div>
+      <div class="swatch">
+        <div class="chip" style="background:#BD6A44;"></div>
+        <div class="info"><b>Clay Light</b><span>#BD6A44</span><p class="role">배지, 큰 텍스트, 장식</p><span class="wcag large">White 텍스트 3.96:1 (Large만 PASS)</span></div>
+      </div>
+      <div class="swatch">
+        <div class="chip" style="background:#5C7A62;"></div>
+        <div class="info"><b>Secondary Sage</b><span>#5C7A62</span><p class="role">보조 버튼, 배지 배경</p><span class="wcag pass">White 텍스트 4.76:1 PASS</span></div>
+      </div>
+      <div class="swatch">
+        <div class="chip" style="background:#D9A441;"></div>
+        <div class="info"><b>Accent Ochre</b><span>#D9A441</span><p class="role">작은 포인트, 아이콘(다크 텍스트 큰 사이즈만)</p><span class="wcag large">Dark 텍스트 6.74:1 PASS(Large) / White 텍스트 FAIL</span></div>
+      </div>
+      <div class="swatch">
+        <div class="chip" style="background:#FBF7F1;border-bottom:1px solid #EDE0D3;"></div>
+        <div class="info"><b>Background Ivory</b><span>#FBF7F1</span><p class="role">기본 배경</p><span class="wcag pass">본문 텍스트 14.2:1 PASS</span></div>
+      </div>
+      <div class="swatch">
+        <div class="chip" style="background:#2E241C;"></div>
+        <div class="info"><b>Text</b><span>#2E241C</span><p class="role">본문 텍스트</p><span class="wcag pass">배경 대비 14.2:1 PASS</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <span class="eyebrow">04 · Typography</span>
+    <h2>타이포그래피</h2>
+    <p class="lede">Pretendard 단일 서체를 사용하되 Thin/ExtraLight 같은 얇은 웨이트는 배제하고 Medium 이상만 사용해 "가볍지만 신뢰감 있는" 인상을 유지합니다.</p>
+    <div class="type-row"><div class="type-sample t-h1">편하게 물어보세요, 가까운 문 전문가니까요</div><span class="type-label">H1 · Pretendard 800 · 42px</span></div>
+    <div class="type-row"><div class="type-sample t-h2">담당 매니저가 함께 골라드립니다</div><span class="type-label">H2 · Pretendard 800 · 28px</span></div>
+    <div class="type-row"><div class="type-sample t-h3">무료 방문실측 견적상담</div><span class="type-label">H3 · Pretendard 700 · 21px</span></div>
+    <div class="type-row"><div class="type-sample t-body">잘 모르겠다면, 무료 방문실측에서 담당 매니저가 함께 골라드립니다. 컬러 샘플북과 유리 샘플로 실물도 미리 확인하실 수 있어요.</div><span class="type-label">Body · Pretendard 500 · 16px</span></div>
+    <div class="type-row"><div class="type-sample t-caption">고객센터 1599-6065 · 네이버 톡톡 상담 가능</div><span class="type-label">Caption · Pretendard 600 · 13px</span></div>
+  </section>
+
+  <section>
+    <span class="eyebrow">05 · Wordmark</span>
+    <h2>로고 · 워드마크 방향</h2>
+    <p class="lede">각진 프레임 대신 둥근 라운드 프레임으로 문 모양을 표현해 딱딱한 시공업체보다 편안한 이웃 전문가 인상을 냅니다.</p>
+    <div class="logo-stage">
+      <div>
+        <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="20" y="14" width="80" height="92" rx="24" stroke="#9C4E2C" stroke-width="6"/>
+          <path d="M60 20 V100" stroke="#5C7A62" stroke-width="6" stroke-linecap="round"/>
+          <circle cx="72" cy="60" r="5" fill="#D9A441"/>
+          <circle cx="48" cy="60" r="5" fill="#D9A441"/>
+        </svg>
+      </div>
+      <div class="wordmark"><span class="word">문장<em>군</em></span></div>
+      <p class="logo-note">라운드 프레임 + 세이지 중심선 + 오커 손잡이 조합으로 "부드러운 전문성"을 표현합니다.</p>
+    </div>
+  </section>
+
+  <section>
+    <span class="eyebrow">06 · Components</span>
+    <h2>컴포넌트 적용</h2>
+    <div class="comp-grid">
+      <div class="comp-block">
+        <h4>버튼</h4>
+        <div class="row">
+          <button class="btn btn-primary">무료 방문실측 신청</button>
+          <button class="btn btn-secondary">제품 더보기</button>
+          <button class="btn btn-sage">후기 보러가기</button>
+        </div>
+      </div>
+      <div class="comp-block">
+        <h4>배지</h4>
+        <div class="row">
+          <span class="badge badge-clay">전속 시공팀 직접 시공</span>
+          <span class="badge badge-sage">A/S 도어 3년 · 중문 2년</span>
+          <span class="badge badge-ochre">고객 리뷰로 검증</span>
+        </div>
+      </div>
+      <div class="comp-block">
+        <h4>제품 카드</h4>
+        <div class="card-demo" style="max-width:260px;">
+          <div class="thumb">시공 사진 영역</div>
+          <div class="body">
+            <div class="name">3연동 중문</div>
+            <div class="desc">화성 공장 자체제작 · 전속 시공</div>
+            <span class="badge badge-clay">월 4만원대~</span>
+          </div>
+        </div>
+      </div>
+      <div class="comp-block">
+        <h4>CTA 배너</h4>
+        <div class="cta-banner">
+          <div><h3>잘 모르겠다면,<br>담당 매니저가 함께 골라드립니다</h3><p>무료 방문실측 견적상담</p></div>
+          <button class="btn" style="background:#fff;color:var(--color-secondary);">상담 신청</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <span class="eyebrow">07 · Do &amp; Don't</span>
+    <h2>지켜야 할 것 · 피해야 할 것</h2>
+    <div class="dd-grid">
+      <div class="dd-col dd-do">
+        <h4>DO</h4>
+        <ul>
+          <li>둥근 모서리 · 넉넉한 여백으로 편안한 인상 유지</li>
+          <li>담당 매니저, 리뷰, 실제 후기를 시각적으로 자주 노출</li>
+          <li>세이지 배지는 다크 텍스트(#3F5643)로, 오커는 큰 텍스트/아이콘에만 사용</li>
+        </ul>
+      </div>
+      <div class="dd-col dd-dont">
+        <h4>DON'T</h4>
+        <ul>
+          <li>오커(#D9A441) 배경에 흰색 작은 텍스트 사용 금지 (대비 2.25:1 FAIL)</li>
+          <li>세이지(#5C7A62)를 아이보리 배경 위 본문 텍스트 색으로 사용 금지 (대비 4.46:1, AA 기준 미달)</li>
+          <li>친근함을 이유로 근거 없는 "무조건 가능", "100% 만족" 같은 표현 사용 금지</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer><p>문장군 브랜드 가이드라인 · 컨셉 C 초안 v0.1 — 함께 다듬어가는 시안입니다</p></footer>
+
+</body>
+</html>

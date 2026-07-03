@@ -62,7 +62,7 @@ GitHub 기준 상대 경로를 우선 참조하세요.
 - 실제 상담·실측·시공 가능 여부·추가금·고객 오해·AppSheet 현장 활용 기준은 FIELD_JUDGMENT_RULES.md를 우선 확인하세요.
 - 디자인을 빠르게 적용할 때는 DESIGN_QUICKSTART.md를 먼저 보고, 세부 기준은 DESIGN.md를 확인하세요.
 - 실제 시공 사진, 썸네일, Before/After 이미지는 PHOTO_TREATMENT.md를 기준으로 공개 가능 여부와 보정 기준을 판단하세요.
-- 디자인이 싸구려 전단지형, 네이비 대기업형, 파스텔 생활앱형, AI 카드뉴스형으로 흐르지 않는지 ANTI_PATTERNS.md로 검수하세요.
+- 디자인이 빨간 전단지형, 차갑고 사람 없는 대기업형, 파스텔 생활앱형, AI 카드뉴스형으로 흐르지 않는지 ANTI_PATTERNS.md로 검수하세요.
 - 웹앱/랜딩 구현 시 tokens/brand.css 또는 tokens/brand.tokens.json을 우선 사용하고, 토큰 변경이 필요하면 DESIGN.md부터 수정해야 합니다.
 - 리뷰 수, 가격, A/S, 일정, 시공 시간처럼 변동 가능한 claim은 EVIDENCE_REGISTER.md의 기준일과 상태를 확인하세요.
 - 확인되지 않은 운영 기준이나 사장 확인이 필요한 항목은 OPEN_QUESTIONS_REGISTER.md를 확인하고, 외부 발행물에서 단정하지 마세요.
@@ -322,9 +322,9 @@ GitHub 저장소: https://github.com/westgeneraldoor/munjanggun-brand
 
 핵심 기준:
 - 문장군은 무료 방문실측으로 집에 맞는 선택을 돕고, 직접 제작과 전속 시공으로 끝까지 책임지는 도어·중문 전문 브랜드입니다.
-- 문장군 디자인은 Warm Craft, Guided Choice, Verified Work를 따릅니다.
-- 첫인상은 코코아 오크, 클레이 테라코타, 캐시미어 크림 기반의 따뜻한 장인성으로 만들고, 검증/전산/운영 흐름에는 네이비를 제한적으로 사용합니다.
-- 큰 제목과 브랜드 문장은 Noto Serif KR 계열을 우선하고, 본문/UI/버튼/폼은 Pretendard 또는 Noto Sans KR 계열을 사용합니다.
+- 문장군 디자인은 2026-07-03 기준 v4.0 "동네 온기(Neighborhood Warmth)" 컨셉을 따릅니다. 미션은 "문을 고르는 부담을, 고객 대신 짊어진다"이며, 선택은 전문가와 함께/가격은 숨기지 않는다/책임은 시공 이후까지 3원칙을 지킵니다.
+- 첫인상은 아이보리(`--mg-ivory`) 배경 위 클레이(`--mg-clay`, 주 버튼·CTA)와 세이지(`--mg-sage`, 보조 버튼)로 만들고, 오커(`--mg-ochre`)는 아이콘·소형 포인트에만 절제해서 씁니다. 네이비 계열은 v4.0에서 폐지되었으므로 사용하지 않습니다.
+- 서체는 Pretendard 단일 서체를 사용합니다(Medium 500 이상 웨이트만, Thin/ExtraLight 금지). Noto Serif KR 등 별도 브랜드 서체는 v4.0에서 폐지되었습니다.
 - 메인 비주얼은 제품이 인테리어와 예쁘게 어울리는 밝은 주거 공간 이미지여야 합니다.
 - 첫 화면 신뢰 배지는 무료 방문실측, 직접 제작·전속 시공, 고객 리뷰 검증 3개를 우선합니다.
 - 구현 토큰은 tokens/brand.css 또는 tokens/brand.tokens.json을 사용하고, 토큰 자체를 바꿔야 하면 중앙 DESIGN.md부터 갱신합니다.

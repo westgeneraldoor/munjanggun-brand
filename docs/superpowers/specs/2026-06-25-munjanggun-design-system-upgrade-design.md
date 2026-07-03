@@ -1,6 +1,6 @@
 # Munjanggun Design System Upgrade Design
 
-> **Archive status:** Completed/superseded historical artifact. This spec records the approved 2026-06-25 design direction that became `DESIGN.md` v3.0. Use current root documents as authority for new work.
+> **Archive status:** Completed/superseded historical artifact. This spec records the approved 2026-06-25 design direction that became `DESIGN.md` v3.0. That v3.0 direction (cocoa-oak/clay-terracotta/verified-navy, Noto Serif KR) was itself fully replaced by v4.0 "동네 온기 (Neighborhood Warmth)" on 2026-07-03 — see `DESIGN.md` and `CHANGELOG.md` v4.1. Use current root documents as authority for new work.
 
 > **Goal:** 문장군 중앙 `DESIGN.md`를 더 탄탄한 브랜드 디자인 원본으로 고도화하기 위한 승인된 디자인 방향을 정의한다.
 >

@@ -1,6 +1,6 @@
 # Munjanggun Design System Upgrade Implementation Plan
 
-> **Archive status:** Completed/superseded historical artifact. This plan was used during the 2026-06-25 design-system upgrade and is no longer an active execution plan. Current authority lives in root `README.md`, `AGENTS.md`, `DESIGN.md`, `DESIGN_QUICKSTART.md`, `PHOTO_TREATMENT.md`, `ANTI_PATTERNS.md`, `tokens/`, and `CHANGELOG.md`.
+> **Archive status:** Completed/superseded historical artifact. This plan was used during the 2026-06-25 design-system upgrade (produced `DESIGN.md` v3.0) and is no longer an active execution plan. `DESIGN.md` v3.0 was itself fully replaced by v4.0 "동네 온기 (Neighborhood Warmth)" on 2026-07-03 — see `CHANGELOG.md` v4.1. Current authority lives in root `README.md`, `AGENTS.md`, `DESIGN.md`, `DESIGN_QUICKSTART.md`, `BRAND_GUIDELINE.html`, `PHOTO_TREATMENT.md`, `ANTI_PATTERNS.md`, `tokens/`, and `CHANGELOG.md`.
 >
 > **Current repo note:** The old Git note below is preserved as history only. The brand folder is now managed as a Git repository.
 
