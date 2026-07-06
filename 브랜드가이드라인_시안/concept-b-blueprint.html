@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>문장군 브랜드 가이드라인 · 컨셉 B — 시스템 블루프린트</title>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --color-bg:#F7F8FA;
+    --color-surface:#FFFFFF;
+    --color-surface-alt:#EEF1F6;
+    --color-text:#1C2430;
+    --color-text-sub:#5B6472;
+    --color-border:#DCE1E8;
+    --color-primary:#2C5CC5;
+    --color-secondary:#2B2E33;
+    --color-accent:#E8963C;
+    --radius-sm:4px;
+    --radius-md:8px;
+    --radius-lg:12px;
+    --space-3:16px;--space-4:24px;--space-5:32px;--space-6:48px;--space-7:64px;--space-8:96px;
+    --font-sans:'Pretendard Variable', Pretendard, -apple-system, sans-serif;
+    --font-mono:'JetBrains Mono', monospace;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--color-bg);color:var(--color-text);font-family:var(--font-sans);line-height:1.6;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1040px;margin:0 auto;padding:0 var(--space-4);}
+  section{padding:var(--space-8) 0;border-bottom:1px solid var(--color-border);}
+  section:last-of-type{border-bottom:none;}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:.06em;
+    color:var(--color-primary);text-transform:uppercase;margin-bottom:var(--space-3);
+  }
+  .eyebrow::before{content:'//';color:var(--color-accent);}
+  h1,h2,h3,h4{margin:0;font-weight:700;color:var(--color-text);}
+  h2{font-size:26px;margin-bottom:var(--space-4);letter-spacing:-.01em;}
+  p{margin:0 0 var(--space-3);color:var(--color-text-sub);}
+  .lede{font-size:16px;max-width:660px;}
+
+  /* HERO — blueprint grid */
+  .hero{
+    background:
+      linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px) 0 0/40px 40px,
+      linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px) 0 0/40px 40px,
+      linear-gradient(160deg,#1D3E8F 0%, #12224F 100%);
+    color:#fff;padding:var(--space-8) 0 var(--space-7);border-bottom:none;
+  }
+  .hero .wrap{display:flex;flex-direction:column;gap:var(--space-4);}
+  .hero .concept-tag{
+    align-self:flex-start;font-family:var(--font-mono);
+    background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.3);
+    color:#FCE3BE;font-size:12px;font-weight:700;letter-spacing:.05em;
+    padding:6px 14px;border-radius:var(--radius-sm);
+  }
+  .hero h1{font-size:48px;line-height:1.3;font-weight:800;max-width:760px;letter-spacing:-.02em;}
+  .hero h1 span{color:var(--color-accent);}
+  .hero .sub{color:#B9C6E8;font-size:16px;max-width:600px;}
+  .hero .meta{display:flex;gap:var(--space-5);margin-top:var(--space-4);flex-wrap:wrap;font-family:var(--font-mono);}
+  .hero .meta div{font-size:12px;color:#8DA0D6;}
+  .hero .meta b{display:block;color:#fff;font-size:14px;font-weight:700;margin-bottom:2px;}
+
+  /* BRAND LINE */
+  .brandline-card{
+    background:var(--color-surface);border:1px solid var(--color-border);
+    border-radius:var(--radius-md);padding:var(--space-5);position:relative;
+  }
+  .brandline-card::before{
+    content:'SPEC-001';position:absolute;top:14px;right:18px;
+    font-family:var(--font-mono);font-size:11px;color:var(--color-border);font-weight:700;
+  }
+  .brandline-card .main{font-size:24px;line-height:1.5;color:var(--color-text);margin-bottom:var(--space-3);font-weight:700;}
+  .brandline-card .support{font-size:15px;color:var(--color-text-sub);margin:0;}
+  .variant{margin-top:var(--space-3);font-family:var(--font-mono);font-size:13px;color:var(--color-primary);font-weight:600;}
+
+  /* MOOD */
+  .mood-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-3);margin-top:var(--space-4);}
+  .mood-block{
+    aspect-ratio:4/3;border-radius:var(--radius-sm);
+    display:flex;align-items:flex-end;padding:var(--space-3);
+    font-family:var(--font-mono);font-size:12px;font-weight:700;color:#fff;
+    position:relative;overflow:hidden;
+  }
+  .mood-block::before{
+    content:'';position:absolute;inset:0;
+    background-image:linear-gradient(rgba(255,255,255,.15) 1px, transparent 1px),linear-gradient(90deg, rgba(255,255,255,.15) 1px, transparent 1px);
+    background-size:20px 20px;
+  }
+  .mood-1{background:linear-gradient(135deg,#2C5CC5,#12224F);}
+  .mood-2{background:linear-gradient(135deg,#2B2E33,#4A4F58);}
+  .mood-3{background:linear-gradient(135deg,#B5691C,#E8963C);}
+  .mood-note{font-size:13px;color:var(--color-text-sub);margin-top:var(--space-3);font-family:var(--font-mono);}
+
+  /* PALETTE */
+  .swatch-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--space-3);margin-top:var(--space-4);}
+  .swatch{border:1px solid var(--color-border);border-radius:var(--radius-sm);overflow:hidden;background:var(--color-surface);}
+  .swatch .chip{height:88px;}
+  .swatch .info{padding:var(--space-3);}
+  .swatch .info b{display:block;font-size:14px;margin-bottom:2px;}
+  .swatch .info span{display:block;font-size:12px;color:var(--color-text-sub);font-family:var(--font-mono);}
+  .swatch .info .role{font-size:12px;color:var(--color-text-sub);margin-top:6px;line-height:1.5;}
+  .wcag{display:inline-block;margin-top:8px;font-family:var(--font-mono);font-size:11px;font-weight:700;padding:2px 8px;border-radius:3px;}
+  .wcag.pass{background:#E1EAFB;color:#1D3E8F;}
+  .wcag.large{background:#FCEBD1;color:#8A5A12;}
+  .wcag.fail{background:#FBE3E1;color:#A3392A;}
+
+  /* TYPE */
+  .type-row{padding:var(--space-3) 0;border-bottom:1px dashed var(--color-border);display:flex;justify-content:space-between;align-items:baseline;gap:var(--space-4);flex-wrap:wrap;}
+  .type-row:last-child{border-bottom:none;}
+  .type-sample{flex:1;min-width:280px;}
+  .type-label{font-family:var(--font-mono);font-size:11px;color:var(--color-text-sub);white-space:nowrap;}
+  .t-h1{font-size:42px;font-weight:800;line-height:1.25;letter-spacing:-.02em;}
+  .t-h2{font-size:28px;font-weight:700;}
+  .t-h3{font-size:20px;font-weight:700;}
+  .t-body{font-size:16px;font-weight:400;color:var(--color-text);}
+  .t-data{font-family:var(--font-mono);font-size:16px;font-weight:700;color:var(--color-primary);}
+  .t-caption{font-size:13px;font-weight:500;color:var(--color-text-sub);}
+
+  /* LOGO */
+  .logo-stage{background:var(--color-surface-alt);border-radius:var(--radius-lg);padding:var(--space-6);display:flex;align-items:center;justify-content:center;gap:var(--space-6);flex-wrap:wrap;margin-top:var(--space-4);}
+  .wordmark{display:flex;align-items:center;gap:14px;}
+  .wordmark .word{font-size:34px;font-weight:800;color:var(--color-secondary);letter-spacing:-.01em;}
+  .wordmark .word span{color:var(--color-primary);}
+  .logo-note{font-family:var(--font-mono);font-size:12px;color:var(--color-text-sub);text-align:center;max-width:220px;}
+
+  /* COMPONENTS */
+  .comp-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-5);margin-top:var(--space-4);}
+  .comp-block{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-md);padding:var(--space-4);}
+  .comp-block h4{font-family:var(--font-mono);font-size:12px;margin-bottom:var(--space-3);color:var(--color-text-sub);font-weight:700;text-transform:uppercase;}
+  .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;}
+  .btn{font-family:var(--font-sans);font-weight:700;font-size:14px;padding:12px 22px;border-radius:var(--radius-sm);border:none;cursor:default;}
+  .btn-primary{background:var(--color-primary);color:#fff;}
+  .btn-secondary{background:transparent;color:var(--color-primary);border:1.5px solid var(--color-primary);}
+  .btn-secondary2{background:var(--color-secondary);color:#fff;}
+  .badge{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:11px;font-weight:700;padding:6px 12px;border-radius:var(--radius-sm);}
+  .badge-blue{background:#E1EAFB;color:var(--color-primary);}
+  .badge-amber{background:#FCEBD1;color:#8A5A12;}
+  .card-demo{border:1px solid var(--color-border);border-radius:var(--radius-md);overflow:hidden;background:var(--color-surface);}
+  .card-demo .thumb{height:140px;background:linear-gradient(135deg,#2C5CC5,#12224F);display:flex;align-items:center;justify-content:center;color:#fff;font-family:var(--font-mono);font-size:12px;font-weight:700;position:relative;}
+  .card-demo .thumb::after{content:'W1200 x H2100';position:absolute;bottom:8px;right:10px;font-size:10px;color:#B9C6E8;}
+  .card-demo .body{padding:var(--space-3);}
+  .card-demo .name{font-weight:700;font-size:15px;margin-bottom:4px;}
+  .card-demo .desc{font-size:13px;color:var(--color-text-sub);margin-bottom:10px;}
+  .cta-banner{background:var(--color-secondary);color:#fff;border-radius:var(--radius-lg);padding:var(--space-5);display:flex;justify-content:space-between;align-items:center;gap:var(--space-4);flex-wrap:wrap;}
+  .cta-banner h3{color:#fff;font-size:19px;}
+  .cta-banner p{color:#A9AFB8;margin:4px 0 0;font-family:var(--font-mono);font-size:13px;}
+
+  /* DO/DONT */
+  .dd-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4);margin-top:var(--space-4);}
+  .dd-col{border-radius:var(--radius-md);padding:var(--space-4);}
+  .dd-do{background:#E9F0FB;border:1px solid #C3D6F2;}
+  .dd-dont{background:#FBEAE7;border:1px solid #F0C7BE;}
+  .dd-col h4{font-family:var(--font-mono);font-size:12px;margin-bottom:var(--space-3);text-transform:uppercase;}
+  .dd-do h4{color:#1D3E8F;}
+  .dd-dont h4{color:#A3392A;}
+  .dd-col ul{margin:0;padding-left:18px;}
+  .dd-col li{font-size:14px;margin-bottom:8px;color:var(--color-text);}
+
+  footer{padding:var(--space-6) 0;text-align:center;}
+  .archive-banner{background:#FFF9F0;color:#2B2E33;border-bottom:1px solid #D8C4A4;}
+  .archive-banner .wrap{padding-top:12px;padding-bottom:12px;font-size:13px;line-height:1.6;}
+  .archive-banner b{color:#9C4E2C;}
+  .archive-banner a{color:#9C4E2C;font-weight:800;text-decoration:none;}
+  footer p{font-family:var(--font-mono);font-size:12px;color:var(--color-text-sub);}
+  nav.top{position:sticky;top:0;background:rgba(247,248,250,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--color-border);z-index:10;}
+  nav.top .wrap{display:flex;justify-content:space-between;align-items:center;padding:14px var(--space-4);}
+  nav.top a{color:var(--color-text-sub);text-decoration:none;font-family:var(--font-mono);font-size:12px;font-weight:700;}
+  nav.top a:hover{color:var(--color-primary);}
+
+  @media (max-width:720px){
+    .hero h1{font-size:30px;}
+    .mood-grid{grid-template-columns:1fr 1fr;}
+    .comp-grid{grid-template-columns:1fr;}
+    .dd-grid{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+<div class="archive-banner"><div class="wrap"><b>비채택 비교 시안입니다.</b> 현행 공식 기준은 C안 "동네 온기"를 바탕으로 정리한 <a href="../BRAND_GUIDELINE.html">BRAND_GUIDELINE.html</a>과 <a href="../DESIGN.md">DESIGN.md</a>입니다. 이 시안의 블루프린트/네이비 중심 톤은 신규 작업에 사용하지 않습니다.</div></div>
+
+<nav class="top"><div class="wrap">
+  <a href="index.html">← 컨셉 3종 비교로 돌아가기</a>
+  <a href="#">컨셉 B · 시스템 블루프린트</a>
+</div></nav>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="concept-tag">CONCEPT B · 시스템 블루프린트</span>
+    <h1>실측부터 A/S까지, <span>정확하게</span><br>설계된 시스템입니다</h1>
+    <p class="sub">레이저 레벨기로 재고, 전산으로 관리하고, 전속 팀이 시공하는 문장군의 "체계"를 시각 언어로 그대로 옮긴 컨셉입니다. 수치와 데이터를 숨기지 않고 보여줍니다.</p>
+    <div class="meta">
+      <div><b>추천 톤</b>규모 있는 시스템형 전문 브랜드</div>
+      <div><b>핵심 컬러</b>블루프린트 블루 + 그래파이트</div>
+      <div><b>서체</b>Pretendard + JetBrains Mono</div>
+      <div><b>인상 키워드</b>정확성 · 체계 · 근거</div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section>
+    <span class="eyebrow">01 · Brand Line</span>
+    <h2>브랜드 한 줄</h2>
+    <div class="brandline-card">
+      <p class="main">"좋은 문을 고르는 일, 어렵지 않게 도와드립니다."</p>
+      <p class="support">무료 방문실측으로 집에 맞는 선택을 안내하고, 직접 제작과 전속 시공으로 끝까지 책임집니다.</p>
+      <p class="variant">// VARIANT — 가격은 부담 없이, 선택은 전문가와 함께, 시공은 끝까지 책임지게.</p>
+    </div>
+  </section>
+
+  <section>
+    <span class="eyebrow">02 · Mood</span>
+    <h2>무드 방향</h2>
+    <p class="lede">실측 장면(레이저 레벨기, 태블릿, 줄자), 전산·발주 화면, 시공 현장의 비중을 높여 "감성 인테리어"보다 "근거 있는 전문가"의 인상을 우선합니다. 그리드/수치 오버레이를 절제해서 사용합니다.</p>
+    <div class="mood-grid">
+      <div class="mood-block mood-1">방문실측 · 레이저 레벨기</div>
+      <div class="mood-block mood-2">전산·발주·시공 관리</div>
+      <div class="mood-block mood-3">화성 공장 자체제작</div>
+    </div>
+    <p class="mood-note">// 그리드 오버레이는 8~10% 불투명도로 제한, 실사진 위에 과도한 수치 그래픽 금지</p>
+  </section>
+
+  <section>
+    <span class="eyebrow">03 · Color Palette</span>
+    <h2>컬러 팔레트</h2>
+    <p class="lede">배경 70%는 쿨 화이트/그레이, 20%는 블루프린트 블루, 앰버는 태그·아이콘 등 좁은 면적의 강조에만 5% 이내로 사용합니다.</p>
+    <div class="swatch-grid">
+      <div class="swatch">
+        <div class="chip" style="background:#2C5CC5;"></div>
+        <div class="info"><b>Primary Blueprint Blue</b><span>#2C5CC5</span><p class="role">주요 버튼, 링크, 데이터 강조</p><span class="wcag pass">White 텍스트 6.1:1 PASS</span></div>
+      </div>
+      <div class="swatch">
+        <div class="chip" style="background:#2B2E33;"></div>
+        <div class="info"><b>Secondary Graphite</b><span>#2B2E33</span><p class="role">헤더, 보조 버튼, 다크 섹션</p><span class="wcag pass">White 텍스트 13.6:1 PASS</span></div>
+      </div>
+      <div class="swatch">
+        <div class="chip" style="background:#E8963C;"></div>
+        <div class="info"><b>Accent Amber</b><span>#E8963C</span><p class="role">아이콘·태그 배경(다크 텍스트, 큰 사이즈 전용)</p><span class="wcag large">Dark 텍스트 6.59:1 PASS(Large) / White 텍스트 FAIL</span></div>
+      </div>
+      <div class="swatch">
+        <div class="chip" style="background:#F7F8FA;border-bottom:1px solid #DCE1E8;"></div>
+        <div class="info"><b>Background</b><span>#F7F8FA</span><p class="role">기본 배경</p><span class="wcag pass">본문 텍스트 14.7:1 PASS</span></div>
+      </div>
+      <div class="swatch">
+        <div class="chip" style="background:#1C2430;"></div>
+        <div class="info"><b>Text</b><span>#1C2430</span><p class="role">본문 텍스트</p><span class="wcag pass">배경 대비 14.7:1 PASS</span></div>
+      </div>
+      <div class="swatch">
+        <div class="chip" style="background:#5B6472;"></div>
+        <div class="info"><b>Text Sub</b><span>#5B6472</span><p class="role">보조 설명, 데이터 라벨</p><span class="wcag pass">배경 대비 5.63:1 PASS</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <span class="eyebrow">04 · Typography</span>
+    <h2>타이포그래피</h2>
+    <p class="lede">Pretendard가 기본이며, 실측 수치·일정·가격 같은 "숫자 데이터"는 JetBrains Mono로 구분해 신뢰도와 정확성을 강조합니다.</p>
+    <div class="type-row"><div class="type-sample t-h1">실측부터 A/S까지, 정확하게</div><span class="type-label">H1 · Pretendard 800 · 42px</span></div>
+    <div class="type-row"><div class="type-sample t-h2">전속 시공팀이 직접 시공합니다</div><span class="type-label">H2 · Pretendard 700 · 28px</span></div>
+    <div class="type-row"><div class="type-sample t-data">중문 시공 2~3시간 · A/S 도어 3년 · 중문 2년</div><span class="type-label">Data · JetBrains Mono 700 · 16px</span></div>
+    <div class="type-row"><div class="type-sample t-body">문장군은 화성 공장에서 중문을 자체 제작하고, 전속 시공팀이 직접 시공합니다. 접수-실측-제작-발주-시공-정산까지 전산으로 관리합니다.</div><span class="type-label">Body · Pretendard 400 · 16px</span></div>
+    <div class="type-row"><div class="type-sample t-caption">서비스 지역/출장비 기준 2026-07-01</div><span class="type-label">Caption · Pretendard 500 · 13px</span></div>
+  </section>
+
+  <section>
+    <span class="eyebrow">05 · Wordmark</span>
+    <h2>로고 · 워드마크 방향</h2>
+    <p class="lede">도어 도면(elevation drawing)을 연상시키는 치수선(dimension line)을 워드마크 옆에 배치해 "실측 기반 브랜드"임을 드러냅니다.</p>
+    <div class="logo-stage">
+      <div>
+        <svg width="130" height="120" viewBox="0 0 130 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="30" y="16" width="70" height="88" rx="2" stroke="#2C5CC5" stroke-width="4"/>
+          <line x1="65" y1="16" x2="65" y2="104" stroke="#2C5CC5" stroke-width="4"/>
+          <line x1="10" y1="16" x2="10" y2="104" stroke="#E8963C" stroke-width="2" stroke-dasharray="3 3"/>
+          <line x1="6" y1="16" x2="14" y2="16" stroke="#E8963C" stroke-width="2"/>
+          <line x1="6" y1="104" x2="14" y2="104" stroke="#E8963C" stroke-width="2"/>
+          <circle cx="75" cy="60" r="3.5" fill="#2B2E33"/>
+          <circle cx="55" cy="60" r="3.5" fill="#2B2E33"/>
+        </svg>
+      </div>
+      <div class="wordmark"><span class="word">문장<span>군</span></span></div>
+      <p class="logo-note">// 치수선 모티프는 실측실증 콘텐츠(썸네일, 상세페이지 헤더)에서만 확장 사용</p>
+    </div>
+  </section>
+
+  <section>
+    <span class="eyebrow">06 · Components</span>
+    <h2>컴포넌트 적용</h2>
+    <div class="comp-grid">
+      <div class="comp-block">
+        <h4>Button</h4>
+        <div class="row">
+          <button class="btn btn-primary">무료 방문실측 신청</button>
+          <button class="btn btn-secondary">제품 스펙 보기</button>
+          <button class="btn btn-secondary2">상담 예약</button>
+        </div>
+      </div>
+      <div class="comp-block">
+        <h4>Badge / Tag</h4>
+        <div class="row">
+          <span class="badge badge-blue">전속 시공팀</span>
+          <span class="badge badge-amber">A/S 도어 3년 · 중문 2년</span>
+        </div>
+      </div>
+      <div class="comp-block">
+        <h4>Product Card</h4>
+        <div class="card-demo" style="max-width:260px;">
+          <div class="thumb">시공 사진 + 실측 데이터</div>
+          <div class="body">
+            <div class="name">3연동 중문</div>
+            <div class="desc">화성 공장 자체제작 · 전속 시공</div>
+            <span class="badge badge-blue">월 4만원대~</span>
+          </div>
+        </div>
+      </div>
+      <div class="comp-block">
+        <h4>CTA Banner</h4>
+        <div class="cta-banner">
+          <div><h3>현장 구조부터 정확하게 확인합니다</h3><p>// FREE ON-SITE MEASUREMENT</p></div>
+          <button class="btn btn-primary">상담 신청</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <span class="eyebrow">07 · Do &amp; Don't</span>
+    <h2>지켜야 할 것 · 피해야 할 것</h2>
+    <div class="dd-grid">
+      <div class="dd-col dd-do">
+        <h4>DO</h4>
+        <ul>
+          <li>수치·기간·보증 조건을 숨기지 않고 명확히 표기</li>
+          <li>블루/그래파이트 중심, 앰버는 5% 이내 좁은 면적에만 사용</li>
+          <li>치수선·그리드 모티프로 "체계" 인상 보강 (과하지 않게)</li>
+        </ul>
+      </div>
+      <div class="dd-col dd-dont">
+        <h4>DON'T</h4>
+        <ul>
+          <li>앰버(#E8963C) 배경에 흰색 작은 텍스트 사용 금지 (대비 2.37:1 FAIL)</li>
+          <li>수치를 과장하거나 "100% 보장"처럼 근거 없이 단정 금지</li>
+          <li>차갑고 사람 없는 대기업 느낌으로 흐르지 않도록 실측/시공 인물 사진 병행</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer><p>// 문장군 브랜드 가이드라인 · 컨셉 B 초안 v0.1 — 함께 다듬어가는 시안입니다</p></footer>
+
+</body>
+</html>

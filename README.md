@@ -1,8 +1,8 @@
 # 문장군 중앙 브랜드 문서
 
-> 버전: v4.0
-> 최종 업데이트: 2026-07-01
-> 변경 요약: 블로그/외부 발행용 claim gate 정리, 7개 상품 위키 `vetted` 운영 기준 확정, FAQ/COPY 안전 문장 갱신
+> 버전: v4.1
+> 최종 업데이트: 2026-07-03
+> 변경 요약: 디자인 시스템을 v4.0 "동네 온기(Neighborhood Warmth)"로 전면 교체. `BRAND_GUIDELINE.html` 신설, `DESIGN.md`/`tokens/` 재작성, `DESIGN_QUICKSTART.md`/`ANTI_PATTERNS.md`/`AGENTS.md`/`PROMPTS.md` 동기화. 저장소 문서 버전(README/CHANGELOG)과 디자인 시스템 버전(`DESIGN.md` front matter)은 별도 트랙이다 — 자세한 내용은 `CHANGELOG.md` v4.1 항목 참고
 
 이 폴더는 문장군 브랜드의 중앙 원본입니다.
 
@@ -26,7 +26,7 @@ OPEN_QUESTIONS_REGISTER.md
 
 | 작업 유형 | 먼저 볼 문서 |
 | --- | --- |
-| 디자인, 랜딩, 카드뉴스, 썸네일 | `DESIGN_QUICKSTART.md` → `DESIGN.md` → `PHOTO_TREATMENT.md` → `ANTI_PATTERNS.md` |
+| 디자인, 랜딩, 카드뉴스, 썸네일 | `DESIGN_QUICKSTART.md` → `DESIGN.md` → `BRAND_GUIDELINE.html`(브라우저 미리보기) → `PHOTO_TREATMENT.md` → `ANTI_PATTERNS.md` |
 | 웹앱, 랜딩 구현 | `tokens/brand.tokens.json` → `tokens/brand.css` |
 | 상품 설명, 상세페이지, 이미지/GIF/썸네일 사용 | `BRAND_WIKI_ARCHITECTURE.md` → `SOURCE_REGISTRY.md` → `PRODUCT_WIKI_INDEX.md` → 필요한 상품 위키 → `ASSET_SEMANTIC_INDEX.md` → 상품별 `asset-manifest.json` |
 | 고객/현장/리뷰/FAQ/카피 원료 사용 | `BRAND_MATERIAL_INDEX.md` → 필요한 개별 원료 은행 문서 |
@@ -40,8 +40,9 @@ OPEN_QUESTIONS_REGISTER.md
 | --- | --- |
 | BRAND_CONTEXT.md | 문장군이 무엇을 말해야 하는지 정리한 브랜드 컨텍스트 |
 | FIELD_JUDGMENT_RULES.md | 고객 오해, 시공 가능 여부, 추가금, AppSheet 현장 활용 등 실제 현장 판단 기준 |
-| DESIGN.md | 문장군이 어떻게 보여야 하는지 정리한 브랜드 디자인 기준 |
-| DESIGN_QUICKSTART.md | DESIGN.md v3.0을 실무자가 빠르게 적용하기 위한 1장 요약 |
+| DESIGN.md | 문장군이 어떻게 보여야 하는지 정리한 브랜드 디자인 기준 (v4.0 동네 온기 — 미션/철학, 컬러/타이포/컴포넌트, 채널별 적용 가이드) |
+| BRAND_GUIDELINE.html | DESIGN.md v4.0을 브라우저에서 확인하는 종합 브랜드 가이드라인. 홈/블로그/상담접수 적용 예시 포함, `tokens/brand.css`를 실제로 링크해서 사용 |
+| DESIGN_QUICKSTART.md | DESIGN.md v4.0을 실무자가 빠르게 적용하기 위한 1장 요약 |
 | PHOTO_TREATMENT.md | 실제 시공 사진의 밝기, 색온도, 수직선, 개인정보, 크롭 기준 |
 | ANTI_PATTERNS.md | 문장군답지 않은 디자인 패턴과 대체 기준 |
 | EVIDENCE_REGISTER.md | 리뷰 수, 가격, A/S, 일정 등 변동 claim의 기준일과 근거 관리 |
@@ -78,8 +79,8 @@ OPEN_QUESTIONS_REGISTER.md
 | COPY_ASSET_BANK.md | 블로그, 인스타그램, 릴스, 랜딩에서 쓰는 안전한 제목/CTA/후킹 원료 |
 | tokens/brand.tokens.json | DESIGN.md 토큰을 구현용 구조화 데이터로 옮긴 파일 |
 | tokens/brand.css | 웹앱과 랜딩에서 바로 쓸 수 있는 CSS 변수 토큰 |
-| preview.html | DESIGN.md v3.0을 브라우저에서 확인하는 정적 디자인 미리보기 |
-| index.html | GitHub Pages 루트에서 preview.html로 안내하는 진입 페이지 |
+| legacy-preview-v3.html | (폐기) DESIGN.md v3.0 정적 미리보기. 참고 이력용으로만 보관, 신규 작업에는 사용하지 않음 — 현재는 `BRAND_GUIDELINE.html` 사용 |
+| index.html | GitHub Pages 루트에서 BRAND_GUIDELINE.html로 안내하는 진입 페이지 |
 | PROJECT_ADAPTERS.md | 블로그, 인스타그램, 릴스, 웹앱 등 프로젝트별 어댑터 운영 방식 |
 | CHANGELOG.md | 브랜드 기준 변경 이력 |
 | PROMPTS.md | 각 프로젝트 총괄 세션에 전달할 적용 프롬프트 |
@@ -95,7 +96,7 @@ OPEN_QUESTIONS_REGISTER.md
 | 목적 | 문서 |
 | --- | --- |
 | 필수 기준 | `BRAND_CONTEXT.md`, `FIELD_JUDGMENT_RULES.md`, `EVIDENCE_REGISTER.md`, `OPEN_QUESTIONS_REGISTER.md` |
-| 디자인 | `DESIGN.md`, `DESIGN_QUICKSTART.md`, `PHOTO_TREATMENT.md`, `ANTI_PATTERNS.md`, `tokens/` |
+| 디자인 | `DESIGN.md`, `BRAND_GUIDELINE.html`, `DESIGN_QUICKSTART.md`, `PHOTO_TREATMENT.md`, `ANTI_PATTERNS.md`, `tokens/` |
 | claim/증거 | `EVIDENCE_REGISTER.md`, `PROOF_ASSET_INDEX.md`, `REVIEW_PROOF_BANK.md` |
 | 원료 은행 | `BRAND_MATERIAL_INDEX.md`, `CUSTOMER_SEGMENTS.md`, `PRODUCT_SELECTION_GUIDE.md`, `FIELD_STORY_BANK.md`, `FAQ_OBJECTION_BANK.md`, `COPY_ASSET_BANK.md` |
 | 상품/자산 위키 | `BRAND_WIKI_ARCHITECTURE.md`, `SOURCE_REGISTRY.md`, `PRODUCT_WIKI_INDEX.md`, 상품별 위키, `ASSET_SEMANTIC_INDEX.md`, 상품별 `asset-manifest.json` |
@@ -161,7 +162,8 @@ https://github.com/westgeneraldoor/munjanggun-brand
 ./COPY_ASSET_BANK.md
 ./tokens/brand.tokens.json
 ./tokens/brand.css
-./preview.html
+./BRAND_GUIDELINE.html
+./legacy-preview-v3.html
 ./index.html
 ./PROJECT_ADAPTERS.md
 ./CHANGELOG.md
@@ -236,12 +238,14 @@ PROJECT_ADAPTERS.md
 
 ## 디자인 미리보기
 
-GitHub Pages에서 DESIGN.md v3.0 미리보기를 확인합니다.
+GitHub Pages에서 DESIGN.md v4.0(동네 온기) 미리보기를 확인합니다.
 
 ```text
 https://westgeneraldoor.github.io/munjanggun-brand/
-https://westgeneraldoor.github.io/munjanggun-brand/preview.html
+https://westgeneraldoor.github.io/munjanggun-brand/BRAND_GUIDELINE.html
 ```
+
+v3.0 미리보기는 `legacy-preview-v3.html`에 참고용으로만 남아 있습니다.
 
 ## 디자인 토큰 권위
 
@@ -251,10 +255,10 @@ https://westgeneraldoor.github.io/munjanggun-brand/preview.html
 DESIGN.md front matter
 → tokens/brand.tokens.json
 → tokens/brand.css
-→ preview.html 및 각 프로젝트 구현
+→ BRAND_GUIDELINE.html 및 각 프로젝트 구현
 ```
 
-색상, 타이포그래피, radius, spacing, 컴포넌트 토큰을 바꿀 때는 `DESIGN.md`를 먼저 수정하고, `tokens/brand.tokens.json`, `tokens/brand.css`, `preview.html`, `CHANGELOG.md`를 함께 갱신합니다.
+색상, 타이포그래피, radius, spacing, 컴포넌트 토큰을 바꿀 때는 `DESIGN.md`를 먼저 수정하고, `tokens/brand.tokens.json`, `tokens/brand.css`, `BRAND_GUIDELINE.html`, `CHANGELOG.md`를 함께 갱신합니다.
 
 미디어 토큰의 구도, 최소 해상도, 텍스트 안전영역 같은 메타데이터는 `DESIGN.md`와 `tokens/brand.tokens.json`을 기준으로 확인합니다. `tokens/brand.css`는 웹 구현에 필요한 CSS 변수만 제공합니다.
 

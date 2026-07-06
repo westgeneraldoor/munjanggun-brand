@@ -1,5 +1,31 @@
 # CHANGELOG - 문장군 중앙 브랜드 문서
 
+## v4.1 - 2026-07-03
+
+- 브랜드 디자인 시스템(`DESIGN.md`) 전면 재설계 — v3.0(cocoa-oak/clay-terracotta/verified-navy, Noto Serif KR) 폐기
+  - 3가지 컨셉 시안(웜 우드 프로페셔널 / 시스템 블루프린트 / 동네 온기)을 `브랜드가이드라인_시안/`에 제작해 비교
+  - 사용자 확정에 따라 **동네 온기(Neighborhood Warmth)** 컨셉을 중앙 디자인 시스템으로 채택
+  - `DESIGN.md`에 브랜드 미션(1장)과 철학 3원칙 신설: 선택은 전문가와 함께 / 가격은 숨기지 않는다 / 책임은 시공 이후까지
+  - 컬러 팔레트를 클레이(`#9C4E2C`)·세이지(`#5C7A62`)·오커(`#D9A441`)·아이보리(`#FBF7F1`) 체계로 교체, 전 조합 WCAG AA 대비비 검증 완료
+  - 타이포그래피를 Pretendard 단일 서체로 통일(Noto Serif KR 폐지), Thin/ExtraLight 웨이트 금지 규칙 추가
+  - 폼 필드, CTA 배너, 다크 섹션(푸터), 배지 3종 등 상담접수 폼 중심 컴포넌트 규칙 신설 — 무료 방문실측 상담접수 웹앱 적용을 염두에 둠
+  - `tokens/brand.css`, `tokens/brand.tokens.json`을 v4.0으로 재생성, v3.0 → v4.0 토큰 마이그레이션 매핑표를 `DESIGN.md` 13장에 명시
+  - `BRAND_GUIDELINE.html` 신설 — 미션/철학부터 채널별(홈/블로그/상담접수) 적용 예시까지 포함한 종합 브랜드 가이드라인 단일 문서
+
+- 버전 트랙 명확화: 저장소 문서 버전(이 CHANGELOG와 `README.md` 헤더, 예: v4.0/v4.1)과 디자인 시스템 버전(`DESIGN.md` front matter의 `version`, 예: v3.0/v4.0)은 **서로 다른 트랙**이다. 같은 "v4.0"이 문맥에 따라 다른 것을 가리킬 수 있으니 항상 어느 문서의 버전인지 확인한다.
+
+- 암행어사 감사(`_audit_2026-07-03.md`) 후속 조치 — 디자인 시스템 교체가 일부 문서에만 반영되고 나머지가 v3.0에 머물러 있던 drift를 해소
+  - `PROMPTS.md`(하류 프로젝트 전파 지점), `DESIGN_QUICKSTART.md`, `ANTI_PATTERNS.md`, `AGENTS.md`의 색상/서체 지침을 v4.0 동네 온기 기준으로 동기화
+  - `ANTI_PATTERNS.md`는 네이비 관련 안티패턴을 "차갑고 사람 없는 대기업형"으로, radius 제한 규칙을 v4.0의 의도된 큰 라운드에 맞게 재정의(파스텔 채도·클립아트 아이콘 금지로 초점 이동)
+  - `preview.html` → `legacy-preview-v3.html`로 이름 변경하고 상단에 폐기 배너 + `BRAND_GUIDELINE.html` 링크 추가
+  - `index.html` 리다이렉트 대상을 `BRAND_GUIDELINE.html`로 교체, 인라인 스타일을 v4.0 토큰으로 갱신
+  - `README.md` 헤더 버전/파일 표/디자인 입구 루트에 `BRAND_GUIDELINE.html` 등재, `legacy-preview-v3.html` 반영
+  - `OPEN_QUESTIONS_REGISTER.md`에 `OQ-022`(정식 로고·파비콘 제작 확정) 신규 등록
+  - `BRAND_GUIDELINE.html`의 리뷰 수 표본("3.5만+")에 기준일/EVIDENCE_REGISTER 확인 캡션 추가
+  - `docs/superpowers/plans`, `docs/superpowers/specs`의 2026-06-25 설계 문서 archive 배너에 v4.0 교체 사실 추가
+  - 2026-07-06 후속 정리: `PHOTO_TREATMENT.md` 기준 문서를 v4.0으로 갱신하고, `DESIGN.md`/`AGENTS.md`의 `preview.html` 잔재를 `BRAND_GUIDELINE.html`/`legacy-preview-v3.html` 구조로 정리
+  - `브랜드가이드라인_시안/`은 C안 채택 전 비교용 archive임을 명시하고, A/B/C 개별 시안 상단에 현행 공식 기준 링크와 비채택/원시 시안 안내를 추가
+
 ## v4.0 - 2026-07-01
 
 - 2026-07-02 사용자 확정 반영
