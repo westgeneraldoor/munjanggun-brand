@@ -15,7 +15,11 @@
   header{padding:72px 0 40px;text-align:center;}
   header .kicker{font-size:13px;font-weight:700;letter-spacing:.08em;color:#9C4E2C;text-transform:uppercase;margin-bottom:12px;}
   header h1{font-size:34px;font-weight:800;margin:0 0 14px;letter-spacing:-.01em;}
-  header p{font-size:16px;color:var(--text-sub);max-width:560px;margin:0 auto;}
+  header p{font-size:16px;color:var(--text-sub);max-width:620px;margin:0 auto;}
+  .archive-note{margin:0 auto 28px;max-width:860px;padding:18px 22px;border:1px solid #E2C8A8;border-radius:20px;background:#FFF9F0;color:#3A2A1E;text-align:left;}
+  .archive-note b{display:block;margin-bottom:6px;color:#9C4E2C;font-size:14px;}
+  .archive-note p{margin:0;font-size:14px;color:#6B5B4B;line-height:1.65;}
+  .archive-note a{color:#9C4E2C;font-weight:800;text-decoration:none;}
   .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;padding:20px 0 80px;}
   .card{
     background:var(--surface);border:1px solid var(--border);border-radius:20px;overflow:hidden;
@@ -44,10 +48,15 @@
 <body>
 <div class="wrap">
   <header>
-    <div class="kicker">Munjanggun Brand Guideline · Draft v0.1</div>
+    <div class="kicker">Munjanggun Brand Guideline · Archived Drafts</div>
     <h1>문장군 브랜드 가이드라인, 컨셉 3종</h1>
-    <p>기존 디자인 산출물은 참고하지 않고 처음부터 새로 제안한 시안입니다. 컬러·타이포·톤앤보이스를 각기 다른 방향으로 잡았습니다. 마음에 드는 방향을 고르시거나, 요소를 섞어서 다듬어갈 수 있습니다.</p>
+    <p>2026-07-03 디자인 시스템 재정비 과정에서 비교한 의사결정 기록입니다. 현재 공식 기준은 C안 "동네 온기"를 바탕으로 정리한 루트 <a href="../BRAND_GUIDELINE.html">BRAND_GUIDELINE.html</a>과 <a href="../DESIGN.md">DESIGN.md</a>입니다.</p>
   </header>
+
+  <div class="archive-note">
+    <b>C안 채택 완료 · 신규 작업에는 A/B안을 섞지 않습니다</b>
+    <p>이 폴더의 A/B/C 문서는 비교용 초안입니다. A안의 네이비·Noto Serif KR, B안의 블루프린트 톤은 현행 v4.0 기준이 아니며, 신규 디자인·웹앱·카드뉴스는 <a href="../BRAND_GUIDELINE.html">BRAND_GUIDELINE.html</a>, <a href="../DESIGN.md">DESIGN.md</a>, <a href="../tokens/brand.css">tokens/</a>를 기준으로 제작합니다.</p>
+  </div>
 
   <div class="grid">
     <a class="card" href="concept-a-warm-wood.html">

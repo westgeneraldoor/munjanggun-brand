@@ -99,7 +99,7 @@ spacing:
 - 이전 버전(v3.0, cocoa-oak/clay-terracotta/verified-navy 체계)은 폐기하고 전면 교체한다.
 - 이번 버전의 컨셉명은 **동네 온기 (Neighborhood Warmth)**다. 3가지 시안(웜 우드 프로페셔널 / 시스템 블루프린트 / 동네 온기) 중, "동네 업체처럼 부담 없이 문의할 수 있어야 한다"는 `BRAND_CONTEXT.md` 2장의 인상을 가장 잘 구현한다는 판단으로 확정했다.
 - `--mg-*` 접두사와 CSS 변수/JSON 이중 출력 관례는 v3.0에서 유지하되, 토큰 이름과 값은 새 컨셉에 맞춰 다시 정의했다. 기존 프로젝트가 `--mg-cocoa-oak`, `--mg-clay-terracotta`, `--mg-verified-navy` 등 v3.0 이름을 참조하고 있다면, 이 문서의 13장 "마이그레이션"을 먼저 확인한다.
-- 소스 오브 트루스 순서: 1) 이 문서 앞부분 YAML, 2) `tokens/brand.tokens.json`, 3) `tokens/brand.css`, 4) `preview.html`/`BRAND_GUIDELINE.html` 등 구현체. 토큰이 바뀌면 이 순서대로 함께 갱신하고 `CHANGELOG.md`에 기록한다.
+- 소스 오브 트루스 순서: 1) 이 문서 앞부분 YAML, 2) `tokens/brand.tokens.json`, 3) `tokens/brand.css`, 4) `BRAND_GUIDELINE.html`과 필요한 프로젝트 구현체. 토큰이 바뀌면 이 순서대로 함께 갱신하고 `CHANGELOG.md`에 기록한다. `legacy-preview-v3.html`은 폐기된 v3.0 참고 이력으로만 본다.
 
 ## 1. 브랜드 미션과 철학
 

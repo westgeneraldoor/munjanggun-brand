@@ -23,6 +23,8 @@
   - `OPEN_QUESTIONS_REGISTER.md`에 `OQ-022`(정식 로고·파비콘 제작 확정) 신규 등록
   - `BRAND_GUIDELINE.html`의 리뷰 수 표본("3.5만+")에 기준일/EVIDENCE_REGISTER 확인 캡션 추가
   - `docs/superpowers/plans`, `docs/superpowers/specs`의 2026-06-25 설계 문서 archive 배너에 v4.0 교체 사실 추가
+  - 2026-07-06 후속 정리: `PHOTO_TREATMENT.md` 기준 문서를 v4.0으로 갱신하고, `DESIGN.md`/`AGENTS.md`의 `preview.html` 잔재를 `BRAND_GUIDELINE.html`/`legacy-preview-v3.html` 구조로 정리
+  - `브랜드가이드라인_시안/`은 C안 채택 전 비교용 archive임을 명시하고, A/B/C 개별 시안 상단에 현행 공식 기준 링크와 비채택/원시 시안 안내를 추가
 
 ## v4.0 - 2026-07-01
 
