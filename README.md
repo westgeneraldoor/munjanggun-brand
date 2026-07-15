@@ -1,8 +1,24 @@
 # 문장군 중앙 브랜드 문서
 
-> 버전: v4.1
-> 최종 업데이트: 2026-07-03
-> 변경 요약: 디자인 시스템을 v4.0 "동네 온기(Neighborhood Warmth)"로 전면 교체. `BRAND_GUIDELINE.html` 신설, `DESIGN.md`/`tokens/` 재작성, `DESIGN_QUICKSTART.md`/`ANTI_PATTERNS.md`/`AGENTS.md`/`PROMPTS.md` 동기화. 저장소 문서 버전(README/CHANGELOG)과 디자인 시스템 버전(`DESIGN.md` front matter)은 별도 트랙이다 — 자세한 내용은 `CHANGELOG.md` v4.1 항목 참고
+> 버전: v4.4
+> 최종 업데이트: 2026-07-15
+> 변경 요약: Editorial Showroom v5.0의 제품 흐름 데모를 제거하고 공통 컴포넌트 상태 플레이그라운드와 하위 프로젝트 권위 경계를 확정. 저장소 문서 버전과 디자인 시스템 버전은 별도 트랙이다.
+
+## 운영 빠른 시작
+
+처음 들어온 담당자는 긴 문서 전체를 훑기 전에 `OPERATING_INDEX.md`에서 작업별 루트를 먼저 고릅니다.
+
+중앙 원본을 수정하거나 PR을 열기 전에는 아래 검증을 실행합니다.
+
+```bash
+npm test
+npm run validate
+npm run validate:design-system
+```
+
+검증 범위는 디자인 토큰 drift, 상품별 `asset-manifest.json`, evidence/open question/source registry 상태값, 자산 의미 태깅 coverage입니다. 경고는 현재 미해결 claim/open question/source 상태를 알려주는 운영 신호이며, 오류는 병합 전 수정 대상입니다.
+
+새 상품 상세페이지 이미지/GIF/영상 또는 브랜드스토어 썸네일 자산을 추가하는 담당자는 Git LFS가 설치된 환경에서 작업합니다. `.gitattributes`는 `문장군상품/**`와 `assets/product-thumbnails/**`의 대용량 시각 자산만 LFS 대상으로 둡니다. 기존 Git 히스토리의 대용량 파일 이전은 별도 결정 사항입니다.
 
 이 폴더는 문장군 브랜드의 중앙 원본입니다.
 
@@ -40,9 +56,12 @@ OPEN_QUESTIONS_REGISTER.md
 | --- | --- |
 | BRAND_CONTEXT.md | 문장군이 무엇을 말해야 하는지 정리한 브랜드 컨텍스트 |
 | FIELD_JUDGMENT_RULES.md | 고객 오해, 시공 가능 여부, 추가금, AppSheet 현장 활용 등 실제 현장 판단 기준 |
-| DESIGN.md | 문장군이 어떻게 보여야 하는지 정리한 브랜드 디자인 기준 (v4.0 동네 온기 — 미션/철학, 컬러/타이포/컴포넌트, 채널별 적용 가이드) |
-| BRAND_GUIDELINE.html | DESIGN.md v4.0을 브라우저에서 확인하는 종합 브랜드 가이드라인. 홈/블로그/상담접수 적용 예시 포함, `tokens/brand.css`를 실제로 링크해서 사용 |
-| DESIGN_QUICKSTART.md | DESIGN.md v4.0을 실무자가 빠르게 적용하기 위한 1장 요약 |
+| DESIGN.md | 문장군 Editorial Showroom v5.0 공식 디자인 정본. Ink/Forest, 타이포 락업, 토큰, 컴포넌트, 접근성 기준 |
+| BRAND_GUIDELINE.html | DESIGN.md v5.0을 실제 `tokens/brand.css`로 렌더링하는 공식 시각 가이드 |
+| DESIGN_QUICKSTART.md | DESIGN.md v5.0을 실무자가 빠르게 적용하기 위한 1장 요약 |
+| design-system/components/ | 하위 프로젝트가 참고하는 React 공통 컴포넌트 계약 |
+| design-system/playground/ | 제품 화면이 아닌 공통 컴포넌트 상태·테마·접근성 플레이그라운드 |
+| design-system/assets/fonts/ | 공식 Tmoney 서체 한 사본과 해시·출처 기록 |
 | PHOTO_TREATMENT.md | 실제 시공 사진의 밝기, 색온도, 수직선, 개인정보, 크롭 기준 |
 | ANTI_PATTERNS.md | 문장군답지 않은 디자인 패턴과 대체 기준 |
 | EVIDENCE_REGISTER.md | 리뷰 수, 가격, A/S, 일정 등 변동 claim의 기준일과 근거 관리 |
@@ -79,7 +98,6 @@ OPEN_QUESTIONS_REGISTER.md
 | COPY_ASSET_BANK.md | 블로그, 인스타그램, 릴스, 랜딩에서 쓰는 안전한 제목/CTA/후킹 원료 |
 | tokens/brand.tokens.json | DESIGN.md 토큰을 구현용 구조화 데이터로 옮긴 파일 |
 | tokens/brand.css | 웹앱과 랜딩에서 바로 쓸 수 있는 CSS 변수 토큰 |
-| legacy-preview-v3.html | (폐기) DESIGN.md v3.0 정적 미리보기. 참고 이력용으로만 보관, 신규 작업에는 사용하지 않음 — 현재는 `BRAND_GUIDELINE.html` 사용 |
 | index.html | GitHub Pages 루트에서 BRAND_GUIDELINE.html로 안내하는 진입 페이지 |
 | PROJECT_ADAPTERS.md | 블로그, 인스타그램, 릴스, 웹앱 등 프로젝트별 어댑터 운영 방식 |
 | CHANGELOG.md | 브랜드 기준 변경 이력 |
@@ -106,6 +124,12 @@ OPEN_QUESTIONS_REGISTER.md
 ## 운영 원칙
 
 중앙 브랜드 문서는 문장군 브랜드의 기본 기준입니다.
+
+중앙 브랜드는 시각·브랜드·공통 컴포넌트 계약만 관리한다.
+
+실제 화면, URL, 메뉴, 정보구조, 고객 여정, CTA 연결은 하위 프로젝트 권한이다.
+
+플레이그라운드는 제품 시안이나 구현 오더가 아니다. 서비스 프로젝트는 플레이그라운드 화면을 복사하지 않고 토큰과 공통 컴포넌트 계약만 적용한다.
 
 단, 블로그, 인스타그램, 웹앱, 운영 자동화 등 각 프로젝트의 채널 특성과 기존 구조에 따라 보조 규칙을 둘 수 있습니다.
 
@@ -163,7 +187,6 @@ https://github.com/westgeneraldoor/munjanggun-brand
 ./tokens/brand.tokens.json
 ./tokens/brand.css
 ./BRAND_GUIDELINE.html
-./legacy-preview-v3.html
 ./index.html
 ./PROJECT_ADAPTERS.md
 ./CHANGELOG.md
@@ -238,14 +261,12 @@ PROJECT_ADAPTERS.md
 
 ## 디자인 미리보기
 
-GitHub Pages에서 DESIGN.md v4.0(동네 온기) 미리보기를 확인합니다.
+GitHub Pages에서 DESIGN.md v5.0 Editorial Showroom 시각 가이드를 확인합니다.
 
 ```text
 https://westgeneraldoor.github.io/munjanggun-brand/
 https://westgeneraldoor.github.io/munjanggun-brand/BRAND_GUIDELINE.html
 ```
-
-v3.0 미리보기는 `legacy-preview-v3.html`에 참고용으로만 남아 있습니다.
 
 ## 디자인 토큰 권위
 

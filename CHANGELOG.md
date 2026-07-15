@@ -1,5 +1,54 @@
 # CHANGELOG - 문장군 중앙 브랜드 문서
 
+## v4.4 - 2026-07-15
+
+- 중앙 브랜드와 서비스 프로젝트의 권위 경계 확정
+  - 중앙은 시각·브랜드·토큰·공통 컴포넌트 계약만 관리하고 실제 화면, URL, 메뉴, 정보구조, 고객 여정, CTA 연결은 하위 프로젝트 권한으로 명시
+  - 서비스 프로젝트는 중앙 플레이그라운드 화면을 복사하지 않고 토큰과 공통 컴포넌트 계약만 적용하도록 `DESIGN.md`, `README.md`, `AGENTS.md`, `DESIGN_QUICKSTART.md`, `PROMPTS.md` 동기화
+- `design-system/demo/`의 BlogHome, ArticleDetail, ConsultForm과 홈 → 상세 → 상담 제품 흐름 제거
+- `design-system/playground/`에 BrandLockup, Button, Chip, Field, StatusText, SectionHeading, ArticleCard의 상태와 light/dark·focus-visible·reduced-motion·모바일 반응형만 확인하는 정적 플레이그라운드 추가
+- `GlassNav`의 블로그·방문실측 문구를 제거하고 메뉴·보조 액션을 하위 프로젝트가 주입하는 범용 계약으로 변경
+- 114개 CSS/JSON 토큰, 사진 구조화 메타데이터, Tmoney 한 사본과 해시, 기존 운영 경고 26건은 그대로 유지
+
+## v4.3 - 2026-07-15
+
+- Editorial Showroom 디자인 시스템 v5.0을 중앙 정본으로 승격
+  - `DESIGN.md`, `DESIGN_QUICKSTART.md`, `BRAND_GUIDELINE.html`, `tokens/brand.tokens.json`, `tokens/brand.css`를 Ink Primary / Forest Secondary 기준으로 교체
+  - 토큰을 primitive → semantic → component 구조로 재편하고 light/dark 계산 색상을 실제 소비하도록 수정
+  - 타입 기반 `문장군 / MUNJANGGUN` 락업과 공식 배포본 해시가 확인된 Tmoney RoundWind ExtraBold 한 사본만 사용
+  - 사용자 승인에 따라 `OQ-022`를 타입 락업 운영 확정으로 해소하고 가짜 SVG·임시 심벌·앱 아이콘을 만들지 않는 기준을 반영
+  - `design-system/`에 핵심 React 컴포넌트와 홈 → 상세 → 상담 데모를 분리
+  - 카드 이벤트 전달, 모바일 메뉴, 테마 전환, 필드별 검증, 개인정보 동의, 키보드·reduced-motion 접근성 보완
+  - 근거 없는 최고 표현, 자동 견적 인상, 확인되지 않은 연락 기한을 제거
+- 기존 시험용 v4 시각 시스템은 별도 preview로 보존하지 않고 활성 문서·토큰·가이드에서 제거. 과거 이력은 Git과 이 변경 기록으로만 확인
+- 과거 v3 정적 preview와 A/B/C 비교 시안 HTML도 현재 정본에서 제거해 브라우저로 따라갈 수 있는 디자인 가이드를 하나로 정리
+- `npm run validate:design-system`과 디자인 시스템 계약 테스트를 추가
+- 중앙 관제 재검수 후 구조화 원본과 검증 안전망 보강
+  - `brand.css`의 공식 `--mg-*` 고유 변수 114개를 `brand.tokens.json`이 빠짐없이 설명하도록 누락된 타이포그래피·레이아웃·그림자·모션·테마·상태 토큰 49개를 복원
+  - 반응형 media query의 조건부 재정의가 기본 토큰값을 덮어쓴 것으로 오인되지 않도록 토큰 파서를 수정하고 회귀 테스트 추가
+  - 교체 과정에서 빠졌던 히어로·사례 카드·블로그 썸네일의 비율, 최소 해상도, 초점, 텍스트 안전영역 구조화 메타데이터 복원
+
+## v4.2 - 2026-07-06
+
+- 중앙 원본 안전장치 추가
+  - `package.json`에 `npm test`, `npm run validate`, `npm run validate:tokens`, `npm run validate:manifests`, `npm run report:assets` 명령 추가
+  - `scripts/validate-brand-docs.mjs`와 공통 검증 라이브러리 추가
+  - 디자인 토큰 drift, 누락 토큰, 폐기 v3 토큰 잔존, 상품별 `asset-manifest.json` 필수 필드/파일 크기/sha256/요약 count, evidence/open question/source registry 상태값과 필수 표 누락, 자산 의미 태깅 coverage를 검증
+  - `SOURCE_REGISTRY.md`의 `index_status`/`review_status` 빈칸을 오류로 처리
+  - 미확정 claim, 미해결 open question, retired/superseded source가 재사용 문서에 직접 섞이는 경우 경고하도록 content reference gate 추가
+  - `.github/workflows/validate-brand.yml`로 PR/push 시 중앙 검증 실행
+
+- 상품 자산 운영 보강
+  - `schemas/product-detail-asset-manifest.schema.json` 추가
+  - 향후 `문장군상품/**`, `assets/product-thumbnails/**` 이미지/GIF/영상 자산을 Git LFS 대상으로 관리하도록 `.gitattributes` 추가
+  - 기존 Git 히스토리의 대용량 파일 이전은 별도 의사결정으로 남김
+
+- 적용성 강화
+  - `OPERATING_INDEX.md` 추가: 블로그, 쇼룸 UI, 인스타 카드, 상품 자산, claim, 원료 승격, 프로젝트 어댑터 작업별 decision tree 제공
+  - `templates/PROJECT_ADAPTER_TEMPLATE.md`, `templates/PROJECT_APPLICATION_REPORT_TEMPLATE.md` 추가
+  - `PROMPTS.md`에 30초 하달 프롬프트와 정밀 검수 체크 추가
+  - `README.md`에 운영 빠른 시작과 검증 명령 추가
+
 ## v4.1 - 2026-07-03
 
 - 브랜드 디자인 시스템(`DESIGN.md`) 전면 재설계 — v3.0(cocoa-oak/clay-terracotta/verified-navy, Noto Serif KR) 폐기

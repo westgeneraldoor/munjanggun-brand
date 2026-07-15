@@ -1,0 +1,25 @@
+{
+  "name": "munjanggun-brand-ops",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "validate": "node scripts/validate-brand-docs.mjs",
+    "validate:tokens": "node scripts/check-token-drift.mjs",
+    "validate:design-system": "node scripts/validate-design-system.mjs",
+    "validate:manifests": "node scripts/check-manifests.mjs",
+    "report:assets": "node scripts/report-asset-coverage.mjs",
+    "dev:design": "vite --host 127.0.0.1"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
+  },
+  "devDependencies": {
+    "vite": "^8.1.4"
+  }
+}

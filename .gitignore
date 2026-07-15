@@ -14,3 +14,6 @@ Thumbs.db
 *credentials*
 *service-account*.json
 *service_account*.json
+node_modules/
+dist/
+.playwright-cli/
