@@ -1,8 +1,44 @@
 # PROMPTS - 문장군 중앙 브랜드 문서 적용 프롬프트
 
-> 버전: v1.8
-> 최종 업데이트: 2026-07-01
-> 변경 요약: 상품별 상세페이지 자산 위키, 공식 제작 자산 재사용 기준, v4.0 claim gate 확인 규칙을 프로젝트 하달 프롬프트에 반영
+> 버전: v2.0
+> 최종 업데이트: 2026-07-15
+> 변경 요약: 중앙 브랜드와 서비스 프로젝트의 제품 화면 권위 경계 및 플레이그라운드 비복사 원칙 반영
+
+## 권위 경계
+
+중앙 브랜드는 시각·브랜드·공통 컴포넌트 계약만 관리한다. 실제 화면, URL, 메뉴, 정보구조, 고객 여정, CTA 연결은 하위 프로젝트 권한이다.
+
+플레이그라운드는 제품 시안이나 구현 오더가 아니다. 서비스 프로젝트는 플레이그라운드 화면을 복사하지 않고 토큰과 공통 컴포넌트 계약만 적용한다.
+
+## 0. 30초 하달 프롬프트
+
+```text
+문장군 중앙 브랜드 원본을 적용합니다.
+
+먼저 OPERATING_INDEX.md에서 작업 유형을 고르고, README.md, BRAND_CONTEXT.md, FIELD_JUDGMENT_RULES.md, DESIGN.md, EVIDENCE_REGISTER.md, OPEN_QUESTIONS_REGISTER.md, PROJECT_ADAPTERS.md를 확인하세요.
+
+디자인/웹앱이면 tokens/brand.css와 tokens/brand.tokens.json을 사용하고, 상품/이미지/GIF를 다루면 PRODUCT_WIKI_INDEX.md, ASSET_SEMANTIC_INDEX.md, SOURCE_REGISTRY.md, 상품별 asset-manifest.json을 확인하세요.
+
+가격, 리뷰 수, A/S, 일정, 추가금, 이벤트, 월 납입, 스펙, 옵션 claim은 EVIDENCE_REGISTER.md에서 publishable/vetted 여부를 확인하기 전까지 외부 발행물에 단정하지 마세요.
+
+중앙 원본을 직접 덮어쓰지 말고 프로젝트 구조에 맞게 적용한 뒤 변경 파일, 충돌 지점, 남은 확인 사항을 보고하세요.
+
+중앙 `design-system/playground/`는 제품 화면 복사본이 아닙니다. 토큰과 공통 컴포넌트 계약만 적용하고 실제 화면과 고객 여정은 해당 프로젝트에서 결정하세요.
+```
+
+## 0-1. 정밀 검수용 체크
+
+```text
+적용 결과를 검수합니다.
+
+- npm test와 npm run validate를 실행했는가
+- 중앙 기준과 프로젝트 특화 규칙을 분리했는가
+- needs_confirmation/restricted/expired claim이 외부 발행 문구에 섞이지 않았는가
+- open 또는 in_review open question을 단정 표현으로 사용하지 않았는가
+- retired/superseded source를 현재 기준처럼 사용하지 않았는가
+- official_reviewed 자산이라도 가격/이벤트/월 납입/스펙/옵션 문구는 최신성 확인을 거쳤는가
+- 사용한 source_id, asset_id, claim_id, proof_id를 보고했는가
+```
 
 ## 1. 프로젝트 총괄 세션 공통 적용 프롬프트
 
@@ -322,14 +358,14 @@ GitHub 저장소: https://github.com/westgeneraldoor/munjanggun-brand
 
 핵심 기준:
 - 문장군은 무료 방문실측으로 집에 맞는 선택을 돕고, 직접 제작과 전속 시공으로 끝까지 책임지는 도어·중문 전문 브랜드입니다.
-- 문장군 디자인은 2026-07-03 기준 v4.0 "동네 온기(Neighborhood Warmth)" 컨셉을 따릅니다. 미션은 "문을 고르는 부담을, 고객 대신 짊어진다"이며, 선택은 전문가와 함께/가격은 숨기지 않는다/책임은 시공 이후까지 3원칙을 지킵니다.
-- 첫인상은 아이보리(`--mg-ivory`) 배경 위 클레이(`--mg-clay`, 주 버튼·CTA)와 세이지(`--mg-sage`, 보조 버튼)로 만들고, 오커(`--mg-ochre`)는 아이콘·소형 포인트에만 절제해서 씁니다. 네이비 계열은 v4.0에서 폐지되었으므로 사용하지 않습니다.
-- 서체는 Pretendard 단일 서체를 사용합니다(Medium 500 이상 웨이트만, Thin/ExtraLight 금지). Noto Serif KR 등 별도 브랜드 서체는 v4.0에서 폐지되었습니다.
+- 문장군 디자인은 2026-07-15 기준 v5.0 `Editorial Showroom` 정본을 따릅니다. Ink를 주요 정보와 CTA에, Forest를 상담·도움·선택·포커스에 사용합니다.
+- 화면 구현은 `tokens/brand.css`의 semantic 또는 component 토큰을 사용하고 primitive 값이나 HEX를 직접 복제하지 않습니다. `data-mg-theme="light|dark"`의 실제 계산 색상 차이를 확인합니다.
+- 한글 헤드라인과 타입 락업은 Tmoney RoundWind ExtraBold, 본문과 UI는 Pretendard를 사용합니다. 그래픽 로고나 임시 SVG 마크를 만들지 않습니다.
 - 메인 비주얼은 제품이 인테리어와 예쁘게 어울리는 밝은 주거 공간 이미지여야 합니다.
 - 첫 화면 신뢰 배지는 무료 방문실측, 직접 제작·전속 시공, 고객 리뷰 검증 3개를 우선합니다.
 - 구현 토큰은 tokens/brand.css 또는 tokens/brand.tokens.json을 사용하고, 토큰 자체를 바꿔야 하면 중앙 DESIGN.md부터 갱신합니다.
 - 사진 보정과 crop safe zone은 PHOTO_TREATMENT.md를 따릅니다.
-- 이미지 구도, 최소 해상도, 텍스트 안전영역은 DESIGN.md와 tokens/brand.tokens.json의 media 토큰을 확인합니다.
+- 이미지 구도, 최소 해상도, 텍스트 안전영역은 `DESIGN.md`, `PHOTO_TREATMENT.md`, 자산 인덱스를 함께 확인합니다.
 - 출시 전 DESIGN_QUICKSTART.md의 12문항 체크를 통과해야 합니다.
 - 가격은 숨기지 말고 가격대와 조건 설명, 무료 실측 후 정확 견적 안내를 함께 보여주세요.
 - 리뷰 수, 가격, A/S, 일정, 시공 시간 claim은 EVIDENCE_REGISTER.md 기준일과 상태를 확인한 뒤 사용하세요.

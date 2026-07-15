@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="ko" data-mg-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="문장군 Editorial Showroom 공통 컴포넌트 상태 플레이그라운드" />
+  <title>문장군 컴포넌트 플레이그라운드</title>
+  <link rel="icon" href="data:," />
+  <link rel="stylesheet" href="../../tokens/brand.css" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <a class="mg-skip-link" href="#main-content">컴포넌트 상태로 건너뛰기</a>
+  <header class="pg-header">
+    <div class="pg-shell pg-nav">
+      <a class="mg-lockup" href="#main-content" aria-label="문장군 컴포넌트 플레이그라운드">
+        <strong class="mg-lockup__ko">문장군</strong>
+        <span class="mg-lockup__en" aria-hidden="true">MUNJANGGUN · SYSTEM</span>
+      </a>
+      <nav aria-label="컴포넌트 상태 탐색">
+        <a href="#buttons">Button</a>
+        <a href="#fields">Field</a>
+        <a href="#cards">ArticleCard</a>
+      </nav>
+      <button class="mg-button mg-button--secondary" id="theme-toggle" type="button" aria-pressed="false">다크 테마</button>
+    </div>
+  </header>
+
+  <main class="pg-shell" id="main-content">
+    <section class="pg-intro" aria-labelledby="page-title">
+      <span class="mg-eyebrow">EDITORIAL SHOWROOM · COMPONENT CONTRACTS</span>
+      <h1 id="page-title">공통 상태만 확인하는<br />작은 플레이그라운드</h1>
+      <p>이 페이지는 제품 화면이나 고객 여정을 제안하지 않습니다. 토큰, 공통 컴포넌트 상태, 접근성 동작만 확인합니다.</p>
+    </section>
+
+    <section class="pg-section" id="lockup" aria-labelledby="lockup-title">
+      <header class="mg-section-heading">
+        <span class="mg-eyebrow">BrandLockup</span>
+        <h2 id="lockup-title">타입 기반 락업</h2>
+        <p>그래픽 마크 없이 한글 브랜드명과 영문 보조 표기만 사용합니다.</p>
+      </header>
+      <div class="pg-surface pg-lockup-sample" aria-label="문장군 타입 락업 예시">
+        <strong>문장군</strong><span>MUNJANGGUN</span>
+      </div>
+    </section>
+
+    <section class="pg-section" id="buttons" aria-labelledby="buttons-title">
+      <header class="mg-section-heading">
+        <span class="mg-eyebrow">Button</span>
+        <h2 id="buttons-title">행동 상태</h2>
+        <p>기본, 보조, soft, disabled, loading 상태를 비교합니다.</p>
+      </header>
+      <div class="pg-surface pg-row">
+        <button class="mg-button mg-button--primary" type="button">Primary</button>
+        <button class="mg-button mg-button--secondary" type="button">Secondary</button>
+        <button class="mg-button mg-button--soft" type="button">Soft</button>
+        <button class="mg-button mg-button--primary" type="button" disabled>Disabled</button>
+        <button class="mg-button mg-button--primary" type="button" disabled aria-busy="true"><span class="mg-spinner" aria-hidden="true"></span>Loading</button>
+      </div>
+    </section>
+
+    <section class="pg-section" id="chips" aria-labelledby="chips-title">
+      <header class="mg-section-heading">
+        <span class="mg-eyebrow">Chip</span>
+        <h2 id="chips-title">선택 상태</h2>
+        <p>버튼 의미와 <code>aria-pressed</code>를 함께 사용합니다.</p>
+      </header>
+      <div class="pg-surface pg-row" aria-label="Chip 상태 예시">
+        <button class="mg-chip" type="button" data-chip aria-pressed="true"><span aria-hidden="true">✓</span>Selected</button>
+        <button class="mg-chip" type="button" data-chip aria-pressed="false"><span aria-hidden="true">+</span>Default</button>
+      </div>
+    </section>
+
+    <section class="pg-section" id="fields" aria-labelledby="fields-title">
+      <header class="mg-section-heading">
+        <span class="mg-eyebrow">Field</span>
+        <h2 id="fields-title">입력 상태</h2>
+        <p>기본, 도움말, 오류, disabled 상태를 제출 동작 없이 확인합니다.</p>
+      </header>
+      <div class="pg-surface pg-field-grid">
+        <div class="mg-field-group"><label for="field-default">기본 필드</label><input class="mg-field" id="field-default" placeholder="내용을 입력하세요" /></div>
+        <div class="mg-field-group"><label for="field-help">도움말 필드</label><input class="mg-field" id="field-help" aria-describedby="field-help-message" /><span class="mg-field-message" id="field-help-message">필요한 형식을 짧게 안내합니다.</span></div>
+        <div class="mg-field-group"><label for="field-error">오류 필드</label><input class="mg-field" id="field-error" aria-invalid="true" aria-describedby="field-error-message" /><span class="mg-field-message mg-field-message--error" id="field-error-message">입력값을 확인해 주세요.</span></div>
+        <div class="mg-field-group"><label for="field-disabled">비활성 필드</label><input class="mg-field" id="field-disabled" value="Disabled" disabled /></div>
+      </div>
+    </section>
+
+    <section class="pg-section" id="status" aria-labelledby="status-title">
+      <header class="mg-section-heading">
+        <span class="mg-eyebrow">StatusText</span>
+        <h2 id="status-title">상태 메시지</h2>
+        <p>상태 이름과 live-region 역할을 색상과 함께 제공합니다.</p>
+      </header>
+      <div class="pg-surface pg-status-grid">
+        <p class="mg-status mg-status--loading" role="status" aria-live="polite"><strong>Loading</strong> 구성 요소를 확인하는 중입니다.</p>
+        <p class="mg-status mg-status--success" role="status" aria-live="polite"><strong>Success</strong> 상태 계약이 충족되었습니다.</p>
+        <p class="mg-status mg-status--error" role="alert"><strong>Error</strong> 조치가 필요한 상태입니다.</p>
+        <p class="mg-status mg-status--neutral" id="motion-status" role="status">모션 환경을 확인합니다.</p>
+      </div>
+    </section>
+
+    <section class="pg-section" id="cards" aria-labelledby="cards-title">
+      <header class="mg-section-heading">
+        <span class="mg-eyebrow">ArticleCard</span>
+        <h2 id="cards-title">일반 콘텐츠 카드 상태</h2>
+        <p>제품 화면의 정보구조가 아니라 카드 자체의 ready, loading, error, empty 표현만 비교합니다.</p>
+      </header>
+      <div class="pg-card-grid">
+        <article class="mg-article-card mg-article-card--ready"><div class="mg-article-card__media" role="img" aria-label="준비된 콘텐츠 이미지 영역"></div><div class="mg-article-card__body"><span class="mg-eyebrow">READY</span><h3>기본 카드</h3><p>제목과 요약이 준비된 일반 콘텐츠 상태입니다.</p></div></article>
+        <article class="mg-article-card mg-article-card--loading" aria-busy="true"><div class="mg-article-card__media"></div><div class="mg-article-card__body"><span class="mg-eyebrow">LOADING</span><h3>불러오는 중</h3><p>텍스트로 진행 상태를 함께 알립니다.</p></div></article>
+        <article class="mg-article-card mg-article-card--error"><div class="mg-article-card__media"></div><div class="mg-article-card__body"><span class="mg-eyebrow">ERROR</span><h3>오류 상태</h3><p>색만이 아니라 명시적인 상태명을 제공합니다.</p></div></article>
+        <article class="mg-article-card mg-article-card--empty"><div class="mg-article-card__media"></div><div class="mg-article-card__body"><span class="mg-eyebrow">EMPTY</span><h3>비어 있는 상태</h3><p>표시할 콘텐츠가 없음을 문장으로 설명합니다.</p></div></article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="pg-footer pg-shell">
+    <p><strong>SectionHeading</strong> · 이 플레이그라운드는 공통 컴포넌트 계약 검수용이며 제품 시안이 아닙니다.</p>
+    <a href="../../BRAND_GUIDELINE.html">공식 시각 가이드로 돌아가기</a>
+  </footer>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

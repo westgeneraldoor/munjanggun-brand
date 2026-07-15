@@ -1,361 +1,181 @@
 ---
-version: v4.0 # 디자인 시스템 버전 트랙. README.md/CHANGELOG.md의 저장소 문서 버전과는 별도 트랙이며, 값이 같아도 다른 것을 가리킨다.
-name: MUNJANGGUN
-concept: 동네 온기 (Neighborhood Warmth)
-description: 문장군 중앙 브랜드 디자인 시스템. "동네 업체처럼 편하게 문의할 수 있지만, 실제로는 전산·제작·시공이 체계적인 전문 브랜드"라는 이중 인상 중, 이번 버전은 친근함과 온기를 가장 앞세운다.
-replaces: v3.0 (cocoa-oak / clay-terracotta / verified-navy 체계) — 2026-07-03 전면 교체
-applies_to:
-  - 문장군 홈페이지
-  - 문장군 자체제작 블로그
-  - 무료 방문실측 상담접수 웹앱
-colors:
-  ivory: "#FBF7F1"
-  surface: "#FFFFFF"
-  surface-alt: "#F3E9DC"
-  border: "#EDE0D3"
-  border-strong: "#D9C4A8"
-  text: "#2E241C"
-  text-sub: "#78685A"
-  clay: "#9C4E2C"
-  clay-light: "#BD6A44"
-  clay-hover: "#86401F"
-  sage: "#5C7A62"
-  sage-text: "#3F5643"
-  ochre: "#D9A441"
-  ochre-dark: "#A9781F"
-  error: "#A3392A"
-  success: "#2C6B3F"
-  ink: "#2E241C"
-  ink-text: "#FBF7F1"
-  ink-subtext: "#B9AA9A"
-  disabled-bg: "#EDE0D3"
-  disabled-text: "#7A6F5E"
-  on-clay: "#FFFFFF"
-  on-sage: "#FFFFFF"
-typography:
-  font-family: "Pretendard Variable, Pretendard, -apple-system, sans-serif"
-  weight-body: 500
-  weight-strong: 700
-  weight-display: 800
-  hero:
-    fontSize: 44px
-    mobileFontSize: 30px
-    fontWeight: 800
-    lineHeight: 1.4
-  section:
-    fontSize: 30px
-    mobileFontSize: 24px
-    fontWeight: 800
-    lineHeight: 1.35
-  card:
-    fontSize: 21px
-    mobileFontSize: 19px
-    fontWeight: 700
-    lineHeight: 1.4
-  body:
-    fontSize: 16px
-    mobileFontSize: 15px
-    fontWeight: 500
-    lineHeight: 1.68
-  label:
-    fontSize: 13px
-    mobileFontSize: 12px
-    fontWeight: 700
-    lineHeight: 1.3
-  caption:
-    fontSize: 13px
-    mobileFontSize: 12px
-    fontWeight: 600
-    lineHeight: 1.55
-  metric:
-    fontSize: 32px
-    mobileFontSize: 26px
-    fontWeight: 800
-    lineHeight: 1.1
-rounded:
-  xs: 8px
-  sm: 14px
-  md: 20px
-  lg: 28px
-  full: 999px
-spacing:
-  xs: 8px
-  sm: 12px
-  md: 16px
-  lg: 24px
-  xl: 36px
-  xxl: 56px
-  section: 96px
+version: v5.0
+updated: 2026-07-15
+concept: Editorial Showroom
+primary: Ink
+secondary: Forest
+font-display: Tmoney RoundWind ExtraBold
+font-body: Pretendard Variable
+token-entry: tokens/brand.css
+structured-source: tokens/brand.tokens.json
+visual-guide: BRAND_GUIDELINE.html
+playground: design-system/playground/
 ---
 
-# 문장군 브랜드 가이드라인 (DESIGN.md)
+# 문장군 공식 디자인 시스템
 
-> 이 문서는 문장군 중앙 브랜드의 디자인 권위 문서다. 문장군 홈페이지, 자체제작 블로그, 무료 방문실측 상담접수 웹앱 전체에 이 문서의 토큰과 규칙을 적용한다.
->
-> 사실 정보(가격, A/S, 리뷰 수, 서비스 지역 등)의 기준은 `BRAND_CONTEXT.md`와 `EVIDENCE_REGISTER.md`를 따른다. 이 문서는 그 사실을 "어떻게 보여줄지"를 정의한다.
+> 좋은 문을 고르는 일, 어렵지 않게 도와드립니다.
 
-## 0. 이 문서에 대하여
+이 문서는 문장군 중앙 디자인 정본이다. 디자인 판단이 충돌하면 `BRAND_CONTEXT.md`, `FIELD_JUDGMENT_RULES.md`, `EVIDENCE_REGISTER.md`의 사실·현장·근거 규칙을 먼저 지키고 이 문서를 시각 기준으로 적용한다.
 
-- 이전 버전(v3.0, cocoa-oak/clay-terracotta/verified-navy 체계)은 폐기하고 전면 교체한다.
-- 이번 버전의 컨셉명은 **동네 온기 (Neighborhood Warmth)**다. 3가지 시안(웜 우드 프로페셔널 / 시스템 블루프린트 / 동네 온기) 중, "동네 업체처럼 부담 없이 문의할 수 있어야 한다"는 `BRAND_CONTEXT.md` 2장의 인상을 가장 잘 구현한다는 판단으로 확정했다.
-- `--mg-*` 접두사와 CSS 변수/JSON 이중 출력 관례는 v3.0에서 유지하되, 토큰 이름과 값은 새 컨셉에 맞춰 다시 정의했다. 기존 프로젝트가 `--mg-cocoa-oak`, `--mg-clay-terracotta`, `--mg-verified-navy` 등 v3.0 이름을 참조하고 있다면, 이 문서의 13장 "마이그레이션"을 먼저 확인한다.
-- 소스 오브 트루스 순서: 1) 이 문서 앞부분 YAML, 2) `tokens/brand.tokens.json`, 3) `tokens/brand.css`, 4) `BRAND_GUIDELINE.html`과 필요한 프로젝트 구현체. 토큰이 바뀌면 이 순서대로 함께 갱신하고 `CHANGELOG.md`에 기록한다. `legacy-preview-v3.html`은 폐기된 v3.0 참고 이력으로만 본다.
+## 1. 정본과 적용 순서
 
-## 1. 브랜드 미션과 철학
+1. `DESIGN.md`: 사람을 위한 공식 기준
+2. `tokens/brand.tokens.json`: primitive → semantic → component 구조화 원본
+3. `tokens/brand.css`: 웹 구현 공식 진입점
+4. `BRAND_GUIDELINE.html`: 정본의 브라우저 시각 가이드
+5. `design-system/components/`: 하위 프로젝트가 참고하는 공통 React 컴포넌트 계약
+6. `design-system/playground/`: 공통 상태와 접근성만 확인하는 정적 플레이그라운드
 
-### 미션
+과거 시험용 팔레트·토큰·미리보기는 활성 기준으로 보존하지 않는다. 변경 이력은 Git과 `CHANGELOG.md`에서 확인한다.
 
-> 문을 고르는 부담을, 고객 대신 짊어진다.
+## 2. 디자인 방향 — Editorial Showroom
 
-문장군은 고객이 가격, 선택, 시공, 일정, A/S를 혼자 판단하지 않아도 되도록, 무료 방문실측부터 A/S까지 전 과정을 직접 책임지는 도어·중문 전문가가 되는 것을 미션으로 삼는다. 이것은 감성 슬로건이 아니라 조직 구조(영업부의 무료 실측, 화성 공장 자체 제작, 전속 시공 3개팀, A/S 접수 체계)로 실제 구현되어 있는 약속이다.
+밝고 정돈된 주거 쇼룸에 편집 매거진의 정보 위계를 결합한다. 큰 한글 헤드라인, 여백이 넉넉한 화면, 실제 공간 이미지, 얇고 단정한 경계, 유리 질감 내비게이션을 사용한다.
 
-### 철학 3원칙
+- Primary: Ink — 문장, 주요 CTA, 정보 위계
+- Secondary: Forest — 상담·도움·선택 상태와 포커스
+- Neutral: 사진과 콘텐츠가 주인공이 되는 배경과 표면
+- Status: 성공·정보·경고·오류의 의미 전달에만 사용
 
-1. **선택은 전문가와 함께.** 고객이 색상·유리·프레임을 온라인에서 혼자 확정하게 두지 않는다. 담당 매니저가 집 구조와 분위기를 보고 함께 좁혀준다.
-2. **가격은 숨기지 않는다.** 대략적인 가격대를 먼저 보여주되, 단일 확정가처럼 말하지 않는다. 실측에서 추가 가능 항목을 미리 안내해 "현장에서 갑자기"라는 불안을 없앤다.
-3. **책임은 시공 이후까지.** 직접 제작하고 전속 시공팀이 직접 시공하기 때문에, 문제가 생기면 외주가 아니라 문장군이 답한다. 도어 3년, 중문 2년 A/S가 그 증거다.
+다크 테마도 같은 위계를 유지한다. 단순 반전이 아니라 배경, 표면, 본문, 경계, 액션 의미 토큰을 함께 전환한다.
 
-### 우리가 믿지 않는 것
+## 3. 브랜드 표현
 
-- 근거 없는 "최저가", "대한민국 No.1", "업계 최고" 같은 단정은 신뢰를 만들지 않는다고 믿는다.
-- "절대 추가금 없음", "100% 만족"처럼 예외를 지우는 말은 나중에 고객을 배신한다고 믿는다.
-- 화려한 배너보다 실제 후기와 실측 데이터가 더 오래가는 신뢰라고 믿는다.
+### 타입 락업
 
-이 철학은 색이나 폰트보다 먼저 지켜야 하는 기준이다. 아래의 모든 시각 규칙은 이 철학을 배신하지 않는 선에서만 유효하다.
+- 주 표기: `문장군`
+- 보조 표기: `MUNJANGGUN`
+- 별도 그래픽 마크나 임시 SVG를 공식 로고처럼 만들지 않는다.
+- 한글 락업과 큰 제목은 Tmoney RoundWind ExtraBold, UI와 본문은 Pretendard를 사용한다.
+- Tmoney 파일은 티머니 공식 배포본과 해시가 같은 한 사본만 저장한다.
 
-## 2. 브랜드 정체성 요약
+### 말의 기준
 
-### 핵심 한 줄
+무료 방문실측은 자동 견적이나 고객의 최종 제품 결정을 뜻하지 않는다. 가격·가능 여부·추가금에 대한 불안을 줄이고, 집 구조와 고객 관심을 함께 살피는 상담 경험으로 설명한다.
 
-"좋은 문을 고르는 일, 어렵지 않게 도와드립니다."
+허용되는 핵심 표현:
 
-### 보조 카피
+- 좋은 문을 고르는 일, 어렵지 않게 도와드립니다.
+- 무료 방문실측으로 집에 맞는 선택을 함께 좁혀드립니다.
+- 직접 제작과 전속 시공으로 끝까지 책임집니다.
 
-무료 방문실측으로 집에 맞는 선택을 안내하고, 직접 제작과 전속 시공으로 끝까지 책임집니다.
+근거 없이 쓰지 않는 표현:
 
-### 변형 카피
+- 최저가 보장, 대한민국 No.1, 업계 최고, 고객만족 100%
+- 무조건 가능, 절대 추가금 없음
+- 확인되지 않은 연락 완료 시점
+- 방문실측만으로 견적이나 제품이 자동 확정된다는 표현
 
-가격은 부담 없이, 선택은 전문가와 함께, 시공은 끝까지 책임지게.
+## 4. 토큰 구조
 
-### 브랜드 인상
+### Primitive
 
-- 중심 인상: 규모 있는 시스템형 전문 브랜드 + 친절하고 현실적인 동네 전문가
-- 이번 버전(동네 온기)은 이 둘 중 **동네 전문가** 쪽에 무게를 싣는다. 대신 신뢰·체계는 배지, 리뷰, A/S 조건 같은 "근거 요소"로 보강한다.
-- 피해야 할 인상: 싸구려 할인 전단지, 차갑고 사람 없는 대기업, 낡고 복잡한 시공업체 블로그, 근거 없는 최고/최저가/No.1 주장, AI가 쓴 듯한 뻔한 감성 문구.
+원시 색상, 간격, 크기, radius, 타이포그래피 값이다. 공식 토큰 정의 외 구현에서 직접 소비하지 않는다.
 
-세부 근거는 `BRAND_CONTEXT.md`를 따른다. 이 문서는 그 정의를 시각 언어로 옮긴 결과물이다.
+- Ink: `--mg-color-ink-*`
+- Forest: `--mg-color-forest-*`
+- Neutral: `--mg-color-neutral-*`
+- Status: `--mg-color-success-*`, `--mg-color-info-*`, `--mg-color-warning-*`, `--mg-color-danger-*`
+- Spacing: `--mg-space-1`부터 `--mg-space-8`
+- Radius: `--mg-radius-chip`, `card`, `frame`, `field`, `lg`, `pill`, `xl`, `full`
 
-## 3. 컬러 시스템
+### Semantic
 
-배경 65~70%는 아이보리/화이트 중립톤, 20%는 클레이(Clay), 나머지 10%는 세이지·오커로 구성한다. 빨강 계열의 할인 강조나 과도한 채도 대비는 사용하지 않는다.
+테마와 의미가 있는 별칭이다. 화면 구현은 이 층을 기본으로 사용한다.
 
-| 토큰 | 값 | 용도 | 대비 검증 |
-| --- | --- | --- | --- |
-| `--mg-ivory` | `#FBF7F1` | 기본 배경 | 본문 텍스트 대비 14.2:1 PASS |
-| `--mg-surface` | `#FFFFFF` | 카드, 폼 배경 | 본문 텍스트 대비 14.9:1 PASS |
-| `--mg-surface-alt` | `#F3E9DC` | 보조 섹션, 호버 배경 | — (배경 전용) |
-| `--mg-border` | `#EDE0D3` | 기본 테두리 | — (장식 전용) |
-| `--mg-border-strong` | `#D9C4A8` | 강조 테두리 | — (장식 전용) |
-| `--mg-text` | `#2E241C` | 본문 텍스트 | 아이보리 대비 14.2:1 PASS |
-| `--mg-text-sub` | `#78685A` | 보조 설명, 캡션 | 아이보리 대비 5.01:1 PASS |
-| `--mg-clay` | `#9C4E2C` | 주 버튼, 링크, CTA | White 텍스트 5.93:1 PASS · 아이보리 위 텍스트로도 5.56:1 PASS |
-| `--mg-clay-light` | `#BD6A44` | 배지·장식·큰 텍스트 전용 | White 텍스트 3.96:1 **Large만 PASS** |
-| `--mg-clay-hover` | `#86401F` | 버튼 hover/active | White 텍스트 7.59:1 PASS |
-| `--mg-sage` | `#5C7A62` | 보조 버튼, 배지 배경 | White 텍스트 4.76:1 PASS |
-| `--mg-sage-text` | `#3F5643` | 세이지 계열을 텍스트/링크로 쓸 때 | 아이보리 대비 7.50:1 PASS |
-| `--mg-ochre` | `#D9A441` | 아이콘·소형 포인트 | Dark 텍스트만 6.74:1 PASS(Large) · White 텍스트 FAIL |
-| `--mg-ochre-dark` | `#A9781F` | 큰 텍스트/배너 전용 | White 텍스트 3.89:1 **Large만 PASS** |
-| `--mg-error` | `#A3392A` | 폼 에러 텍스트/배지 | 아이보리 대비 6.20:1, White 텍스트 6.61:1 PASS |
-| `--mg-success` | `#2C6B3F` | 완료·확인 상태 | 아이보리 대비 6.00:1, White 텍스트 6.40:1 PASS |
-| `--mg-ink` | `#2E241C` | 다크 섹션(푸터 등) 배경 | — |
-| `--mg-ink-text` | `#FBF7F1` | 다크 섹션 위 텍스트 | 14.2:1 PASS |
-| `--mg-ink-subtext` | `#B9AA9A` | 다크 섹션 보조 텍스트 | 6.70:1 PASS |
-| `--mg-disabled-bg` | `#EDE0D3` | 비활성 배경 | — |
-| `--mg-disabled-text` | `#7A6F5E` | 비활성 텍스트 | 3.80:1 — WCAG는 비활성(disabled) 컨트롤에 대비비 예외를 허용하므로 채택 |
+- 배경과 글자: `--mg-bg`, `--mg-surface`, `--mg-surface-raised`, `--mg-fg`, `--mg-text-body`, `--mg-text-soft`
+- 액션: `--mg-action-primary-*`, `--mg-action-secondary-*`, `--mg-action-soft-*`
+- 경계와 포커스: `--mg-border-*`, `--mg-focus-ring`
+- 상태: `--mg-status-success`, `--mg-status-info`, `--mg-status-warning`, `--mg-status-error`
 
-**금지 조합**
+### Component
 
-- `--mg-ochre` 배경에 흰색 작은 텍스트 금지 (2.25:1 FAIL)
-- `--mg-clay-light` 배경에 흰색 작은 텍스트 금지 (3.96:1, 24px/굵게 이상 큰 텍스트만 허용)
-- `--mg-sage`를 아이보리 배경 위 "텍스트 색"으로 직접 쓰지 말 것 (4.46:1, AA 기준 미달) — 텍스트로 쓸 때는 반드시 `--mg-sage-text`를 사용한다.
+Button, Card, Field, GlassNav 등 반복 요소의 높이·radius·상태 별칭이다. 핵심 클릭 요소는 최소 `--mg-control-size-min`인 44px을 보장한다.
 
-## 4. 타이포그래피
+## 5. 타이포그래피
 
-Pretendard 단일 서체를 사용한다. Thin/ExtraLight처럼 얇은 웨이트는 사용하지 않는다 — 가볍되 신뢰감을 잃지 않기 위함이다. 별도의 세리프·모노스페이스 서체는 쓰지 않는다.
+- Display: Tmoney RoundWind ExtraBold 800
+- Body/UI: Pretendard Variable 400–800
+- Hero: `--mg-font-size-hero`, 모바일 `--mg-font-size-hero-mobile`
+- Section: `--mg-font-size-section`
+- Card: `--mg-font-size-card`
+- Body: `--mg-font-size-body`, 큰 본문 `--mg-font-size-body-lg`
+- Label/Caption: `--mg-font-size-label`, `--mg-font-size-caption`
 
-| 스타일 | 크기(PC/모바일) | 웨이트 | 용도 |
-| --- | --- | --- | --- |
-| Hero | 44px / 30px | 800 | 홈 메인 헤드라인 |
-| Section | 30px / 24px | 800 | 섹션 타이틀, 블로그 H2 |
-| Card | 21px / 19px | 700 | 카드 타이틀, 블로그 H3 |
-| Body | 16px / 15px | 500 | 본문 |
-| Label | 13px / 12px | 700 | 배지, 버튼, 폼 라벨 |
-| Caption | 13px / 12px | 600 | 캡션, 보조 설명 |
-| Metric | 32px / 26px | 800 | 리뷰 수, 가격, 통계 강조 |
+헤드라인은 짧고 단단하게, 본문은 고객이 가격·가능 여부·공간 조건을 차분히 이해할 수 있게 쓴다. 본문에 디스플레이 서체를 반복하지 않는다.
 
-줄간격은 본문 1.68, 헤드라인 1.35~1.4로 넉넉하게 잡아 "여유 있고 편안한" 인상을 유지한다.
+## 6. 컴포넌트
 
-## 5. 여백과 형태
+### Button
 
-4px 그리드를 기준으로 한다. 불규칙한 간격(5px, 7px, 13px 등)은 사용하지 않는다.
+- Primary는 Ink, Secondary는 Forest, Soft는 테마 표면을 사용한다.
+- 모든 상태에 hover, active, focus-visible, disabled를 제공한다.
+- 로딩 상태는 실제 `disabled`와 `aria-busy`를 함께 사용한다.
 
-| 토큰 | 값 | 용도 |
-| --- | --- | --- |
-| `--mg-space-xs` | 8px | 아이콘-텍스트 간격 |
-| `--mg-space-sm` | 12px | 배지 내부, 폼 라벨 간격 |
-| `--mg-space-md` | 16px | 카드 내부 패딩 |
-| `--mg-space-lg` | 24px | 카드 간 간격, 섹션 내부 여백 |
-| `--mg-space-xl` | 36px | 섹션 상하 여백(모바일) |
-| `--mg-space-xxl` | 56px | 섹션 상하 여백(PC) |
-| `--mg-space-section` | 96px | 페이지 내 대구역 간격 |
+### ArticleCard
 
-| 토큰 | 값 | 용도 |
-| --- | --- | --- |
-| `--mg-radius-xs` | 8px | 썸네일 모서리, 작은 태그 |
-| `--mg-radius-sm` | 14px | 폼 필드 |
-| `--mg-radius-md` | 20px | 카드, 패널 |
-| `--mg-radius-lg` | 28px | 히어로 배너, 큰 CTA 패널 |
-| `--mg-radius-full` | 999px | 버튼, 배지, 필/알약형 요소 |
+- 링크 또는 버튼 의미를 실제 루트 요소에 부여한다.
+- `href`, `onClick`, `aria-*`, `data-*` 등 전달 속성을 루트에 그대로 전달한다.
+- 이미지에 대체 텍스트를 제공하고 로딩·오류 상태는 색 외 텍스트로도 구분한다.
 
-라운드 값을 크게 잡아 각진 시공업체 느낌 대신 둥글고 편안한 인상을 만든다. 단, 실측·시공 사진이나 데이터 표는 각지게(`--mg-radius-xs`) 두어 "진지함"을 잃지 않는다.
+### GlassNav
 
-## 6. 로고 · 워드마크
+- 메뉴명, 선택 동작, 보조 액션은 하위 프로젝트가 주입하며 중앙 컴포넌트는 특정 채널 문구를 하드코딩하지 않는다.
+- 모바일에서는 44px 이상 메뉴 버튼, `aria-expanded`, `aria-controls`를 사용한다.
+- Escape, 메뉴 선택, 보조 액션으로 메뉴가 닫히고 포커스가 복구된다.
 
-정식 로고 제작 전 단계의 방향이다. 각진 프레임 대신 라운드 프레임으로 문 형태를 표현해 "편안한 이웃 전문가" 인상을 낸다.
+### Field와 StatusText
 
-- 심볼: 라운드 사각 프레임(문) + 세이지색 중심 분할선(3연동 구조) + 오커색 손잡이 2점
-- 워드마크: "문장군"에서 "장"만 세이지 톤으로 분리해 포인트를 준다.
-- 세이프존: 심볼 높이의 25% 이상을 여백으로 확보한다.
-- 최소 크기: 파비콘/앱 아이콘 24px, 본문 내 인라인 로고 96px 이상.
-- 오용 금지: 그림자·입체 엠보싱 추가, 프레임 비율 왜곡, 클레이 외 색상으로 임의 변경.
+- 라벨을 항상 표시하고 placeholder로 대체하지 않는다.
+- 오류는 필드별 `aria-invalid`와 `aria-describedby`로 연결한다.
+- 일반 진행은 `role=status`, 제출 오류는 `role=alert`를 사용한다.
 
-## 7. 컴포넌트 규칙
+## 7. 중앙 브랜드와 하위 프로젝트의 권위 경계
 
-### 버튼
+중앙 브랜드는 시각·브랜드·공통 컴포넌트 계약만 관리한다.
 
-| 종류 | 배경 | 텍스트 | 용도 |
-| --- | --- | --- | --- |
-| Primary | `--mg-clay` (hover `--mg-clay-hover`) | White | 무료 방문실측 신청, 상담 예약 등 핵심 전환 |
-| Secondary | 투명 + `--mg-clay-light` 테두리 | `--mg-clay` | 더보기, 취소 |
-| Tertiary(Sage) | `--mg-sage` | White | 후기 보기, 보조 액션 |
-| Disabled | `--mg-disabled-bg` | `--mg-disabled-text` | 조건 미충족 상태 |
+실제 화면, URL, 메뉴, 정보구조, 고객 여정, CTA 연결은 하위 프로젝트 권한이다.
 
-버튼 높이 52px, 패딩 14px 26px, `--mg-radius-full`. 포커스 시 `--mg-clay` 2px 아웃라인 + 2px 오프셋.
+플레이그라운드는 제품 시안이나 구현 오더가 아니다. 서비스 프로젝트는 플레이그라운드 화면을 복사하지 않고 토큰과 공통 컴포넌트 계약만 적용한다.
 
-### 배지 / 태그
+`design-system/playground/`는 BrandLockup, Button, Chip, Field, StatusText, SectionHeading, ArticleCard의 상태와 light/dark, focus-visible, reduced-motion, 모바일 반응형을 확인한다. 블로그 홈·상세·상담 화면이나 실제 고객 정보를 받는 흐름은 두지 않는다.
 
-- 클레이 배지: 배경 `#F3E1D4`(클레이 라이트 10% 톤), 텍스트 `--mg-clay`
-- 세이지 배지: 배경 `#E3ECE1`, 텍스트 `--mg-sage-text` (세이지 원색 아님에 주의)
-- 오커 배지: 배경 `#F7E7C4`, 텍스트 `--mg-ochre-dark`, 큰 라벨(14px 이상 굵게)에만 사용
+## 8. 이미지와 사진
 
-### 카드 (제품/블로그 공용)
+- 밝은 자연광의 실제 주거 공간과 제품이 함께 보이는 사진을 우선한다.
+- 제품만 잘라낸 이미지보다 바닥·벽·가구가 포함된 맥락 이미지를 우선한다.
+- 상담·실측 장면은 고객 개인정보가 드러나지 않는 공식 검수 자산만 사용한다.
+- 가격·이벤트·스펙 문구가 포함된 이미지는 `EVIDENCE_REGISTER.md`와 `OPEN_QUESTIONS_REGISTER.md`로 최신성을 확인한다.
+- 상세 기준은 `PHOTO_TREATMENT.md`, 자산 선택은 `SOURCE_REGISTRY.md`, `ASSET_SEMANTIC_INDEX.md`, 상품별 manifest를 따른다.
 
-- `--mg-radius-md`, 테두리 `--mg-border` 1px, 배경 `--mg-surface`
-- 썸네일 비율: 제품 카드 4:3, 블로그 카드 16:9
-- 타이틀은 Card 스타일(21px/700), 설명은 Body, 가격/기간 배지는 하단 고정
+## 9. 접근성과 반응형
 
-### 폼 필드 (상담접수 전용 핵심 컴포넌트)
+- skip link, landmark, 논리적 heading 구조를 제공한다.
+- 키보드만으로 모든 노출 조작 요소를 사용할 수 있어야 한다.
+- `prefers-reduced-motion: reduce`에서 큰 움직임과 부드러운 스크롤을 제거한다.
+- 모바일 390×844에서 플레이그라운드의 탐색·필드·카드·버튼이 잘리지 않고 가로 overflow가 없어야 한다.
+- 색만으로 상태를 구분하지 않는다.
 
-무료 방문실측 상담접수 폼은 이 브랜드의 가장 중요한 전환 지점이다. 폼은 친절하되 상태가 분명해야 한다.
+## 10. 하드코딩 정책
 
-- 기본: 배경 `--mg-surface`, 테두리 `--mg-border`, 높이 52px, 패딩 14px 18px, `--mg-radius-sm`
-- 포커스: 테두리 `--mg-clay`, 2px 아웃라인 `--mg-clay` + 2px 오프셋
-- 에러: 테두리/헬프텍스트 `--mg-error`, 배경은 그대로 유지(빨간 배경 채우기 금지 — 놀라지 않게)
-- 완료/확인: 체크 아이콘 + `--mg-success` 텍스트
-- 비활성: 배경 `--mg-disabled-bg`, 텍스트 `--mg-disabled-text`
-- 라벨은 Label 스타일로 필드 위에 항상 노출(placeholder만으로 대체 금지 — 접근성)
+색상, 그림자, 투명도, 간격, radius, 제어 높이, 글자 크기는 토큰을 사용한다. 다음만 문서화된 예외로 허용한다.
 
-### 배너 / CTA 패널
+- 반응형 media query breakpoint
+- `clamp()`의 viewport 비율
+- 사진 veil의 gradient stop
+- 실제 콘텐츠 이미지의 `object-position`
 
-- 기본 CTA: `--mg-sage` 배경, White 텍스트, `--mg-radius-lg`
-- 강조 CTA(가격/실측 신청): `--mg-clay` 배경, White 텍스트
-- 다크 섹션(푸터, 하단 CTA): `--mg-ink` 배경, `--mg-ink-text` / `--mg-ink-subtext`
+예외 값도 여러 파일에서 반복되면 토큰으로 승격한다.
 
-### 내비게이션 / 푸터
+## 11. 검증
 
-- 상단 내비: `--mg-surface` 배경 고정, 스크롤 시 `--mg-border` 1px 하단선, 로고+핵심 메뉴+무료실측 CTA 버튼(Primary) 고정 노출
-- 푸터: `--mg-ink` 배경. 사업자 정보, 고객센터(1599-6065), A/S 안내, 서비스 지역 링크를 `--mg-ink-subtext`로, 핵심 링크는 `--mg-ink-text`로 표기
+```text
+npm test
+npm run validate
+npm run validate:tokens
+npm run validate:design-system
+git diff --check
+```
 
-## 8. 이미지 · 사진 방향
-
-- 담당 매니저·시공프로 등 사람이 드러나는 장면 비중을 가장 높게 둔다 (상담, 실측, 리뷰 인터뷰).
-- 밝은 자연광, 따뜻한 가족집 분위기를 기본으로 하고 과도한 보정·필터를 피한다.
-- 시공/실측 데이터 장면은 과장된 그래픽 오버레이 없이 사실적으로 보여준다.
-- 무드 비율 가이드: 사람·상담 장면 4 : 완성 시공 사진 4 : 소재/컬러 클로즈업 2
-
-## 9. 보이스 & 톤 — Do & Don't
-
-| 말해야 하는 것 | 말하면 안 되는 것 |
-| --- | --- |
-| 무료 방문실측 견적상담 | 근거 없는 최저가, 최고, No.1 |
-| 합리적인 가격과 오래 쓰는 품질 | 빨간 가격 강조, 할인 전단지식 문구 |
-| 집 분위기에 맞는 전문가 가이드 | 고객에게 알아서 고르라는 식의 표현 |
-| 직접 제작·직접 시공 | 외주 시공처럼 보이는 표현 |
-| 전속 시공팀과 담당 매니저 책임 관리 | 100% 보장, 절대 문제 없음 |
-| 도어 3년, 중문 2년 A/S | 보양 작업을 한다는 표현 |
-| 실측 후 특이사항 사전 안내 | 현장 갑작스런 추가금 없음만 단정적으로 반복 |
-
-전체 금지 표현 목록은 `BRAND_CONTEXT.md` 15장을 그대로 따른다. 디자인 시스템은 이 표현들을 시각적으로 강조하는 배지·배너 컴포넌트를 만들지 않는다.
-
-## 10. 채널별 적용 가이드
-
-### 홈페이지
-
-- 히어로: Hero 타이포 + 사람이 드러나는 실측/상담 사진 + Primary 버튼("무료 방문실측 신청")
-- 트러스트 섹션: 리뷰 수, A/S 조건, 전속 시공을 배지 3종으로 나란히 배치 (근거 있는 최신 숫자만, `EVIDENCE_REGISTER.md` 확인)
-- 하단 CTA: `--mg-ink` 다크 섹션으로 시선 전환, "잘 모르겠다면 담당 매니저가 함께 골라드립니다" 문구 고정 배치
-
-### 자체제작 블로그
-
-- 리스트: 16:9 썸네일 카드, 실제 시공 사진 + 짧은 고민형 제목 (`BRAND_CONTEXT.md` 12장 예시 참고)
-- 본문: Section(H2)/Card(H3) 위계 준수, 본문 폭은 680px 내외로 제한해 가독성 확보
-- 본문 내 CTA는 2~3개 섹션마다 1회, Sage 톤의 인라인 배너로 자연스럽게 삽입 (과도한 팝업/스티키 배너 금지)
-
-### 무료 방문실측 상담접수
-
-- 폼은 한 화면에 3~5개 필드 이하로 나눠 진행 (이름/연락처 → 주소/희망일정 → 요청사항 순 단계형 권장)
-- 각 단계 상단에 진행 표시(Step 1/3 등)를 Label 스타일로 노출
-- 제출 완료 화면은 Success 컬러 + "담당 매니저가 확인 후 연락드립니다" 같은 다음 행동 안내 필수
-- 전화 상담(1599-6065), 네이버 톡톡 링크를 폼 하단에 보조 CTA로 병행 노출
-
-## 11. 접근성 체크리스트
-
-- 모든 본문/링크 텍스트 조합은 AA(4.5:1) 이상, 큰 텍스트(24px 이상 또는 19px 굵게)는 3:1 이상을 만족한다 (3장 표 참고).
-- 색으로만 정보를 구분하지 않는다 — 에러/성공 상태는 아이콘 또는 텍스트 라벨을 함께 쓴다.
-- 포커스 아웃라인을 임의로 제거하지 않는다 (`outline: none` 금지, 커스텀 포커스 스타일로 대체 시 대비 3:1 이상 유지).
-- 폼 라벨은 placeholder로 대체하지 않는다.
-- 터치 타깃(버튼, 폼 필드, 배지형 링크)은 최소 44px 높이를 유지한다 (버튼/폼 필드 52px로 이미 충족).
-
-## 12. 안티-슬롭 규칙 (UI 감각)
-
-- 그라디언트는 브랜드 컬러 2색 이내, 무지개색·네온 조합 금지.
-- 그림자는 은은하게(`0 2px 6px rgba(46,36,28,.08)` 수준), 과도한 드롭섀도우 금지.
-- 아이콘은 2px 스트로크의 라운드 라인 아이콘으로 통일, 이모지/클립아트 스타일 아이콘 금지.
-- 폰트 웨이트는 Medium(500) 이상만 사용, ExtraLight/Thin 금지.
-- 버튼/배지에 반짝임(shine) 애니메이션, 무의미한 바운스 금지. 트랜지션은 150~200ms ease로 절제.
-- AI 티가 나는 뻔한 카피 패턴("이처럼", "결론적으로", "효과적입니다" 반복) 사용 금지 — `BRAND_CONTEXT.md` 15장과 동일 기준.
-
-## 13. 토큰 사용 가이드 & v3.0 → v4.0 마이그레이션
-
-- CSS 변수는 `tokens/brand.css`, JSON 토큰은 `tokens/brand.tokens.json`에서 그대로 가져다 쓴다. 색상 값을 `#FFFFFF`처럼 직접 하드코딩하지 않는다.
-- 이번 버전은 v3.0 대비 **이름과 값이 모두 바뀌는 破괴적 변경(breaking change)**이다. 기존에 v3.0 토큰을 참조하던 프로젝트(문장군블로그, 문장군 홈페이지, 상담접수 등)는 아래 매핑을 참고해 갱신한다.
-
-| v3.0 (폐기) | v4.0 (신규) | 비고 |
-| --- | --- | --- |
-| `--mg-cocoa-oak` | `--mg-text` / `--mg-ink` | 용도에 따라 분리됨 |
-| `--mg-clay-terracotta` | `--mg-clay` | 값 변경 (`#B35D43` → `#9C4E2C`) |
-| `--mg-clay-terracotta-hover` | `--mg-clay-hover` | 값 변경 |
-| `--mg-cashmere-cream` | `--mg-ivory` | 값 변경 (`#F5EFE6` → `#FBF7F1`) |
-| `--mg-verified-navy` | *(폐지)* | 동네 온기 컨셉은 네이비를 사용하지 않음. 시스템 신뢰 표현은 `--mg-sage`/배지 컴포넌트로 대체 |
-| `--mg-caution-red` | `--mg-error` | 값 변경 |
-| `--mg-success-green` | `--mg-success` | 값 변경 |
-| `--mg-font-brand-ko`(Noto Serif KR) | *(폐지)* | 세리프 서체 폐지, Pretendard 단일화 |
-
-- 프로젝트별 실제 반영은 각 연계 프로젝트의 "연계 프로젝트 운영 담당" 역할이 `PROJECT_ADAPTERS.md`를 통해 순차 진행한다. 이 중앙 문서는 기준만 제공하며, 각 저장소 코드는 이 저장소 범위 밖이다.
-
-## 14. 변경 이력
-
-- **v4.0 (2026-07-03)**: 전면 재설계. 브랜드 미션/철학 섹션 신설. 컨셉을 "동네 온기"로 확정하고 클레이/세이지/오커 팔레트, Pretendard 단일 서체, 라운드 폼팩터로 교체. 상담접수 폼 컴포넌트 규칙 신설. v3.0 cocoa-oak/verified-navy 체계 폐기.
-- v3.0 (2026-06-29): cocoa-oak/clay-terracotta/verified-navy 체계, Noto Serif KR 브랜드 서체 도입.
-
-향후 변경 시 이 목록에 이어서 기록하고, `CHANGELOG.md`에도 동일 시점 요약을 남긴다.
+공식 가이드와 플레이그라운드는 1440×900 및 390×844에서 테마, 키보드, reduced-motion, 컴포넌트 상태, overflow, 44px 조작 영역을 실제 브라우저로 확인한다.

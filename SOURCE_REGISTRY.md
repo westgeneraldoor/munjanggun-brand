@@ -1,7 +1,7 @@
 # SOURCE_REGISTRY - 문장군 브랜드 소스 등록부
 
-> 버전: v1.3
-> 최종 업데이트: 2026-07-01
+> 버전: v1.4
+> 최종 업데이트: 2026-07-15
 > 목적: 중앙 브랜드 원본에 들어오는 상품 상세페이지, CSV, 이미지, 리뷰, 상담, 현장 자료의 출처, 사용 상태, 보존/대체/재검토 상태를 추적한다.
 
 이 문서는 자료 원본 저장소가 아니다. 어떤 자료가 언제 들어왔고, 어디에 요약/색인됐으며, 외부 발행에 쓸 수 있는지 판단하기 위한 등록부다.
@@ -50,6 +50,7 @@
 | `SRC-2026-07-01-SWING-DETAILPAGE` | 스윙중문 상세페이지 이미지/GIF 원본 묶음 | `문장군상품/스윙중문/` | `SWING_MIDDLE_DOOR_DETAILPAGE_ASSET_INDEX_2026-07-01.md`, `문장군상품/스윙중문/asset-manifest.json`, `ASSET_SEMANTIC_INDEX.md` | 루트 55개, 디자인 4개, 썸네일 10개, 유리 1개, 이벤트/공지 9개, 컬러 5개 | 낮음. 문장군 공식 제작·검토 결과물 | 중간~높음. 가격/이벤트/옵션/시공 조건 문구는 재사용 시 최신성 확인 | `semantic_indexed` | `reviewed_candidate` |
 | `SRC-2026-07-01-WIDE-SLIDING-DETAILPAGE` | 양개형중문/미서기 상세페이지 이미지/GIF 원본 묶음 | `문장군상품/양개형중문 미서기/` | `WIDE_SLIDING_MIDDLE_DOOR_DETAILPAGE_ASSET_INDEX_2026-07-01.md`, `문장군상품/양개형중문 미서기/asset-manifest.json`, `ASSET_SEMANTIC_INDEX.md` | 루트 86개, 썸네일 10개, 유리 2개, 이벤트/공지 9개, 컬러 17개, 일반 컬렉션 11개, 와이드 컬렉션 12개 | 낮음. 문장군 공식 제작·검토 결과물 | 중간~높음. 폭/구조/가격/이벤트 문구는 재사용 시 최신성 확인 | `semantic_indexed` | `reviewed_candidate` |
 | `SRC-2026-06-30-BRANDSTORE-SCREENSHOTS` | 브랜드스토어 전체상품 화면 캡처 2장 | 중앙 저장소에 원본 이미지 미저장. 사용자 제공 캡처 기반 요약 | `EVIDENCE_REGISTER.md`, `PROOF_ASSET_INDEX.md` | 화면상 리뷰 수 후보, 상품 노출 후보 | 낮음 | 높음. 리뷰 수 변동 claim | `indexed` | `needs_review` |
+| `SRC-2026-07-15-DESIGN-SYSTEM-ZIP` | 사용자 제공 Munjanggun Design System 후보 ZIP의 선별 승인 요소 | 원본 ZIP은 중앙 저장소에 복사하지 않음 | `DESIGN.md`, `tokens/brand.tokens.json`, `tokens/brand.css`, `BRAND_GUIDELINE.html`, `design-system/` | Ink/Forest 계층형 토큰, 범용 컴포넌트 계약, 상태 플레이그라운드, 공식 해시 확인 Tmoney 파일. 제품 흐름과 생성기 부산물·위험 문구는 제외 | 낮음 | 낮음. 중앙 사실 문서로 문구 재검수 완료 | `semantic_indexed` | `approved_public` |
 
 ## 2-1. 보존/재검토 추적표
 
@@ -68,6 +69,7 @@
 | `SRC-2026-07-01-SWING-DETAILPAGE` | `active` | `preserve` | 중앙 브랜드 총괄 | 가격/이벤트/옵션/시공 조건 문구 재사용 시 최신성 확인 | 없음 | 없음 |
 | `SRC-2026-07-01-WIDE-SLIDING-DETAILPAGE` | `active` | `preserve` | 중앙 브랜드 총괄 | 폭/개폐 구조, 가격/이벤트/스펙 문구 재사용 시 최신성 확인 | 없음 | 없음 |
 | `SRC-2026-06-30-BRANDSTORE-SCREENSHOTS` | `reference` | `external_only` | 중앙 브랜드 총괄 | 리뷰 수 또는 상품 노출 claim 사용 전 최신 캡처 확인 | 없음 | 원본 캡처 중앙 미저장. 요약 근거로만 사용 |
+| `SRC-2026-07-15-DESIGN-SYSTEM-ZIP` | `active` | `external_only` | 중앙 브랜드 총괄 | 디자인 정본 변경 시 | 없음 | Fable 생성기 부산물과 미검증 원문은 중앙 정본에 포함하지 않음 |
 
 ## 3. 신규 소스 등록 템플릿
 
