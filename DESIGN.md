@@ -1,6 +1,6 @@
 ---
-version: v5.0
-updated: 2026-07-15
+version: v5.1
+updated: 2026-07-22
 concept: Editorial Showroom
 primary: Ink
 secondary: Forest
@@ -49,6 +49,8 @@ playground: design-system/playground/
 - 별도 그래픽 마크나 임시 SVG를 공식 로고처럼 만들지 않는다.
 - 한글 락업과 큰 제목은 Tmoney RoundWind ExtraBold, UI와 본문은 Pretendard를 사용한다.
 - Tmoney 파일은 티머니 공식 배포본과 해시가 같은 한 사본만 저장한다.
+- 디지털 영문 워드마크는 둥근 대문자 `MUNJANGGUN`을 Nunito 900으로 표기한다. `BLOG`, `MY` 같은 채널 라벨은 오른쪽에 더 작고 가볍게 붙인다.
+- 위 영문 워드마크는 승인된 로고 예외다. Nunito를 작은 제목, 버튼, 표, 본문 같은 일반 UI 서체로 확장하지 않고 해당 영역은 Pretendard를 유지한다.
 
 ### 말의 기준
 
