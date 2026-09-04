@@ -1,6 +1,6 @@
 # 문장군 중앙 브랜드 문서
 
-> 버전: v4.6
+> 버전: v4.7
 > 최종 업데이트: 2026-09-04
 > 변경 요약: 중앙 시각 디자인 시스템을 폐기하고 사실·현장·근거·원료·상품 자산 관리 저장소로 범위를 재정의했다.
 
@@ -26,6 +26,7 @@ npm run report:assets
 | 공통 브랜드·카피 | `BRAND_CONTEXT.md`, `FIELD_JUDGMENT_RULES.md` |
 | 변동 claim | `EVIDENCE_REGISTER.md`, `OPEN_QUESTIONS_REGISTER.md` |
 | 상품 설명·이미지·GIF·썸네일 | `BRAND_WIKI_ARCHITECTURE.md`, `SOURCE_REGISTRY.md`, `PRODUCT_WIKI_INDEX.md`, 상품 위키, `ASSET_SEMANTIC_INDEX.md`, manifest |
+| 2026-09-04 신규 자산 intake | `ASSET_INTAKE_2026-09-04.md` |
 | 고객·현장·리뷰·FAQ·카피 원료 | `BRAND_MATERIAL_INDEX.md`와 필요한 원료 은행 문서 |
 | 프로젝트 연결 | `PROJECT_ADAPTERS.md`, `PROMPTS.md` |
 
@@ -46,12 +47,20 @@ npm run report:assets
 | `PROJECT_ADAPTERS.md` | 중앙과 프로젝트 책임 분리 |
 | `PROMPTS.md` | 프로젝트 총괄 전달 프롬프트 |
 | `CHANGELOG.md` | 변경 이력 |
+| `ASSET_INTAKE_2026-09-04.md` | 신규 10개 상품 묶음의 보존·중복·검토·승격 게이트 |
 
 ## 상품·자산 운영
 
 `문장군상품/`과 `assets/product-thumbnails/`는 실제 상품 설명과 증거 자산이다. 상품의 색상·유리·컬렉션 정보는 브랜드 시각 디자인이 아니라 고객 선택과 상품 사양 자료이므로 유지한다.
 
 공식 제작·검토 자산은 `privacyStatus: official_reviewed`로 관리한다. 단 가격, 이벤트, 월 납입, 스펙, 옵션, 보증, 일정 등 변동 문구는 원본 맥락 밖에서 재사용하기 전에 최신 근거를 확인한다.
+
+대량 intake는 원본 복구본, 논리 경로, 단일 object, 발행 상태를 분리한다. 검색과 임시 추출은 아래 도구를 사용하며, 추출됐다는 사실만으로 발행 가능해지지 않는다.
+
+```bash
+npm run assets:search -- --catalog <reviewed-content-catalog.json> --query "검색어"
+npm run assets:extract-content -- --catalog <reviewed-content-catalog.json> --object-root <private-object-root> --output-root <output> --content-id <CONTENT-ID>
+```
 
 ## 민감 정보
 

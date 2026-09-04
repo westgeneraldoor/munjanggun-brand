@@ -1,7 +1,7 @@
 # SOURCE_REGISTRY - 문장군 브랜드 소스 등록부
 
-> 버전: v1.4
-> 최종 업데이트: 2026-07-15
+> 버전: v1.5
+> 최종 업데이트: 2026-09-04
 > 목적: 중앙 브랜드 원본에 들어오는 상품 상세페이지, CSV, 이미지, 리뷰, 상담, 현장 자료의 출처, 사용 상태, 보존/대체/재검토 상태를 추적한다.
 
 이 문서는 자료 원본 저장소가 아니다. 어떤 자료가 언제 들어왔고, 어디에 요약/색인됐으며, 외부 발행에 쓸 수 있는지 판단하기 위한 등록부다.
@@ -50,6 +50,16 @@
 | `SRC-2026-07-01-SWING-DETAILPAGE` | 스윙중문 상세페이지 이미지/GIF 원본 묶음 | `문장군상품/스윙중문/` | `SWING_MIDDLE_DOOR_DETAILPAGE_ASSET_INDEX_2026-07-01.md`, `문장군상품/스윙중문/asset-manifest.json`, `ASSET_SEMANTIC_INDEX.md` | 루트 55개, 디자인 4개, 썸네일 10개, 유리 1개, 이벤트/공지 9개, 컬러 5개 | 낮음. 문장군 공식 제작·검토 결과물 | 중간~높음. 가격/이벤트/옵션/시공 조건 문구는 재사용 시 최신성 확인 | `semantic_indexed` | `reviewed_candidate` |
 | `SRC-2026-07-01-WIDE-SLIDING-DETAILPAGE` | 양개형중문/미서기 상세페이지 이미지/GIF 원본 묶음 | `문장군상품/양개형중문 미서기/` | `WIDE_SLIDING_MIDDLE_DOOR_DETAILPAGE_ASSET_INDEX_2026-07-01.md`, `문장군상품/양개형중문 미서기/asset-manifest.json`, `ASSET_SEMANTIC_INDEX.md` | 루트 86개, 썸네일 10개, 유리 2개, 이벤트/공지 9개, 컬러 17개, 일반 컬렉션 11개, 와이드 컬렉션 12개 | 낮음. 문장군 공식 제작·검토 결과물 | 중간~높음. 폭/구조/가격/이벤트 문구는 재사용 시 최신성 확인 | `semantic_indexed` | `reviewed_candidate` |
 | `SRC-2026-06-30-BRANDSTORE-SCREENSHOTS` | 브랜드스토어 전체상품 화면 캡처 2장 | 중앙 저장소에 원본 이미지 미저장. 사용자 제공 캡처 기반 요약 | `EVIDENCE_REGISTER.md`, `PROOF_ASSET_INDEX.md` | 화면상 리뷰 수 후보, 상품 노출 후보 | 낮음 | 높음. 리뷰 수 변동 claim | `indexed` | `needs_review` |
+| `SRC-2026-09-04-3PANEL-AUTO-DETAILPAGE` | 3연동 자동중문 신규 상세페이지 묶음 | 비공개 intake `INTAKE-20260904-01` receipt 참조. 공개 Git 바이너리 없음 | `ASSET_INTAKE_2026-09-04.md`, manifest v2 candidate | 이미지/GIF 140경로와 상품 URL | 중간. 인물·화면 신호 재검토 | 높음. 가격·안전·A/S·이벤트 | `indexed` | `needs_review` |
+| `SRC-2026-09-04-3PANEL-LSHAPE-DETAILPAGE` | 3연동 ㄱ자 신규 상세페이지 묶음 | 비공개 intake `INTAKE-20260904-01` receipt 참조. 공개 Git 바이너리 없음 | `ASSET_INTAKE_2026-09-04.md`, manifest v2 candidate | 이미지/GIF 131경로와 상품 URL | 중간. 인물·화면 신호 재검토 | 높음. 가격·구조·이벤트 | `indexed` | `needs_review` |
+| `SRC-2026-09-04-3PANEL-DETAILPAGE` | 3연동중문 신규 상세페이지 묶음 | 비공개 intake `INTAKE-20260904-01` receipt 참조. 공개 Git 바이너리 없음 | `ASSET_INTAKE_2026-09-04.md`, manifest v2 candidate | 이미지/GIF 215경로와 상품·컬렉션 URL 4건 | 중간. 후기·화면 신호 재검토 | 높음. 가격·옵션·A/S·이벤트 | `indexed` | `needs_review` |
+| `SRC-2026-09-04-ABS-DOOR-FRAME-FILM-DETAILPAGE` | ABS도어 문틀리폼 필름시공 신규 상세페이지 묶음 | 비공개 intake `INTAKE-20260904-01` receipt 참조. 공개 Git 바이너리 없음 | `ASSET_INTAKE_2026-09-04.md`, manifest v2 candidate | 이미지/GIF 83경로와 상품 URL | 중간. 인물·화면 신호 재검토 | 높음. 가격·패키지·시공 범위 | `indexed` | `needs_review` |
+| `SRC-2026-09-04-ABS-DOOR-REPLACEMENT-DETAILPAGE` | ABS도어 방문교체 신규 상세페이지 묶음 | 비공개 intake `INTAKE-20260904-01` receipt 참조. 공개 Git 바이너리 없음 | `ASSET_INTAKE_2026-09-04.md`, manifest v2 candidate | 이미지/GIF 86경로와 상품 URL | 중간. 인물·화면 신호 재검토 | 높음. 가격·패키지·시공 범위 | `indexed` | `needs_review` |
+| `SRC-2026-09-04-ABS-SLIDING-DOOR-DETAILPAGE` | ABS도어 슬라이딩도어 신규 상세페이지 묶음 | 비공개 intake `INTAKE-20260904-01` receipt 참조. 공개 Git 바이너리 없음 | `ASSET_INTAKE_2026-09-04.md`, manifest v2 candidate | 이미지/GIF 66경로와 상품 URL | 중간. 인물·화면 신호 재검토 | 높음. 가격·구성·시공 범위 | `indexed` | `needs_review` |
+| `SRC-2026-09-04-MOLDING-DETAILPAGE` | 몰딩 신규 상세페이지 묶음 | 비공개 intake `INTAKE-20260904-01` receipt 참조. 공개 Git 바이너리 없음 | `ASSET_INTAKE_2026-09-04.md`, manifest v2 candidate | 이미지/GIF 48경로와 상품 URL | 중간. 행사·인증 이미지 재검토 | 높음. 가격·철거·시공 범위 | `indexed` | `needs_review` |
+| `SRC-2026-09-04-SWING-DETAILPAGE` | 스윙중문 신규 상세페이지 묶음 | 비공개 intake `INTAKE-20260904-01` receipt 참조. 공개 Git 바이너리 없음 | `ASSET_INTAKE_2026-09-04.md`, manifest v2 candidate | 이미지/GIF 95경로와 상품 URL | 중간. 인물·화면 신호 재검토 | 높음. 가격·안전·옵션 | `indexed` | `needs_review` |
+| `SRC-2026-09-04-WIDE-SLIDING-DETAILPAGE` | 양개형중문/미서기 신규 상세페이지 묶음 | 비공개 intake `INTAKE-20260904-01` receipt 참조. 공개 Git 바이너리 없음 | `ASSET_INTAKE_2026-09-04.md`, manifest v2 candidate | 이미지/GIF 156경로와 상품 URL | 중간. 인물·화면 신호 재검토 | 높음. 가격·폭·개폐 구조 | `indexed` | `needs_review` |
+| `SRC-2026-09-04-ONESLIDING-DETAILPAGE` | 원슬라이딩중문 신규 상세페이지 묶음 | 비공개 intake `INTAKE-20260904-01` receipt 참조. 공개 Git 바이너리 없음 | `ASSET_INTAKE_2026-09-04.md`, manifest v2 candidate | 이미지/GIF 114경로와 상품 URL | 중간. 인물·화면 신호 재검토 | 높음. 가격·옵션·시공 조건 | `indexed` | `needs_review` |
 
 ## 2-1. 보존/재검토 추적표
 
@@ -68,6 +78,16 @@
 | `SRC-2026-07-01-SWING-DETAILPAGE` | `active` | `preserve` | 중앙 브랜드 총괄 | 가격/이벤트/옵션/시공 조건 문구 재사용 시 최신성 확인 | 없음 | 없음 |
 | `SRC-2026-07-01-WIDE-SLIDING-DETAILPAGE` | `active` | `preserve` | 중앙 브랜드 총괄 | 폭/개폐 구조, 가격/이벤트/스펙 문구 재사용 시 최신성 확인 | 없음 | 없음 |
 | `SRC-2026-06-30-BRANDSTORE-SCREENSHOTS` | `reference` | `external_only` | 중앙 브랜드 총괄 | 리뷰 수 또는 상품 노출 claim 사용 전 최신 캡처 확인 | 없음 | 원본 캡처 중앙 미저장. 요약 근거로만 사용 |
+| `SRC-2026-09-04-3PANEL-AUTO-DETAILPAGE` | `reference` | `preserve` | 중앙 브랜드 총괄 | 권리·개인정보·변동 claim 및 공개 저장 범위 승인 후 | 없음 | 없음 |
+| `SRC-2026-09-04-3PANEL-LSHAPE-DETAILPAGE` | `reference` | `preserve` | 중앙 브랜드 총괄 | 권리·개인정보·변동 claim 및 공개 저장 범위 승인 후 | 없음 | 없음 |
+| `SRC-2026-09-04-3PANEL-DETAILPAGE` | `reference` | `preserve` | 중앙 브랜드 총괄 | 권리·개인정보·변동 claim 및 공개 저장 범위 승인 후 | 없음 | 없음 |
+| `SRC-2026-09-04-ABS-DOOR-FRAME-FILM-DETAILPAGE` | `reference` | `preserve` | 중앙 브랜드 총괄 | 권리·개인정보·변동 claim 및 공개 저장 범위 승인 후 | 없음 | 없음 |
+| `SRC-2026-09-04-ABS-DOOR-REPLACEMENT-DETAILPAGE` | `reference` | `preserve` | 중앙 브랜드 총괄 | 권리·개인정보·변동 claim 및 공개 저장 범위 승인 후 | 없음 | 없음 |
+| `SRC-2026-09-04-ABS-SLIDING-DOOR-DETAILPAGE` | `reference` | `preserve` | 중앙 브랜드 총괄 | 권리·개인정보·변동 claim 및 공개 저장 범위 승인 후 | 없음 | 없음 |
+| `SRC-2026-09-04-MOLDING-DETAILPAGE` | `reference` | `preserve` | 중앙 브랜드 총괄 | 권리·개인정보·변동 claim 및 공개 저장 범위 승인 후 | 없음 | 없음 |
+| `SRC-2026-09-04-SWING-DETAILPAGE` | `reference` | `preserve` | 중앙 브랜드 총괄 | 권리·개인정보·변동 claim 및 공개 저장 범위 승인 후 | 없음 | 없음 |
+| `SRC-2026-09-04-WIDE-SLIDING-DETAILPAGE` | `reference` | `preserve` | 중앙 브랜드 총괄 | 권리·개인정보·변동 claim 및 공개 저장 범위 승인 후 | 없음 | 없음 |
+| `SRC-2026-09-04-ONESLIDING-DETAILPAGE` | `reference` | `preserve` | 중앙 브랜드 총괄 | 권리·개인정보·변동 claim 및 공개 저장 범위 승인 후 | 없음 | 없음 |
 
 ## 3. 신규 소스 등록 템플릿
 

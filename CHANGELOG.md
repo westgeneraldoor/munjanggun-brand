@@ -1,5 +1,15 @@
 # CHANGELOG - 문장군 중앙 브랜드 문서
 
+## v4.7 - 2026-09-04
+
+- `INTAKE-20260904-01` 신규 상품 자산 10개 묶음을 비공개 candidate로 등록
+  - Z 단일 복구본 1,158파일과 receipt를 확정하고 `Thumbs.db` 4개를 운영 대상에서 분리
+  - 신규 1,134 시각 경로를 407 SHA object로, 기존 포함 2,013 논리 경로를 450 SHA object로 중복 제거
+  - 정지 375 SHA와 GIF 75 SHA의 전역 시각 유사성을 각각 판정해 443 visual group, 미판정 0으로 확정
+  - URL 13건 접근·상품 연결을 확인하되 가격·혜택·상세 claim은 미승인 유지
+  - 검색·선택 추출·resolver·materialize·object/receipt/completion 검증 도구와 manifest v2 계약 추가
+- 권리·개인정보·claim·사장 승인 전까지 신규 바이너리의 공개 Git 반영, canonical 승격, 기존 소스 superseded 처리를 차단
+
 ## v4.6 - 2026-09-04
 
 - 사용자 승인에 따라 중앙 시각 디자인 체계를 전면 폐기

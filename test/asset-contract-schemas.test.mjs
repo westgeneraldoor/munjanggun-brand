@@ -83,6 +83,38 @@ test('URL review schema keeps access evidence separate from claim approval', asy
   assert.equal(result.valid && result.errors.length === 0, true);
 });
 
+test('visual similarity schema requires a reviewed within-media decision', async () => {
+  const schema = await readSchema('asset-visual-similarity-map.schema.json');
+  const hash = 'b'.repeat(64);
+  const result = validateAgainstSchema({
+    schema: 'munjanggun.assetVisualSimilarityMap.v1',
+    version: '1.0',
+    intakeId: 'INTAKE-20260904-01',
+    generatedAt: '2026-09-04T08:00:00.000Z',
+    comparisonPolicy: 'within_media_only',
+    logicalPathCount: 1,
+    binaryGroupCount: 1,
+    visualGroupCount: 1,
+    unjudgedCount: 0,
+    entries: [{
+      binaryGroupId: `sha256:${hash}`,
+      sha256: hash,
+      mediaType: 'image/jpeg',
+      originScope: 'intake_only',
+      sourcePathCount: 1,
+      visualGroupId: 'VG-TEST-1',
+      semanticGroupId: null,
+      visualDecision: 'reviewed_singleton',
+      comparisonScope: 'within_media_only',
+      comparisonMethod: ['perceptual_hash', 'human_visual_review'],
+      humanReviewStatus: 'reviewed',
+      humanReviewEvidence: ['review.json#sha256=test'],
+    }],
+  }, schema);
+
+  assert.equal(result.valid, true);
+});
+
 async function readSchema(name) {
   return JSON.parse(await readFile(resolve('schemas', name), 'utf8'));
 }

@@ -1,11 +1,12 @@
 #!/usr/bin/env node
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, stat, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
-import { compareInventories, computeTreeHash, inventoryTree } from './lib/asset-inventory.mjs';
+import { compareInventories, computeTreeHash, inventoryTree, sha256File } from './lib/asset-inventory.mjs';
 import { readAndValidateManifestV2 } from './lib/asset-manifest-v2.mjs';
 import { findFiles } from './lib/brand-validation-core.mjs';
 import { verifyManifestObjects } from './lib/asset-resolver.mjs';
 import { formatSchemaErrors, validateAgainstSchema } from './lib/schema-validation.mjs';
+import { resolveContainedPath } from './lib/asset-paths.mjs';
 
 const receiptPath = resolve(requiredArg('--receipt'));
 const sourceRoot = resolve(requiredArg('--source'));
@@ -14,13 +15,17 @@ const candidateRoot = resolve(requiredArg('--candidate-root'));
 const catalogPath = resolve(requiredArg('--catalog'));
 const urlReviewPath = resolve(requiredArg('--url-review'));
 const objectRoot = resolve(requiredArg('--object-root'));
+const combinedInventoryPath = resolve(requiredArg('--combined-inventory'));
+const similarityMapPath = resolve(requiredArg('--similarity-map'));
 const outputPath = getArg('--output') ? resolve(getArg('--output')) : null;
 
-const [receipt, catalog, urlReview, gates] = await Promise.all([
+const [receipt, catalog, urlReview, gates, combinedInventory, similarityMap] = await Promise.all([
   readJson(receiptPath),
   readJson(catalogPath),
   readJson(urlReviewPath),
   readJson(resolve(candidateRoot, 'completion-gates.json')),
+  readJson(combinedInventoryPath),
+  readJson(similarityMapPath),
 ]);
 const schemas = await loadSchemas();
 const errors = [];
@@ -29,11 +34,12 @@ for (const [label, value, schema] of [
   ['catalog', catalog, schemas.catalog],
   ['URL review', urlReview, schemas.urlReview],
   ['completion gates', gates, schemas.gates],
+  ['visual similarity map', similarityMap, schemas.similarity],
 ]) {
   const result = validateAgainstSchema(value, schema);
   errors.push(...formatSchemaErrors(result.errors).map((message) => `${label}: ${message}`));
 }
-for (const value of [catalog, urlReview, gates]) {
+for (const value of [catalog, urlReview, gates, similarityMap]) {
   if (value.intakeId !== receipt.intakeId) errors.push(`${value.schema}: intakeId mismatch`);
 }
 
@@ -67,6 +73,29 @@ for (const [sha256, group] of byHash) {
 
 const objectResult = await verifyManifestObjects({ assets }, objectRoot);
 errors.push(...objectResult.errors.map((message) => `object: ${message}`));
+const combinedObjectErrors = [];
+let combinedObjectsVerified = 0;
+for (const group of combinedInventory.groups) {
+  try {
+    const objectPath = resolveContainedPath(objectRoot, group.objectRef, 'combined objectRef');
+    const objectStat = await stat(objectPath);
+    if (!objectStat.isFile() || objectStat.size !== group.byteSize) throw new Error('byteSize mismatch');
+    if (await sha256File(objectPath) !== group.sha256) throw new Error('sha256 mismatch');
+    combinedObjectsVerified += 1;
+  } catch (error) {
+    combinedObjectErrors.push(`${group.sha256}: ${error.message}`);
+  }
+}
+errors.push(...combinedObjectErrors.map((message) => `combined object: ${message}`));
+if (combinedInventory.counts.logicalVisualPaths !== 2013 || combinedInventory.counts.binaryGroups !== 450) {
+  errors.push('combined inventory: expected 2013 logical paths and 450 binary groups');
+}
+if (similarityMap.logicalPathCount !== 2013 || similarityMap.binaryGroupCount !== 450) {
+  errors.push('visual similarity map: expected 2013 logical paths and 450 binary groups');
+}
+const inventoryHashes = [...combinedInventory.groups.map((entry) => entry.sha256)].sort();
+const similarityHashes = [...similarityMap.entries.map((entry) => entry.sha256)].sort();
+if (JSON.stringify(inventoryHashes) !== JSON.stringify(similarityHashes)) errors.push('visual similarity map: SHA coverage mismatch');
 
 const [sourceInventory, recoveryInventory] = await Promise.all([inventoryTree(sourceRoot), inventoryTree(recoveryRoot)]);
 const sourceRecovery = compareInventories(sourceInventory.entries, recoveryInventory.entries);
@@ -85,7 +114,7 @@ const actual = {
   binaryGroups: byHash.size,
   uniqueGifBinaries: gifEntries.length,
   gifSourcePaths: gifEntries.reduce((sum, entry) => sum + entry.sourcePathCount, 0),
-  unresolvedVisualGroups: catalog.entries.filter((entry) => !entry.visualGroupId || !['reviewed', 'needs_escalation'].includes(entry.humanReviewStatus)).length,
+  unresolvedVisualGroups: similarityMap.unjudgedCount,
   urlRecords: urlReview.entries.filter((entry) => entry.accessStatus === 'accessible' && entry.productConnectionStatus === 'matched').length,
   unverifiedRightsPublishable: assets.filter((asset) => asset.rightsStatus !== 'verified' && (['eligible', 'published'].includes(asset.publishStatus) || asset.publicRepoEligibility === 'eligible')).length,
   receiptMismatch,
@@ -112,7 +141,20 @@ const report = {
   finalCompletionStatus: 'blocked_pending_rights_claim_privacy_and_owner_approval',
   expected: gates.expected,
   actual,
-  objectVerification: { verifiedUniqueObjects: objectResult.verified, referencedLogicalPaths: objectResult.referenced, errorCount: objectResult.errors.length },
+  objectVerification: {
+    incomingVerifiedUniqueObjects: objectResult.verified,
+    incomingReferencedLogicalPaths: objectResult.referenced,
+    combinedVerifiedUniqueObjects: combinedObjectsVerified,
+    combinedExpectedUniqueObjects: combinedInventory.groups.length,
+    errorCount: objectResult.errors.length + combinedObjectErrors.length,
+  },
+  crossCorpusSimilarity: {
+    logicalPaths: similarityMap.logicalPathCount,
+    binaryGroups: similarityMap.binaryGroupCount,
+    visualGroups: similarityMap.visualGroupCount,
+    unjudged: similarityMap.unjudgedCount,
+    comparisonPolicy: similarityMap.comparisonPolicy,
+  },
   releaseBlockers,
   errors,
 };
@@ -133,6 +175,7 @@ async function loadSchemas() {
     catalog: 'asset-content-catalog.schema.json',
     urlReview: 'asset-url-review.schema.json',
     gates: 'asset-completion-gates.schema.json',
+    similarity: 'asset-visual-similarity-map.schema.json',
   };
   return Object.fromEntries(await Promise.all(Object.entries(names).map(async ([key, name]) => [key, await readJson(new URL(`../schemas/${name}`, import.meta.url))])));
 }
