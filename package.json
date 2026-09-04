@@ -7,9 +7,15 @@
     "test": "node --test",
     "validate": "node scripts/validate-brand-docs.mjs",
     "validate:manifests": "node scripts/check-manifests.mjs",
+    "generate:receipt": "node scripts/generate-intake-receipt.mjs",
+    "validate:receipt": "node scripts/check-intake-receipt.mjs",
     "report:assets": "node scripts/report-asset-coverage.mjs"
   },
   "engines": {
     "node": ">=20"
+  },
+  "devDependencies": {
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1"
   }
 }

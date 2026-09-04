@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/westgeneraldoor/munjanggun-brand/schemas/asset-intake-receipt.schema.json",
+  "title": "Munjanggun Asset Intake Receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "version",
+    "intakeId",
+    "generatedAt",
+    "sourceLabel",
+    "recoveryLabel",
+    "counts",
+    "sourceTreeHash",
+    "recoveryTreeHash",
+    "recoveryVerification",
+    "entries"
+  ],
+  "properties": {
+    "schema": { "const": "munjanggun.assetIntakeReceipt.v2" },
+    "version": { "const": "2.0" },
+    "intakeId": { "type": "string", "pattern": "^INTAKE-[0-9]{8}-[0-9]{2}$" },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "sourceLabel": { "type": "string", "minLength": 1 },
+    "recoveryLabel": { "type": "string", "minLength": 1 },
+    "counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["all", "managed", "visual", "url", "manifest", "ignoredSystemCache", "allBytes", "managedBytes"],
+      "properties": {
+        "all": { "type": "integer", "minimum": 0 },
+        "managed": { "type": "integer", "minimum": 0 },
+        "visual": { "type": "integer", "minimum": 0 },
+        "url": { "type": "integer", "minimum": 0 },
+        "manifest": { "type": "integer", "minimum": 0 },
+        "ignoredSystemCache": { "type": "integer", "minimum": 0 },
+        "allBytes": { "type": "integer", "minimum": 0 },
+        "managedBytes": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "sourceTreeHash": { "$ref": "#/$defs/sha256" },
+    "recoveryTreeHash": { "$ref": "#/$defs/sha256" },
+    "recoveryVerification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "missing", "extra", "sizeMismatch", "hashMismatch"],
+      "properties": {
+        "status": { "enum": ["verified", "failed"] },
+        "missing": { "type": "array", "items": { "$ref": "#/$defs/safeRelativePath" } },
+        "extra": { "type": "array", "items": { "$ref": "#/$defs/safeRelativePath" } },
+        "sizeMismatch": { "type": "array", "items": { "$ref": "#/$defs/safeRelativePath" } },
+        "hashMismatch": { "type": "array", "items": { "$ref": "#/$defs/safeRelativePath" } }
+      }
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["sourceRelativePath", "byteSize", "sha256", "extension", "kind", "disposition"],
+        "properties": {
+          "sourceRelativePath": { "$ref": "#/$defs/safeRelativePath" },
+          "byteSize": { "type": "integer", "minimum": 0 },
+          "sha256": { "$ref": "#/$defs/sha256" },
+          "extension": { "type": "string", "pattern": "^\\.[a-z0-9]+$" },
+          "kind": { "enum": ["visual", "url", "manifest", "other", "system_cache"] },
+          "disposition": { "enum": ["managed", "ignored_system_cache"] }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "safeRelativePath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?![A-Za-z]:)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\)(?!.*\\u0000).+$"
+    }
+  }
+}
