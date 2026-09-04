@@ -9,6 +9,8 @@
     "validate:manifests": "node scripts/check-manifests.mjs",
     "generate:receipt": "node scripts/generate-intake-receipt.mjs",
     "validate:receipt": "node scripts/check-intake-receipt.mjs",
+    "generate:candidates": "node scripts/generate-candidate-manifests.mjs",
+    "assets:build-objects": "node scripts/assets-build-object-store.mjs",
     "assets:resolve": "node scripts/assets-resolve.mjs",
     "assets:extract": "node scripts/assets-extract.mjs",
     "assets:verify-objects": "node scripts/assets-verify-objects.mjs",
