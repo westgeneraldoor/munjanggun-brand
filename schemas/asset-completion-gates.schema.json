@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/westgeneraldoor/munjanggun-brand/schemas/asset-completion-gates.schema.json",
+  "title": "Munjanggun Asset Intake Completion Gates",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "version", "intakeId", "expected"],
+  "properties": {
+    "schema": { "const": "munjanggun.assetCompletionGates.v2" },
+    "version": { "const": "2.0" },
+    "intakeId": { "type": "string", "pattern": "^INTAKE-[0-9]{8}-[0-9]{2}$" },
+    "expected": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "receiptManaged", "visualManifestPaths", "binaryGroups", "uniqueGifBinaries",
+        "gifSourcePaths", "unresolvedVisualGroups", "urlRecords", "unverifiedRightsPublishable",
+        "receiptMismatch"
+      ],
+      "properties": {
+        "receiptManaged": { "type": "integer", "minimum": 0 },
+        "visualManifestPaths": { "type": "integer", "minimum": 0 },
+        "binaryGroups": { "type": "integer", "minimum": 0 },
+        "uniqueGifBinaries": { "type": "integer", "minimum": 0 },
+        "gifSourcePaths": { "type": "integer", "minimum": 0 },
+        "unresolvedVisualGroups": { "type": "integer", "const": 0 },
+        "urlRecords": { "type": "integer", "minimum": 0 },
+        "unverifiedRightsPublishable": { "type": "integer", "const": 0 },
+        "receiptMismatch": { "type": "integer", "const": 0 }
+      }
+    }
+  }
+}

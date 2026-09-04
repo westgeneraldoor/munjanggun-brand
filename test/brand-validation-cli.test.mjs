@@ -20,6 +20,19 @@ test('check-manifests validates product manifest fixtures', async () => {
   assert.match(stdout, /1 manifest/);
 });
 
+test('check-manifests excludes untrusted manifests inside 신규 intake folders', async () => {
+  const root = await makeFixtureRoot();
+  await writeManifestFixture(root);
+  const intakeRoot = join(root, '문장군상품', '신규', '복사본');
+  await mkdir(intakeRoot, { recursive: true });
+  await writeFile(join(intakeRoot, 'asset-manifest.json'), '{"stale":true}');
+
+  const { stdout } = await execFileAsync(process.execPath, [join(repoRoot, 'scripts/check-manifests.mjs'), '--root', root]);
+
+  assert.match(stdout, /Manifest check passed/);
+  assert.match(stdout, /1 manifest/);
+});
+
 test('report-asset-coverage emits JSON informational coverage', async () => {
   const root = await makeFixtureRoot();
   await writeFile(

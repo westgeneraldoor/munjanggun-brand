@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/westgeneraldoor/munjanggun-brand/schemas/product-detail-asset-manifest.v2.schema.json",
+  "title": "Munjanggun Product Detail Asset Manifest v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "version", "generatedAt", "updatedAt", "intakeId", "sourceId",
+    "productId", "product", "assetCount", "roleCounts", "claimRiskCounts",
+    "rightsStatusCounts", "publishStatusCounts", "assets"
+  ],
+  "properties": {
+    "schema": { "const": "munjanggun.productDetailAssets.v2" },
+    "version": { "const": "2.0" },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "updatedAt": { "type": "string", "format": "date-time" },
+    "intakeId": { "type": "string", "pattern": "^INTAKE-[0-9]{8}-[0-9]{2}$" },
+    "sourceId": { "type": "string", "minLength": 1 },
+    "productId": { "type": "string", "minLength": 1 },
+    "product": { "type": "string", "minLength": 1 },
+    "assetCount": { "type": "integer", "minimum": 0 },
+    "roleCounts": { "$ref": "#/$defs/countList" },
+    "claimRiskCounts": { "$ref": "#/$defs/countList" },
+    "rightsStatusCounts": { "$ref": "#/$defs/countList" },
+    "publishStatusCounts": { "$ref": "#/$defs/countList" },
+    "assets": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/asset" }
+    }
+  },
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "safeRelativePath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?![A-Za-z]:)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\)(?!.*\\u0000).+$"
+    },
+    "countList": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["key", "count"],
+        "properties": {
+          "key": { "type": "string", "minLength": 1 },
+          "count": { "type": "integer", "minimum": 0 }
+        }
+      }
+    },
+    "asset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "assetInstanceId", "productId", "sourceId", "sourceRelativePath", "logicalPath",
+        "sourceOrder", "objectId", "objectRef", "sha256", "byteSize", "originalExtension",
+        "mediaType", "width", "height", "frameCount", "durationMs", "loopCount", "folderRole",
+        "contentId", "binaryGroupId", "visualGroupId", "comparisonMethod", "humanReviewStatus",
+        "preservationStatus", "privacyStatus", "rightsStatus", "rightsScope", "rightsEvidenceRef",
+        "claimRisk", "claimReviewStatus", "claimEvidenceRef", "publishStatus", "publishConditions",
+        "publicRepoEligibility", "publicSyncStatus", "publicObjectRef", "notes"
+      ],
+      "properties": {
+        "assetInstanceId": { "type": "string", "minLength": 1 },
+        "productId": { "type": "string", "minLength": 1 },
+        "sourceId": { "type": "string", "minLength": 1 },
+        "sourceRelativePath": { "$ref": "#/$defs/safeRelativePath" },
+        "logicalPath": { "$ref": "#/$defs/safeRelativePath" },
+        "sourceOrder": { "type": "integer", "minimum": 1 },
+        "objectId": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "objectRef": { "$ref": "#/$defs/safeRelativePath" },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "byteSize": { "type": "integer", "minimum": 0 },
+        "originalExtension": { "enum": [".jpg", ".jpeg", ".png", ".gif", ".webp", ".mp4", ".mov"] },
+        "mediaType": { "enum": ["image/jpeg", "image/png", "image/gif", "image/webp", "video/mp4", "video/quicktime"] },
+        "width": { "type": ["integer", "null"], "minimum": 1 },
+        "height": { "type": ["integer", "null"], "minimum": 1 },
+        "frameCount": { "type": ["integer", "null"], "minimum": 1 },
+        "durationMs": { "type": ["integer", "null"], "minimum": 0 },
+        "loopCount": { "type": ["integer", "null"], "minimum": 0 },
+        "folderRole": { "type": "string", "minLength": 1 },
+        "contentId": { "type": "string", "minLength": 1 },
+        "binaryGroupId": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "visualGroupId": { "type": ["string", "null"] },
+        "comparisonMethod": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "enum": ["sha256_exact", "perceptual_hash", "ocr", "gif_scene_signature", "human_visual_review"] }
+        },
+        "humanReviewStatus": { "enum": ["not_reviewed", "in_review", "reviewed", "needs_escalation"] },
+        "preservationStatus": { "enum": ["received", "sealed", "verified", "superseded"] },
+        "privacyStatus": { "enum": ["not_reviewed", "cleared", "restricted", "needs_redaction"] },
+        "rightsStatus": { "enum": ["not_reviewed", "pending", "verified", "restricted", "expired"] },
+        "rightsScope": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+        "rightsEvidenceRef": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^RIGHTS-EV-[A-Z0-9-]+$" } },
+        "claimRisk": { "enum": ["low", "medium", "high"] },
+        "claimReviewStatus": { "enum": ["not_reviewed", "not_applicable", "needs_confirmation", "verified", "expired", "restricted"] },
+        "claimEvidenceRef": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+        "publishStatus": { "enum": ["blocked", "needs_confirmation", "eligible", "published", "withdrawn"] },
+        "publishConditions": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+        "publicRepoEligibility": { "enum": ["not_reviewed", "prohibited", "eligible"] },
+        "publicSyncStatus": { "enum": ["absent", "queued", "synced", "withdrawn"] },
+        "publicObjectRef": { "anyOf": [{ "$ref": "#/$defs/safeRelativePath" }, { "type": "null" }] },
+        "notes": { "type": "string" }
+      }
+    }
+  }
+}

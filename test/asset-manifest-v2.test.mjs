@@ -1,0 +1,156 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { execFile } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { basename, join, resolve } from 'node:path';
+import { tmpdir } from 'node:os';
+import { promisify } from 'node:util';
+import { readAndValidateManifestV2 } from '../scripts/lib/asset-manifest-v2.mjs';
+import { resolveAssetObject, verifyManifestObjects } from '../scripts/lib/asset-resolver.mjs';
+
+const execFileAsync = promisify(execFile);
+const repoRoot = resolve('.');
+
+test('manifest v2 validates array counts and fail-closed review defaults', async () => {
+  const fixture = await makeFixture();
+  const { manifest, findings } = await readAndValidateManifestV2(fixture.manifestPath);
+
+  assert.deepEqual(findings, []);
+  const resolved = await resolveAssetObject(fixture.objectRoot, manifest.assets[0]);
+  assert.equal(resolved, fixture.objectPath);
+  const verified = await verifyManifestObjects(manifest, fixture.objectRoot);
+  assert.deepEqual(verified, { verified: 1, referenced: 1, errors: [] });
+});
+
+test('manifest v2 rejects unsafe publication state and inconsistent identifiers', async () => {
+  const fixture = await makeFixture();
+  const manifest = JSON.parse(await readFile(fixture.manifestPath, 'utf8'));
+  manifest.assets[0].objectId = `sha256:${'f'.repeat(64)}`;
+  manifest.assets[0].rightsStatus = 'not_reviewed';
+  manifest.assets[0].humanReviewStatus = 'not_reviewed';
+  manifest.assets[0].publishStatus = 'eligible';
+  manifest.assets[0].publicRepoEligibility = 'eligible';
+  manifest.publishStatusCounts = [{ key: 'eligible', count: 1 }];
+  await writeFile(fixture.manifestPath, JSON.stringify(manifest, null, 2));
+
+  const { findings } = await readAndValidateManifestV2(fixture.manifestPath);
+  assert(findings.some((finding) => finding.message.includes('objectId does not match')));
+  assert(findings.some((finding) => finding.message.includes('while rightsStatus is not_reviewed')));
+  assert(findings.some((finding) => finding.message.includes('before human review')));
+  assert(findings.some((finding) => finding.message.includes('publicRepoEligibility eligible requires')));
+});
+
+test('object resolver rejects hash mismatch', async () => {
+  const fixture = await makeFixture();
+  const { manifest } = await readAndValidateManifestV2(fixture.manifestPath);
+  await writeFile(fixture.objectPath, 'tampered');
+
+  await assert.rejects(resolveAssetObject(fixture.objectRoot, manifest.assets[0]), /byteSize mismatch|sha256 mismatch/);
+});
+
+test('resolver, extract, verify, and materialize CLIs preserve compatibility paths', async () => {
+  const fixture = await makeFixture();
+  const extracted = join(fixture.root, 'output', 'picked.jpg');
+  const materialized = join(fixture.root, 'materialized');
+  const common = ['--manifest', fixture.manifestPath, '--object-root', fixture.objectRoot];
+
+  const resolved = await execFileAsync(process.execPath, [
+    join(repoRoot, 'scripts/assets-resolve.mjs'),
+    ...common,
+    '--asset-id', 'ASSET-TEST-001',
+    '--json',
+  ]);
+  assert.equal(JSON.parse(resolved.stdout).objectPath, fixture.objectPath);
+
+  await execFileAsync(process.execPath, [
+    join(repoRoot, 'scripts/assets-extract.mjs'),
+    ...common,
+    '--asset-id', 'ASSET-TEST-001',
+    '--output', extracted,
+  ]);
+  assert.equal(await readFile(extracted, 'utf8'), 'image-data');
+
+  const verified = await execFileAsync(process.execPath, [
+    join(repoRoot, 'scripts/assets-verify-objects.mjs'),
+    ...common,
+  ]);
+  assert.match(verified.stdout, /1 unique objects for 1 logical paths/);
+
+  await execFileAsync(process.execPath, [
+    join(repoRoot, 'scripts/assets-materialize.mjs'),
+    ...common,
+    '--output-root', materialized,
+  ]);
+  assert.equal(await readFile(join(materialized, '문장군상품', '테스트', '001.jpg'), 'utf8'), 'image-data');
+});
+
+async function makeFixture() {
+  const root = join(tmpdir(), `mg-v2-${Date.now()}-${Math.random().toString(16).slice(2)}`);
+  const objectRoot = join(root, 'objects');
+  const body = 'image-data';
+  const hash = createHash('sha256').update(body).digest('hex');
+  const objectRef = `sha256/${hash.slice(0, 2)}/${hash}.jpg`;
+  const objectPath = join(objectRoot, ...objectRef.split('/'));
+  const manifestPath = join(root, 'asset-manifest.v2.json');
+  await mkdir(join(objectPath, '..'), { recursive: true });
+  await writeFile(objectPath, body);
+  const asset = {
+    assetInstanceId: 'ASSET-TEST-001',
+    productId: 'PROD-TEST',
+    sourceId: 'SRC-TEST-001',
+    sourceRelativePath: '테스트/001.jpg',
+    logicalPath: '문장군상품/테스트/001.jpg',
+    sourceOrder: 1,
+    objectId: `sha256:${hash}`,
+    objectRef,
+    sha256: hash,
+    byteSize: Buffer.byteLength(body),
+    originalExtension: '.jpg',
+    mediaType: 'image/jpeg',
+    width: 100,
+    height: 100,
+    frameCount: null,
+    durationMs: null,
+    loopCount: null,
+    folderRole: 'root',
+    contentId: `CONTENT-${hash.slice(0, 12)}`,
+    binaryGroupId: `sha256:${hash}`,
+    visualGroupId: null,
+    comparisonMethod: ['sha256_exact'],
+    humanReviewStatus: 'not_reviewed',
+    preservationStatus: 'verified',
+    privacyStatus: 'not_reviewed',
+    rightsStatus: 'not_reviewed',
+    rightsScope: [],
+    rightsEvidenceRef: [],
+    claimRisk: 'low',
+    claimReviewStatus: 'not_reviewed',
+    claimEvidenceRef: [],
+    publishStatus: 'blocked',
+    publishConditions: ['human_review_required', 'rights_review_required'],
+    publicRepoEligibility: 'not_reviewed',
+    publicSyncStatus: 'absent',
+    publicObjectRef: null,
+    notes: '',
+  };
+  const now = new Date().toISOString();
+  const manifest = {
+    schema: 'munjanggun.productDetailAssets.v2',
+    version: '2.0',
+    generatedAt: now,
+    updatedAt: now,
+    intakeId: 'INTAKE-20260904-01',
+    sourceId: 'SRC-TEST-001',
+    productId: 'PROD-TEST',
+    product: '테스트',
+    assetCount: 1,
+    roleCounts: [{ key: 'root', count: 1 }],
+    claimRiskCounts: [{ key: 'low', count: 1 }],
+    rightsStatusCounts: [{ key: 'not_reviewed', count: 1 }],
+    publishStatusCounts: [{ key: 'blocked', count: 1 }],
+    assets: [asset],
+  };
+  await writeFile(manifestPath, JSON.stringify(manifest, null, 2));
+  return { root, objectRoot, objectPath, manifestPath, hash, fileName: basename(objectPath) };
+}

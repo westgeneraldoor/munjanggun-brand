@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/westgeneraldoor/munjanggun-brand/schemas/asset-content-catalog.schema.json",
+  "title": "Munjanggun Asset Content Catalog",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "version", "intakeId", "generatedAt", "binaryGroupCount", "entries"],
+  "properties": {
+    "schema": { "const": "munjanggun.assetContentCatalog.v2" },
+    "version": { "const": "2.0" },
+    "intakeId": { "type": "string", "pattern": "^INTAKE-[0-9]{8}-[0-9]{2}$" },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "binaryGroupCount": { "type": "integer", "minimum": 0 },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "binaryGroupId", "sha256", "byteSize", "mediaType", "sourcePathCount", "sourceRefs",
+          "contentId", "visualGroupId", "comparisonMethod", "humanReviewStatus", "semanticSummary",
+          "ocrText", "gifReviewStatus", "claimSignals", "privacySignals", "rightsSignals"
+        ],
+        "properties": {
+          "binaryGroupId": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+          "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+          "byteSize": { "type": "integer", "minimum": 0 },
+          "mediaType": { "type": "string", "minLength": 1 },
+          "sourcePathCount": { "type": "integer", "minimum": 1 },
+          "sourceRefs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["sourceId", "sourceRelativePath"],
+              "properties": {
+                "sourceId": { "type": "string", "minLength": 1 },
+                "sourceRelativePath": { "type": "string", "minLength": 1 }
+              }
+            }
+          },
+          "contentId": { "type": "string", "minLength": 1 },
+          "visualGroupId": { "type": ["string", "null"] },
+          "comparisonMethod": { "type": "array", "uniqueItems": true, "items": { "type": "string" } },
+          "humanReviewStatus": { "enum": ["not_reviewed", "in_review", "reviewed", "needs_escalation"] },
+          "semanticSummary": { "type": "string" },
+          "ocrText": { "type": "string" },
+          "gifReviewStatus": { "enum": ["not_applicable", "not_reviewed", "in_review", "reviewed"] },
+          "claimSignals": { "type": "array", "items": { "type": "string" } },
+          "privacySignals": { "type": "array", "items": { "type": "string" } },
+          "rightsSignals": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  }
+}
