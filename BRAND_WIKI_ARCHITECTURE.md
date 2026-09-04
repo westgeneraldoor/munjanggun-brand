@@ -36,7 +36,6 @@ MCP는 브랜드 위키를 대체하지 않는다. MCP는 이 위키를 더 잘 
 ```text
 BRAND_CONTEXT.md
 FIELD_JUDGMENT_RULES.md
-DESIGN.md
 EVIDENCE_REGISTER.md
 OPEN_QUESTIONS_REGISTER.md
 BRAND_WIKI_ARCHITECTURE.md
@@ -54,7 +53,7 @@ ASSET_SEMANTIC_INDEX.md
 
 | 계층 | 역할 | 대표 문서 |
 | --- | --- | --- |
-| 권위 기준층 | 브랜드, 현장 판단, 디자인, 변동 claim 기준 | `BRAND_CONTEXT.md`, `FIELD_JUDGMENT_RULES.md`, `DESIGN.md`, `EVIDENCE_REGISTER.md` |
+| 권위 기준층 | 브랜드, 현장 판단, 변동 claim 기준 | `BRAND_CONTEXT.md`, `FIELD_JUDGMENT_RULES.md`, `EVIDENCE_REGISTER.md` |
 | 소스 등록층 | 유입 자료의 출처, 상태, 민감정보, 승격 여부 관리 | `SOURCE_REGISTRY.md` |
 | 기술 인덱스층 | 파일 경로, 순서, 규격, 해시, GIF 프레임 관리 | 상품별 `asset-manifest.json` |
 | 의미 인덱스층 | 이미지/자료가 무엇을 말하는지, 어디에 쓸 수 있는지 관리 | `ASSET_SEMANTIC_INDEX.md` |

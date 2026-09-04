@@ -2,12 +2,9 @@
 import { readFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import {
-  compareTokenSources,
   computeSemanticCoverage,
-  extractFrontMatter,
   findFiles,
   findMarkdownTable,
-  parseCssVariables,
   readJson,
   validateContentReferences,
   validateManifest,
@@ -17,7 +14,6 @@ import {
 const rootDir = getArg('--root') ?? process.cwd();
 const findings = [];
 
-await checkTokens();
 await checkManifests();
 await checkRegistries();
 await checkSemanticCoverage();
@@ -34,18 +30,6 @@ if (errors.length > 0) {
   process.exitCode = 1;
 } else {
   console.log(`Brand docs validation passed: 0 errors, ${warnings.length} warning${warnings.length === 1 ? '' : 's'}.`);
-}
-
-async function checkTokens() {
-  const designText = await readRequiredText('DESIGN.md');
-  const design = extractFrontMatter(designText);
-  const json = await readJson(join(rootDir, 'tokens', 'brand.tokens.json'));
-  const css = await readRequiredText('tokens/brand.css');
-  findings.push(...compareTokenSources({
-    design,
-    json,
-    cssVars: parseCssVariables(css),
-  }));
 }
 
 async function checkManifests() {

@@ -10,29 +10,6 @@ import { promisify } from 'node:util';
 const execFileAsync = promisify(execFile);
 const repoRoot = resolve('.');
 
-test('check-token-drift exits successfully for matching token fixtures', async () => {
-  const root = await makeFixtureRoot();
-  await writeTokenFixture(root, { clayCss: '#9C4E2C' });
-
-  const { stdout } = await execFileAsync(process.execPath, [join(repoRoot, 'scripts/check-token-drift.mjs'), '--root', root]);
-
-  assert.match(stdout, /Token drift check passed/);
-});
-
-test('check-token-drift exits non-zero for mismatched token fixtures', async () => {
-  const root = await makeFixtureRoot();
-  await writeTokenFixture(root, { clayCss: '#000000' });
-
-  await assert.rejects(
-    execFileAsync(process.execPath, [join(repoRoot, 'scripts/check-token-drift.mjs'), '--root', root]),
-    (error) => {
-      assert.equal(error.code, 1);
-      assert.match(error.stdout, /colors\.clay/);
-      return true;
-    },
-  );
-});
-
 test('check-manifests validates product manifest fixtures', async () => {
   const root = await makeFixtureRoot();
   await writeManifestFixture(root);
@@ -75,9 +52,8 @@ test('report-asset-coverage emits JSON informational coverage', async () => {
   });
 });
 
-test('validate-brand-docs aggregates token, manifest, and registry checks', async () => {
+test('validate-brand-docs aggregates manifest and registry checks', async () => {
   const root = await makeFixtureRoot();
-  await writeTokenFixture(root, { clayCss: '#9C4E2C' });
   await writeManifestFixture(root);
   await writeFile(
     join(root, 'EVIDENCE_REGISTER.md'),
@@ -124,7 +100,6 @@ test('validate-brand-docs aggregates token, manifest, and registry checks', asyn
 
 test('validate-brand-docs fails when required registry tables are missing', async () => {
   const root = await makeFixtureRoot();
-  await writeTokenFixture(root, { clayCss: '#9C4E2C' });
   await writeManifestFixture(root);
   await writeFile(join(root, 'EVIDENCE_REGISTER.md'), '# Evidence without required table\n');
   await writeFile(join(root, 'OPEN_QUESTIONS_REGISTER.md'), '# Open questions without required table\n');
@@ -155,64 +130,6 @@ async function makeFixtureRoot() {
   const root = join(tmpdir(), `mg-brand-cli-${Date.now()}-${Math.random().toString(16).slice(2)}`);
   await mkdir(root, { recursive: true });
   return root;
-}
-
-async function writeTokenFixture(root, { clayCss }) {
-  await mkdir(join(root, 'tokens'), { recursive: true });
-  await writeFile(
-    join(root, 'DESIGN.md'),
-    [
-      '---',
-      'colors:',
-      '  clay: "#9C4E2C"',
-      'rounded:',
-      '  md: 20px',
-      'spacing:',
-      '  md: 16px',
-      'typography:',
-      '  font-family: "Pretendard Variable, Pretendard, -apple-system, sans-serif"',
-      '  hero:',
-      '    fontSize: 44px',
-      '    mobileFontSize: 30px',
-      '    lineHeight: 1.4',
-      '---',
-      '',
-    ].join('\n'),
-  );
-  await writeFile(
-    join(root, 'tokens/brand.tokens.json'),
-    JSON.stringify(
-      {
-        colors: { clay: { value: '#9C4E2C' } },
-        radius: { md: { value: '20px' } },
-        spacing: { md: { value: '16px' } },
-        typography: {
-          hero: {
-            fontFamily: 'Pretendard Variable, Pretendard, -apple-system, sans-serif',
-            fontSize: '44px',
-            mobileFontSize: '30px',
-            lineHeight: 1.4,
-          },
-        },
-      },
-      null,
-      2,
-    ),
-  );
-  await writeFile(
-    join(root, 'tokens/brand.css'),
-    [
-      ':root {',
-      `  --mg-clay: ${clayCss};`,
-      '  --mg-radius-md: 20px;',
-      '  --mg-space-md: 16px;',
-      '  --mg-font-size-hero: 44px;',
-      '  --mg-font-size-hero-mobile: 30px;',
-      '  --mg-line-height-hero: 1.4;',
-      '}',
-      '',
-    ].join('\n'),
-  );
 }
 
 async function writeManifestFixture(root) {

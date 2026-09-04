@@ -6,124 +6,13 @@ import { tmpdir } from 'node:os';
 import { createHash } from 'node:crypto';
 
 import {
-  compareTokenSources,
   computeSemanticCoverage,
-  parseCssVariables,
   parseMarkdownTable,
   parseMarkdownTables,
   validateContentReferences,
   validateRegistryStatuses,
   validateManifest,
 } from '../scripts/lib/brand-validation-core.mjs';
-
-test('parseCssVariables extracts root-level brand variables', () => {
-  const css = `
-    :root {
-      --mg-clay: #9C4E2C;
-      --mg-radius-md: 20px;
-    }
-  `;
-
-  assert.deepEqual(parseCssVariables(css), {
-    'mg-clay': '#9C4E2C',
-    'mg-radius-md': '20px',
-  });
-});
-
-test('parseCssVariables keeps the canonical base value when media queries override it', () => {
-  const css = `
-    :root { --mg-layout-gutter: 64px; }
-    @media (max-width: 540px) {
-      :root { --mg-layout-gutter: 24px; }
-    }
-  `;
-
-  assert.deepEqual(parseCssVariables(css), {
-    'mg-layout-gutter': '64px',
-  });
-});
-
-test('compareTokenSources reports color drift across design, json, and css', () => {
-  const findings = compareTokenSources({
-    design: {
-      colors: { clay: '#9C4E2C' },
-      rounded: {},
-      spacing: {},
-      typography: {},
-    },
-    json: {
-      colors: { clay: { value: '#9C4E2C' } },
-      radius: {},
-      spacing: {},
-      typography: {},
-    },
-    cssVars: {
-      'mg-clay': '#000000',
-    },
-  });
-
-  assert.equal(findings.length, 1);
-  assert.equal(findings[0].severity, 'error');
-  assert.match(findings[0].message, /colors\.clay/);
-});
-
-test('compareTokenSources reports missing json and css tokens declared by design', () => {
-  const findings = compareTokenSources({
-    design: {
-      colors: { clay: '#9C4E2C' },
-      rounded: { md: '20px' },
-      spacing: { md: '16px' },
-      typography: {
-        hero: {
-          fontSize: '44px',
-          mobileFontSize: '30px',
-          lineHeight: 1.4,
-        },
-      },
-    },
-    json: {
-      colors: {},
-      radius: {},
-      spacing: {},
-      typography: {},
-    },
-    cssVars: {},
-  });
-
-  assert(findings.some((finding) => finding.message.includes('colors.clay missing from brand.tokens.json')));
-  assert(findings.some((finding) => finding.message.includes('colors.clay missing from brand.css')));
-  assert(findings.some((finding) => finding.message.includes('rounded.md missing from brand.tokens.json')));
-  assert(findings.some((finding) => finding.message.includes('spacing.md missing from brand.css')));
-  assert(findings.some((finding) => finding.message.includes('typography.hero.fontSize missing from brand.tokens.json')));
-  assert(findings.some((finding) => finding.message.includes('typography.hero.lineHeight missing from brand.css')));
-});
-
-test('compareTokenSources rejects deprecated v3 token names', () => {
-  const findings = compareTokenSources({
-    design: {
-      colors: { clay: '#9C4E2C' },
-      rounded: {},
-      spacing: {},
-      typography: {},
-    },
-    json: {
-      colors: {
-        clay: { value: '#9C4E2C' },
-        verifiedNavy: { value: '#1E3557' },
-      },
-      radius: {},
-      spacing: {},
-      typography: {},
-    },
-    cssVars: {
-      'mg-clay': '#9C4E2C',
-      'mg-verified-navy': '#1E3557',
-    },
-  });
-
-  assert(findings.some((finding) => finding.severity === 'error' && finding.message.includes('deprecated token')));
-  assert(findings.some((finding) => finding.severity === 'error' && finding.message.includes('not declared in DESIGN.md')));
-});
 
 test('validateManifest accepts a manifest with required metadata and matching file facts', async () => {
   const root = await makeTempDir();

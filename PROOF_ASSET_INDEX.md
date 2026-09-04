@@ -73,9 +73,8 @@ claim_checked: yes / no / not_applicable
 
 - 고객 얼굴 없음
 - 동호수, 상세 주소, 차량번호, 택배 송장 없음
-- 가족사진, 개인 소지품 노출 최소화
-- Before/After 방향과 밝기 기준 확인
-- `PHOTO_TREATMENT.md` 기준 통과
+- 가족사진, 우편물, 개인 소지품 등 식별 정보 없음
+- 가격, 이벤트, 월 납입, 스펙, 옵션 등 변동 claim의 최신 상태 확인
 
 리뷰:
 
