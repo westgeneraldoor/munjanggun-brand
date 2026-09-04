@@ -12,7 +12,7 @@
 
 - 지역은 넓은 범위로만 쓴다. 예: "수도권 구축 아파트", "신축 아파트 현장"
 - 동, 호수, 고객명, 상담 원문은 쓰지 않는다.
-- 사진을 쓰려면 `PHOTO_TREATMENT.md`와 `PROOF_ASSET_INDEX.md`의 공개 가능 상태를 확인한다.
+- 사진을 쓰려면 `PROOF_ASSET_INDEX.md`의 공개 가능 상태와 이미지 속 식별 정보·변동 claim을 확인한다.
 - 결과는 "해결했습니다"보다 "이런 기준으로 검토했습니다" 중심으로 쓴다.
 
 ## 현장 서사 기본 구조
@@ -145,7 +145,7 @@
 - 사진 단서: 밝은 주거 공간 After, 유리 근접 디테일
 - 사용 가능 문장: "실측 상담에서 샘플과 시공 사례를 보며 집 분위기에 맞춰 좁혀드립니다."
 - 금지 문장: "이 유리가 모든 집에 가장 좋습니다."
-- 관련 문서: DESIGN.md, PHOTO_TREATMENT.md, CUSTOMER_SEGMENTS.md
+- 관련 문서: CUSTOMER_SEGMENTS.md, PROOF_ASSET_INDEX.md
 
 ## STORY-009 중문 설치 시점
 

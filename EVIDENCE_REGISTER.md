@@ -4,7 +4,7 @@
 > 최종 업데이트: 2026-07-01
 > 목적: 리뷰 수, 가격, A/S, 일정처럼 시간이 지나면 바뀔 수 있는 customer-facing claim의 기준일, 출처, 확인자, 재확인 주기를 관리한다.
 
-이 문서는 `BRAND_CONTEXT.md`, `FIELD_JUDGMENT_RULES.md`, `DESIGN.md`, 각 프로젝트 어댑터에서 사용하는 변동 claim의 근거표다.
+이 문서는 `BRAND_CONTEXT.md`, `FIELD_JUDGMENT_RULES.md`, 각 프로젝트 어댑터에서 사용하는 변동 claim의 근거표다.
 
 원칙:
 
