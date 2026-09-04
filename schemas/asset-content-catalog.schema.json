@@ -11,6 +11,24 @@
     "intakeId": { "type": "string", "pattern": "^INTAKE-[0-9]{8}-[0-9]{2}$" },
     "generatedAt": { "type": "string", "format": "date-time" },
     "binaryGroupCount": { "type": "integer", "minimum": 0 },
+    "reviewedAt": { "type": "string", "format": "date-time" },
+    "reviewSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reviewedBinaryGroups", "needsEscalation", "sourcePathLinks",
+        "uniqueGifFrames", "uniqueGifDurationMs", "linkedGifFrames", "linkedGifDurationMs"
+      ],
+      "properties": {
+        "reviewedBinaryGroups": { "type": "integer", "minimum": 0 },
+        "needsEscalation": { "type": "integer", "minimum": 0 },
+        "sourcePathLinks": { "type": "integer", "minimum": 0 },
+        "uniqueGifFrames": { "type": "integer", "minimum": 0 },
+        "uniqueGifDurationMs": { "type": "integer", "minimum": 0 },
+        "linkedGifFrames": { "type": "integer", "minimum": 0 },
+        "linkedGifDurationMs": { "type": "integer", "minimum": 0 }
+      }
+    },
     "entries": {
       "type": "array",
       "items": {
@@ -41,6 +59,8 @@
           },
           "contentId": { "type": "string", "minLength": 1 },
           "visualGroupId": { "type": ["string", "null"] },
+          "semanticGroupId": { "type": ["string", "null"] },
+          "visualGroupDecision": { "enum": ["not_reviewed", "accepted_candidate", "split_after_audit"] },
           "comparisonMethod": { "type": "array", "uniqueItems": true, "items": { "type": "string" } },
           "humanReviewStatus": { "enum": ["not_reviewed", "in_review", "reviewed", "needs_escalation"] },
           "semanticSummary": { "type": "string" },
@@ -48,7 +68,29 @@
           "gifReviewStatus": { "enum": ["not_applicable", "not_reviewed", "in_review", "reviewed"] },
           "claimSignals": { "type": "array", "items": { "type": "string" } },
           "privacySignals": { "type": "array", "items": { "type": "string" } },
-          "rightsSignals": { "type": "array", "items": { "type": "string" } }
+          "rightsSignals": { "type": "array", "items": { "type": "string" } },
+          "reviewEvidenceRefs": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": { "type": "string", "minLength": 1 }
+          },
+          "reviewNotes": { "type": "string" },
+          "gifMetadata": {
+            "anyOf": [
+              { "type": "null" },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["frameCount", "durationMs", "loopCount", "loopBehavior"],
+                "properties": {
+                  "frameCount": { "type": "integer", "minimum": 1 },
+                  "durationMs": { "type": "integer", "minimum": 0 },
+                  "loopCount": { "type": "integer", "minimum": 0 },
+                  "loopBehavior": { "type": "string", "minLength": 1 }
+                }
+              }
+            ]
+          }
         }
       }
     }

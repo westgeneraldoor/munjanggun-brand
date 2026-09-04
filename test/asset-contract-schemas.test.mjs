@@ -58,6 +58,31 @@ test('completion gates schema pins this intake numerical contract', async () => 
   assert.equal(result.valid, true);
 });
 
+test('URL review schema keeps access evidence separate from claim approval', async () => {
+  const schema = await readSchema('asset-url-review.schema.json');
+  const result = validateAgainstSchema({
+    schema: 'munjanggun.assetUrlReview.v1',
+    version: '1.0',
+    intakeId: 'INTAKE-20260904-01',
+    checkedAt: '2026-09-04T08:00:00.000Z',
+    method: 'signed_in_browser_read_only',
+    recordCount: 1,
+    entries: [{
+      sourceRelativePath: '상품/상품.url',
+      url: 'https://brand.naver.com/example/products/1',
+      productId: '1',
+      accessStatus: 'accessible',
+      observedTitle: '확인된 상품명',
+      productConnectionStatus: 'matched',
+      claimReviewStatus: 'not_reviewed',
+      notes: '접근만 확인',
+    }],
+  }, schema);
+
+  assert.equal(result.valid, true);
+  assert.equal(result.valid && result.errors.length === 0, true);
+});
+
 async function readSchema(name) {
   return JSON.parse(await readFile(resolve('schemas', name), 'utf8'));
 }
