@@ -17,3 +17,7 @@ Thumbs.db
 node_modules/
 dist/
 .playwright-cli/
+
+# Private intake sources and Windows product shortcuts
+/문장군상품/신규/
+/문장군상품/**/*.url

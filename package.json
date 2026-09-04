@@ -19,6 +19,7 @@
     "assets:search": "node scripts/assets-search-catalog.mjs",
     "assets:extract-content": "node scripts/assets-extract-content.mjs",
     "assets:merge-similarity": "node scripts/merge-visual-similarity.mjs",
+    "assets:approval-report": "node scripts/generate-asset-approval-report.mjs",
     "assets:build-objects": "node scripts/assets-build-object-store.mjs",
     "assets:resolve": "node scripts/assets-resolve.mjs",
     "assets:extract": "node scripts/assets-extract.mjs",

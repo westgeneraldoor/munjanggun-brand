@@ -1,0 +1,107 @@
+#!/usr/bin/env node
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { dirname, resolve } from 'node:path';
+
+const catalog = await readJson(resolve(requiredArg('--catalog')));
+const comparison = await readJson(resolve(requiredArg('--comparison')));
+const completion = await readJson(resolve(requiredArg('--completion')));
+const urlReview = await readJson(resolve(requiredArg('--url-review')));
+const outputPath = resolve(requiredArg('--output'));
+
+const escalations = catalog.entries.filter((entry) => entry.humanReviewStatus === 'needs_escalation');
+const privacy = catalog.entries.filter((entry) => entry.privacySignals.length > 0);
+const claimSignals = countSignals(catalog.entries.flatMap((entry) => entry.claimSignals));
+const lines = [
+  '# INTAKE-20260904-01 사장 승인표',
+  '',
+  `생성일: ${new Date().toISOString()}`,
+  '',
+  '## 1. 현재 판정',
+  '',
+  `- 기술 게이트: ${completion.technicalGateStatus}`,
+  `- 외부 발행: ${completion.externalReleaseStatus}`,
+  `- canonical 승격: ${completion.releaseBlockers.canonicalPromotionStatus}`,
+  `- 기존+신규: ${completion.crossCorpusSimilarity.logicalPaths}경로 → ${completion.crossCorpusSimilarity.binaryGroups} SHA → ${completion.crossCorpusSimilarity.visualGroups} 시각군`,
+  `- 시각 미판정: ${completion.crossCorpusSimilarity.unjudged}`,
+  `- 공개 Git 가능으로 표시된 신규 경로: ${completion.releaseBlockers.publicRepoEligiblePaths}`,
+  '',
+  '## 2. 경로 처리 승인',
+  '',
+  '| 분류 | 경로 수 | 제안 | 사장 결정 |',
+  '| --- | ---: | --- | --- |',
+  `| 같은 경로·같은 바이너리 | ${comparison.counts.same_path_unchanged} | 동일 object 참조 | [ ] 승인 |`,
+  `| 같은 경로 교체 | ${comparison.counts.same_path_replacement} | 신규를 candidate로 유지, 승인 후 canonical 교체 | [ ] 승인 / [ ] 보류 |`,
+  `| 새 경로·기존 어딘가와 완전 동일 | ${comparison.counts.new_path_exact_duplicate} | 새 복사 없이 동일 object 참조 | [ ] 승인 |`,
+  `| 기존 상품군의 실질 신규 경로 | ${comparison.counts.substantive_new_path_existing_product} | 신규 논리 경로 추가 | [ ] 승인 / [ ] 보류 |`,
+  `| canonical 폴더가 없는 3개 묶음 | ${comparison.counts.new_product_bundle} | 신규 상품 source로 보존 | [ ] 승인 / [ ] 보류 |`,
+  '',
+  '## 3. 권리·공개 저장 결정',
+  '',
+  '- [ ] 10개 폴더는 문장군이 제작했거나 적법하게 납품받아 내부 원본 보존이 가능하다.',
+  '- [ ] 10개 폴더의 자산을 공개 Git 저장소에 저장할 권리가 확인됐다.',
+  '- [ ] 블로그·상세페이지·SNS 등 외부 채널 재사용 권리가 확인됐다.',
+  '- [ ] 인물·아동·행사·후기·메신저 화면은 별도 제한 또는 동의 범위를 적용한다.',
+  '',
+  '권리 증거는 동의서·개인정보 원문 대신 `rightsEvidenceRef`만 기록한다.',
+  '',
+  '## 4. 검토 신호 요약',
+  '',
+  `- 상향 검토 그룹: ${escalations.length}`,
+  `- claim 신호 그룹: ${completion.releaseBlockers.claimSignalGroups}`,
+  `- 개인정보 신호 그룹: ${privacy.length}`,
+  `- URL 접근·상품 연결: ${urlReview.entries.filter((entry) => entry.accessStatus === 'accessible' && entry.productConnectionStatus === 'matched').length}/${urlReview.recordCount}`,
+  '',
+  '| claim 신호 | 그룹 수 |',
+  '| --- | ---: |',
+  ...claimSignals.map(([signal, count]) => `| ${escapeCell(signal)} | ${count} |`),
+  '',
+  '## 5. 상향 검토 57개',
+  '',
+  '| SHA | 내용 | 대표 경로 | claim | 개인정보 | 권리 | 결정 |',
+  '| --- | --- | --- | --- | --- | --- | --- |',
+  ...escalations.map((entry) => `| ${entry.sha256.slice(0, 12)} | ${escapeCell(entry.semanticSummary)} | ${escapeCell(entry.sourceRefs.slice(0, 3).map((ref) => ref.sourceRelativePath).join('<br>'))} | ${escapeCell(entry.claimSignals.join(', '))} | ${escapeCell(entry.privacySignals.join(', '))} | ${escapeCell(entry.rightsSignals.join(', '))} | [ ] 확인 / [ ] 제한 |`),
+  '',
+  '## 6. 개인정보 신호 15개',
+  '',
+  '| SHA | 내용 | 대표 경로 | 신호 | 결정 |',
+  '| --- | --- | --- | --- | --- |',
+  ...privacy.map((entry) => `| ${entry.sha256.slice(0, 12)} | ${escapeCell(entry.semanticSummary)} | ${escapeCell(entry.sourceRefs[0]?.sourceRelativePath ?? '')} | ${escapeCell(entry.privacySignals.join(', '))} | [ ] cleared / [ ] restricted / [ ] needs_redaction |`),
+  '',
+  '## 7. 승인 후 실행 순서',
+  '',
+  '1. 권리·개인정보·claim 상태와 증거 참조를 manifest v2에 반영한다.',
+  '2. 전체 source는 보존하되 자산별 외부 발행 상태를 분리한다.',
+  '3. 승인된 공개 저장 자산만 LFS pointer 여부를 검증해 공개 object로 승격한다.',
+  '4. resolver/materialize로 기존 소비자 호환성을 검증한다.',
+  '5. 기존 source를 `superseded` 처리한 뒤에만 펼친 중복 폴더 정리를 검토한다.',
+  '',
+];
+if (escalations.length !== 57 || privacy.length !== 15) throw new Error(`Expected 57 escalations and 15 privacy groups, got ${escalations.length}/${privacy.length}`);
+await mkdir(dirname(outputPath), { recursive: true });
+await writeFile(outputPath, `${lines.join('\n')}\n`, { encoding: 'utf8', flag: 'wx' });
+console.log(`Owner approval report written: ${escalations.length} escalations / ${privacy.length} privacy groups.`);
+
+function countSignals(signals) {
+  const counts = new Map();
+  for (const signal of signals) counts.set(signal, (counts.get(signal) ?? 0) + 1);
+  return [...counts.entries()].sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]));
+}
+
+function escapeCell(value) {
+  return String(value ?? '').replaceAll('|', '\\|').replaceAll('\n', '<br>');
+}
+
+async function readJson(path) {
+  return JSON.parse(await readFile(path, 'utf8'));
+}
+
+function getArg(name) {
+  const index = process.argv.indexOf(name);
+  return index === -1 ? undefined : process.argv[index + 1];
+}
+
+function requiredArg(name) {
+  const value = getArg(name);
+  if (!value) throw new Error(`Missing required argument ${name}`);
+  return value;
+}

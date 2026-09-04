@@ -9,6 +9,7 @@
   - URL 13건 접근·상품 연결을 확인하되 가격·혜택·상세 claim은 미승인 유지
   - 검색·선택 추출·resolver·materialize·object/receipt/completion 검증 도구와 manifest v2 계약 추가
 - 권리·개인정보·claim·사장 승인 전까지 신규 바이너리의 공개 Git 반영, canonical 승격, 기존 소스 superseded 처리를 차단
+- `OPEN_QUESTIONS_REGISTER.md`에 신규 자산 권리·공개 저장, 개인정보 신호 15개, claim 신호 174개 확인 항목을 등록
 
 ## v4.6 - 2026-09-04
 
