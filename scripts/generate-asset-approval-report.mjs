@@ -3,6 +3,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { sha256File } from './lib/asset-inventory.mjs';
+import { buildOwnerApprovalInput } from './lib/asset-owner-approval-input.mjs';
 import { formatSchemaErrors, validateAgainstSchema } from './lib/schema-validation.mjs';
 
 const catalogPath = resolve(requiredArg('--catalog'));
@@ -11,6 +12,7 @@ const comparison = await readJson(resolve(requiredArg('--comparison')));
 const completion = await readJson(resolve(requiredArg('--completion')));
 const urlReview = await readJson(resolve(requiredArg('--url-review')));
 const outputPath = resolve(requiredArg('--output'));
+const approvalInputOutputPath = getArg('--approval-input-output') ? resolve(getArg('--approval-input-output')) : null;
 const decisionsOutputPath = getArg('--decisions-output') ? resolve(getArg('--decisions-output')) : null;
 const decisionsReceiptOutputPath = getArg('--decisions-receipt-output') ? resolve(getArg('--decisions-receipt-output')) : null;
 const useEvidenceReceiptPath = resolve(requiredArg('--use-evidence-receipt'));
@@ -19,6 +21,10 @@ if (Boolean(decisionsOutputPath) !== Boolean(decisionsReceiptOutputPath)) throw 
 const escalations = catalog.entries.filter((entry) => entry.humanReviewStatus === 'needs_escalation');
 const privacy = catalog.entries.filter((entry) => entry.privacySignals.length > 0);
 const claimSignals = countSignals(catalog.entries.flatMap((entry) => entry.claimSignals));
+const catalogSha256 = await sha256File(catalogPath);
+const approvalInput = buildOwnerApprovalInput(catalog, catalogSha256);
+const specialRestrictions = approvalInput.reviewQueues.specialRestrictions.assets;
+const approvalInputRef = approvalInputOutputPath ? relative(dirname(outputPath), approvalInputOutputPath).replaceAll('\\', '/') : null;
 const lines = [
   '# INTAKE-20260904-01 사장 승인표',
   '',
@@ -61,11 +67,35 @@ const lines = [
   '- 블로그·SNS 등 외부 재사용권: [ ] 승인 / [ ] 제한 / [ ] 보류',
   '- 특수 인물·아동·행사·후기·메신저 자산 제한: [ ] 개별 검토 적용 / [ ] 보류',
   '',
+  '### 사장님 최소 응답 형식',
+  '',
+  '```text',
+  '내부보존권 = 승인|제한|보류 / 근거ID = RIGHTS-EV-... / 메모 = ...',
+  '공개Git저장권 = 승인|제한|보류 / 근거ID = RIGHTS-EV-... / 메모 = ...',
+  '블로그SNS재사용권 = 승인|제한|보류 / 근거ID = RIGHTS-EV-... / 메모 = ...',
+  '특수인물후기제한 = 개별검토|제한|보류 / 근거ID = RIGHTS-EV-... / 메모 = ...',
+  '묶음 예외 = 없음 | sourceId / 권리축 / 결정 / 근거ID',
+  '자산 예외 = 없음 | SHA / humanReview / claim / privacy / rights / 근거ID',
+  '```',
+  '',
+  '> 이 응답과 그룹 워크시트는 검토 입력일 뿐 발행 권한이 아니다. 실제 자산별 원장과 신뢰된 서명 영수증으로 확정되기 전에는 모두 차단된다.',
+  ...(approvalInputRef ? ['', `- 구조화 입력 파일: \`${approvalInputRef}\``] : []),
+  '',
+  '### 10개 출처 묶음별 검토 현황',
+  '',
+  '> 한 SHA가 여러 상세페이지에서 쓰이면 여러 묶음에 중복 집계된다. 아래 표는 검토 편의용이며 자산별 승인을 자동 생성하지 않는다.',
+  '',
+  '| 묶음 | SHA | 경로 | 상향 | claim | 개인정보 | 특수제한 | 4축 묶음 응답 |',
+  '| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |',
+  ...approvalInput.sourceGroups.map((group) => `| ${escapeCell(group.label)} | ${group.assetCount} | ${group.sourcePathCount} | ${group.escalationCount} | ${group.claimAssetCount} | ${group.privacyAssetCount} | ${group.specialRestrictionAssetCount} | 모두 pending |`),
+  '',
   '## 4. 검토 신호 요약',
   '',
   `- 상향 검토 그룹: ${escalations.length}`,
   `- claim 신호 그룹: ${completion.releaseBlockers.claimSignalGroups}`,
   `- 개인정보 신호 그룹: ${privacy.length}`,
+  `- 특수 인물·후기·제3자 권리 검토 그룹: ${specialRestrictions.length}`,
+  `- 중복: 상향∩claim ${approvalInput.overlapSummary.escalationAndClaim}, 상향∩개인정보 ${approvalInput.overlapSummary.escalationAndPrivacy}, claim∩개인정보 ${approvalInput.overlapSummary.claimAndPrivacy}, 세 조건 모두 ${approvalInput.overlapSummary.allThree}`,
   `- URL 접근·상품 연결: ${urlReview.entries.filter((entry) => entry.accessStatus === 'accessible' && entry.productConnectionStatus === 'matched').length}/${urlReview.recordCount}`,
   '',
   '| claim 신호 | 그룹 수 |',
@@ -93,12 +123,19 @@ const lines = [
   '5. 기존 source를 `superseded` 처리한 뒤에만 펼친 중복 폴더 정리를 검토한다.',
   '',
 ];
-if (escalations.length !== 57 || privacy.length !== 15) throw new Error(`Expected 57 escalations and 15 privacy groups, got ${escalations.length}/${privacy.length}`);
+if (catalog.entries.length !== 407 || escalations.length !== 57 || approvalInput.reviewQueues.claim.count !== 174 || privacy.length !== 15) {
+  throw new Error(`Expected 407 assets / 57 escalations / 174 claim groups / 15 privacy groups, got ${catalog.entries.length}/${escalations.length}/${approvalInput.reviewQueues.claim.count}/${privacy.length}`);
+}
+const approvalInputSchema = await readJson(fileURLToPath(new URL('../schemas/asset-owner-approval-input.schema.json', import.meta.url)));
+assertSchema(approvalInput, approvalInputSchema, 'owner approval input');
 await mkdir(dirname(outputPath), { recursive: true });
 await writeFile(outputPath, `${lines.join('\n')}\n`, { encoding: 'utf8', flag: 'wx' });
+if (approvalInputOutputPath) {
+  await mkdir(dirname(approvalInputOutputPath), { recursive: true });
+  await writeFile(approvalInputOutputPath, `${JSON.stringify(approvalInput, null, 2)}\n`, { encoding: 'utf8', flag: 'wx' });
+}
 if (decisionsOutputPath) {
   const pendingDecision = () => ({ status: 'pending', evidenceRefs: [], notes: '' });
-  const catalogSha256 = await sha256File(catalogPath);
   const assetDecisions = catalog.entries.map((entry) => ({
     sha256: entry.sha256,
     contentId: entry.contentId,
@@ -176,6 +213,11 @@ function countSignals(signals) {
 
 function escapeCell(value) {
   return String(value ?? '').replaceAll('|', '\\|').replaceAll('\n', '<br>');
+}
+
+function assertSchema(value, schema, label) {
+  const validation = validateAgainstSchema(value, schema);
+  if (!validation.valid) throw new Error(`${label} schema failed:\n${formatSchemaErrors(validation.errors).join('\n')}`);
 }
 
 async function readJson(path) {

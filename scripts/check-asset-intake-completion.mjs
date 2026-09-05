@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import { mkdir, readFile, stat, writeFile } from 'node:fs/promises';
 import { dirname, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { compareInventories, computeTreeHash, inventoryTree, sha256File } from './lib/asset-inventory.mjs';
+import { compareInventories, computeTreeHash, inventoryTree, sha256File, summarizeEntries } from './lib/asset-inventory.mjs';
 import { readAndValidateManifestV2 } from './lib/asset-manifest-v2.mjs';
 import { findFiles } from './lib/brand-validation-core.mjs';
 import { verifyManifestObjects } from './lib/asset-resolver.mjs';
@@ -11,8 +11,18 @@ import { formatSchemaErrors, validateAgainstSchema } from './lib/schema-validati
 import { resolveContainedPath } from './lib/asset-paths.mjs';
 import { compareSimilarityEvidenceRow, validateSimilarityMapInvariants } from './lib/asset-similarity-validation.mjs';
 
+const isDirectEntry = process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+if (isDirectEntry) await main();
+
+async function main() {
+const sourceState = parseSourceState(getArg('--source-state'));
+const sourceArgs = validateSourceArguments({
+  sourceState,
+  source: getArg('--source'),
+  recovery: getArg('--recovery'),
+});
 const receiptPath = resolve(requiredArg('--receipt'));
-const sourceRoot = resolve(requiredArg('--source'));
+const sourceRoot = sourceArgs.source ? resolve(sourceArgs.source) : null;
 const recoveryRoot = resolve(requiredArg('--recovery'));
 const candidateRoot = resolve(requiredArg('--candidate-root'));
 const catalogPath = resolve(requiredArg('--catalog'));
@@ -55,6 +65,10 @@ for (const [label, value, schema] of [
 ]) {
   const result = validateAgainstSchema(value, schema);
   errors.push(...formatSchemaErrors(result.errors).map((message) => `${label}: ${message}`));
+}
+if (gates.sourceEvidence) {
+  if (gates.sourceEvidence.sourceState !== sourceState) errors.push(`completion gates: sourceState expected ${gates.sourceEvidence.sourceState}, got ${sourceState}`);
+  if (gates.sourceEvidence.recoveryLiveVerificationRequired !== true) errors.push('completion gates: recovery live verification must be required');
 }
 for (const value of [catalog, urlReview, gates, similarityMap, evidenceReceipt, ownerDecisions, ownerDecisionsReceipt, useEvidenceReceipt]) {
   if (value.intakeId !== receipt.intakeId) errors.push(`${value.schema}: intakeId mismatch`);
@@ -146,15 +160,13 @@ const ownerDecisionVerification = await verifyOwnerDecisionAuthority({
 });
 errors.push(...ownerDecisionVerification.errors.map((message) => `owner decisions: ${message}`));
 
-const [sourceInventory, recoveryInventory] = await Promise.all([inventoryTree(sourceRoot), inventoryTree(recoveryRoot)]);
-const sourceRecovery = compareInventories(sourceInventory.entries, recoveryInventory.entries);
-const receiptSource = compareInventories(receipt.entries, sourceInventory.entries);
-let receiptMismatch = 0;
-if (sourceRecovery.status !== 'verified') receiptMismatch += mismatchCount(sourceRecovery);
-if (receiptSource.status !== 'verified') receiptMismatch += mismatchCount(receiptSource);
-if (receipt.sourceTreeHash !== computeTreeHash(receipt.entries)) receiptMismatch += 1;
-if (receipt.sourceTreeHash !== sourceInventory.treeHash) receiptMismatch += 1;
-if (receipt.recoveryTreeHash !== recoveryInventory.treeHash) receiptMismatch += 1;
+const [sourceInventory, recoveryInventory] = await Promise.all([
+  sourceRoot ? inventoryTree(sourceRoot) : Promise.resolve(null),
+  inventoryTree(recoveryRoot),
+]);
+const receiptVerification = verifyReceiptEvidence({ receipt, sourceState, sourceInventory, recoveryInventory, assets });
+errors.push(...receiptVerification.errors.map((message) => `receipt evidence: ${message}`));
+const receiptMismatch = receiptVerification.mismatchCount;
 
 const gifEntries = catalog.entries.filter((entry) => entry.mediaType === 'image/gif');
 const actual = {
@@ -198,6 +210,21 @@ const report = {
       ['useEvidenceReceipt', useEvidenceReceiptPath],
     ].map(async ([key, path]) => [key, await sha256File(path)]))),
   },
+  sourceVerification: {
+    sourceState,
+    sourceLiveChecked: sourceInventory !== null,
+    recoveryLiveChecked: true,
+    sourceEntries: sourceInventory?.entries.length ?? null,
+    recoveryEntries: recoveryInventory.entries.length,
+    receiptEntries: receipt.entries.length,
+    receiptVisualPaths: receiptVerification.receiptVisualPaths,
+    manifestVisualPaths: receiptVerification.manifestVisualPaths,
+    manifestReceiptMatched: receiptVerification.manifestReceiptMatched,
+    sourceTreeHash: sourceInventory?.treeHash ?? null,
+    recoveryTreeHash: recoveryInventory.treeHash,
+    receiptTreeHash: computeTreeHash(receipt.entries),
+    mismatchCount: receiptVerification.mismatchCount,
+  },
   expected: gates.expected,
   actual,
   objectVerification: {
@@ -234,9 +261,90 @@ if (outputPath) {
 }
 console.log(JSON.stringify(report, null, 2));
 if (errors.length > 0) process.exitCode = 1;
+}
 
-function mismatchCount(result) {
-  return result.missing.length + result.extra.length + result.sizeMismatch.length + result.hashMismatch.length;
+export function parseSourceState(value) {
+  const sourceState = value ?? 'active';
+  if (!['active', 'source_retired'].includes(sourceState)) {
+    throw new Error('--source-state must be active or source_retired');
+  }
+  return sourceState;
+}
+
+export function validateSourceArguments({ sourceState, source, recovery }) {
+  if (!recovery) throw new Error('Missing required argument --recovery');
+  if (sourceState === 'active' && !source) throw new Error('Missing required argument --source');
+  if (sourceState === 'source_retired' && source) throw new Error('--source must not be supplied when --source-state is source_retired');
+  return { sourceState, source: source ?? null, recovery };
+}
+
+export function verifyReceiptEvidence({ receipt, sourceState, sourceInventory, recoveryInventory, assets }) {
+  const findings = [];
+  const receiptPaths = receipt.entries.map((entry) => entry.sourceRelativePath);
+  const duplicateReceiptPathCount = receiptPaths.length - new Set(receiptPaths).size;
+  if (duplicateReceiptPathCount > 0) findings.push(`/entries: ${duplicateReceiptPathCount} duplicate sourceRelativePath(s)`);
+
+  const summarized = summarizeEntries(receipt.entries);
+  if (JSON.stringify(receipt.counts) !== JSON.stringify(summarized)) findings.push('/counts: declared counts do not match receipt entries');
+  const receiptTreeHash = computeTreeHash(receipt.entries);
+  if (receipt.sourceTreeHash !== receiptTreeHash) findings.push('/sourceTreeHash: does not match receipt entries');
+  if (receipt.recoveryTreeHash !== recoveryInventory.treeHash) findings.push('/recoveryTreeHash: does not match live recovery copy');
+  const receiptRecovery = compareInventories(receipt.entries, recoveryInventory.entries);
+  if (receiptRecovery.status !== 'verified') findings.push(...describeInventoryMismatch('/entries: receipt and live recovery differ', receiptRecovery));
+  const recoveryAttestation = receipt.recoveryVerification;
+  if (!recoveryAttestation || recoveryAttestation.status !== 'verified'
+      || ['missing', 'extra', 'sizeMismatch', 'hashMismatch'].some((key) => !Array.isArray(recoveryAttestation[key]) || recoveryAttestation[key].length > 0)) {
+    findings.push('/recoveryVerification: receipt does not attest a verified source-to-recovery copy');
+  }
+
+  if (sourceState === 'active') {
+    if (!sourceInventory) {
+      findings.push('/source: active mode did not load a live source');
+    } else {
+      const sourceRecovery = compareInventories(sourceInventory.entries, recoveryInventory.entries);
+      const receiptSource = compareInventories(receipt.entries, sourceInventory.entries);
+      if (sourceRecovery.status !== 'verified') findings.push(...describeInventoryMismatch('/recoveryVerification: live source and recovery differ', sourceRecovery));
+      if (receiptSource.status !== 'verified') findings.push(...describeInventoryMismatch('/entries: receipt and live source differ', receiptSource));
+      if (receipt.sourceTreeHash !== sourceInventory.treeHash) findings.push('/sourceTreeHash: does not match live source');
+    }
+  } else if (sourceInventory) {
+    findings.push('/source: source_retired mode must not load a live source');
+  }
+
+  const receiptVisualEntries = receipt.entries.filter((entry) => entry.disposition === 'managed' && entry.kind === 'visual');
+  const receiptVisualByPath = new Map(receiptVisualEntries.map((entry) => [entry.sourceRelativePath, entry]));
+  const manifestByPath = new Map();
+  let duplicateManifestPathCount = 0;
+  for (const asset of assets) {
+    if (manifestByPath.has(asset.sourceRelativePath)) duplicateManifestPathCount += 1;
+    manifestByPath.set(asset.sourceRelativePath, asset);
+  }
+  if (duplicateManifestPathCount > 0) findings.push(`manifest: ${duplicateManifestPathCount} duplicate sourceRelativePath(s)`);
+  for (const entry of receiptVisualEntries) {
+    const asset = manifestByPath.get(entry.sourceRelativePath);
+    if (!asset) {
+      findings.push(`manifest: missing receipt visual path ${entry.sourceRelativePath}`);
+      continue;
+    }
+    if (asset.sha256 !== entry.sha256) findings.push(`manifest: sha256 mismatch ${entry.sourceRelativePath}`);
+    if (asset.byteSize !== entry.byteSize) findings.push(`manifest: byteSize mismatch ${entry.sourceRelativePath}`);
+  }
+  for (const asset of assets) {
+    if (!receiptVisualByPath.has(asset.sourceRelativePath)) findings.push(`manifest: path absent from receipt ${asset.sourceRelativePath}`);
+  }
+  if (receiptVisualEntries.length !== assets.length) findings.push(`manifest: receipt visual count ${receiptVisualEntries.length} differs from manifest count ${assets.length}`);
+
+  return {
+    errors: findings,
+    mismatchCount: findings.length,
+    receiptVisualPaths: receiptVisualEntries.length,
+    manifestVisualPaths: assets.length,
+    manifestReceiptMatched: findings.every((message) => !message.startsWith('manifest:')),
+  };
+}
+
+function describeInventoryMismatch(prefix, result) {
+  return [`${prefix} (missing=${result.missing.length}, extra=${result.extra.length}, sizeMismatch=${result.sizeMismatch.length}, hashMismatch=${result.hashMismatch.length})`];
 }
 
 async function loadSchemas() {

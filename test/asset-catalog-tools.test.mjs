@@ -8,6 +8,7 @@ import { join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { promisify } from 'node:util';
 import { runAssetExtractContent } from '../scripts/assets-extract-content.mjs';
+import { runBlogAssetPicker } from '../scripts/assets-pick-for-blog.mjs';
 import { verifyApprovalAuthority } from '../scripts/lib/asset-owner-approval.mjs';
 import { verifyTrustedOwnerSignature } from '../scripts/lib/asset-owner-trust.mjs';
 import { verifyUseEvidenceAuthority } from '../scripts/lib/asset-use-evidence.mjs';
@@ -28,6 +29,13 @@ test('catalog search works and external extraction denies an unreviewed asset', 
     join(repoRoot, 'scripts/assets-search-catalog.mjs'), '--catalog', fixture.catalogPath, '--query', '손 끼임',
   ]);
   assert.equal(JSON.parse(search.stdout).results[0].contentId, fixture.entry.contentId);
+  const picker = await runBlogAssetPicker([
+    '--catalog', fixture.catalogPath, '--product', '상품', '--consultation-topic', '손 끼임',
+    '--select-content-id', fixture.entry.contentId,
+  ], { emit: () => {} });
+  assert.equal(picker.candidates[0].catalogMetadataStatus, 'review_only');
+  assert.equal(picker.selection.externalExtractionRequestStatus, 'blocked_by_catalog_metadata');
+  assert.equal(picker.selection.nextStep, null);
   await assert.rejects(runExtract(fixture, [
     '--purpose', 'external-publication', '--destination-class', 'local-publication-staging',
   ]), /signing key is not trusted/);

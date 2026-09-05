@@ -1,8 +1,8 @@
 # 문장군 중앙 브랜드 문서
 
-> 버전: v4.7
-> 최종 업데이트: 2026-09-04
-> 변경 요약: 중앙 시각 디자인 시스템을 폐기하고 사실·현장·근거·원료·상품 자산 관리 저장소로 범위를 재정의했다.
+> 버전: v5.0
+> 최종 업데이트: 2026-09-05
+> 변경 요약: 신규 상품 자산을 Z 원본·중복 제거 object·검토 메타데이터 구조로 전환하고, 사장 승인표와 블로그 안전 검색 절차를 추가했다.
 
 이 저장소는 문장군의 브랜드 사실, 현장 판단, 변동 claim 근거, 공통 원료, 상품·자산 위키를 관리한다.
 
@@ -42,6 +42,7 @@ npm run report:assets
 | `SOURCE_REGISTRY.md` | 자료 유입 소스 등록부 |
 | `PRODUCT_WIKI_INDEX.md` | 상품별 위키 입구 |
 | `ASSET_SEMANTIC_INDEX.md` | 이미지/GIF 의미와 사용 상태 |
+| `BLOG_ASSET_PICKER.md` | 블로그용 다축 자산 검색·선택·안전 추출 절차 |
 | `BRAND_MATERIAL_INDEX.md` | 공통 원료 은행 입구 |
 | `RAW_MATERIAL_INTAKE_PROTOCOL.md` | 프로젝트 자료의 중앙 승격 절차 |
 | `PROJECT_ADAPTERS.md` | 중앙과 프로젝트 책임 분리 |
@@ -59,8 +60,12 @@ npm run report:assets
 
 ```bash
 npm run assets:search -- --catalog <reviewed-content-catalog.json> --query "검색어"
+npm run assets:pick-for-blog -- --catalog <reviewed-content-catalog.json> --product "3연동중문" --installation-scene "현관" --color "베이지" --design "모던" --consultation-topic "좁은 공간"
+npm run assets:validate-approval-input -- --catalog <reviewed-content-catalog.json> --input <owner-approval-input.json>
 npm run assets:extract-content -- --catalog <reviewed-content-catalog.json> --evidence-receipt <review-evidence/receipt.json> --approval-ledger <owner-decisions.json> --approval-receipt <owner-decisions-receipt.json> --use-evidence-registry <use-evidence-registry.json> --use-evidence-receipt <use-evidence-receipt.json> --channel blog --object-root <private-object-root> --output-root <output> --content-id <CONTENT-ID> --purpose external-publication --destination-class local-publication-staging
 ```
+
+블로그 후보 검색과 선택은 `BLOG_ASSET_PICKER.md`를 따른다. 검색 결과의 `ready_for_guarded_extraction_request`는 추출 승인이 아니라 다음 검증을 요청할 수 있다는 뜻이다. 실제 사용 가능 여부는 `assets:extract-content`가 봉인 증거와 사장 승인을 다시 검증해 성공한 경우에만 확정된다.
 
 `assets:extract`와 `assets:materialize`는 외부 발행 도구가 아니다. 두 명령은 `internal-recovery/private-recovery`, 정책에 등록된 비공개 루트, 복구 참조, 요청자, 사유, 발행 금지 확인을 모두 요구하고 복원 영수증을 남긴다. 외부용 자산은 실제 권리·claim 증거 파일이 봉인되고 `config/asset-owner-trust.json`에 등록된 사장 공개키로 use-evidence 및 owner-decision 영수증이 각각 서명된 경우에만 `assets:extract-content`로 추출한다. 현재 신뢰키 목록은 비어 있으므로 사장 키 등록 전 외부 추출은 기술적으로 차단된다.
 

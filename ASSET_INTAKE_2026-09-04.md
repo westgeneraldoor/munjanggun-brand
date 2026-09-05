@@ -16,7 +16,8 @@
 - 원본·object는 불변이다. 수정본은 덮어쓰지 않고 새 SHA로 추가한다.
 - 공개 Git에는 사용권과 공개 저장 권리가 확인되지 않은 바이너리를 넣지 않는다.
 - 기존 `문장군상품/**`와 `assets/product-thumbnails/**`에는 Git LFS 규칙을 적용하지 않는다. 향후 공개 저장 권리가 확인된 자산 전용 경로가 확정되면 그 경로만 별도로 지정한다.
-- 2026-09-05 재검증 후 재생성 가능한 Z 복원시험본 1,134파일·1,003,172,859바이트와 Git LFS 로컬 캐시 408개·341,237,015바이트를 제거했다. Z `raw`, 로컬 object 450개, 로컬 `신규` 원본은 유지한다.
+- 2026-09-05 재검증 후 재생성 가능한 Z 복원시험본 1,134파일·1,003,172,859바이트와 Git LFS 로컬 캐시 408개·341,237,015바이트를 제거했다. Z `raw`와 로컬 object 450개는 유지한다.
+- 2026-09-05 `source_retired` 전환 후 로컬 `문장군상품/신규` 1,158파일·1,006,052,027바이트를 제거했다. 완료 검사는 Z `raw` 1,158파일을 receipt와 매번 전수 비교하고 로컬 object 450개를 별도로 검증한다.
 
 ## 2. exact 중복과 경로 분류
 
@@ -58,7 +59,7 @@
 
 ## 5. 현재 게이트
 
-현재 재감사 기준 파일은 Z 비공개 보관소의 `review-evidence/receipt.json`, `candidate-v2/reviewed-content-catalog-v5.json`, `visual-similarity-map-v2.json`, `url-review-v2.json`, `use-evidence-registry-v2.json`, `use-evidence-receipt-v2.json`, `completion-report-v11.json`, `OWNER_APPROVAL_REPORT-v8.md`, `owner-decisions-v7.json`, `owner-decisions-receipt-v4.json`이다. 이전 번호 파일은 과정 기록이며 현재 판정에 사용하지 않는다.
+현재 재감사 기준 파일은 Z 비공개 보관소의 `review-evidence/receipt.json`, `candidate-v2/reviewed-content-catalog-v5.json`, `visual-similarity-map-v2.json`, `url-review-v2.json`, `use-evidence-registry-v2.json`, `use-evidence-receipt-v2.json`, `completion-report-v13.json`, `OWNER_APPROVAL_REPORT-v9.md`, `owner-approval-input-v1.json`, `owner-decisions-v8.json`, `owner-decisions-receipt-v5.json`이다. 이전 번호 파일은 과정 기록이며 현재 판정에 사용하지 않는다.
 
 | 게이트 | 결과 |
 | --- | --- |
@@ -71,6 +72,7 @@
 | URL 13건 접근·상품 연결 | 통과 |
 | 권리 미확인 자산의 발행 가능 건수 | 0, 통과 |
 | 원본↔Z receipt 불일치 | 0, 통과 |
+| 로컬 intake source | `source_retired`, Z `raw` live 검증으로 전환 완료 |
 | 봉인 검토 증빙 | 148/148 파일 SHA 검증, 통과 |
 | 콘텐츠 대상 증빙 | 814개 참조, 대상 SHA 407개 연결, 통과 |
 | 시각군 대상 증빙 | 450개 참조, 대상 SHA 450개 연결, 통과 |
@@ -80,11 +82,11 @@
 | 외부 발행 | 차단 |
 | canonical 승격 | 미시작 |
 
-로컬 `문장군상품/신규`는 검사기와 소비 경로의 Z/object 전환이 끝나지 않아 정리를 보류한다.
+로컬 `문장군상품/신규`는 Z/object 전환과 삭제 후 `completion-report-v13.json` 재검증까지 완료했다. 실행 코드에는 해당 로컬 경로의 직접 소비자가 없다.
 
 모든 복사 도구는 기본 거부 방식이다. 호환용 `assets:extract`·`assets:materialize`는 명시적 비공개 복구 계약과 SHA 영수증이 있어야 동작하며 외부용으로 사용할 수 없다. 외부용 `assets:extract-content`는 봉인 검토 증거, 실제 권리·claim 증거 파일의 경로·크기·SHA·대상·범위·채널·유효기간, 개인정보, 발행 상태와 catalog SHA에 묶인 사장 결정 원장·영수증이 모두 통과해야 한다. 내부 감사 예외는 비공개 경로, 담당자, 사유, 만료일, 발행 금지 확인과 실패 게이트별 정확한 인정을 요구하고 자산과 영수증을 한 묶음으로 남긴다.
 
-다음 단계는 네 가지 독립 권리 결정(내부 보존권, 공개 Git 저장권, 외부 재사용권, 특수 자산 제한)과 57개 자산별 상향 검토, 174개 claim 신호, 15개 개인정보 신호에 대한 사장 판단이다. 포괄 답변은 개별 자산 결정에 자동 상속하지 않는다. 그 승인 전에는 source 보존과 외부 발행 가능 여부를 혼동하지 않는다.
+다음 단계는 `OWNER_APPROVAL_REPORT-v9.md`와 `owner-approval-input-v1.json`을 기준으로 네 가지 독립 권리 결정(내부 보존권, 공개 Git 저장권, 외부 재사용권, 특수 자산 제한)과 57개 자산별 상향 검토, 174개 claim 신호, 15개 개인정보 신호에 대한 사장 판단을 기록하는 것이다. 블로그 작성자는 `BLOG_ASSET_PICKER.md` 절차로 후보를 찾을 수 있지만, 승인 전 후보는 `review_only`이고 외부 추출은 계속 차단된다. 포괄 답변은 개별 자산 결정에 자동 상속하지 않는다.
 
 ```text
 소스 보존 여부 ≠ 외부 발행 가능 여부

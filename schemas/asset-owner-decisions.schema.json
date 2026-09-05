@@ -46,7 +46,17 @@
           "rightsEvidenceRefs": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^RIGHTS-EV-[A-Z0-9-]+$" } },
           "claimEvidenceRefs": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^CLAIM-EV-[A-Z0-9-]+$" } },
           "notes": { "type": "string" }
-        }
+        },
+        "allOf": [
+          {
+            "if": { "properties": { "rightsDecision": { "enum": ["verified", "restricted"] } }, "required": ["rightsDecision"] },
+            "then": { "properties": { "rightsEvidenceRefs": { "type": "array", "minItems": 1 } } }
+          },
+          {
+            "if": { "properties": { "claimDecision": { "enum": ["verified", "restricted"] } }, "required": ["claimDecision"] },
+            "then": { "properties": { "claimEvidenceRefs": { "type": "array", "minItems": 1 } } }
+          }
+        ]
       }
     }
   },
@@ -59,7 +69,11 @@
         "status": { "enum": ["pending", "approved", "restricted"] },
         "evidenceRefs": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^RIGHTS-EV-[A-Z0-9-]+$" } },
         "notes": { "type": "string" }
-      }
+      },
+      "allOf": [{
+        "if": { "properties": { "status": { "enum": ["approved", "restricted"] } }, "required": ["status"] },
+        "then": { "properties": { "evidenceRefs": { "type": "array", "minItems": 1 } } }
+      }]
     },
     "assetDecision": {
       "type": "object",
@@ -76,7 +90,17 @@
         "rightsEvidenceRefs": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^RIGHTS-EV-[A-Z0-9-]+$" } },
         "claimEvidenceRefs": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^CLAIM-EV-[A-Z0-9-]+$" } },
         "notes": { "type": "string" }
-      }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "rightsDecision": { "enum": ["verified", "restricted"] } }, "required": ["rightsDecision"] },
+          "then": { "properties": { "rightsEvidenceRefs": { "type": "array", "minItems": 1 } } }
+        },
+        {
+          "if": { "properties": { "claimDecision": { "enum": ["verified", "restricted"] } }, "required": ["claimDecision"] },
+          "then": { "properties": { "claimEvidenceRefs": { "type": "array", "minItems": 1 } } }
+        }
+      ]
     }
   }
 }

@@ -1,0 +1,157 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/westgeneraldoor/munjanggun-brand/schemas/asset-owner-approval-input.schema.json",
+  "title": "Munjanggun Asset Owner Approval Input",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "version", "intakeId", "generatedAt", "catalogSha256",
+    "authorityPolicy", "inheritancePolicy", "specialRestrictionSelectionPolicy",
+    "requiredTotals", "overlapSummary", "rightsAxes", "sourceGroups",
+    "groupReviewResponses", "reviewQueues", "assetExceptions"
+  ],
+  "properties": {
+    "schema": { "const": "munjanggun.assetOwnerApprovalInput.v1" },
+    "version": { "const": "1.0" },
+    "intakeId": { "type": "string", "pattern": "^INTAKE-[0-9]{8}-[0-9]{2}$" },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "catalogSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "authorityPolicy": { "const": "worksheet_only_no_release_authority" },
+    "inheritancePolicy": { "const": "group_answers_do_not_automatically_authorize_assets" },
+    "specialRestrictionSelectionPolicy": { "const": "privacy_signal_or_nonbaseline_rights_signal" },
+    "requiredTotals": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["assets", "escalations", "claimAssets", "privacyAssets", "specialRestrictionAssets"],
+      "properties": {
+        "assets": { "type": "integer", "minimum": 0 },
+        "escalations": { "type": "integer", "minimum": 0 },
+        "claimAssets": { "type": "integer", "minimum": 0 },
+        "privacyAssets": { "type": "integer", "minimum": 0 },
+        "specialRestrictionAssets": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "overlapSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["escalationAndClaim", "escalationAndPrivacy", "claimAndPrivacy", "allThree"],
+      "properties": {
+        "escalationAndClaim": { "type": "integer", "minimum": 0 },
+        "escalationAndPrivacy": { "type": "integer", "minimum": 0 },
+        "claimAndPrivacy": { "type": "integer", "minimum": 0 },
+        "allThree": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "rightsAxes": { "$ref": "#/$defs/rightsAxes" },
+    "sourceGroups": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/sourceGroup" }
+    },
+    "groupReviewResponses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["sourceId", "rightsAxes"],
+        "properties": {
+          "sourceId": { "type": "string", "minLength": 1 },
+          "rightsAxes": { "$ref": "#/$defs/rightsAxes" }
+        }
+      }
+    },
+    "reviewQueues": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["escalation", "claim", "privacy", "specialRestrictions"],
+      "properties": {
+        "escalation": { "$ref": "#/$defs/reviewQueue" },
+        "claim": { "$ref": "#/$defs/reviewQueue" },
+        "privacy": { "$ref": "#/$defs/reviewQueue" },
+        "specialRestrictions": { "$ref": "#/$defs/reviewQueue" }
+      }
+    },
+    "assetExceptions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["sha256", "contentId", "humanReviewDecision", "claimDecision", "privacyDecision", "rightsDecision", "rightsEvidenceRefs", "claimEvidenceRefs", "notes"],
+        "properties": {
+          "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+          "contentId": { "type": "string", "minLength": 1 },
+          "humanReviewDecision": { "enum": ["pending", "approved", "restricted"] },
+          "claimDecision": { "enum": ["pending", "verified", "not_applicable", "restricted"] },
+          "privacyDecision": { "enum": ["pending", "cleared", "restricted", "needs_redaction"] },
+          "rightsDecision": { "enum": ["pending", "verified", "restricted"] },
+          "rightsEvidenceRefs": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^RIGHTS-EV-[A-Z0-9-]+$" } },
+          "claimEvidenceRefs": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^CLAIM-EV-[A-Z0-9-]+$" } },
+          "notes": { "type": "string" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "evidenceRefs", "notes"],
+      "properties": {
+        "status": { "enum": ["pending", "approved", "restricted"] },
+        "evidenceRefs": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^RIGHTS-EV-[A-Z0-9-]+$" } },
+        "notes": { "type": "string" }
+      },
+      "allOf": [{
+        "if": { "properties": { "status": { "enum": ["approved", "restricted"] } }, "required": ["status"] },
+        "then": { "properties": { "evidenceRefs": { "type": "array", "minItems": 1 } } }
+      }]
+    },
+    "rightsAxes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["internalPreservation", "publicGitStorage", "externalReuse", "specialAssetRestrictions"],
+      "properties": {
+        "internalPreservation": { "$ref": "#/$defs/decision" },
+        "publicGitStorage": { "$ref": "#/$defs/decision" },
+        "externalReuse": { "$ref": "#/$defs/decision" },
+        "specialAssetRestrictions": { "$ref": "#/$defs/decision" }
+      }
+    },
+    "sourceGroup": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sourceId", "label", "assetCount", "sourcePathCount", "escalationCount", "claimAssetCount", "privacyAssetCount", "specialRestrictionAssetCount"],
+      "properties": {
+        "sourceId": { "type": "string", "minLength": 1 },
+        "label": { "type": "string", "minLength": 1 },
+        "assetCount": { "type": "integer", "minimum": 0 },
+        "sourcePathCount": { "type": "integer", "minimum": 0 },
+        "escalationCount": { "type": "integer", "minimum": 0 },
+        "claimAssetCount": { "type": "integer", "minimum": 0 },
+        "privacyAssetCount": { "type": "integer", "minimum": 0 },
+        "specialRestrictionAssetCount": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "reviewQueue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["count", "assets"],
+      "properties": {
+        "count": { "type": "integer", "minimum": 0 },
+        "assets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["sha256", "contentId", "sourceGroupIds"],
+            "properties": {
+              "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+              "contentId": { "type": "string", "minLength": 1 },
+              "sourceGroupIds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }
+            }
+          }
+        }
+      }
+    }
+  }
+}
