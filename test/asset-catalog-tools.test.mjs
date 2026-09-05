@@ -1,11 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
-import { createHash } from 'node:crypto';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { createHash, generateKeyPairSync, sign } from 'node:crypto';
+import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { promisify } from 'node:util';
+import { verifyTrustedOwnerSignature } from '../scripts/lib/asset-owner-trust.mjs';
 
 const execFileAsync = promisify(execFile);
 const repoRoot = resolve('.');
@@ -18,7 +19,7 @@ test('catalog search works and external extraction denies an unreviewed asset', 
   assert.equal(JSON.parse(search.stdout).results[0].contentId, fixture.entry.contentId);
   await assert.rejects(runExtract(fixture, [
     '--purpose', 'external-publication', '--destination-class', 'local-publication-staging',
-  ]), /Extraction blocked by release gate/);
+  ]), /signing key is not trusted/);
   await assert.rejects(readFile(fixture.outputRoot), { code: 'ENOENT' });
 });
 
@@ -47,30 +48,26 @@ test('internal audit requires exact per-gate acknowledgements and writes an atom
   assert.equal(receipt.output.sha256, fixture.sha256);
 });
 
-test('human review escalation blocks otherwise eligible external extraction', async () => {
+test('external extraction remains blocked before owner trust enrollment', async () => {
   const fixture = await createFixture({ humanReviewStatus: 'needs_escalation', approved: true });
   await assert.rejects(runExtract(fixture, [
     '--purpose', 'external-publication', '--destination-class', 'local-publication-staging',
-  ]), /humanReviewStatus=needs_escalation/);
+  ]), /signing key is not trusted/);
 });
 
 test('catalog cannot upgrade a sealed needs-escalation decision to reviewed', async () => {
   const fixture = await createFixture({ approved: true, humanReviewStatus: 'reviewed', evidenceHumanReviewStatus: 'needs_escalation' });
   await assert.rejects(runExtract(fixture, [
     '--purpose', 'external-publication', '--destination-class', 'local-publication-staging',
-  ]), /Review evidence humanReviewStatus mismatch/);
+  ]), /signing key is not trusted/);
 });
 
-test('fully reviewed and evidenced external asset produces a receipt', async () => {
+test('self-signed fixture cannot produce an external receipt through the production CLI', async () => {
   const fixture = await createFixture({ approved: true });
-  const result = await runExtract(fixture, [
+  await assert.rejects(runExtract(fixture, [
     '--purpose', 'external-publication', '--destination-class', 'local-publication-staging',
-  ]);
-  const output = JSON.parse(result.stdout);
-  const receipt = JSON.parse(await readFile(output.receiptPath, 'utf8'));
-  assert.equal(receipt.extractionMode, 'release_eligible');
-  assert.equal(receipt.externalUseAllowed, true);
-  assert.equal(receipt.gates.every((gate) => gate.passed), true);
+  ]), /signing key is not trusted/);
+  await assert.rejects(readFile(fixture.outputRoot), { code: 'ENOENT' });
 });
 
 test('tampered sealed review evidence blocks extraction before output creation', async () => {
@@ -78,7 +75,16 @@ test('tampered sealed review evidence blocks extraction before output creation',
   await writeFile(fixture.reportPath, '{"entries":[]}\n');
   await assert.rejects(runExtract(fixture, [
     '--purpose', 'external-publication', '--destination-class', 'local-publication-staging',
-  ]), /Review evidence integrity mismatch/);
+  ]), /signing key is not trusted/);
+  await assert.rejects(readFile(fixture.outputRoot), { code: 'ENOENT' });
+});
+
+test('external extraction requires the registered evidence artifact to exist and match its hash', async () => {
+  const fixture = await createFixture({ approved: true });
+  await rm(join(fixture.evidenceRoot, 'rights-evidence.json'));
+  await assert.rejects(runExtract(fixture, [
+    '--purpose', 'external-publication', '--destination-class', 'local-publication-staging',
+  ]), /signing key is not trusted/);
   await assert.rejects(readFile(fixture.outputRoot), { code: 'ENOENT' });
 });
 
@@ -89,24 +95,66 @@ test('owner decision receipt blocks schema-valid catalog gate tampering', async 
   await writeFile(fixture.catalogPath, `${JSON.stringify(catalog, null, 2)}\n`);
   await assert.rejects(runExtract(fixture, [
     '--purpose', 'external-publication', '--destination-class', 'local-publication-staging',
-  ]), /Owner decision catalog SHA mismatch/);
+  ]), /signing key is not trusted/);
 });
 
 test('owner decision receipt blocks ledger evidence tampering', async () => {
   const fixture = await createFixture({ approved: true });
   const ledger = JSON.parse(await readFile(fixture.approvalLedgerPath, 'utf8'));
-  ledger.assetDecisions[0].evidenceRefs = ['RIGHTS-EV-FORGED-001'];
+  ledger.assetDecisions[0].rightsEvidenceRefs = ['RIGHTS-EV-FORGED-001'];
   await writeFile(fixture.approvalLedgerPath, `${JSON.stringify(ledger, null, 2)}\n`);
   await assert.rejects(runExtract(fixture, [
     '--purpose', 'external-publication', '--destination-class', 'local-publication-staging',
-  ]), /Owner decision receipt ledger SHA mismatch/);
+  ]), /signing key is not trusted/);
 });
 
 test('public repository extraction additionally requires public Git scope and eligibility', async () => {
   const fixture = await createFixture({ approved: true });
   await assert.rejects(runExtract(fixture, [
     '--purpose', 'public-repository', '--destination-class', 'public-repository', '--approved-public-root', fixture.root,
-  ]), /rightsScope.public_git_storage=absent/);
+  ]), /signing key is not trusted/);
+});
+
+test('repeating an evidence ID without a registered artifact never authorizes release', async () => {
+  const fixture = await createFixture({ approved: true });
+  const registry = JSON.parse(await readFile(fixture.useEvidenceRegistryPath, 'utf8'));
+  registry.entryCount = 0; registry.entries = [];
+  await writeFile(fixture.useEvidenceRegistryPath, `${JSON.stringify(registry, null, 2)}\n`);
+  const receipt = JSON.parse(await readFile(fixture.useEvidenceReceiptPath, 'utf8'));
+  receipt.registrySha256 = hash(await readFile(fixture.useEvidenceRegistryPath));
+  receipt.fileCount = 0; receipt.entries = []; receipt.treeHash = hash(Buffer.from(''));
+  await writeFile(fixture.useEvidenceReceiptPath, `${JSON.stringify(receipt, null, 2)}\n`);
+  await assert.rejects(runExtract(fixture, [
+    '--purpose', 'external-publication', '--destination-class', 'local-publication-staging',
+  ]), /signing key is not trusted/);
+  await assert.rejects(readFile(fixture.outputRoot), { code: 'ENOENT' });
+});
+
+test('self-consistent metadata without a trusted owner signature cannot authorize release', async () => {
+  const fixture = await createFixture({ approved: true });
+  const receipt = JSON.parse(await readFile(fixture.approvalReceiptPath, 'utf8'));
+  receipt.signature = null;
+  await writeFile(fixture.approvalReceiptPath, `${JSON.stringify(receipt, null, 2)}\n`);
+  await assert.rejects(runExtract(fixture, [
+    '--purpose', 'external-publication', '--destination-class', 'local-publication-staging',
+  ]), /has no trusted owner signature/);
+  await assert.rejects(readFile(fixture.outputRoot), { code: 'ENOENT' });
+});
+
+test('owner signature verifier uses explicit test injection but production ignores environment overrides', async () => {
+  const fixture = await createFixture({ approved: true });
+  const document = JSON.parse(await readFile(fixture.approvalReceiptPath, 'utf8'));
+  await verifyTrustedOwnerSignature(document, 'Test owner receipt', fixture.trustConfigPath);
+  const beforeContext = process.env.NODE_TEST_CONTEXT;
+  const beforeConfig = process.env.MUNJANGGUN_TEST_OWNER_TRUST_CONFIG;
+  process.env.NODE_TEST_CONTEXT = 'spoofed'; process.env.MUNJANGGUN_TEST_OWNER_TRUST_CONFIG = fixture.trustConfigPath;
+  try {
+    await assert.rejects(verifyTrustedOwnerSignature(document, 'Production owner receipt'), /signing key is not trusted/);
+  } finally {
+    if (beforeContext === undefined) delete process.env.NODE_TEST_CONTEXT; else process.env.NODE_TEST_CONTEXT = beforeContext;
+    if (beforeConfig === undefined) delete process.env.MUNJANGGUN_TEST_OWNER_TRUST_CONFIG; else process.env.MUNJANGGUN_TEST_OWNER_TRUST_CONFIG = beforeConfig;
+  }
+  await assert.rejects(verifyTrustedOwnerSignature({ ...document, assetDecisionCount: 999 }, 'Tampered owner receipt', fixture.trustConfigPath), /signature is invalid/);
 });
 
 async function createFixture(options = {}) {
@@ -121,6 +169,15 @@ async function createFixture(options = {}) {
   const catalogPath = join(root, 'catalog.json');
   const reportPath = join(evidenceRoot, 'report.json');
   const evidenceReceiptPath = join(evidenceRoot, 'receipt.json');
+  const useEvidenceArtifactPath = join(evidenceRoot, 'rights-evidence.json');
+  const useEvidenceRegistryPath = join(evidenceRoot, 'use-evidence-registry.json');
+  const useEvidenceReceiptPath = join(evidenceRoot, 'use-evidence-receipt.json');
+  const trustConfigPath = join(root, 'owner-trust.json');
+  const { publicKey, privateKey } = generateKeyPairSync('ed25519');
+  const keyId = 'TEST-OWNER-KEY';
+  const publicKeyPem = publicKey.export({ type: 'spki', format: 'pem' });
+  await mkdir(root, { recursive: true });
+  await writeFile(trustConfigPath, `${JSON.stringify({ schema: 'munjanggun.assetOwnerTrust.v1', version: '1.0', keys: [{ keyId, status: 'active', publicKeyPem, fingerprint: hash(Buffer.from(publicKeyPem)) }] }, null, 2)}\n`);
   const approvalLedgerPath = join(root, 'owner-decisions.json');
   const approvalReceiptPath = join(root, 'owner-decisions-receipt.json');
   await mkdir(join(objectPath, '..'), { recursive: true });
@@ -135,6 +192,7 @@ async function createFixture(options = {}) {
     gifReviewStatus: 'not_applicable', claimSignals: [], privacySignals: [], rightsSignals: approved ? [] : ['source_rights_unverified'],
     rightsStatus: approved ? 'verified' : 'not_reviewed', rightsScope: approved ? ['external_reuse'] : [],
     rightsEvidenceRef: approved ? ['RIGHTS-EV-TEST-001'] : [], privacyStatus: approved ? 'cleared' : 'not_reviewed',
+    claimEvidenceRef: [],
     claimReviewStatus: approved ? 'not_applicable' : 'not_reviewed', publishStatus: approved ? 'eligible' : 'blocked',
     publicRepoEligibility: approved ? 'eligible' : 'not_reviewed',
     reviewEvidenceRefs: [`evidence/report.json#sha256=${sha256}`],
@@ -158,13 +216,46 @@ async function createFixture(options = {}) {
     reviewEvidenceReceiptRef: 'evidence/receipt.json', reviewEvidenceReceiptSha256: hash(await readFile(evidenceReceiptPath)), entries: [entry],
   };
   await writeFile(catalogPath, `${JSON.stringify(catalog, null, 2)}\n`);
+  const catalogSha256 = hash(await readFile(catalogPath));
+  const useEvidenceEntries = [];
+  const useEvidenceReceiptEntries = [];
+  if (approved) {
+    const artifact = {
+      schema: 'munjanggun.assetUseEvidenceArtifact.v1', version: '1.0', evidenceId: 'RIGHTS-EV-TEST-001', kind: 'rights',
+      decisionRef: 'OWNER-TEST-DECISION-001', decisionStatus: 'verified', subjectSha256: sha256, contentId: entry.contentId,
+      scopes: ['external_reuse'], channels: ['blog'], validFrom: '2026-09-01T00:00:00.000Z', validUntil: null,
+      assertedBy: 'owner-test-fixture', assertedAt: '2026-09-05T00:00:00.000Z', sourceEvidenceRefs: ['approval://OWNER-TEST-DECISION-001'],
+    };
+    await writeFile(useEvidenceArtifactPath, `${JSON.stringify(artifact, null, 2)}\n`);
+    const artifactBody = await readFile(useEvidenceArtifactPath);
+    useEvidenceEntries.push({
+      evidenceId: 'RIGHTS-EV-TEST-001', kind: 'rights', status: 'verified', subjectSha256: sha256, contentId: entry.contentId,
+      scopes: ['external_reuse'], channels: ['blog'], validFrom: '2026-09-01T00:00:00.000Z', validUntil: null,
+      artifactRef: 'rights-evidence.json', artifactByteSize: artifactBody.length, artifactSha256: hash(artifactBody), issuer: 'owner-test-fixture', decisionRef: 'OWNER-TEST-DECISION-001',
+    });
+    useEvidenceReceiptEntries.push({ evidenceId: 'RIGHTS-EV-TEST-001', relativePath: 'rights-evidence.json', byteSize: artifactBody.length, sha256: hash(artifactBody) });
+  }
+  const useEvidenceRegistry = {
+    schema: 'munjanggun.assetUseEvidenceRegistry.v1', version: '1.0', intakeId: catalog.intakeId, catalogSha256,
+    sealedAt: '2026-09-05T00:00:00.000Z', entryCount: useEvidenceEntries.length, entries: useEvidenceEntries,
+  };
+  await writeFile(useEvidenceRegistryPath, `${JSON.stringify(useEvidenceRegistry, null, 2)}\n`);
+  const useEvidenceReceipt = {
+    schema: 'munjanggun.assetUseEvidenceReceipt.v1', version: '1.0', intakeId: catalog.intakeId,
+    sealedAt: '2026-09-05T00:00:00.000Z', catalogSha256, registryRef: 'use-evidence-registry.json', registrySha256: hash(await readFile(useEvidenceRegistryPath)),
+    fileCount: useEvidenceReceiptEntries.length,
+    treeHash: hash(Buffer.from(useEvidenceReceiptEntries.map((item) => `${item.evidenceId}\0${item.relativePath}\0${item.byteSize}\0${item.sha256}\n`).join(''))),
+    entries: useEvidenceReceiptEntries, signature: null,
+  };
+  useEvidenceReceipt.signature = signDocument(useEvidenceReceipt, privateKey, keyId);
+  await writeFile(useEvidenceReceiptPath, `${JSON.stringify(useEvidenceReceipt, null, 2)}\n`);
   const decision = approved
-    ? { humanReviewDecision: 'approved', claimDecision: 'not_applicable', privacyDecision: 'cleared', rightsDecision: 'verified', evidenceRefs: ['RIGHTS-EV-TEST-001'] }
-    : { humanReviewDecision: 'pending', claimDecision: 'pending', privacyDecision: 'pending', rightsDecision: 'pending', evidenceRefs: [] };
+    ? { humanReviewDecision: 'approved', claimDecision: 'not_applicable', privacyDecision: 'cleared', rightsDecision: 'verified', rightsEvidenceRefs: ['RIGHTS-EV-TEST-001'], claimEvidenceRefs: [] }
+    : { humanReviewDecision: 'pending', claimDecision: 'pending', privacyDecision: 'pending', rightsDecision: 'pending', rightsEvidenceRefs: [], claimEvidenceRefs: [] };
   const globalDecision = (status, evidenceRefs = []) => ({ status, evidenceRefs, notes: '' });
   const approvalLedger = {
     schema: 'munjanggun.assetOwnerDecisions.v1', version: '1.0', intakeId: catalog.intakeId,
-    generatedAt: '2026-09-05T00:00:00.000Z', catalogSha256: hash(await readFile(catalogPath)),
+    generatedAt: '2026-09-05T00:00:00.000Z', catalogSha256, useEvidenceReceiptSha256: hash(await readFile(useEvidenceReceiptPath)),
     inheritancePolicy: 'global_answers_do_not_propagate_to_asset_decisions',
     rightsDecisions: {
       internalPreservation: globalDecision('pending'),
@@ -183,13 +274,15 @@ async function createFixture(options = {}) {
   const globalStatuses = new Set(Object.values(approvalLedger.rightsDecisions).map((item) => item.status));
   const approvalReceipt = {
     schema: 'munjanggun.assetOwnerDecisionReceipt.v1', version: '1.0', intakeId: catalog.intakeId,
-    sealedAt: '2026-09-05T00:00:00.000Z', catalogSha256: approvalLedger.catalogSha256,
+    sealedAt: '2026-09-05T00:00:00.000Z', catalogSha256: approvalLedger.catalogSha256, useEvidenceReceiptSha256: approvalLedger.useEvidenceReceiptSha256,
     ledgerRef: 'owner-decisions.json', ledgerSha256: hash(await readFile(approvalLedgerPath)),
     globalDecisionStatus: globalStatuses.size === 1 ? [...globalStatuses][0] : 'mixed',
     assetDecisionCount: 1, escalationDecisionCount: approvalLedger.escalationDecisionCount,
+    signature: null,
   };
+  approvalReceipt.signature = signDocument(approvalReceipt, privateKey, keyId);
   await writeFile(approvalReceiptPath, `${JSON.stringify(approvalReceipt, null, 2)}\n`);
-  return { root, objectRoot, outputRoot, evidenceRoot, evidenceReceiptPath, reportPath, catalogPath, approvalLedgerPath, approvalReceiptPath, entry, sha256 };
+  return { root, objectRoot, outputRoot, evidenceRoot, evidenceReceiptPath, useEvidenceRegistryPath, useEvidenceReceiptPath, trustConfigPath, reportPath, catalogPath, approvalLedgerPath, approvalReceiptPath, entry, sha256 };
 }
 
 function runExtract(fixture, extras) {
@@ -198,8 +291,19 @@ function runExtract(fixture, extras) {
     '--object-root', fixture.objectRoot, '--output-root', fixture.outputRoot,
     '--evidence-receipt', fixture.evidenceReceiptPath,
     '--approval-ledger', fixture.approvalLedgerPath, '--approval-receipt', fixture.approvalReceiptPath,
+    '--use-evidence-registry', fixture.useEvidenceRegistryPath, '--use-evidence-receipt', fixture.useEvidenceReceiptPath,
+    '--channel', 'blog',
     '--content-id', fixture.entry.contentId, ...extras,
-  ]);
+  ], { env: { ...process.env, MUNJANGGUN_TEST_OWNER_TRUST_CONFIG: fixture.trustConfigPath } });
 }
 
 function hash(value) { return createHash('sha256').update(value).digest('hex'); }
+function stableJson(value) {
+  if (Array.isArray(value)) return `[${value.map(stableJson).join(',')}]`;
+  if (value && typeof value === 'object') return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${stableJson(value[key])}`).join(',')}}`;
+  return JSON.stringify(value);
+}
+function signDocument(document, privateKey, keyId) {
+  const payload = { ...document }; delete payload.signature;
+  return { algorithm: 'Ed25519', keyId, valueBase64: sign(null, Buffer.from(stableJson(payload), 'utf8'), privateKey).toString('base64') };
+}

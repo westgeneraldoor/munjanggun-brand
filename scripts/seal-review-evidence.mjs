@@ -135,6 +135,7 @@ const sealedCatalog = {
       rightsStatus: strictest(assets.map((asset) => asset.rightsStatus), ['restricted', 'expired', 'not_reviewed', 'pending', 'verified']),
       rightsScope: intersection(assets.map((asset) => asset.rightsScope)),
       rightsEvidenceRef: intersection(assets.map((asset) => asset.rightsEvidenceRef)),
+      claimEvidenceRef: intersection(assets.map((asset) => asset.claimEvidenceRef ?? [])),
       privacyStatus: strictest(assets.map((asset) => asset.privacyStatus), ['needs_redaction', 'restricted', 'not_reviewed', 'cleared']),
       claimReviewStatus: strictest(assets.map((asset) => asset.claimReviewStatus), ['restricted', 'expired', 'needs_confirmation', 'not_reviewed', 'verified', 'not_applicable']),
       publishStatus: strictest(assets.map((asset) => asset.publishStatus), ['blocked', 'withdrawn', 'needs_confirmation', 'eligible', 'published']),

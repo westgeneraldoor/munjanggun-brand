@@ -9,6 +9,8 @@ import { resolveAssetObject } from './lib/asset-resolver.mjs';
 import { resolveContainedPath } from './lib/asset-paths.mjs';
 import { canonicalExtensionForMediaType } from './lib/media-metadata.mjs';
 import { formatSchemaErrors, validateAgainstSchema } from './lib/schema-validation.mjs';
+import { verifyUseEvidenceAuthority } from './lib/asset-use-evidence.mjs';
+import { verifyTrustedOwnerSignature } from './lib/asset-owner-trust.mjs';
 
 const args = parseArgs(process.argv.slice(2));
 const catalogPath = resolve(requiredValue(args, '--catalog'));
@@ -38,8 +40,14 @@ const matches = catalog.entries.filter((item) => shaArg ? item.sha256 === shaArg
 if (matches.length !== 1) throw new Error(`Catalog selector must match exactly one entry; found ${matches.length}`);
 const entry = matches[0];
 await verifySelectedReviewEvidence({ entry, catalogPath, evidenceReceipt, evidenceReceiptPath });
+const useEvidenceAuthority = purpose === 'internal-audit' ? null : await verifyUseEvidenceAuthority({
+  catalog, catalogPath,
+  registryPath: resolve(requiredValue(args, '--use-evidence-registry')),
+  receiptPath: resolve(requiredValue(args, '--use-evidence-receipt')),
+  entry, purpose, channel: singleValue(args, '--channel'),
+});
 
-const releaseGate = evaluateReleaseGate(entry, purpose, approvalAuthority);
+const releaseGate = evaluateReleaseGate(entry, purpose, approvalAuthority, useEvidenceAuthority);
 const overrideAcknowledgements = values(args, '--override-gate');
 const auditContext = purpose === 'internal-audit'
   ? validateInternalAuditOverride(args, outputRoot, releaseGate, overrideAcknowledgements)
@@ -95,6 +103,11 @@ try {
       receiptPath: approvalAuthority.receiptPath,
       receiptSha256: approvalAuthority.receiptSha256,
     } : null,
+    useEvidenceAuthority: useEvidenceAuthority ? {
+      registryPath: useEvidenceAuthority.registryPath, registrySha256: useEvidenceAuthority.registrySha256,
+      receiptPath: useEvidenceAuthority.receiptPath, receiptSha256: useEvidenceAuthority.receiptSha256,
+      resolvedEvidence: useEvidenceAuthority.resolvedEvidence,
+    } : null,
     selector: shaArg ? { type: 'sha256', value: shaArg, matchCount: 1 } : { type: 'contentId', value: contentIdArg, matchCount: 1 },
     asset: {
       contentId: entry.contentId, binaryGroupId: entry.binaryGroupId, sha256: entry.sha256,
@@ -113,7 +126,7 @@ try {
   throw error;
 }
 
-function evaluateReleaseGate(entry, purpose, approvalAuthority) {
+function evaluateReleaseGate(entry, purpose, approvalAuthority, useEvidenceAuthority) {
   const checks = [
     check('humanReviewStatus', entry.humanReviewStatus, 'reviewed', entry.humanReviewStatus === 'reviewed'),
     check('rightsStatus', entry.rightsStatus, 'verified', entry.rightsStatus === 'verified'),
@@ -122,6 +135,7 @@ function evaluateReleaseGate(entry, purpose, approvalAuthority) {
     check('privacyStatus', entry.privacyStatus, 'cleared', entry.privacyStatus === 'cleared'),
     check('claimReviewStatus', entry.claimReviewStatus, 'verified_or_not_applicable', ['verified', 'not_applicable'].includes(entry.claimReviewStatus)),
     check('claimSignalsConsistency', entry.claimSignals?.length ?? 'missing', 'zero_if_not_applicable', entry.claimReviewStatus !== 'not_applicable' || entry.claimSignals.length === 0),
+    check('claimEvidenceRef', entry.claimEvidenceRef?.length ?? 0, 'non_empty_when_verified_or_signaled', !(entry.claimReviewStatus === 'verified' || entry.claimSignals.length > 0) || entry.claimEvidenceRef.length > 0),
     check('publishStatus', entry.publishStatus, 'eligible_or_published', ['eligible', 'published'].includes(entry.publishStatus)),
     check('reviewEvidenceRefs', Array.isArray(entry.reviewEvidenceRefs) ? entry.reviewEvidenceRefs.length : 'missing', 'non_empty', Array.isArray(entry.reviewEvidenceRefs) && entry.reviewEvidenceRefs.length > 0),
   ];
@@ -132,22 +146,24 @@ function evaluateReleaseGate(entry, purpose, approvalAuthority) {
   if (approvalAuthority) {
     const assetDecision = approvalAuthority.assetDecisionBySha.get(entry.sha256);
     const global = approvalAuthority.ledger.rightsDecisions;
-    const evidenceRefs = new Set([
-      ...(global.externalReuse.evidenceRefs ?? []),
-      ...(global.publicGitStorage.evidenceRefs ?? []),
-      ...(global.specialAssetRestrictions.evidenceRefs ?? []),
-      ...(assetDecision?.evidenceRefs ?? []),
-    ]);
-    const rightsEvidenceBound = entry.rightsEvidenceRef.length > 0 && entry.rightsEvidenceRef.every((ref) => evidenceRefs.has(ref));
+    const globalRightsRefs = new Set(purpose === 'public-repository' ? (global.publicGitStorage.evidenceRefs ?? []) : (global.externalReuse.evidenceRefs ?? []));
+    const assetRightsRefs = new Set(assetDecision?.rightsEvidenceRefs ?? []);
+    const rightsEvidenceBound = entry.rightsEvidenceRef.length > 0 && entry.rightsEvidenceRef.every((ref) => globalRightsRefs.has(ref) && assetRightsRefs.has(ref));
     checks.push(check('owner.externalReuse', global.externalReuse.status, 'approved', global.externalReuse.status === 'approved'));
     checks.push(check('owner.specialAssetRestrictions', global.specialAssetRestrictions.status, 'approved', global.specialAssetRestrictions.status === 'approved'));
+    const resolvedUseEvidenceIds = new Set(useEvidenceAuthority?.resolvedEvidence.map((item) => item.evidenceId) ?? []);
+    const specialEvidenceBound = (global.specialAssetRestrictions.evidenceRefs?.length ?? 0) > 0 && global.specialAssetRestrictions.evidenceRefs.every((ref) => resolvedUseEvidenceIds.has(ref));
+    checks.push(check('owner.specialAssetRestrictionsEvidence', specialEvidenceBound ? 'bound' : 'unbound', 'bound', specialEvidenceBound));
     checks.push(check('owner.asset.humanReviewDecision', assetDecision?.humanReviewDecision, 'approved', assetDecision?.humanReviewDecision === 'approved'));
     checks.push(check('owner.asset.claimDecision', assetDecision?.claimDecision, 'verified_or_not_applicable', ['verified', 'not_applicable'].includes(assetDecision?.claimDecision)));
     checks.push(check('owner.asset.privacyDecision', assetDecision?.privacyDecision, 'cleared', assetDecision?.privacyDecision === 'cleared'));
     checks.push(check('owner.asset.rightsDecision', assetDecision?.rightsDecision, 'verified', assetDecision?.rightsDecision === 'verified'));
     checks.push(check('owner.rightsEvidenceBinding', rightsEvidenceBound ? 'bound' : 'unbound', 'bound', rightsEvidenceBound));
+    const claimEvidenceBound = entry.claimEvidenceRef.length === 0 || entry.claimEvidenceRef.every((ref) => (assetDecision?.claimEvidenceRefs ?? []).includes(ref));
+    checks.push(check('owner.claimEvidenceBinding', claimEvidenceBound ? 'bound' : 'unbound', 'bound', claimEvidenceBound));
     if (purpose === 'public-repository') checks.push(check('owner.publicGitStorage', global.publicGitStorage.status, 'approved', global.publicGitStorage.status === 'approved'));
   }
+  if (purpose !== 'internal-audit') checks.push(check('useEvidenceAuthority', useEvidenceAuthority ? 'verified' : 'missing', 'verified', Boolean(useEvidenceAuthority)));
   return { checks, failures: checks.filter((item) => !item.passed), allowed: checks.every((item) => item.passed) };
 }
 
@@ -161,12 +177,15 @@ async function verifyApprovalAuthority(args, catalog, catalogPath) {
   ]);
   assertSchema(ledger, ledgerSchema, 'owner decision ledger');
   assertSchema(receipt, receiptSchema, 'owner decision receipt');
+  await verifyTrustedOwnerSignature(receipt, 'Owner decision receipt');
   const catalogSha256 = await sha256File(catalogPath);
   const ledgerSha256 = await sha256File(ledgerPath);
   const receiptSha256 = await sha256File(receiptPath);
   if (resolve(dirname(receiptPath), receipt.ledgerRef) !== ledgerPath) throw new Error('Owner decision receipt ledger path mismatch');
   if (receipt.ledgerSha256 !== ledgerSha256) throw new Error('Owner decision receipt ledger SHA mismatch');
   if (ledger.catalogSha256 !== catalogSha256 || receipt.catalogSha256 !== catalogSha256) throw new Error('Owner decision catalog SHA mismatch');
+  const useEvidenceReceiptSha256 = await sha256File(resolve(requiredValue(args, '--use-evidence-receipt')));
+  if (ledger.useEvidenceReceiptSha256 !== useEvidenceReceiptSha256 || receipt.useEvidenceReceiptSha256 !== useEvidenceReceiptSha256) throw new Error('Owner decision use evidence receipt SHA mismatch');
   if (ledger.intakeId !== catalog.intakeId || receipt.intakeId !== catalog.intakeId) throw new Error('Owner decision intakeId mismatch');
   if (ledger.assetDecisionCount !== ledger.assetDecisions.length || ledger.assetDecisionCount !== catalog.entries.length) throw new Error('Owner asset decision count mismatch');
   if (receipt.assetDecisionCount !== ledger.assetDecisionCount || receipt.escalationDecisionCount !== ledger.escalationDecisionCount) throw new Error('Owner decision receipt count mismatch');
@@ -301,7 +320,7 @@ function assertPurposeContract(purpose, destinationClass) {
 }
 
 function parseArgs(argv) {
-  const valueFlags = new Set(['--catalog', '--object-root', '--output-root', '--evidence-receipt', '--approval-ledger', '--approval-receipt', '--purpose', '--destination-class', '--sha', '--content-id', '--approved-private-root', '--approved-public-root', '--audit-ref', '--requested-by', '--reason', '--expires-at', '--override-gate']);
+  const valueFlags = new Set(['--catalog', '--object-root', '--output-root', '--evidence-receipt', '--approval-ledger', '--approval-receipt', '--use-evidence-registry', '--use-evidence-receipt', '--channel', '--purpose', '--destination-class', '--sha', '--content-id', '--approved-private-root', '--approved-public-root', '--audit-ref', '--requested-by', '--reason', '--expires-at', '--override-gate']);
   const booleanFlags = new Set(['--acknowledge-no-publication']);
   const parsed = new Map();
   for (let index = 0; index < argv.length; index += 1) {

@@ -40,7 +40,7 @@
           "binaryGroupId", "objectRef", "sha256", "byteSize", "mediaType", "sourcePathCount", "sourceRefs",
           "contentId", "visualGroupId", "comparisonMethod", "humanReviewStatus", "semanticSummary",
           "ocrText", "gifReviewStatus", "claimSignals", "privacySignals", "rightsSignals",
-          "rightsStatus", "rightsScope", "rightsEvidenceRef", "privacyStatus", "claimReviewStatus", "publishStatus", "publicRepoEligibility"
+          "rightsStatus", "rightsScope", "rightsEvidenceRef", "privacyStatus", "claimReviewStatus", "claimEvidenceRef", "publishStatus", "publicRepoEligibility"
         ],
         "properties": {
           "binaryGroupId": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
@@ -82,6 +82,7 @@
           "rightsEvidenceRef": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^RIGHTS-EV-[A-Z0-9-]+$" } },
           "privacyStatus": { "enum": ["not_reviewed", "cleared", "restricted", "needs_redaction"] },
           "claimReviewStatus": { "enum": ["not_reviewed", "not_applicable", "needs_confirmation", "verified", "expired", "restricted"] },
+          "claimEvidenceRef": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^CLAIM-EV-[A-Z0-9-]+$" } },
           "publishStatus": { "enum": ["blocked", "needs_confirmation", "eligible", "published", "withdrawn"] },
           "publicRepoEligibility": { "enum": ["not_reviewed", "prohibited", "eligible"] },
           "reviewEvidenceRefs": {

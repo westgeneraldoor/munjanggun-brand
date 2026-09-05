@@ -59,8 +59,10 @@ npm run report:assets
 
 ```bash
 npm run assets:search -- --catalog <reviewed-content-catalog.json> --query "검색어"
-npm run assets:extract-content -- --catalog <reviewed-content-catalog.json> --evidence-receipt <review-evidence/receipt.json> --approval-ledger <owner-decisions.json> --approval-receipt <owner-decisions-receipt.json> --object-root <private-object-root> --output-root <output> --content-id <CONTENT-ID> --purpose external-publication --destination-class local-publication-staging
+npm run assets:extract-content -- --catalog <reviewed-content-catalog.json> --evidence-receipt <review-evidence/receipt.json> --approval-ledger <owner-decisions.json> --approval-receipt <owner-decisions-receipt.json> --use-evidence-registry <use-evidence-registry.json> --use-evidence-receipt <use-evidence-receipt.json> --channel blog --object-root <private-object-root> --output-root <output> --content-id <CONTENT-ID> --purpose external-publication --destination-class local-publication-staging
 ```
+
+`assets:extract`와 `assets:materialize`는 외부 발행 도구가 아니다. 두 명령은 `internal-recovery/private-recovery`, 정책에 등록된 비공개 루트, 복구 참조, 요청자, 사유, 발행 금지 확인을 모두 요구하고 복원 영수증을 남긴다. 외부용 자산은 실제 권리·claim 증거 파일이 봉인되고 `config/asset-owner-trust.json`에 등록된 사장 공개키로 use-evidence 및 owner-decision 영수증이 각각 서명된 경우에만 `assets:extract-content`로 추출한다. 현재 신뢰키 목록은 비어 있으므로 사장 키 등록 전 외부 추출은 기술적으로 차단된다.
 
 권리 미검토 자산은 기본 거부된다. 외부용 추출은 카탈로그 SHA와 407개 자산 결정을 고정한 사장 결정 원장·영수증도 검증한다. 내부 감사 예외는 비공개 승인 루트, 감사 참조, 담당자, 사유, 만료일, 발행 금지 확인과 실패 게이트별 정확한 `--override-gate`가 모두 있어야 한다.
 

@@ -15,7 +15,7 @@
       "required": [
         "receiptManaged", "visualManifestPaths", "binaryGroups", "uniqueGifBinaries",
         "gifSourcePaths", "unresolvedVisualGroups", "urlRecords", "unverifiedRightsPublishable",
-        "receiptMismatch"
+        "receiptMismatch", "visualGroups"
       ],
       "properties": {
         "receiptManaged": { "type": "integer", "minimum": 0 },
@@ -26,7 +26,8 @@
         "unresolvedVisualGroups": { "type": "integer", "const": 0 },
         "urlRecords": { "type": "integer", "minimum": 0 },
         "unverifiedRightsPublishable": { "type": "integer", "const": 0 },
-        "receiptMismatch": { "type": "integer", "const": 0 }
+        "receiptMismatch": { "type": "integer", "const": 0 },
+        "visualGroups": { "type": "integer", "minimum": 0 }
       }
     }
   }

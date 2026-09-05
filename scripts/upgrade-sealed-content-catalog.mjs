@@ -33,6 +33,7 @@ const upgraded = {
       ...entry,
       objectRef: objectRefs[0],
       rightsEvidenceRef: intersection(assets.map((asset) => asset.rightsEvidenceRef)),
+      claimEvidenceRef: intersection(assets.map((asset) => asset.claimEvidenceRef ?? [])),
     };
   }),
 };

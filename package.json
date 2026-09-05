@@ -21,6 +21,7 @@
     "assets:merge-similarity": "node scripts/merge-visual-similarity.mjs",
     "assets:approval-report": "node scripts/generate-asset-approval-report.mjs",
     "assets:seal-evidence": "node scripts/seal-review-evidence.mjs",
+    "assets:seal-use-evidence": "node scripts/seal-asset-use-evidence.mjs",
     "assets:upgrade-catalog": "node scripts/upgrade-sealed-content-catalog.mjs",
     "assets:build-objects": "node scripts/assets-build-object-store.mjs",
     "assets:resolve": "node scripts/assets-resolve.mjs",

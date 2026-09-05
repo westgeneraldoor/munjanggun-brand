@@ -9,6 +9,7 @@ import { findFiles } from './lib/brand-validation-core.mjs';
 import { verifyManifestObjects } from './lib/asset-resolver.mjs';
 import { formatSchemaErrors, validateAgainstSchema } from './lib/schema-validation.mjs';
 import { resolveContainedPath } from './lib/asset-paths.mjs';
+import { compareSimilarityEvidenceRow, validateSimilarityMapInvariants } from './lib/asset-similarity-validation.mjs';
 
 const receiptPath = resolve(requiredArg('--receipt'));
 const sourceRoot = resolve(requiredArg('--source'));
@@ -24,9 +25,10 @@ const evidenceRoot = resolve(requiredArg('--evidence-root'));
 const evidenceReceiptPath = resolve(requiredArg('--evidence-receipt'));
 const ownerDecisionsPath = resolve(requiredArg('--owner-decisions'));
 const ownerDecisionsReceiptPath = resolve(requiredArg('--owner-decisions-receipt'));
+const useEvidenceReceiptPath = resolve(requiredArg('--use-evidence-receipt'));
 const outputPath = getArg('--output') ? resolve(getArg('--output')) : null;
 
-const [receipt, catalog, urlReview, gates, combinedInventory, similarityMap, evidenceReceipt, ownerDecisions, ownerDecisionsReceipt] = await Promise.all([
+const [receipt, catalog, urlReview, gates, combinedInventory, similarityMap, evidenceReceipt, ownerDecisions, ownerDecisionsReceipt, useEvidenceReceipt] = await Promise.all([
   readJson(receiptPath),
   readJson(catalogPath),
   readJson(urlReviewPath),
@@ -36,6 +38,7 @@ const [receipt, catalog, urlReview, gates, combinedInventory, similarityMap, evi
   readJson(evidenceReceiptPath),
   readJson(ownerDecisionsPath),
   readJson(ownerDecisionsReceiptPath),
+  readJson(useEvidenceReceiptPath),
 ]);
 const schemas = await loadSchemas();
 const errors = [];
@@ -48,11 +51,12 @@ for (const [label, value, schema] of [
   ['review evidence receipt', evidenceReceipt, schemas.evidenceReceipt],
   ['owner decisions', ownerDecisions, schemas.ownerDecisions],
   ['owner decisions receipt', ownerDecisionsReceipt, schemas.ownerDecisionsReceipt],
+  ['use evidence receipt', useEvidenceReceipt, schemas.useEvidenceReceipt],
 ]) {
   const result = validateAgainstSchema(value, schema);
   errors.push(...formatSchemaErrors(result.errors).map((message) => `${label}: ${message}`));
 }
-for (const value of [catalog, urlReview, gates, similarityMap, evidenceReceipt, ownerDecisions, ownerDecisionsReceipt]) {
+for (const value of [catalog, urlReview, gates, similarityMap, evidenceReceipt, ownerDecisions, ownerDecisionsReceipt, useEvidenceReceipt]) {
   if (value.intakeId !== receipt.intakeId) errors.push(`${value.schema}: intakeId mismatch`);
 }
 
@@ -106,9 +110,21 @@ if (combinedInventory.counts.logicalVisualPaths !== 2013 || combinedInventory.co
 if (similarityMap.logicalPathCount !== 2013 || similarityMap.binaryGroupCount !== 450) {
   errors.push('visual similarity map: expected 2013 logical paths and 450 binary groups');
 }
+errors.push(...validateSimilarityMapInvariants(similarityMap).map((message) => `visual similarity map: ${message}`));
 const inventoryHashes = [...combinedInventory.groups.map((entry) => entry.sha256)].sort();
 const similarityHashes = [...similarityMap.entries.map((entry) => entry.sha256)].sort();
 if (JSON.stringify(inventoryHashes) !== JSON.stringify(similarityHashes)) errors.push('visual similarity map: SHA coverage mismatch');
+const inventoryByHash = new Map(combinedInventory.groups.map((entry) => [entry.sha256, entry]));
+for (const entry of similarityMap.entries) {
+  const inventoryEntry = inventoryByHash.get(entry.sha256);
+  if (!inventoryEntry) continue;
+  const expectedPathCount = inventoryEntry.canonicalPathCount + inventoryEntry.intakePathCount;
+  const expectedOrigin = inventoryEntry.canonicalPathCount > 0 && inventoryEntry.intakePathCount > 0 ? 'shared' : inventoryEntry.canonicalPathCount > 0 ? 'canonical_only' : 'intake_only';
+  if (entry.binaryGroupId !== `sha256:${entry.sha256}`) errors.push(`visual similarity map: binaryGroupId mismatch ${entry.sha256}`);
+  if (entry.sourcePathCount !== expectedPathCount) errors.push(`visual similarity map: sourcePathCount mismatch ${entry.sha256}`);
+  if (entry.mediaType !== inventoryEntry.mediaType) errors.push(`visual similarity map: mediaType mismatch ${entry.sha256}`);
+  if (entry.originScope !== expectedOrigin) errors.push(`visual similarity map: originScope mismatch ${entry.sha256}`);
+}
 
 const evidenceVerification = await verifyEvidenceChain({
   evidenceRoot,
@@ -126,7 +142,7 @@ const evidenceVerification = await verifyEvidenceChain({
 });
 errors.push(...evidenceVerification.errors.map((message) => `evidence: ${message}`));
 const ownerDecisionVerification = await verifyOwnerDecisionAuthority({
-  catalog, catalogPath, ownerDecisions, ownerDecisionsPath, ownerDecisionsReceipt, ownerDecisionsReceiptPath,
+  catalog, catalogPath, ownerDecisions, ownerDecisionsPath, ownerDecisionsReceipt, ownerDecisionsReceiptPath, useEvidenceReceiptPath,
 });
 errors.push(...ownerDecisionVerification.errors.map((message) => `owner decisions: ${message}`));
 
@@ -148,6 +164,7 @@ const actual = {
   uniqueGifBinaries: gifEntries.length,
   gifSourcePaths: gifEntries.reduce((sum, entry) => sum + entry.sourcePathCount, 0),
   unresolvedVisualGroups: similarityMap.unjudgedCount,
+  visualGroups: new Set(similarityMap.entries.map((entry) => entry.visualGroupId)).size,
   urlRecords: urlReview.entries.filter((entry) => entry.accessStatus === 'accessible' && entry.productConnectionStatus === 'matched').length,
   unverifiedRightsPublishable: assets.filter((asset) => asset.rightsStatus !== 'verified' && (['eligible', 'published'].includes(asset.publishStatus) || asset.publicRepoEligibility === 'eligible')).length,
   receiptMismatch,
@@ -178,6 +195,7 @@ const report = {
       ['intakeReceipt', receiptPath], ['catalog', catalogPath], ['urlReview', urlReviewPath], ['urlReviewSource', urlReviewSourcePath],
       ['combinedInventory', combinedInventoryPath], ['similarityMap', similarityMapPath], ['evidenceReceipt', evidenceReceiptPath],
       ['ownerDecisions', ownerDecisionsPath], ['ownerDecisionsReceipt', ownerDecisionsReceiptPath],
+      ['useEvidenceReceipt', useEvidenceReceiptPath],
     ].map(async ([key, path]) => [key, await sha256File(path)]))),
   },
   expected: gates.expected,
@@ -231,6 +249,7 @@ async function loadSchemas() {
     evidenceReceipt: 'review-evidence-receipt.schema.json',
     ownerDecisions: 'asset-owner-decisions.schema.json',
     ownerDecisionsReceipt: 'asset-owner-decision-receipt.schema.json',
+    useEvidenceReceipt: 'asset-use-evidence-receipt.schema.json',
   };
   return Object.fromEntries(await Promise.all(Object.entries(names).map(async ([key, name]) => [key, await readJson(new URL(`../schemas/${name}`, import.meta.url))])));
 }
@@ -364,6 +383,11 @@ async function verifyEvidenceChain(context) {
             for (const mismatch of mismatches) result.errors.push(`${ref}: ${mismatch}`);
             if (mismatches.length > 0) continue;
           }
+          if (field === 'humanReviewEvidence') {
+            const mismatches = compareSimilarityEvidenceRow(evidenceRow, entry);
+            for (const mismatch of mismatches) result.errors.push(`${ref}: ${mismatch}`);
+            if (mismatches.length > 0) continue;
+          }
           hasTargetedRef = true;
           result.targetedCount += 1;
         }
@@ -386,6 +410,8 @@ async function verifyOwnerDecisionAuthority(context) {
   const ledgerSha256 = await sha256File(context.ownerDecisionsPath);
   if (context.ownerDecisions.catalogSha256 !== catalogSha256) errors.push('ledger catalog SHA mismatch');
   if (context.ownerDecisionsReceipt.catalogSha256 !== catalogSha256) errors.push('receipt catalog SHA mismatch');
+  if (context.ownerDecisions.useEvidenceReceiptSha256 !== context.ownerDecisionsReceipt.useEvidenceReceiptSha256) errors.push('use evidence receipt SHA mismatch');
+  if (context.ownerDecisions.useEvidenceReceiptSha256 !== await sha256File(context.useEvidenceReceiptPath)) errors.push('live use evidence receipt SHA mismatch');
   if (context.ownerDecisionsReceipt.ledgerSha256 !== ledgerSha256) errors.push('receipt ledger SHA mismatch');
   if (resolve(dirname(context.ownerDecisionsReceiptPath), context.ownerDecisionsReceipt.ledgerRef) !== context.ownerDecisionsPath) errors.push('receipt ledger path mismatch');
   if (context.ownerDecisions.assetDecisionCount !== context.ownerDecisions.assetDecisions.length) errors.push('assetDecisionCount mismatch');

@@ -142,6 +142,7 @@ const catalog = {
     rightsEvidenceRef: [],
     privacyStatus: 'not_reviewed',
     claimReviewStatus: 'not_reviewed',
+    claimEvidenceRef: [],
     publishStatus: 'blocked',
     publicRepoEligibility: 'not_reviewed',
   })),
@@ -164,6 +165,7 @@ const gates = {
     urlRecords: receipt.counts.url,
     unverifiedRightsPublishable: 0,
     receiptMismatch: 0,
+    visualGroups: 0,
   },
 };
 assertSchema(gates, schemas.gates, 'completion gates');

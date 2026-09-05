@@ -4,13 +4,14 @@
   "title": "Munjanggun Asset Owner Decisions",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema", "version", "intakeId", "generatedAt", "catalogSha256", "inheritancePolicy", "rightsDecisions", "assetDecisionCount", "assetDecisions", "escalationDecisionCount", "escalationDecisions"],
+  "required": ["schema", "version", "intakeId", "generatedAt", "catalogSha256", "useEvidenceReceiptSha256", "inheritancePolicy", "rightsDecisions", "assetDecisionCount", "assetDecisions", "escalationDecisionCount", "escalationDecisions"],
   "properties": {
     "schema": { "const": "munjanggun.assetOwnerDecisions.v1" },
     "version": { "const": "1.0" },
     "intakeId": { "type": "string", "pattern": "^INTAKE-[0-9]{8}-[0-9]{2}$" },
     "generatedAt": { "type": "string", "format": "date-time" },
     "catalogSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "useEvidenceReceiptSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
     "inheritancePolicy": { "const": "global_answers_do_not_propagate_to_asset_decisions" },
     "rightsDecisions": {
       "type": "object",
@@ -34,7 +35,7 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["sha256", "contentId", "humanReviewDecision", "claimDecision", "privacyDecision", "rightsDecision", "evidenceRefs", "notes"],
+        "required": ["sha256", "contentId", "humanReviewDecision", "claimDecision", "privacyDecision", "rightsDecision", "rightsEvidenceRefs", "claimEvidenceRefs", "notes"],
         "properties": {
           "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
           "contentId": { "type": "string", "minLength": 1 },
@@ -42,7 +43,8 @@
           "claimDecision": { "enum": ["pending", "verified", "not_applicable", "restricted"] },
           "privacyDecision": { "enum": ["pending", "cleared", "restricted", "needs_redaction"] },
           "rightsDecision": { "enum": ["pending", "verified", "restricted"] },
-          "evidenceRefs": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+          "rightsEvidenceRefs": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^RIGHTS-EV-[A-Z0-9-]+$" } },
+          "claimEvidenceRefs": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^CLAIM-EV-[A-Z0-9-]+$" } },
           "notes": { "type": "string" }
         }
       }
@@ -55,14 +57,14 @@
       "required": ["status", "evidenceRefs", "notes"],
       "properties": {
         "status": { "enum": ["pending", "approved", "restricted"] },
-        "evidenceRefs": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+        "evidenceRefs": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^RIGHTS-EV-[A-Z0-9-]+$" } },
         "notes": { "type": "string" }
       }
     },
     "assetDecision": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["sha256", "contentId", "needsEscalation", "humanReviewDecision", "claimDecision", "privacyDecision", "rightsDecision", "evidenceRefs", "notes"],
+      "required": ["sha256", "contentId", "needsEscalation", "humanReviewDecision", "claimDecision", "privacyDecision", "rightsDecision", "rightsEvidenceRefs", "claimEvidenceRefs", "notes"],
       "properties": {
         "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
         "contentId": { "type": "string", "minLength": 1 },
@@ -71,7 +73,8 @@
         "claimDecision": { "enum": ["pending", "verified", "not_applicable", "restricted"] },
         "privacyDecision": { "enum": ["pending", "cleared", "restricted", "needs_redaction"] },
         "rightsDecision": { "enum": ["pending", "verified", "restricted"] },
-        "evidenceRefs": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+        "rightsEvidenceRefs": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^RIGHTS-EV-[A-Z0-9-]+$" } },
+        "claimEvidenceRefs": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^CLAIM-EV-[A-Z0-9-]+$" } },
         "notes": { "type": "string" }
       }
     }

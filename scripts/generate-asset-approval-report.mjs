@@ -13,6 +13,7 @@ const urlReview = await readJson(resolve(requiredArg('--url-review')));
 const outputPath = resolve(requiredArg('--output'));
 const decisionsOutputPath = getArg('--decisions-output') ? resolve(getArg('--decisions-output')) : null;
 const decisionsReceiptOutputPath = getArg('--decisions-receipt-output') ? resolve(getArg('--decisions-receipt-output')) : null;
+const useEvidenceReceiptPath = resolve(requiredArg('--use-evidence-receipt'));
 if (Boolean(decisionsOutputPath) !== Boolean(decisionsReceiptOutputPath)) throw new Error('--decisions-output and --decisions-receipt-output must be provided together');
 
 const escalations = catalog.entries.filter((entry) => entry.humanReviewStatus === 'needs_escalation');
@@ -106,7 +107,8 @@ if (decisionsOutputPath) {
     claimDecision: 'pending',
     privacyDecision: 'pending',
     rightsDecision: 'pending',
-    evidenceRefs: [],
+    rightsEvidenceRefs: [],
+    claimEvidenceRefs: [],
     notes: '',
   }));
   const decisions = {
@@ -115,6 +117,7 @@ if (decisionsOutputPath) {
     intakeId: catalog.intakeId,
     generatedAt: new Date().toISOString(),
     catalogSha256,
+    useEvidenceReceiptSha256: await sha256File(useEvidenceReceiptPath),
     inheritancePolicy: 'global_answers_do_not_propagate_to_asset_decisions',
     rightsDecisions: {
       internalPreservation: pendingDecision(),
@@ -132,7 +135,8 @@ if (decisionsOutputPath) {
       claimDecision: 'pending',
       privacyDecision: 'pending',
       rightsDecision: 'pending',
-      evidenceRefs: [],
+      rightsEvidenceRefs: [],
+      claimEvidenceRefs: [],
       notes: '',
     })),
   };
@@ -148,11 +152,13 @@ if (decisionsOutputPath) {
     intakeId: catalog.intakeId,
     sealedAt: new Date().toISOString(),
     catalogSha256,
+    useEvidenceReceiptSha256: decisions.useEvidenceReceiptSha256,
     ledgerRef: relative(dirname(decisionsReceiptOutputPath), decisionsOutputPath).replaceAll('\\', '/'),
     ledgerSha256: await sha256File(decisionsOutputPath),
     globalDecisionStatus: globalStatuses.length === 1 ? globalStatuses[0] : 'mixed',
     assetDecisionCount: assetDecisions.length,
     escalationDecisionCount: escalations.length,
+    signature: null,
   };
   const receiptSchema = await readJson(fileURLToPath(new URL('../schemas/asset-owner-decision-receipt.schema.json', import.meta.url)));
   const receiptValidation = validateAgainstSchema(decisionsReceipt, receiptSchema);

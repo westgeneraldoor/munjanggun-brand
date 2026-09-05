@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/westgeneraldoor/munjanggun-brand/schemas/asset-use-evidence-registry.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "version", "intakeId", "catalogSha256", "sealedAt", "entryCount", "entries"],
+  "properties": {
+    "schema": { "const": "munjanggun.assetUseEvidenceRegistry.v1" },
+    "version": { "const": "1.0" },
+    "intakeId": { "type": "string", "pattern": "^INTAKE-[0-9]{8}-[0-9]{2}$" },
+    "catalogSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "sealedAt": { "type": "string", "format": "date-time" },
+    "entryCount": { "type": "integer", "minimum": 0 },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["evidenceId", "kind", "status", "subjectSha256", "contentId", "scopes", "channels", "validFrom", "validUntil", "artifactRef", "artifactByteSize", "artifactSha256", "issuer", "decisionRef"],
+        "properties": {
+          "evidenceId": { "type": "string", "pattern": "^(RIGHTS|CLAIM)-EV-[A-Z0-9-]+$" },
+          "kind": { "enum": ["rights", "claim"] },
+          "status": { "enum": ["verified", "restricted", "revoked", "expired"] },
+          "subjectSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+          "contentId": { "type": "string", "minLength": 1 },
+          "scopes": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "enum": ["internal_preservation", "public_git_storage", "external_reuse"] } },
+          "channels": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "enum": ["blog", "sns", "detail_page", "public_git"] } },
+          "validFrom": { "type": "string", "format": "date-time" },
+          "validUntil": { "type": ["string", "null"], "format": "date-time" },
+          "artifactRef": { "type": "string", "pattern": "^(?!/)(?![A-Za-z]:)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\).+$" },
+          "artifactByteSize": { "type": "integer", "minimum": 1 },
+          "artifactSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+          "issuer": { "type": "string", "minLength": 1 },
+          "decisionRef": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}

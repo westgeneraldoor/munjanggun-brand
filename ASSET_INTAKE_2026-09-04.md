@@ -56,7 +56,7 @@
 
 ## 5. 현재 게이트
 
-현재 재감사 기준 파일은 Z 비공개 보관소의 `review-evidence/receipt.json`, `candidate-v2/reviewed-content-catalog-v4.json`, `visual-similarity-map-v2.json`, `url-review-v2.json`, `completion-report-v8.json`, `OWNER_APPROVAL_REPORT-v5.md`, `owner-decisions-v4.json`, `owner-decisions-receipt-v1.json`이다. 이전 번호 파일은 과정 기록이며 현재 판정에 사용하지 않는다.
+현재 재감사 기준 파일은 Z 비공개 보관소의 `review-evidence/receipt.json`, `candidate-v2/reviewed-content-catalog-v5.json`, `visual-similarity-map-v2.json`, `url-review-v2.json`, `use-evidence-registry-v2.json`, `use-evidence-receipt-v2.json`, `completion-report-v11.json`, `OWNER_APPROVAL_REPORT-v8.md`, `owner-decisions-v7.json`, `owner-decisions-receipt-v4.json`이다. 이전 번호 파일은 과정 기록이며 현재 판정에 사용하지 않는다.
 
 | 게이트 | 결과 |
 | --- | --- |
@@ -74,10 +74,11 @@
 | 시각군 대상 증빙 | 450개 참조, 대상 SHA 450개 연결, 통과 |
 | URL 확인 영수증 | 13/13 연결, 통과 |
 | 사장 결정 원장 | catalog SHA 고정, 407/407 자산 결정·57/57 상향 검토 연결, 현재 전부 pending |
+| 권리·claim 실증거 | registry/receipt는 catalog에 결박, 현재 등록 0건·신뢰된 사장 서명키 0개이므로 외부 사용 차단 |
 | 외부 발행 | 차단 |
 | canonical 승격 | 미시작 |
 
-선택 추출 도구도 기본 거부 방식이다. 외부용 추출은 봉인 증거, 사람 검토 완료, 권리·권리 증거, 개인정보, claim, 발행 상태와 catalog SHA에 묶인 사장 결정 원장·영수증이 모두 통과해야 한다. 내부 감사 예외는 비공개 경로, 담당자, 사유, 만료일, 발행 금지 확인과 실패 게이트별 정확한 인정을 요구하고 자산과 영수증을 한 묶음으로 남긴다.
+모든 복사 도구는 기본 거부 방식이다. 호환용 `assets:extract`·`assets:materialize`는 명시적 비공개 복구 계약과 SHA 영수증이 있어야 동작하며 외부용으로 사용할 수 없다. 외부용 `assets:extract-content`는 봉인 검토 증거, 실제 권리·claim 증거 파일의 경로·크기·SHA·대상·범위·채널·유효기간, 개인정보, 발행 상태와 catalog SHA에 묶인 사장 결정 원장·영수증이 모두 통과해야 한다. 내부 감사 예외는 비공개 경로, 담당자, 사유, 만료일, 발행 금지 확인과 실패 게이트별 정확한 인정을 요구하고 자산과 영수증을 한 묶음으로 남긴다.
 
 다음 단계는 네 가지 독립 권리 결정(내부 보존권, 공개 Git 저장권, 외부 재사용권, 특수 자산 제한)과 57개 자산별 상향 검토, 174개 claim 신호, 15개 개인정보 신호에 대한 사장 판단이다. 포괄 답변은 개별 자산 결정에 자동 상속하지 않는다. 그 승인 전에는 source 보존과 외부 발행 가능 여부를 혼동하지 않는다.
 
