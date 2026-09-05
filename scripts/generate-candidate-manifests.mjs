@@ -121,6 +121,7 @@ const catalog = {
   binaryGroupCount: groups.size,
   entries: [...groups.entries()].sort(([left], [right]) => left.localeCompare(right)).map(([sha256, assets]) => ({
     binaryGroupId: `sha256:${sha256}`,
+    objectRef: assets[0].objectRef,
     sha256,
     byteSize: assets[0].byteSize,
     mediaType: assets[0].mediaType,
@@ -136,6 +137,13 @@ const catalog = {
     claimSignals: [],
     privacySignals: [],
     rightsSignals: [],
+    rightsStatus: 'not_reviewed',
+    rightsScope: [],
+    rightsEvidenceRef: [],
+    privacyStatus: 'not_reviewed',
+    claimReviewStatus: 'not_reviewed',
+    publishStatus: 'blocked',
+    publicRepoEligibility: 'not_reviewed',
   })),
 };
 assertSchema(catalog, schemas.catalog, 'content catalog');

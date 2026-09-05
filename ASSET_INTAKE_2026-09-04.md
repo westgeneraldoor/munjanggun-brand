@@ -2,7 +2,7 @@
 
 > intake: `INTAKE-20260904-01`
 >
-> 상태: 기술 분석 완료 / 외부 발행 및 canonical 승격 차단
+> 상태: 저장·복구·검토 증거 기술 게이트 통과 / 외부 발행 및 canonical 승격 차단
 >
 > 기준일: 2026-09-04
 
@@ -12,6 +12,7 @@
 - 운영 대상은 1,154파일이며 `Thumbs.db` 4개는 `ignored_system_cache`로 기록한다.
 - 로컬 작업공간에는 기존+신규 합집합의 고유 바이너리 450개, 351,109,789바이트만 object로 둔다.
 - candidate는 manifest, content catalog, URL 검토, 비교·완료 보고서 등 메타데이터만 보존한다.
+- 검토 증빙 148파일은 Z의 `review-evidence`에 봉인하고 파일별 크기·SHA-256과 전체 tree hash를 receipt로 고정한다.
 - 원본·object는 불변이다. 수정본은 덮어쓰지 않고 새 SHA로 추가한다.
 - 공개 Git에는 사용권과 공개 저장 권리가 확인되지 않은 바이너리를 넣지 않는다.
 
@@ -48,11 +49,14 @@
 ## 4. URL과 발행 상태
 
 - `.url` 13건은 모두 접근 가능했고 폴더의 상품과 연결되는 제목을 확인했다.
+- URL 13건은 원본 `.url` SHA, 확인 시각·방법·제목·상품 연결 상태를 URL 확인 영수증으로 연결했다.
 - URL 접근 확인은 가격·할인·혜택·A/S·스펙 claim 승인이 아니다.
 - 신규 1,134경로는 모두 `rightsStatus: not_reviewed`, `publishStatus: blocked`, `publicRepoEligibility: not_reviewed`다.
 - 권리 미확인인데 외부 발행 가능으로 표시된 자산은 0개다.
 
 ## 5. 현재 게이트
+
+현재 재감사 기준 파일은 Z 비공개 보관소의 `review-evidence/receipt.json`, `candidate-v2/reviewed-content-catalog-v4.json`, `visual-similarity-map-v2.json`, `url-review-v2.json`, `completion-report-v8.json`, `OWNER_APPROVAL_REPORT-v5.md`, `owner-decisions-v4.json`, `owner-decisions-receipt-v1.json`이다. 이전 번호 파일은 과정 기록이며 현재 판정에 사용하지 않는다.
 
 | 게이트 | 결과 |
 | --- | --- |
@@ -65,10 +69,17 @@
 | URL 13건 접근·상품 연결 | 통과 |
 | 권리 미확인 자산의 발행 가능 건수 | 0, 통과 |
 | 원본↔Z receipt 불일치 | 0, 통과 |
+| 봉인 검토 증빙 | 148/148 파일 SHA 검증, 통과 |
+| 콘텐츠 대상 증빙 | 814개 참조, 대상 SHA 407개 연결, 통과 |
+| 시각군 대상 증빙 | 450개 참조, 대상 SHA 450개 연결, 통과 |
+| URL 확인 영수증 | 13/13 연결, 통과 |
+| 사장 결정 원장 | catalog SHA 고정, 407/407 자산 결정·57/57 상향 검토 연결, 현재 전부 pending |
 | 외부 발행 | 차단 |
 | canonical 승격 | 미시작 |
 
-다음 단계는 권리 범위, 57개 상향 검토 항목, 174개 claim 신호, 15개 개인정보 신호에 대한 사장 판단이다. 그 승인 전에는 source 보존과 외부 발행 가능 여부를 혼동하지 않는다.
+선택 추출 도구도 기본 거부 방식이다. 외부용 추출은 봉인 증거, 사람 검토 완료, 권리·권리 증거, 개인정보, claim, 발행 상태와 catalog SHA에 묶인 사장 결정 원장·영수증이 모두 통과해야 한다. 내부 감사 예외는 비공개 경로, 담당자, 사유, 만료일, 발행 금지 확인과 실패 게이트별 정확한 인정을 요구하고 자산과 영수증을 한 묶음으로 남긴다.
+
+다음 단계는 네 가지 독립 권리 결정(내부 보존권, 공개 Git 저장권, 외부 재사용권, 특수 자산 제한)과 57개 자산별 상향 검토, 174개 claim 신호, 15개 개인정보 신호에 대한 사장 판단이다. 포괄 답변은 개별 자산 결정에 자동 상속하지 않는다. 그 승인 전에는 source 보존과 외부 발행 가능 여부를 혼동하지 않는다.
 
 ```text
 소스 보존 여부 ≠ 외부 발행 가능 여부

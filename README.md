@@ -55,12 +55,14 @@ npm run report:assets
 
 공식 제작·검토 자산은 `privacyStatus: official_reviewed`로 관리한다. 단 가격, 이벤트, 월 납입, 스펙, 옵션, 보증, 일정 등 변동 문구는 원본 맥락 밖에서 재사용하기 전에 최신 근거를 확인한다.
 
-대량 intake는 원본 복구본, 논리 경로, 단일 object, 발행 상태를 분리한다. 검색과 임시 추출은 아래 도구를 사용하며, 추출됐다는 사실만으로 발행 가능해지지 않는다.
+대량 intake는 원본 복구본, 논리 경로, 단일 object, 발행 상태를 분리한다. 검색은 상태를 바꾸지 않는다. 외부용 추출은 봉인 검토 증거와 권리·개인정보·claim·발행 게이트를 모두 통과해야 하며, 결과 자산과 추출 영수증을 한 묶음으로 만든다.
 
 ```bash
 npm run assets:search -- --catalog <reviewed-content-catalog.json> --query "검색어"
-npm run assets:extract-content -- --catalog <reviewed-content-catalog.json> --object-root <private-object-root> --output-root <output> --content-id <CONTENT-ID>
+npm run assets:extract-content -- --catalog <reviewed-content-catalog.json> --evidence-receipt <review-evidence/receipt.json> --approval-ledger <owner-decisions.json> --approval-receipt <owner-decisions-receipt.json> --object-root <private-object-root> --output-root <output> --content-id <CONTENT-ID> --purpose external-publication --destination-class local-publication-staging
 ```
+
+권리 미검토 자산은 기본 거부된다. 외부용 추출은 카탈로그 SHA와 407개 자산 결정을 고정한 사장 결정 원장·영수증도 검증한다. 내부 감사 예외는 비공개 승인 루트, 감사 참조, 담당자, 사유, 만료일, 발행 금지 확인과 실패 게이트별 정확한 `--override-gate`가 모두 있어야 한다.
 
 ## 민감 정보
 

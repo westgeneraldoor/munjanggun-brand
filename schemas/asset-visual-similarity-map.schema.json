@@ -18,6 +18,8 @@
     "binaryGroupCount": { "type": "integer", "minimum": 0 },
     "visualGroupCount": { "type": "integer", "minimum": 0 },
     "unjudgedCount": { "type": "integer", "const": 0 },
+    "reviewEvidenceReceiptRef": { "type": "string", "minLength": 1 },
+    "reviewEvidenceReceiptSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
     "entries": {
       "type": "array",
       "items": {

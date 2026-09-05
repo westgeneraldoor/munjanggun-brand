@@ -12,6 +12,8 @@
     "checkedAt": { "type": "string", "format": "date-time" },
     "method": { "enum": ["signed_in_browser_read_only", "public_browser_read_only"] },
     "recordCount": { "type": "integer", "minimum": 0 },
+    "confirmationReceiptRef": { "type": "string", "minLength": 1 },
+    "confirmationReceiptSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
     "entries": {
       "type": "array",
       "items": {

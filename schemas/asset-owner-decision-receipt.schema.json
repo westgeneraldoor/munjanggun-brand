@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/westgeneraldoor/munjanggun-brand/schemas/asset-owner-decision-receipt.schema.json",
+  "title": "Munjanggun Asset Owner Decision Receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "version", "intakeId", "sealedAt", "catalogSha256", "ledgerRef", "ledgerSha256", "globalDecisionStatus", "assetDecisionCount", "escalationDecisionCount"],
+  "properties": {
+    "schema": { "const": "munjanggun.assetOwnerDecisionReceipt.v1" },
+    "version": { "const": "1.0" },
+    "intakeId": { "type": "string", "pattern": "^INTAKE-[0-9]{8}-[0-9]{2}$" },
+    "sealedAt": { "type": "string", "format": "date-time" },
+    "catalogSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "ledgerRef": { "type": "string", "minLength": 1, "pattern": "^(?!/)(?![A-Za-z]:)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\).+$" },
+    "ledgerSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "globalDecisionStatus": { "enum": ["pending", "approved", "restricted", "mixed"] },
+    "assetDecisionCount": { "type": "integer", "minimum": 0 },
+    "escalationDecisionCount": { "type": "integer", "minimum": 0 }
+  }
+}

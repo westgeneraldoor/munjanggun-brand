@@ -1,12 +1,19 @@
 #!/usr/bin/env node
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { dirname, resolve } from 'node:path';
+import { dirname, relative, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { sha256File } from './lib/asset-inventory.mjs';
+import { formatSchemaErrors, validateAgainstSchema } from './lib/schema-validation.mjs';
 
-const catalog = await readJson(resolve(requiredArg('--catalog')));
+const catalogPath = resolve(requiredArg('--catalog'));
+const catalog = await readJson(catalogPath);
 const comparison = await readJson(resolve(requiredArg('--comparison')));
 const completion = await readJson(resolve(requiredArg('--completion')));
 const urlReview = await readJson(resolve(requiredArg('--url-review')));
 const outputPath = resolve(requiredArg('--output'));
+const decisionsOutputPath = getArg('--decisions-output') ? resolve(getArg('--decisions-output')) : null;
+const decisionsReceiptOutputPath = getArg('--decisions-receipt-output') ? resolve(getArg('--decisions-receipt-output')) : null;
+if (Boolean(decisionsOutputPath) !== Boolean(decisionsReceiptOutputPath)) throw new Error('--decisions-output and --decisions-receipt-output must be provided together');
 
 const escalations = catalog.entries.filter((entry) => entry.humanReviewStatus === 'needs_escalation');
 const privacy = catalog.entries.filter((entry) => entry.privacySignals.length > 0);
@@ -37,12 +44,21 @@ const lines = [
   '',
   '## 3. 권리·공개 저장 결정',
   '',
+  '> 아래 네 항목은 서로 독립된 결정이다. 하나의 “전체 예” 답변으로 합치거나 자산별 57개 결정에 자동 상속하지 않는다.',
+  '',
   '- [ ] 10개 폴더는 문장군이 제작했거나 적법하게 납품받아 내부 원본 보존이 가능하다.',
   '- [ ] 10개 폴더의 자산을 공개 Git 저장소에 저장할 권리가 확인됐다.',
   '- [ ] 블로그·상세페이지·SNS 등 외부 채널 재사용 권리가 확인됐다.',
   '- [ ] 인물·아동·행사·후기·메신저 화면은 별도 제한 또는 동의 범위를 적용한다.',
   '',
   '권리 증거는 동의서·개인정보 원문 대신 `rightsEvidenceRef`만 기록한다.',
+  '',
+  '### 독립 응답 형식',
+  '',
+  '- 내부 보존권: [ ] 승인 / [ ] 제한 / [ ] 보류',
+  '- 공개 Git 저장권: [ ] 승인 / [ ] 제한 / [ ] 보류',
+  '- 블로그·SNS 등 외부 재사용권: [ ] 승인 / [ ] 제한 / [ ] 보류',
+  '- 특수 인물·아동·행사·후기·메신저 자산 제한: [ ] 개별 검토 적용 / [ ] 보류',
   '',
   '## 4. 검토 신호 요약',
   '',
@@ -79,6 +95,71 @@ const lines = [
 if (escalations.length !== 57 || privacy.length !== 15) throw new Error(`Expected 57 escalations and 15 privacy groups, got ${escalations.length}/${privacy.length}`);
 await mkdir(dirname(outputPath), { recursive: true });
 await writeFile(outputPath, `${lines.join('\n')}\n`, { encoding: 'utf8', flag: 'wx' });
+if (decisionsOutputPath) {
+  const pendingDecision = () => ({ status: 'pending', evidenceRefs: [], notes: '' });
+  const catalogSha256 = await sha256File(catalogPath);
+  const assetDecisions = catalog.entries.map((entry) => ({
+    sha256: entry.sha256,
+    contentId: entry.contentId,
+    needsEscalation: entry.humanReviewStatus === 'needs_escalation',
+    humanReviewDecision: 'pending',
+    claimDecision: 'pending',
+    privacyDecision: 'pending',
+    rightsDecision: 'pending',
+    evidenceRefs: [],
+    notes: '',
+  }));
+  const decisions = {
+    schema: 'munjanggun.assetOwnerDecisions.v1',
+    version: '1.0',
+    intakeId: catalog.intakeId,
+    generatedAt: new Date().toISOString(),
+    catalogSha256,
+    inheritancePolicy: 'global_answers_do_not_propagate_to_asset_decisions',
+    rightsDecisions: {
+      internalPreservation: pendingDecision(),
+      publicGitStorage: pendingDecision(),
+      externalReuse: pendingDecision(),
+      specialAssetRestrictions: pendingDecision(),
+    },
+    assetDecisionCount: assetDecisions.length,
+    assetDecisions,
+    escalationDecisionCount: escalations.length,
+    escalationDecisions: escalations.map((entry) => ({
+      sha256: entry.sha256,
+      contentId: entry.contentId,
+      humanReviewDecision: 'pending',
+      claimDecision: 'pending',
+      privacyDecision: 'pending',
+      rightsDecision: 'pending',
+      evidenceRefs: [],
+      notes: '',
+    })),
+  };
+  const decisionsSchema = await readJson(fileURLToPath(new URL('../schemas/asset-owner-decisions.schema.json', import.meta.url)));
+  const validation = validateAgainstSchema(decisions, decisionsSchema);
+  if (!validation.valid) throw new Error(`Owner decisions schema failed:\n${formatSchemaErrors(validation.errors).join('\n')}`);
+  await mkdir(dirname(decisionsOutputPath), { recursive: true });
+  await writeFile(decisionsOutputPath, `${JSON.stringify(decisions, null, 2)}\n`, { encoding: 'utf8', flag: 'wx' });
+  const globalStatuses = [...new Set(Object.values(decisions.rightsDecisions).map((decision) => decision.status))];
+  const decisionsReceipt = {
+    schema: 'munjanggun.assetOwnerDecisionReceipt.v1',
+    version: '1.0',
+    intakeId: catalog.intakeId,
+    sealedAt: new Date().toISOString(),
+    catalogSha256,
+    ledgerRef: relative(dirname(decisionsReceiptOutputPath), decisionsOutputPath).replaceAll('\\', '/'),
+    ledgerSha256: await sha256File(decisionsOutputPath),
+    globalDecisionStatus: globalStatuses.length === 1 ? globalStatuses[0] : 'mixed',
+    assetDecisionCount: assetDecisions.length,
+    escalationDecisionCount: escalations.length,
+  };
+  const receiptSchema = await readJson(fileURLToPath(new URL('../schemas/asset-owner-decision-receipt.schema.json', import.meta.url)));
+  const receiptValidation = validateAgainstSchema(decisionsReceipt, receiptSchema);
+  if (!receiptValidation.valid) throw new Error(`Owner decision receipt schema failed:\n${formatSchemaErrors(receiptValidation.errors).join('\n')}`);
+  await mkdir(dirname(decisionsReceiptOutputPath), { recursive: true });
+  await writeFile(decisionsReceiptOutputPath, `${JSON.stringify(decisionsReceipt, null, 2)}\n`, { encoding: 'utf8', flag: 'wx' });
+}
 console.log(`Owner approval report written: ${escalations.length} escalations / ${privacy.length} privacy groups.`);
 
 function countSignals(signals) {

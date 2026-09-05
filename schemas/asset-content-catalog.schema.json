@@ -29,18 +29,26 @@
         "linkedGifDurationMs": { "type": "integer", "minimum": 0 }
       }
     },
+    "reviewEvidenceReceiptRef": { "type": "string", "minLength": 1 },
+    "reviewEvidenceReceiptSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
     "entries": {
       "type": "array",
       "items": {
         "type": "object",
         "additionalProperties": false,
         "required": [
-          "binaryGroupId", "sha256", "byteSize", "mediaType", "sourcePathCount", "sourceRefs",
+          "binaryGroupId", "objectRef", "sha256", "byteSize", "mediaType", "sourcePathCount", "sourceRefs",
           "contentId", "visualGroupId", "comparisonMethod", "humanReviewStatus", "semanticSummary",
-          "ocrText", "gifReviewStatus", "claimSignals", "privacySignals", "rightsSignals"
+          "ocrText", "gifReviewStatus", "claimSignals", "privacySignals", "rightsSignals",
+          "rightsStatus", "rightsScope", "rightsEvidenceRef", "privacyStatus", "claimReviewStatus", "publishStatus", "publicRepoEligibility"
         ],
         "properties": {
           "binaryGroupId": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+          "objectRef": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?!/)(?![A-Za-z]:)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\)(?!.*\\u0000).+$"
+          },
           "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
           "byteSize": { "type": "integer", "minimum": 0 },
           "mediaType": { "type": "string", "minLength": 1 },
@@ -69,6 +77,13 @@
           "claimSignals": { "type": "array", "items": { "type": "string" } },
           "privacySignals": { "type": "array", "items": { "type": "string" } },
           "rightsSignals": { "type": "array", "items": { "type": "string" } },
+          "rightsStatus": { "enum": ["not_reviewed", "pending", "verified", "restricted", "expired"] },
+          "rightsScope": { "type": "array", "uniqueItems": true, "items": { "enum": ["internal_preservation", "public_git_storage", "external_reuse"] } },
+          "rightsEvidenceRef": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^RIGHTS-EV-[A-Z0-9-]+$" } },
+          "privacyStatus": { "enum": ["not_reviewed", "cleared", "restricted", "needs_redaction"] },
+          "claimReviewStatus": { "enum": ["not_reviewed", "not_applicable", "needs_confirmation", "verified", "expired", "restricted"] },
+          "publishStatus": { "enum": ["blocked", "needs_confirmation", "eligible", "published", "withdrawn"] },
+          "publicRepoEligibility": { "enum": ["not_reviewed", "prohibited", "eligible"] },
           "reviewEvidenceRefs": {
             "type": "array",
             "uniqueItems": true,

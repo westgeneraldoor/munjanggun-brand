@@ -29,6 +29,12 @@ const results = catalog.entries
     claimSignals: entry.claimSignals,
     privacySignals: entry.privacySignals,
     rightsSignals: entry.rightsSignals,
+    rightsStatus: entry.rightsStatus,
+    rightsScope: entry.rightsScope,
+    privacyStatus: entry.privacyStatus,
+    claimReviewStatus: entry.claimReviewStatus,
+    publishStatus: entry.publishStatus,
+    publicRepoEligibility: entry.publicRepoEligibility,
     sourceRefs: entry.sourceRefs,
   }));
 

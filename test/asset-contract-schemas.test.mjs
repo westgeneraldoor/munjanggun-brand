@@ -15,6 +15,7 @@ test('content catalog schema accepts a fail-closed binary group', async () => {
     binaryGroupCount: 1,
     entries: [{
       binaryGroupId: `sha256:${hash}`,
+      objectRef: `sha256/aa/${hash}.jpg`,
       sha256: hash,
       byteSize: 1,
       mediaType: 'image/jpeg',
@@ -30,6 +31,13 @@ test('content catalog schema accepts a fail-closed binary group', async () => {
       claimSignals: [],
       privacySignals: [],
       rightsSignals: [],
+      rightsStatus: 'not_reviewed',
+      rightsScope: [],
+      rightsEvidenceRef: [],
+      privacyStatus: 'not_reviewed',
+      claimReviewStatus: 'not_reviewed',
+      publishStatus: 'blocked',
+      publicRepoEligibility: 'not_reviewed',
     }],
   }, schema);
 
@@ -112,6 +120,40 @@ test('visual similarity schema requires a reviewed within-media decision', async
     }],
   }, schema);
 
+  assert.equal(result.valid, true);
+});
+
+test('owner decisions schema separates four rights axes from per-asset decisions', async () => {
+  const schema = await readSchema('asset-owner-decisions.schema.json');
+  const pending = { status: 'pending', evidenceRefs: [], notes: '' };
+  const result = validateAgainstSchema({
+    schema: 'munjanggun.assetOwnerDecisions.v1', version: '1.0', intakeId: 'INTAKE-20260904-01',
+    generatedAt: '2026-09-05T00:00:00.000Z', catalogSha256: 'd'.repeat(64), inheritancePolicy: 'global_answers_do_not_propagate_to_asset_decisions',
+    rightsDecisions: {
+      internalPreservation: pending, publicGitStorage: pending, externalReuse: pending, specialAssetRestrictions: pending,
+    },
+    assetDecisionCount: 1,
+    assetDecisions: [{
+      sha256: 'c'.repeat(64), contentId: 'CONTENT-1', needsEscalation: true, humanReviewDecision: 'pending', claimDecision: 'pending',
+      privacyDecision: 'pending', rightsDecision: 'pending', evidenceRefs: [], notes: '',
+    }],
+    escalationDecisionCount: 1,
+    escalationDecisions: [{
+      sha256: 'c'.repeat(64), contentId: 'CONTENT-1', humanReviewDecision: 'pending', claimDecision: 'pending',
+      privacyDecision: 'pending', rightsDecision: 'pending', evidenceRefs: [], notes: '',
+    }],
+  }, schema);
+  assert.equal(result.valid, true);
+});
+
+test('owner decision receipt binds one ledger to one catalog hash', async () => {
+  const schema = await readSchema('asset-owner-decision-receipt.schema.json');
+  const result = validateAgainstSchema({
+    schema: 'munjanggun.assetOwnerDecisionReceipt.v1', version: '1.0', intakeId: 'INTAKE-20260904-01',
+    sealedAt: '2026-09-05T00:00:00.000Z', catalogSha256: 'd'.repeat(64),
+    ledgerRef: 'owner-decisions.json', ledgerSha256: 'e'.repeat(64), globalDecisionStatus: 'pending',
+    assetDecisionCount: 407, escalationDecisionCount: 57,
+  }, schema);
   assert.equal(result.valid, true);
 });
 
