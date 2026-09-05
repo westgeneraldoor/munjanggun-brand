@@ -7,7 +7,17 @@ import { sha256File } from './asset-inventory.mjs';
 import { formatSchemaErrors, validateAgainstSchema } from './schema-validation.mjs';
 import { verifyTrustedOwnerSignature } from './asset-owner-trust.mjs';
 
-export async function verifyUseEvidenceAuthority({ catalog, catalogPath, registryPath, receiptPath, entry, purpose, channel, now = Date.now() }) {
+export async function verifyUseEvidenceAuthority({
+  catalog,
+  catalogPath,
+  registryPath,
+  receiptPath,
+  entry,
+  purpose,
+  channel,
+  now = Date.now(),
+  ownerSignatureVerifier = verifyTrustedOwnerSignature,
+}) {
   const [registry, receipt, registrySchema, receiptSchema, artifactSchema] = await Promise.all([
     readJson(registryPath), readJson(receiptPath),
     readJson(fileURLToPath(new URL('../../schemas/asset-use-evidence-registry.schema.json', import.meta.url))),
@@ -16,7 +26,7 @@ export async function verifyUseEvidenceAuthority({ catalog, catalogPath, registr
   ]);
   assertSchema(registry, registrySchema, 'use evidence registry');
   assertSchema(receipt, receiptSchema, 'use evidence receipt');
-  await verifyTrustedOwnerSignature(receipt, 'Use evidence receipt');
+  await ownerSignatureVerifier(receipt, 'Use evidence receipt');
   const catalogSha256 = await sha256File(catalogPath);
   if (registry.catalogSha256 !== catalogSha256 || receipt.catalogSha256 !== catalogSha256) throw new Error('Use evidence catalog SHA mismatch');
   if (registry.intakeId !== catalog.intakeId || receipt.intakeId !== catalog.intakeId) throw new Error('Use evidence intakeId mismatch');

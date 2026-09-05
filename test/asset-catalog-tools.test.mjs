@@ -1,15 +1,26 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { rmSync } from 'node:fs';
 import { execFile } from 'node:child_process';
 import { createHash, generateKeyPairSync, sign } from 'node:crypto';
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { promisify } from 'node:util';
+import { runAssetExtractContent } from '../scripts/assets-extract-content.mjs';
+import { verifyApprovalAuthority } from '../scripts/lib/asset-owner-approval.mjs';
 import { verifyTrustedOwnerSignature } from '../scripts/lib/asset-owner-trust.mjs';
+import { verifyUseEvidenceAuthority } from '../scripts/lib/asset-use-evidence.mjs';
 
 const execFileAsync = promisify(execFile);
 const repoRoot = resolve('.');
+const trustedTestRoot = resolve(tmpdir(), 'mg-catalog-tests');
+const fixtureRoots = new Set();
+process.once('exit', () => {
+  for (const root of fixtureRoots) {
+    try { rmSync(root, { recursive: true, force: true }); } catch {}
+  }
+});
 
 test('catalog search works and external extraction denies an unreviewed asset', async () => {
   const fixture = await createFixture();
@@ -32,7 +43,7 @@ test('internal audit requires exact per-gate acknowledgements and writes an atom
     '--expires-at', new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), '--acknowledge-no-publication',
   ];
   await assert.rejects(runExtract(fixture, base), /exact --override-gate acknowledgements/);
-  const result = await runExtract(fixture, [...base,
+  const output = await runTrustedTestExtract(fixture, [...base,
     '--override-gate', 'rightsStatus=not_reviewed',
     '--override-gate', 'rightsScope.external_reuse=absent',
     '--override-gate', 'rightsEvidenceRef=0',
@@ -40,7 +51,6 @@ test('internal audit requires exact per-gate acknowledgements and writes an atom
     '--override-gate', 'claimReviewStatus=not_reviewed',
     '--override-gate', 'publishStatus=blocked',
   ]);
-  const output = JSON.parse(result.stdout);
   const receipt = JSON.parse(await readFile(output.receiptPath, 'utf8'));
   assert.equal(receipt.extractionMode, 'internal_audit_override');
   assert.equal(receipt.externalUseAllowed, false);
@@ -157,8 +167,89 @@ test('owner signature verifier uses explicit test injection but production ignor
   await assert.rejects(verifyTrustedOwnerSignature({ ...document, assetDecisionCount: 999 }, 'Tampered owner receipt', fixture.trustConfigPath), /signature is invalid/);
 });
 
+test('isolated trusted verifier reaches and passes both approval and use-evidence chains', async () => {
+  const fixture = await createFixture({ approved: true });
+  const { approval, evidence } = await verifyFixtureAuthorities(fixture);
+  assert.equal(approval.assetDecisionBySha.get(fixture.sha256).rightsDecision, 'verified');
+  assert.deepEqual(evidence.resolvedEvidence.map((item) => item.evidenceId), ['RIGHTS-EV-TEST-001']);
+});
+
+test('isolated trusted verifier rejects a missing evidence artifact', async () => {
+  const fixture = await createFixture({ approved: true });
+  await rm(join(fixture.evidenceRoot, 'rights-evidence.json'));
+  await assert.rejects(verifyFixtureUseEvidence(fixture), /ENOENT/);
+});
+
+test('isolated trusted verifier rejects a tampered evidence artifact', async () => {
+  const fixture = await createFixture({ approved: true });
+  await writeFile(join(fixture.evidenceRoot, 'rights-evidence.json'), '{"tampered":true}\n');
+  await assert.rejects(verifyFixtureUseEvidence(fixture), /Use evidence artifact integrity mismatch/);
+});
+
+test('isolated trusted verifier rejects catalog tampering in both authority chains', async () => {
+  const fixture = await createFixture({ approved: true });
+  const catalog = JSON.parse(await readFile(fixture.catalogPath, 'utf8'));
+  catalog.entries[0].semanticSummary = 'tampered catalog summary';
+  await writeFile(fixture.catalogPath, `${JSON.stringify(catalog, null, 2)}\n`);
+  await assert.rejects(verifyFixtureApproval(fixture, catalog), /Owner decision catalog SHA mismatch/);
+  await assert.rejects(verifyFixtureUseEvidence(fixture, { catalog }), /Use evidence catalog SHA mismatch/);
+});
+
+test('isolated trusted verifier rejects ledger tampering after signature verification', async () => {
+  const fixture = await createFixture({ approved: true });
+  const ledger = JSON.parse(await readFile(fixture.approvalLedgerPath, 'utf8'));
+  ledger.assetDecisions[0].notes = 'tampered ledger note';
+  await writeFile(fixture.approvalLedgerPath, `${JSON.stringify(ledger, null, 2)}\n`);
+  await assert.rejects(verifyFixtureApproval(fixture), /Owner decision receipt ledger SHA mismatch/);
+});
+
+test('isolated trusted verifier rejects a use-evidence channel mismatch', async () => {
+  const fixture = await createFixture({ approved: true });
+  await assert.rejects(verifyFixtureUseEvidence(fixture, { channel: 'sns' }), /Use evidence scope\/channel mismatch/);
+});
+
+async function verifyFixtureAuthorities(fixture) {
+  const catalog = JSON.parse(await readFile(fixture.catalogPath, 'utf8'));
+  const [approval, evidence] = await Promise.all([
+    verifyFixtureApproval(fixture, catalog),
+    verifyFixtureUseEvidence(fixture, { catalog }),
+  ]);
+  return { approval, evidence };
+}
+
+async function verifyFixtureApproval(fixture, catalog = null) {
+  const resolvedCatalog = catalog ?? JSON.parse(await readFile(fixture.catalogPath, 'utf8'));
+  return verifyApprovalAuthority({
+    catalog: resolvedCatalog,
+    catalogPath: fixture.catalogPath,
+    ledgerPath: fixture.approvalLedgerPath,
+    receiptPath: fixture.approvalReceiptPath,
+    useEvidenceReceiptPath: fixture.useEvidenceReceiptPath,
+    ownerSignatureVerifier: testOwnerSignatureVerifier(fixture),
+  });
+}
+
+async function verifyFixtureUseEvidence(fixture, options = {}) {
+  const catalog = options.catalog ?? JSON.parse(await readFile(fixture.catalogPath, 'utf8'));
+  return verifyUseEvidenceAuthority({
+    catalog,
+    catalogPath: fixture.catalogPath,
+    registryPath: fixture.useEvidenceRegistryPath,
+    receiptPath: fixture.useEvidenceReceiptPath,
+    entry: catalog.entries[0],
+    purpose: 'external-publication',
+    channel: options.channel ?? 'blog',
+    ownerSignatureVerifier: testOwnerSignatureVerifier(fixture),
+  });
+}
+
+function testOwnerSignatureVerifier(fixture) {
+  return (document, label) => verifyTrustedOwnerSignature(document, label, fixture.trustConfigPath);
+}
+
 async function createFixture(options = {}) {
-  const root = join(tmpdir(), `mg-catalog-${Date.now()}-${Math.random().toString(16).slice(2)}`);
+  const root = join(trustedTestRoot, `mg-catalog-${Date.now()}-${Math.random().toString(16).slice(2)}`);
+  fixtureRoots.add(root);
   const objectRoot = join(root, 'objects');
   const outputRoot = join(root, 'output');
   const evidenceRoot = join(root, 'evidence');
@@ -295,6 +386,22 @@ function runExtract(fixture, extras) {
     '--channel', 'blog',
     '--content-id', fixture.entry.contentId, ...extras,
   ], { env: { ...process.env, MUNJANGGUN_TEST_OWNER_TRUST_CONFIG: fixture.trustConfigPath } });
+}
+
+function runTrustedTestExtract(fixture, extras) {
+  return runAssetExtractContent([
+    '--catalog', fixture.catalogPath,
+    '--object-root', fixture.objectRoot,
+    '--output-root', fixture.outputRoot,
+    '--evidence-receipt', fixture.evidenceReceiptPath,
+    '--approval-ledger', fixture.approvalLedgerPath,
+    '--approval-receipt', fixture.approvalReceiptPath,
+    '--use-evidence-registry', fixture.useEvidenceRegistryPath,
+    '--use-evidence-receipt', fixture.useEvidenceReceiptPath,
+    '--channel', 'blog',
+    '--content-id', fixture.entry.contentId,
+    ...extras,
+  ], { trustedPrivateRoots: [fixture.root], emit: () => {} });
 }
 
 function hash(value) { return createHash('sha256').update(value).digest('hex'); }

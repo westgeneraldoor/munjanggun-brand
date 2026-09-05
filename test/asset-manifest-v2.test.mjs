@@ -9,6 +9,8 @@ import { tmpdir } from 'node:os';
 import { promisify } from 'node:util';
 import { readAndValidateManifestV2 } from '../scripts/lib/asset-manifest-v2.mjs';
 import { resolveAssetObject, verifyManifestObjects } from '../scripts/lib/asset-resolver.mjs';
+import { runAssetExtract } from '../scripts/assets-extract.mjs';
+import { runAssetsMaterialize } from '../scripts/assets-materialize.mjs';
 
 const execFileAsync = promisify(execFile);
 const repoRoot = resolve('.');
@@ -77,10 +79,7 @@ test('resolver, extract, verify, and materialize CLIs preserve compatibility pat
     '--output', extracted,
   ]), /internal-recovery only/);
   await assert.rejects(readFile(extracted), { code: 'ENOENT' });
-  await execFileAsync(process.execPath, [
-    join(repoRoot, 'scripts/assets-extract.mjs'), ...common, ...recovery,
-    '--asset-id', 'ASSET-TEST-001', '--output', extracted,
-  ]);
+  await runAssetExtract([...common, ...recovery, '--asset-id', 'ASSET-TEST-001', '--output', extracted], testDependencies(fixture));
   assert.equal(await readFile(extracted, 'utf8'), 'image-data');
   const extractReceipt = JSON.parse(await readFile(`${extracted}.receipt.json`, 'utf8'));
   assert.equal(extractReceipt.assets[0].publishStatus, undefined);
@@ -97,9 +96,7 @@ test('resolver, extract, verify, and materialize CLIs preserve compatibility pat
     join(repoRoot, 'scripts/assets-materialize.mjs'),
     ...common, '--output-root', materialized,
   ]), /internal-recovery only/);
-  await execFileAsync(process.execPath, [
-    join(repoRoot, 'scripts/assets-materialize.mjs'), ...common, ...recovery, '--output-root', materialized,
-  ]);
+  await runAssetsMaterialize([...common, ...recovery, '--output-root', materialized], testDependencies(fixture));
   assert.equal(await readFile(join(materialized, '문장군상품', '테스트', '001.jpg'), 'utf8'), 'image-data');
   const materializeReceipt = JSON.parse(await readFile(join(materialized, '_asset-recovery-receipt.json'), 'utf8'));
   assert.equal(materializeReceipt.assetCount, 1);
@@ -115,12 +112,32 @@ test('compatibility copy tools reject external use and private-root escape', asy
     '--destination-class', 'local-publication-staging',
   ]), /assets:extract-content/);
   const outside = join(tmpdir(), `mg-outside-${Date.now()}`, 'file.jpg');
-  await assert.rejects(execFileAsync(process.execPath, [
-    join(repoRoot, 'scripts/assets-extract.mjs'), ...common, '--asset-id', 'ASSET-TEST-001', '--output', outside,
+  await assert.rejects(runAssetExtract([
+    ...common, '--asset-id', 'ASSET-TEST-001', '--output', outside,
     '--purpose', 'internal-recovery', '--destination-class', 'private-recovery', '--approved-private-root', fixture.root,
     '--recovery-ref', 'RECOVERY-TEST-ESCAPE', '--requested-by', 'test-operator',
     '--reason', '승인된 비공개 루트를 벗어나는지 확인하는 테스트입니다.', '--acknowledge-no-publication',
-  ]), /must stay under/);
+  ], testDependencies(fixture)), /must stay under/);
+});
+
+test('production recovery CLI ignores environment and argument trust-root overrides', async () => {
+  const fixture = await makeFixture();
+  const output = join(fixture.root, 'spoofed', 'asset.jpg');
+  const base = [
+    '--manifest', fixture.manifestPath, '--object-root', fixture.objectRoot,
+    '--asset-id', 'ASSET-TEST-001', '--output', output,
+    '--purpose', 'internal-recovery', '--destination-class', 'private-recovery',
+    '--approved-private-root', fixture.root, '--recovery-ref', 'RECOVERY-TEST-SPOOF',
+    '--requested-by', 'test-operator', '--reason', '임의 신뢰 루트 주입을 차단하는 운영 CLI 테스트입니다.',
+    '--acknowledge-no-publication',
+  ];
+  await assert.rejects(execFileAsync(process.execPath, [
+    join(repoRoot, 'scripts/assets-extract.mjs'), ...base,
+  ], { env: { ...process.env, MUNJANGGUN_TEST_PRIVATE_ROOT: fixture.root } }), /not in the trusted private-root policy/);
+  await assert.rejects(execFileAsync(process.execPath, [
+    join(repoRoot, 'scripts/assets-extract.mjs'), ...base, '--trusted-private-root', fixture.root,
+  ]), /Unknown argument --trusted-private-root/);
+  await assert.rejects(readFile(output), { code: 'ENOENT' });
 });
 
 test('recovery copy rejects flag-as-value and rolls back if receipt commit fails', async () => {
@@ -133,18 +150,17 @@ test('recovery copy rejects flag-as-value and rolls back if receipt commit fails
     '--recovery-ref', 'RECOVERY-TEST-STRICT', '--requested-by', 'test-operator', '--reason', '--acknowledge-no-publication',
   ]), /Missing value for --reason/);
   await mkdir(`${output}.receipt.json`, { recursive: true });
-  await assert.rejects(execFileAsync(process.execPath, [
-    join(repoRoot, 'scripts/assets-extract.mjs'), ...common, '--output', output,
+  await assert.rejects(runAssetExtract([
+    ...common, '--output', output,
     '--purpose', 'internal-recovery', '--destination-class', 'private-recovery', '--approved-private-root', fixture.root,
     '--recovery-ref', 'RECOVERY-TEST-ROLLBACK', '--requested-by', 'test-operator',
     '--reason', '영수증 확정 실패 시 자산을 되돌리는 회귀 테스트입니다.', '--acknowledge-no-publication',
-  ]));
+  ], testDependencies(fixture)));
   await assert.rejects(readFile(output), { code: 'ENOENT' });
 });
 
 async function makeFixture() {
-  const trustedTestRoot = resolve(repoRoot, '..', '문장군_브랜드_private', 'test-fixtures');
-  const root = join(trustedTestRoot, `mg-v2-${Date.now()}-${Math.random().toString(16).slice(2)}`);
+  const root = join(tmpdir(), `mg-v2-${Date.now()}-${Math.random().toString(16).slice(2)}`);
   const objectRoot = join(root, 'objects');
   const body = 'image-data';
   const hash = createHash('sha256').update(body).digest('hex');
@@ -212,4 +228,8 @@ async function makeFixture() {
   await writeFile(manifestPath, JSON.stringify(manifest, null, 2));
   process.once('exit', () => { try { rmSync(root, { recursive: true, force: true }); } catch {} });
   return { root, objectRoot, objectPath, manifestPath, hash, fileName: basename(objectPath) };
+}
+
+function testDependencies(fixture) {
+  return { trustedPrivateRoots: [fixture.root], emit: () => {} };
 }

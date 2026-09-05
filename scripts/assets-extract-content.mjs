@@ -9,10 +9,12 @@ import { resolveAssetObject } from './lib/asset-resolver.mjs';
 import { resolveContainedPath } from './lib/asset-paths.mjs';
 import { canonicalExtensionForMediaType } from './lib/media-metadata.mjs';
 import { formatSchemaErrors, validateAgainstSchema } from './lib/schema-validation.mjs';
+import { verifyApprovalAuthority } from './lib/asset-owner-approval.mjs';
 import { verifyUseEvidenceAuthority } from './lib/asset-use-evidence.mjs';
-import { verifyTrustedOwnerSignature } from './lib/asset-owner-trust.mjs';
+import { assertTrustedPrivateOutput } from './lib/asset-transfer-policy.mjs';
 
-const args = parseArgs(process.argv.slice(2));
+export async function runAssetExtractContent(argv, { trustedPrivateRoots, emit = console.log } = {}) {
+const args = parseArgs(argv);
 const catalogPath = resolve(requiredValue(args, '--catalog'));
 const objectRoot = resolve(requiredValue(args, '--object-root'));
 const outputRoot = resolve(requiredValue(args, '--output-root'));
@@ -34,7 +36,13 @@ assertSchema(catalog, catalogSchema, 'catalog');
 assertSchema(evidenceReceipt, evidenceReceiptSchema, 'review evidence receipt');
 validateCatalogInvariants(catalog);
 await verifyReviewEvidenceAuthority({ catalog, catalogPath, evidenceReceipt, evidenceReceiptPath });
-const approvalAuthority = purpose === 'internal-audit' ? null : await verifyApprovalAuthority(args, catalog, catalogPath);
+const approvalAuthority = purpose === 'internal-audit' ? null : await verifyApprovalAuthority({
+  catalog,
+  catalogPath,
+  ledgerPath: resolve(requiredValue(args, '--approval-ledger')),
+  receiptPath: resolve(requiredValue(args, '--approval-receipt')),
+  useEvidenceReceiptPath: resolve(requiredValue(args, '--use-evidence-receipt')),
+});
 
 const matches = catalog.entries.filter((item) => shaArg ? item.sha256 === shaArg : item.contentId === contentIdArg);
 if (matches.length !== 1) throw new Error(`Catalog selector must match exactly one entry; found ${matches.length}`);
@@ -61,7 +69,7 @@ const objectPath = await resolveAssetObject(objectRoot, entry);
 if (canonicalExtensionForMediaType(entry.mediaType) !== extname(objectPath).toLowerCase()) {
   throw new Error('Object extension does not match catalog mediaType');
 }
-await assertOutputPolicy({ outputRoot, objectRoot, purpose, args });
+await assertOutputPolicy({ outputRoot, objectRoot, purpose, args, trustedPrivateRoots });
 
 const extractionId = `EXTRACT-${new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0, 14)}-${randomUUID().slice(0, 8).toUpperCase()}`;
 const partialBundle = resolveContainedPath(outputRoot, `.${extractionId}.partial`, 'partial extraction bundle');
@@ -120,10 +128,17 @@ try {
   if (await sha256File(catalogPath) !== catalogSha256) throw new Error('Catalog changed during extraction');
   if (await sha256File(evidenceReceiptPath) !== evidenceReceiptSha256) throw new Error('Evidence receipt changed during extraction');
   await rename(partialBundle, finalBundle);
-  console.log(JSON.stringify({ extractionId, result: 'success', receiptPath, bundlePath: finalBundle }, null, 2));
+  const result = { extractionId, result: 'success', receiptPath, bundlePath: finalBundle };
+  emit(JSON.stringify(result, null, 2));
+  return result;
 } catch (error) {
   await rm(partialBundle, { recursive: true, force: true });
   throw error;
+}
+}
+
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  await runAssetExtractContent(process.argv.slice(2));
 }
 
 function evaluateReleaseGate(entry, purpose, approvalAuthority, useEvidenceAuthority) {
@@ -165,40 +180,6 @@ function evaluateReleaseGate(entry, purpose, approvalAuthority, useEvidenceAutho
   }
   if (purpose !== 'internal-audit') checks.push(check('useEvidenceAuthority', useEvidenceAuthority ? 'verified' : 'missing', 'verified', Boolean(useEvidenceAuthority)));
   return { checks, failures: checks.filter((item) => !item.passed), allowed: checks.every((item) => item.passed) };
-}
-
-async function verifyApprovalAuthority(args, catalog, catalogPath) {
-  const ledgerPath = resolve(requiredValue(args, '--approval-ledger'));
-  const receiptPath = resolve(requiredValue(args, '--approval-receipt'));
-  const [ledger, receipt, ledgerSchema, receiptSchema] = await Promise.all([
-    readJson(ledgerPath), readJson(receiptPath),
-    readJson(fileURLToPath(new URL('../schemas/asset-owner-decisions.schema.json', import.meta.url))),
-    readJson(fileURLToPath(new URL('../schemas/asset-owner-decision-receipt.schema.json', import.meta.url))),
-  ]);
-  assertSchema(ledger, ledgerSchema, 'owner decision ledger');
-  assertSchema(receipt, receiptSchema, 'owner decision receipt');
-  await verifyTrustedOwnerSignature(receipt, 'Owner decision receipt');
-  const catalogSha256 = await sha256File(catalogPath);
-  const ledgerSha256 = await sha256File(ledgerPath);
-  const receiptSha256 = await sha256File(receiptPath);
-  if (resolve(dirname(receiptPath), receipt.ledgerRef) !== ledgerPath) throw new Error('Owner decision receipt ledger path mismatch');
-  if (receipt.ledgerSha256 !== ledgerSha256) throw new Error('Owner decision receipt ledger SHA mismatch');
-  if (ledger.catalogSha256 !== catalogSha256 || receipt.catalogSha256 !== catalogSha256) throw new Error('Owner decision catalog SHA mismatch');
-  const useEvidenceReceiptSha256 = await sha256File(resolve(requiredValue(args, '--use-evidence-receipt')));
-  if (ledger.useEvidenceReceiptSha256 !== useEvidenceReceiptSha256 || receipt.useEvidenceReceiptSha256 !== useEvidenceReceiptSha256) throw new Error('Owner decision use evidence receipt SHA mismatch');
-  if (ledger.intakeId !== catalog.intakeId || receipt.intakeId !== catalog.intakeId) throw new Error('Owner decision intakeId mismatch');
-  if (ledger.assetDecisionCount !== ledger.assetDecisions.length || ledger.assetDecisionCount !== catalog.entries.length) throw new Error('Owner asset decision count mismatch');
-  if (receipt.assetDecisionCount !== ledger.assetDecisionCount || receipt.escalationDecisionCount !== ledger.escalationDecisionCount) throw new Error('Owner decision receipt count mismatch');
-  const assetDecisionBySha = new Map();
-  const catalogBySha = new Map(catalog.entries.map((entry) => [entry.sha256, entry]));
-  for (const decision of ledger.assetDecisions) {
-    if (assetDecisionBySha.has(decision.sha256)) throw new Error(`Duplicate owner asset decision ${decision.sha256}`);
-    const catalogEntry = catalogBySha.get(decision.sha256);
-    if (!catalogEntry || catalogEntry.contentId !== decision.contentId) throw new Error(`Owner asset decision target mismatch ${decision.sha256}`);
-    assetDecisionBySha.set(decision.sha256, decision);
-  }
-  if (assetDecisionBySha.size !== catalogBySha.size) throw new Error('Owner asset decision coverage mismatch');
-  return { ledger, receipt, ledgerPath, receiptPath, ledgerSha256, receiptSha256, assetDecisionBySha };
 }
 
 function validateInternalAuditOverride(args, outputRoot, releaseGate, acknowledgements) {
@@ -274,11 +255,16 @@ function validateCatalogInvariants(catalog) {
   }
 }
 
-async function assertOutputPolicy({ outputRoot, objectRoot, purpose, args }) {
+async function assertOutputPolicy({ outputRoot, objectRoot, purpose, args, trustedPrivateRoots }) {
   const objectReal = await realpath(objectRoot);
   if (isContained(objectReal, outputRoot) || isContained(outputRoot, objectReal)) throw new Error('Output root and object root must be separate');
   if (purpose === 'internal-audit') {
-    await assertContainedWithoutSymlinks(resolve(requiredValue(args, '--approved-private-root')), outputRoot, 'Internal audit output');
+    await assertTrustedPrivateOutput({
+      approvedPrivateRoot: requiredValue(args, '--approved-private-root'),
+      outputPath: outputRoot,
+      objectRoot,
+      outputLabel: 'Internal audit output',
+    }, trustedPrivateRoots === undefined ? undefined : { trustedPrivateRoots });
   }
   if (purpose === 'public-repository') {
     const publicRoot = resolve(requiredValue(args, '--approved-public-root'));
