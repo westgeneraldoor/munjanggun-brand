@@ -1,0 +1,93 @@
+# 2026-09-04 상품 자산 intake 상태
+
+> intake: `INTAKE-20260904-01`
+>
+> 상태: 저장·복구·검토 증거 기술 게이트 통과 / 외부 발행 및 canonical 승격 차단
+>
+> 기준일: 2026-09-04
+
+## 1. 보존과 실물 구조
+
+- 받은 원본 1,158파일은 사용자 지시에 따라 Z 비공개 복구본 한 곳에만 보존한다.
+- 운영 대상은 1,154파일이며 `Thumbs.db` 4개는 `ignored_system_cache`로 기록한다.
+- 로컬 작업공간에는 기존+신규 합집합의 고유 바이너리 450개, 351,109,789바이트만 object로 둔다.
+- candidate는 manifest, content catalog, URL 검토, 비교·완료 보고서 등 메타데이터만 보존한다.
+- 검토 증빙 148파일은 Z의 `review-evidence`에 봉인하고 파일별 크기·SHA-256과 전체 tree hash를 receipt로 고정한다.
+- 원본·object는 불변이다. 수정본은 덮어쓰지 않고 새 SHA로 추가한다.
+- 공개 Git에는 사용권과 공개 저장 권리가 확인되지 않은 바이너리를 넣지 않는다.
+- 기존 `문장군상품/**`와 `assets/product-thumbnails/**`에는 Git LFS 규칙을 적용하지 않는다. 향후 공개 저장 권리가 확인된 자산 전용 경로가 확정되면 그 경로만 별도로 지정한다.
+- 2026-09-05 재검증 후 재생성 가능한 Z 복원시험본 1,134파일·1,003,172,859바이트와 Git LFS 로컬 캐시 408개·341,237,015바이트를 제거했다. Z `raw`와 로컬 object 450개는 유지한다.
+- 2026-09-05 `source_retired` 전환 후 로컬 `문장군상품/신규` 1,158파일·1,006,052,027바이트를 제거했다. 완료 검사는 Z `raw` 1,158파일을 receipt와 매번 전수 비교하고 로컬 object 450개를 별도로 검증한다.
+
+## 2. exact 중복과 경로 분류
+
+| 범위 | 경로 | SHA 그룹 |
+| --- | ---: | ---: |
+| 기존 | 879 | 340 |
+| 신규 | 1,134 | 407 |
+| 기존+신규 | 2,013 | 450 |
+| 양쪽 공통 | 1,606 | 297 |
+| 기존 전용 | 124 | 43 |
+| 신규 전용 | 283 | 110 |
+
+신규 1,134경로의 canonical 비교:
+
+| 분류 | 경로 수 | 현재 처리 |
+| --- | ---: | --- |
+| 같은 경로·같은 바이너리 | 715 | 변경 없음 후보 |
+| 같은 경로 교체 | 99 | 사장 승인표 대상 |
+| 새 경로지만 기존 어딘가와 완전 동일 | 14 | 동일 object 참조 후보 |
+| 기존 상품군의 실질 신규 경로 | 109 | 추가 후보 |
+| 기존 canonical 상품 폴더가 없는 3개 묶음 | 197 | 신규 상품 후보 |
+
+## 3. 이미지·GIF 분석
+
+- 신규 고유 바이너리 407개는 모두 의미·문구·claim·개인정보·권리 신호를 검토했다.
+- `reviewed` 350개, `needs_escalation` 57개다.
+- claim 신호가 있는 그룹 174개, 개인정보 신호가 있는 그룹 15개다.
+- 고유 GIF 72개는 전체 루프를 검토했다. 고유 기준 6,162프레임·411,690ms이고 252개 논리 경로 가중 기준 19,431프레임·1,340,260ms다.
+- 기존 전용까지 포함해 정지 이미지 375개 70,125쌍을 비교했고, GIF 75개의 후보쌍 67개를 animation-level signature와 스토리보드로 판정했다.
+- 최종 결과는 450 SHA → 443 visual group, 미판정 0이다. 정지 이미지와 GIF는 대체 가능한 파일 형식이 아니므로 비교 범위는 `within_media_only`다.
+
+## 4. URL과 발행 상태
+
+- `.url` 13건은 모두 접근 가능했고 폴더의 상품과 연결되는 제목을 확인했다.
+- URL 13건은 원본 `.url` SHA, 확인 시각·방법·제목·상품 연결 상태를 URL 확인 영수증으로 연결했다.
+- URL 접근 확인은 가격·할인·혜택·A/S·스펙 claim 승인이 아니다.
+- 신규 1,134경로는 모두 `rightsStatus: not_reviewed`, `publishStatus: blocked`, `publicRepoEligibility: not_reviewed`다.
+- 권리 미확인인데 외부 발행 가능으로 표시된 자산은 0개다.
+
+## 5. 현재 게이트
+
+현재 재감사 기준 파일은 Z 비공개 보관소의 `review-evidence/receipt.json`, `candidate-v2/reviewed-content-catalog-v5.json`, `visual-similarity-map-v2.json`, `url-review-v2.json`, `use-evidence-registry-v2.json`, `use-evidence-receipt-v2.json`, `completion-report-v13.json`, `OWNER_APPROVAL_REPORT-v9.md`, `owner-approval-input-v1.json`, `owner-decisions-v8.json`, `owner-decisions-receipt-v5.json`이다. 이전 번호 파일은 과정 기록이며 현재 판정에 사용하지 않는다.
+
+| 게이트 | 결과 |
+| --- | --- |
+| receipt 1,154 운영 대상 | 통과 |
+| manifest 1,134경로 | 통과 |
+| 신규 407 SHA 분석 | 통과 |
+| 기존 포함 object 450개 검증 | 통과 |
+| GIF 72개·252경로 연결 | 통과 |
+| 시각 유사군 미판정 | 0, 통과 |
+| URL 13건 접근·상품 연결 | 통과 |
+| 권리 미확인 자산의 발행 가능 건수 | 0, 통과 |
+| 원본↔Z receipt 불일치 | 0, 통과 |
+| 로컬 intake source | `source_retired`, Z `raw` live 검증으로 전환 완료 |
+| 봉인 검토 증빙 | 148/148 파일 SHA 검증, 통과 |
+| 콘텐츠 대상 증빙 | 814개 참조, 대상 SHA 407개 연결, 통과 |
+| 시각군 대상 증빙 | 450개 참조, 대상 SHA 450개 연결, 통과 |
+| URL 확인 영수증 | 13/13 연결, 통과 |
+| 사장 결정 원장 | catalog SHA 고정, 407/407 자산 결정·57/57 상향 검토 연결, 현재 전부 pending |
+| 권리·claim 실증거 | registry/receipt는 catalog에 결박, 현재 등록 0건·신뢰된 사장 서명키 0개이므로 외부 사용 차단 |
+| 외부 발행 | 차단 |
+| canonical 승격 | 미시작 |
+
+로컬 `문장군상품/신규`는 Z/object 전환과 삭제 후 `completion-report-v13.json` 재검증까지 완료했다. 실행 코드에는 해당 로컬 경로의 직접 소비자가 없다.
+
+모든 복사 도구는 기본 거부 방식이다. 호환용 `assets:extract`·`assets:materialize`는 명시적 비공개 복구 계약과 SHA 영수증이 있어야 동작하며 외부용으로 사용할 수 없다. 외부용 `assets:extract-content`는 봉인 검토 증거, 실제 권리·claim 증거 파일의 경로·크기·SHA·대상·범위·채널·유효기간, 개인정보, 발행 상태와 catalog SHA에 묶인 사장 결정 원장·영수증이 모두 통과해야 한다. 내부 감사 예외는 비공개 경로, 담당자, 사유, 만료일, 발행 금지 확인과 실패 게이트별 정확한 인정을 요구하고 자산과 영수증을 한 묶음으로 남긴다.
+
+다음 단계는 `OWNER_APPROVAL_REPORT-v9.md`와 `owner-approval-input-v1.json`을 기준으로 네 가지 독립 권리 결정(내부 보존권, 공개 Git 저장권, 외부 재사용권, 특수 자산 제한)과 57개 자산별 상향 검토, 174개 claim 신호, 15개 개인정보 신호에 대한 사장 판단을 기록하는 것이다. 블로그 작성자는 `BLOG_ASSET_PICKER.md` 절차로 후보를 찾을 수 있지만, 승인 전 후보는 `review_only`이고 외부 추출은 계속 차단된다. 포괄 답변은 개별 자산 결정에 자동 상속하지 않는다.
+
+```text
+소스 보존 여부 ≠ 외부 발행 가능 여부
+```

@@ -1,21 +1,28 @@
 #!/usr/bin/env node
 import { relative } from 'node:path';
 import {
-  findFiles,
   readJson,
   validateManifest,
 } from './lib/brand-validation-core.mjs';
+import { readAndValidateManifestV2 } from './lib/asset-manifest-v2.mjs';
+import { findAuthoritativeManifestPaths } from './lib/manifest-discovery.mjs';
 
 const rootDir = getArg('--root') ?? process.cwd();
-const manifestPaths = await findFiles(rootDir, (path) => path.endsWith('asset-manifest.json'));
+const manifestPaths = await findAuthoritativeManifestPaths(rootDir);
 const findings = [];
 
 for (const manifestPath of manifestPaths) {
   const manifest = await readJson(manifestPath);
-  findings.push(...await validateManifest(manifest, {
-    rootDir,
-    manifestPath: relative(rootDir, manifestPath),
-  }));
+  const manifestLabel = relative(rootDir, manifestPath);
+  if (manifest.schema === 'munjanggun.productDetailAssets.v2') {
+    const result = await readAndValidateManifestV2(manifestPath);
+    findings.push(...result.findings.map((finding) => ({ ...finding, location: manifestLabel })));
+  } else {
+    findings.push(...await validateManifest(manifest, {
+      rootDir,
+      manifestPath: manifestLabel,
+    }));
+  }
 }
 
 if (findings.length > 0) {

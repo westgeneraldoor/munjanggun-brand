@@ -1,8 +1,8 @@
 # 문장군 중앙 브랜드 문서
 
-> 버전: v4.6
-> 최종 업데이트: 2026-09-04
-> 변경 요약: 중앙 시각 디자인 시스템을 폐기하고 사실·현장·근거·원료·상품 자산 관리 저장소로 범위를 재정의했다.
+> 버전: v5.0
+> 최종 업데이트: 2026-09-05
+> 변경 요약: 신규 상품 자산을 Z 원본·중복 제거 object·검토 메타데이터 구조로 전환하고, 사장 승인표와 블로그 안전 검색 절차를 추가했다.
 
 이 저장소는 문장군의 브랜드 사실, 현장 판단, 변동 claim 근거, 공통 원료, 상품·자산 위키를 관리한다.
 
@@ -26,6 +26,7 @@ npm run report:assets
 | 공통 브랜드·카피 | `BRAND_CONTEXT.md`, `FIELD_JUDGMENT_RULES.md` |
 | 변동 claim | `EVIDENCE_REGISTER.md`, `OPEN_QUESTIONS_REGISTER.md` |
 | 상품 설명·이미지·GIF·썸네일 | `BRAND_WIKI_ARCHITECTURE.md`, `SOURCE_REGISTRY.md`, `PRODUCT_WIKI_INDEX.md`, 상품 위키, `ASSET_SEMANTIC_INDEX.md`, manifest |
+| 2026-09-04 신규 자산 intake | `ASSET_INTAKE_2026-09-04.md` |
 | 고객·현장·리뷰·FAQ·카피 원료 | `BRAND_MATERIAL_INDEX.md`와 필요한 원료 은행 문서 |
 | 프로젝트 연결 | `PROJECT_ADAPTERS.md`, `PROMPTS.md` |
 
@@ -41,17 +42,34 @@ npm run report:assets
 | `SOURCE_REGISTRY.md` | 자료 유입 소스 등록부 |
 | `PRODUCT_WIKI_INDEX.md` | 상품별 위키 입구 |
 | `ASSET_SEMANTIC_INDEX.md` | 이미지/GIF 의미와 사용 상태 |
+| `BLOG_ASSET_PICKER.md` | 블로그용 다축 자산 검색·선택·안전 추출 절차 |
 | `BRAND_MATERIAL_INDEX.md` | 공통 원료 은행 입구 |
 | `RAW_MATERIAL_INTAKE_PROTOCOL.md` | 프로젝트 자료의 중앙 승격 절차 |
 | `PROJECT_ADAPTERS.md` | 중앙과 프로젝트 책임 분리 |
 | `PROMPTS.md` | 프로젝트 총괄 전달 프롬프트 |
 | `CHANGELOG.md` | 변경 이력 |
+| `ASSET_INTAKE_2026-09-04.md` | 신규 10개 상품 묶음의 보존·중복·검토·승격 게이트 |
 
 ## 상품·자산 운영
 
 `문장군상품/`과 `assets/product-thumbnails/`는 실제 상품 설명과 증거 자산이다. 상품의 색상·유리·컬렉션 정보는 브랜드 시각 디자인이 아니라 고객 선택과 상품 사양 자료이므로 유지한다.
 
 공식 제작·검토 자산은 `privacyStatus: official_reviewed`로 관리한다. 단 가격, 이벤트, 월 납입, 스펙, 옵션, 보증, 일정 등 변동 문구는 원본 맥락 밖에서 재사용하기 전에 최신 근거를 확인한다.
+
+대량 intake는 원본 복구본, 논리 경로, 단일 object, 발행 상태를 분리한다. 검색은 상태를 바꾸지 않는다. 외부용 추출은 봉인 검토 증거와 권리·개인정보·claim·발행 게이트를 모두 통과해야 하며, 결과 자산과 추출 영수증을 한 묶음으로 만든다.
+
+```bash
+npm run assets:search -- --catalog <reviewed-content-catalog.json> --query "검색어"
+npm run assets:pick-for-blog -- --catalog <reviewed-content-catalog.json> --product "3연동중문" --installation-scene "현관" --color "베이지" --design "모던" --consultation-topic "좁은 공간"
+npm run assets:validate-approval-input -- --catalog <reviewed-content-catalog.json> --input <owner-approval-input.json>
+npm run assets:extract-content -- --catalog <reviewed-content-catalog.json> --evidence-receipt <review-evidence/receipt.json> --approval-ledger <owner-decisions.json> --approval-receipt <owner-decisions-receipt.json> --use-evidence-registry <use-evidence-registry.json> --use-evidence-receipt <use-evidence-receipt.json> --channel blog --object-root <private-object-root> --output-root <output> --content-id <CONTENT-ID> --purpose external-publication --destination-class local-publication-staging
+```
+
+블로그 후보 검색과 선택은 `BLOG_ASSET_PICKER.md`를 따른다. 검색 결과의 `ready_for_guarded_extraction_request`는 추출 승인이 아니라 다음 검증을 요청할 수 있다는 뜻이다. 실제 사용 가능 여부는 `assets:extract-content`가 봉인 증거와 사장 승인을 다시 검증해 성공한 경우에만 확정된다.
+
+`assets:extract`와 `assets:materialize`는 외부 발행 도구가 아니다. 두 명령은 `internal-recovery/private-recovery`, 정책에 등록된 비공개 루트, 복구 참조, 요청자, 사유, 발행 금지 확인을 모두 요구하고 복원 영수증을 남긴다. 외부용 자산은 실제 권리·claim 증거 파일이 봉인되고 `config/asset-owner-trust.json`에 등록된 사장 공개키로 use-evidence 및 owner-decision 영수증이 각각 서명된 경우에만 `assets:extract-content`로 추출한다. 현재 신뢰키 목록은 비어 있으므로 사장 키 등록 전 외부 추출은 기술적으로 차단된다.
+
+권리 미검토 자산은 기본 거부된다. 외부용 추출은 카탈로그 SHA와 407개 자산 결정을 고정한 사장 결정 원장·영수증도 검증한다. 내부 감사 예외는 비공개 승인 루트, 감사 참조, 담당자, 사유, 만료일, 발행 금지 확인과 실패 게이트별 정확한 `--override-gate`가 모두 있어야 한다.
 
 ## 민감 정보
 

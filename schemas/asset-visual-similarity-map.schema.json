@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/westgeneraldoor/munjanggun-brand/schemas/asset-visual-similarity-map.schema.json",
+  "title": "Munjanggun Cross-corpus Visual Similarity Map",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "version", "intakeId", "generatedAt", "comparisonPolicy",
+    "logicalPathCount", "binaryGroupCount", "visualGroupCount", "unjudgedCount", "entries"
+  ],
+  "properties": {
+    "schema": { "const": "munjanggun.assetVisualSimilarityMap.v1" },
+    "version": { "const": "1.0" },
+    "intakeId": { "type": "string", "pattern": "^INTAKE-[0-9]{8}-[0-9]{2}$" },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "comparisonPolicy": { "const": "within_media_only" },
+    "logicalPathCount": { "type": "integer", "minimum": 0 },
+    "binaryGroupCount": { "type": "integer", "minimum": 0 },
+    "visualGroupCount": { "type": "integer", "minimum": 0 },
+    "unjudgedCount": { "type": "integer", "const": 0 },
+    "reviewEvidenceReceiptRef": { "type": "string", "minLength": 1 },
+    "reviewEvidenceReceiptSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "binaryGroupId", "sha256", "mediaType", "originScope", "sourcePathCount",
+          "visualGroupId", "semanticGroupId", "visualDecision", "comparisonScope",
+          "comparisonMethod", "humanReviewStatus", "humanReviewEvidence"
+        ],
+        "properties": {
+          "binaryGroupId": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+          "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+          "mediaType": { "enum": ["image/jpeg", "image/png", "image/gif", "image/webp"] },
+          "originScope": { "enum": ["canonical_only", "shared", "intake_only"] },
+          "sourcePathCount": { "type": "integer", "minimum": 1 },
+          "visualGroupId": { "type": "string", "minLength": 1 },
+          "semanticGroupId": { "type": ["string", "null"] },
+          "visualDecision": { "enum": ["reviewed_singleton", "human_confirmed_equivalent_group"] },
+          "comparisonScope": { "const": "within_media_only" },
+          "comparisonMethod": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+          "humanReviewStatus": { "const": "reviewed" },
+          "humanReviewEvidence": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/westgeneraldoor/munjanggun-brand/schemas/review-evidence-receipt.schema.json",
+  "title": "Munjanggun Review Evidence Receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "version", "intakeId", "sealedAt", "fileCount", "treeHash", "entries"],
+  "properties": {
+    "schema": { "const": "munjanggun.reviewEvidenceReceipt.v1" },
+    "version": { "const": "1.0" },
+    "intakeId": { "type": "string", "pattern": "^INTAKE-[0-9]{8}-[0-9]{2}$" },
+    "sealedAt": { "type": "string", "format": "date-time" },
+    "fileCount": { "type": "integer", "minimum": 1 },
+    "treeHash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "entries": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["relativePath", "byteSize", "sha256", "kind"],
+        "properties": {
+          "relativePath": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?!/)(?![A-Za-z]:)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\)(?!.*\\u0000).+$"
+          },
+          "byteSize": { "type": "integer", "minimum": 1 },
+          "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+          "kind": { "enum": ["review_report", "contact_sheet", "storyboard", "url_confirmation"] }
+        }
+      }
+    }
+  }
+}
