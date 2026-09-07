@@ -2,25 +2,25 @@
 
 이 문서는 블로그 작성자가 상품명, 설치 장면, 색상, 디자인, 상담 주제로 자산 후보를 찾고 안전하게 발췌하는 절차를 설명한다. 색상과 디자인은 상품 선택 정보이며 중앙 시각 디자인 기준을 뜻하지 않는다.
 
-2026-09-07 사장 지시로 `INTAKE-20260904-01` 신규 10개 묶음은 문장군 내부 자체제작이며 블로그·SNS 재사용 권리가 확인됐다. 최신 기준은 공용 `current.json`이 가리키는 비공개 묶음이다. 공개 Git 저장은 보류하고, 가격·행사 등 변동 문구와 개인정보는 발행 전에 작업자가 별도로 확인한다.
+2026-09-07 사장 지시로 `INTAKE-20260904-01` 신규 10개 묶음은 문장군 내부 자체제작이며 블로그·SNS 재사용 권리가 확인됐다. 검색 기준은 `config/asset-library-index.json`이 연결하는 비공개 누적 묶음이다. 공개 Git 저장은 보류하고, 가격·행사 등 변동 문구와 개인정보는 발행 전에 작업자가 별도로 확인한다.
 
 ## 1. 공용 자료실에서 검색·미리보기
 
 버전 폴더와 Z 경로를 직접 찾지 않는다.
 
 ```text
-npm run assets:library -- --pointer "C:\Users\hjh\안티그래비티\문장군_브랜드_private\asset-library\current.json" --query "3연동중문 베이지 현관"
+npm run assets:library:index -- --index "C:\Users\hjh\안티그래비티\문장군_브랜드\config\asset-library-index.json" --query "3연동중문 베이지 현관"
 ```
 
 결과에는 실제 object 경로와 미리보기 주소, 내부 사용 가능 여부, 외부 발행 차단 이유가 함께 나온다. 선택한 후보는 등록된 블로그 비공개 영역에 바이너리 없이 전달한다.
 
 ```text
-npm run assets:library -- --pointer "C:\Users\hjh\안티그래비티\문장군_브랜드_private\asset-library\current.json" --query "3연동ㄱ자 제품 연출 썸네일" --select-content-id <CONTENT-ID> --consumer munjanggun-blog --output-name <작업명>
+npm run assets:library:index -- --index "C:\Users\hjh\안티그래비티\문장군_브랜드\config\asset-library-index.json" --query "3연동ㄱ자 제품 연출 썸네일" --select-sha256 <SHA-256> --consumer munjanggun-blog --output-name <작업명>
 ```
 
-`asset-handoff.json`과 `preview.html`만 생기며 `data/private/`의 Git 제외 상태를 유지한다. 이 단계는 내부 제작 참고용이고 외부 게시 승인은 아니다.
+`asset-handoff.json`과 `preview.html`만 생기며 `data/private/`의 Git 제외 상태를 유지한다. 같은 바이너리가 여러 intake에 있으면 결과는 하나이고 `origins`에서 모든 입수 출처를 확인한다. 이 단계는 내부 제작 참고용이고 외부 게시 승인은 아니다.
 
-소비 프로젝트와 비공개 대상 루트는 중앙의 `config/asset-library-consumers.json`에서만 승인한다. `--consumer` 대신 경로를 직접 적어도 동일한 Git 제외·비추적 검사를 통과해야 하며, 저장소에 추적되는 위치에는 handoff를 만들 수 없다.
+소비 프로젝트와 비공개 대상 루트는 중앙의 `config/asset-library-consumers.json`에서만 승인한다. 현재 등록·검증 대상은 블로그와 CRM이다. `--consumer` 대신 경로를 직접 적어도 동일한 Git 제외·비추적 검사를 통과해야 하며, 저장소에 추적되는 위치에는 handoff를 만들 수 없다.
 
 ## 2. 기존 상세 검색
 

@@ -1,0 +1,13 @@
+{
+  "schema": "munjanggun.assetLibraryIndex.v1",
+  "version": "1.0",
+  "libraryId": "MUNJANGGUN-PRIVATE-ASSETS",
+  "updatedAt": "2026-09-07T03:15:58.418Z",
+  "pointers": [
+    {
+      "pointerId": "INTAKE-20260904-01",
+      "pointerPath": "C:\\Users\\hjh\\안티그래비티\\문장군_브랜드_private\\asset-library\\history\\collections\\INTAKE-20260904-01-87305f245b4999c3f8844be187cf76f7f14fe96843f83b6a53fa7263be6e51ea.json",
+      "pointerSha256": "87305f245b4999c3f8844be187cf76f7f14fe96843f83b6a53fa7263be6e51ea"
+    }
+  ]
+}

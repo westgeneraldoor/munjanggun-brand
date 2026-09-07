@@ -4,5 +4,11 @@
     "channel": "blog",
     "privateRoot": "C:\\Users\\hjh\\안티그래비티\\문장군블로그\\data\\private\\brand-assets",
     "requireGitIgnored": true
+  },
+  {
+    "consumerId": "munjanggun-crm",
+    "channel": "private_codex",
+    "privateRoot": "C:\\Users\\hjh\\안티그래비티\\문장군 CRM\\data\\private\\brand-assets",
+    "requireGitIgnored": true
   }
 ]

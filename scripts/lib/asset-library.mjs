@@ -4,7 +4,7 @@ import { lstat, mkdir, readFile, realpath, rename, rm, stat, writeFile } from 'n
 import { dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 import { pathToFileURL, fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
-import { searchCatalogEntries } from '../assets-search-catalog.mjs';
+import { rankCatalogEntries } from '../assets-search-catalog.mjs';
 import { resolveAssetObject } from './asset-resolver.mjs';
 import { resolveContainedPath } from './asset-paths.mjs';
 import { formatSchemaErrors, validateAgainstSchema } from './schema-validation.mjs';
@@ -32,7 +32,7 @@ export async function loadAssetLibrary(pointerPath, {
   verifyCommittedAnchor = verifyGitCommittedAnchor,
   consumerPolicy = null,
   consumerPolicyPath = resolve(fileURLToPath(new URL('../../config/asset-library-consumers.json', import.meta.url))),
-  verifyCommittedConsumerPolicy = verifyGitCommittedAnchor,
+  verifyCommittedConsumerPolicy = verifyGitCommittedConsumerPolicy,
 } = {}) {
   const pointerFile = await assertTrustedPrivatePath(pointerPath, {
     trustedPrivateRoots, kind: 'file', label: 'Library pointer', rejectSymlinks: true,
@@ -106,6 +106,50 @@ export async function loadAssetLibrary(pointerPath, {
   };
 }
 
+export async function loadAssetLibraryIndex(indexPath, {
+  trustedPrivateRoots = DEFAULT_TRUSTED_PRIVATE_ROOTS,
+  repoRoot = resolve(fileURLToPath(new URL('../..', import.meta.url))),
+  verifyCommittedIndex = verifyGitCommittedLibraryIndex,
+  loadLibrary = loadAssetLibrary,
+  libraryOptions = {},
+} = {}) {
+  const indexFile = await assertRepositoryFile(indexPath, repoRoot, 'Asset library index');
+  const indexBytes = await readFile(indexFile);
+  await verifyCommittedIndex(indexFile, repoRoot, indexBytes);
+  const index = JSON.parse(indexBytes.toString('utf8'));
+  const schema = await readJson(fileURLToPath(new URL('../../schemas/asset-library-index.schema.json', import.meta.url)));
+  const validation = validateAgainstSchema(index, schema);
+  if (!validation.valid) throw new Error(`Asset library index schema failed:\n${formatSchemaErrors(validation.errors).join('\n')}`);
+  const pointerIds = new Set();
+  const pointerPaths = new Set();
+  const intakeIds = new Set();
+  const libraries = [];
+  for (const spec of index.pointers) {
+    if (pointerIds.has(spec.pointerId)) throw new Error(`Duplicate library index pointerId: ${spec.pointerId}`);
+    const pointerFile = await assertTrustedPrivatePath(spec.pointerPath, {
+      trustedPrivateRoots, kind: 'file', label: `Library index pointer ${spec.pointerId}`, rejectSymlinks: true,
+    });
+    const normalizedPath = pointerFile.toLowerCase();
+    if (pointerPaths.has(normalizedPath)) throw new Error(`Duplicate library index pointerPath: ${spec.pointerPath}`);
+    assertDigest(await readFile(pointerFile), spec.pointerSha256, `Library index pointer ${spec.pointerId}`);
+    const library = await loadLibrary(pointerFile, { trustedPrivateRoots, repoRoot, ...libraryOptions });
+    if (library.pointerSha256 !== spec.pointerSha256) throw new Error(`Library index pointer ${spec.pointerId} changed while loading`);
+    if (library.pointer.libraryId !== index.libraryId) throw new Error(`Library index pointer ${spec.pointerId} has a different libraryId`);
+    if (library.catalog.intakeId !== spec.pointerId) throw new Error(`Library index pointerId ${spec.pointerId} does not match catalog intakeId ${library.catalog.intakeId}`);
+    if (intakeIds.has(library.catalog.intakeId)) throw new Error(`Duplicate library index intakeId: ${library.catalog.intakeId}`);
+    pointerIds.add(spec.pointerId);
+    pointerPaths.add(normalizedPath);
+    intakeIds.add(library.catalog.intakeId);
+    libraries.push({ pointerId: spec.pointerId, pointerSha256: spec.pointerSha256, library });
+  }
+  return {
+    indexPath: indexFile,
+    indexCanonicalSha256: digest(Buffer.from(canonicalJson(index), 'utf8')),
+    index,
+    libraries,
+  };
+}
+
 export async function searchAssetLibrary(library, criteria, {
   mediaType,
   limit = 20,
@@ -114,26 +158,70 @@ export async function searchAssetLibrary(library, criteria, {
   if (Object.keys(normalizedCriteria).length === 0) {
     throw new Error('Provide at least one criterion: query, product, scene, color, design, or topic');
   }
-  if (!Number.isInteger(limit) || limit < 1 || limit > 100) throw new Error('limit must be an integer from 1 to 100');
+  if (!Number.isInteger(limit) || limit < 1 || limit > 500) throw new Error('limit must be an integer from 1 to 500');
+  const criterionCount = Object.keys(normalizedCriteria).length;
+  const candidates = library.catalog.entries
+    .filter((entry) => !mediaType || entry.mediaType === mediaType)
+    .map((entry) => ({ entry, matchedDimensions: matchDimensions(entry, normalizedCriteria) }))
+    .filter(({ matchedDimensions }) => Object.keys(matchedDimensions).length === criterionCount);
+  const candidateBySha = new Map(candidates.map((candidate) => [candidate.entry.sha256, candidate]));
   const broadQuery = Object.values(normalizedCriteria).join(' ');
-  const searched = searchCatalogEntries(library.catalog, {
+  const searched = rankCatalogEntries({ ...library.catalog, entries: candidates.map(({ entry }) => entry) }, {
     query: broadQuery,
-    limit: 500,
     mediaType,
-    product: normalizedCriteria.product,
-  });
-  const catalogBySha = new Map(library.catalog.entries.map((entry) => [entry.sha256, entry]));
+  }).slice(0, limit);
   const matched = searched
-    .map((summary) => ({ entry: catalogBySha.get(summary.sha256), score: summary.score }))
-    .filter(({ entry }) => entry)
-    .map(({ entry, score }) => ({ entry, score, matchedDimensions: matchDimensions(entry, normalizedCriteria) }))
-    .filter(({ matchedDimensions }) => Object.keys(matchedDimensions).length === Object.keys(normalizedCriteria).length)
-    .slice(0, limit);
+    .map((summary) => ({ ...candidateBySha.get(summary.sha256), score: summary.score }))
+    .filter(({ entry }) => entry);
 
   return Promise.all(matched.map(async ({ entry, score, matchedDimensions }, index) => {
     const objectPath = await resolveAssetObject(library.objectRoot, entry);
     return summarizeResult(library, entry, objectPath, score, matchedDimensions, index + 1);
   }));
+}
+
+export async function searchAssetLibraryIndex(libraryIndex, criteria, options = {}) {
+  const limit = options.limit ?? 20;
+  if (!Number.isInteger(limit) || limit < 1 || limit > 100) throw new Error('limit must be an integer from 1 to 100');
+  const perLibraryLimit = Math.min(500, Math.max(limit, limit * libraryIndex.libraries.length));
+  const perLibrary = await Promise.all(libraryIndex.libraries.map(async (indexed) => ({
+    indexed,
+    results: await searchAssetLibrary(indexed.library, criteria, {
+      ...options,
+      limit: Math.min(perLibraryLimit, indexed.library.catalog.entries.length || 1),
+    }),
+  })));
+  const allOriginsBySha = new Map();
+  for (const indexed of libraryIndex.libraries) {
+    for (const entry of indexed.library.catalog.entries) {
+      const origins = allOriginsBySha.get(entry.sha256) ?? [];
+      origins.push(summarizeOrigin(indexed, entry));
+      allOriginsBySha.set(entry.sha256, origins);
+    }
+  }
+  const bySha = new Map();
+  for (const { indexed, results } of perLibrary) {
+    for (const result of results) {
+      const existing = bySha.get(result.sha256);
+      if (existing) {
+        if (result.score > existing.score) {
+          const origins = existing.origins;
+          Object.assign(existing, result, { origins, originPointerId: indexed.pointerId });
+        }
+      } else {
+        bySha.set(result.sha256, {
+          ...result,
+          libraryAssetId: `sha256:${result.sha256}`,
+          originPointerId: indexed.pointerId,
+          origins: allOriginsBySha.get(result.sha256) ?? [],
+        });
+      }
+    }
+  }
+  return [...bySha.values()]
+    .sort((left, right) => right.score - left.score || left.sha256.localeCompare(right.sha256))
+    .slice(0, limit)
+    .map((entry, index) => ({ ...entry, rank: index + 1 }));
 }
 
 export async function writeAssetLibraryHandoff(library, results, selectedContentIds, {
@@ -145,6 +233,7 @@ export async function writeAssetLibraryHandoff(library, results, selectedContent
   repoRoot = resolve(fileURLToPath(new URL('../..', import.meta.url))),
   trustedPrivateRoots = library.trustedPrivateRoots ?? DEFAULT_TRUSTED_PRIVATE_ROOTS,
   generatedAt = new Date().toISOString(),
+  libraryIndexAuthority = null,
 } = {}) {
   const selectedIds = [...new Set(selectedContentIds ?? [])];
   if (selectedIds.length === 0) throw new Error('Select at least one contentId');
@@ -165,6 +254,7 @@ export async function writeAssetLibraryHandoff(library, results, selectedContent
   const registeredRoots = consumers.map((entry) => resolve(entry.privateRoot));
   const matchedConsumer = consumers.find((entry) => resolve(entry.privateRoot) === resolve(approvedPrivateRoot));
   if (!matchedConsumer) throw new Error('Approved private root is not registered in the committed consumer policy');
+  if (!library.anchor.allowedChannels.includes(matchedConsumer.channel)) throw new Error(`Consumer channel ${matchedConsumer.channel} is not allowed by the selected asset authority`);
   const approvedRoot = await assertTrustedPrivatePath(approvedPrivateRoot, {
     trustedPrivateRoots: [...trustedPrivateRoots, ...registeredRoots], kind: 'directory', label: 'Approved private root', rejectSymlinks: true,
   });
@@ -194,8 +284,8 @@ export async function writeAssetLibraryHandoff(library, results, selectedContent
   }
 
   const handoff = {
-    schema: 'munjanggun.assetLibraryHandoff.v1',
-    version: '1.0',
+    schema: libraryIndexAuthority ? 'munjanggun.assetLibraryHandoff.v2' : 'munjanggun.assetLibraryHandoff.v1',
+    version: libraryIndexAuthority ? '2.0' : '1.0',
     libraryId: library.pointer.libraryId,
     generatedAt,
     pointer: { path: library.pointerPath, updatedAt: library.pointer.updatedAt },
@@ -214,6 +304,7 @@ export async function writeAssetLibraryHandoff(library, results, selectedContent
       publicGit: '공개 Git 저장 금지',
       consumer: { consumerId: matchedConsumer.consumerId, channel: matchedConsumer.channel },
     },
+    ...(libraryIndexAuthority ? { libraryIndex: libraryIndexAuthority } : {}),
   };
   const partial = resolve(parent, `.${destination.split(/[\\/]/u).at(-1)}.partial-${randomUUID()}`);
   if (!isContained(parent, partial)) throw new Error('Partial output escaped output parent');
@@ -236,9 +327,6 @@ export async function writeAssetLibraryHandoff(library, results, selectedContent
 }
 
 function summarizeResult(library, entry, objectPath, score, matchedDimensions, rank) {
-  const privateAllowed = PRIVATE_CODEX_ALLOWED.has(library.rightsState?.effectiveAccess?.privateCodexSource);
-  const externalBlockers = externalPublicationBlockers(library.rightsState, entry);
-  const publicGitBlocked = library.rightsState?.effectiveAccess?.publicGit !== 'allowed';
   return {
     rank,
     score,
@@ -251,23 +339,7 @@ function summarizeResult(library, entry, objectPath, score, matchedDimensions, r
     sourceRefs: entry.sourceRefs,
     objectPath,
     previewUrl: pathToFileURL(objectPath).href,
-    usageStatus: {
-      privateCodexSource: {
-        status: privateAllowed ? 'usable' : 'blocked',
-        label: privateAllowed ? '내부 사용 가능' : '내부 사용 차단',
-        authority: `rightsState.effectiveAccess.privateCodexSource=${library.rightsState?.effectiveAccess?.privateCodexSource ?? 'missing'}`,
-      },
-      externalPublication: {
-        status: externalBlockers.length === 0 ? 'eligible_for_guarded_extraction' : 'blocked',
-        label: externalBlockers.length === 0 ? '외부 발행 전 추출 검증 필요' : '외부 발행 차단',
-        blockers: externalBlockers,
-      },
-      publicGit: {
-        status: publicGitBlocked ? 'blocked' : 'eligible_for_guarded_storage',
-        label: publicGitBlocked ? '공개 Git 저장 금지' : '공개 Git 저장 전 검증 필요',
-        blockers: publicGitBlocked ? [`rightsState.effectiveAccess.publicGit=${library.rightsState?.effectiveAccess?.publicGit ?? 'missing'}`] : [],
-      },
-    },
+    usageStatus: summarizeUsageStatus(library, entry),
     catalogStatus: {
       rightsStatus: entry.rightsStatus,
       publishStatus: entry.publishStatus,
@@ -276,6 +348,44 @@ function summarizeResult(library, entry, objectPath, score, matchedDimensions, r
       claimReviewStatus: entry.claimReviewStatus,
       claimSignals: entry.claimSignals,
       privacySignals: entry.privacySignals,
+    },
+  };
+}
+
+function summarizeOrigin(indexed, entry) {
+  return {
+    pointerId: indexed.pointerId,
+    pointerPath: indexed.library.pointerPath,
+    pointerSha256: indexed.pointerSha256,
+    intakeId: indexed.library.catalog.intakeId,
+    contentId: entry.contentId,
+    sourceRefs: entry.sourceRefs,
+    anchorSha256: indexed.library.pointer.current.anchorSha256,
+    catalogSha256: indexed.library.pointer.current.catalogSha256,
+    rightsStateSha256: indexed.library.pointer.current.rightsStateSha256,
+    usageStatus: summarizeUsageStatus(indexed.library, entry),
+  };
+}
+
+function summarizeUsageStatus(library, entry) {
+  const privateAllowed = PRIVATE_CODEX_ALLOWED.has(library.rightsState?.effectiveAccess?.privateCodexSource);
+  const externalBlockers = externalPublicationBlockers(library.rightsState, entry);
+  const publicGitBlocked = library.rightsState?.effectiveAccess?.publicGit !== 'allowed';
+  return {
+    privateCodexSource: {
+      status: privateAllowed ? 'usable' : 'blocked',
+      label: privateAllowed ? '내부 사용 가능' : '내부 사용 차단',
+      authority: `rightsState.effectiveAccess.privateCodexSource=${library.rightsState?.effectiveAccess?.privateCodexSource ?? 'missing'}`,
+    },
+    externalPublication: {
+      status: externalBlockers.length === 0 ? 'eligible_for_guarded_extraction' : 'blocked',
+      label: externalBlockers.length === 0 ? '외부 발행 전 추출 검증 필요' : '외부 발행 차단',
+      blockers: externalBlockers,
+    },
+    publicGit: {
+      status: publicGitBlocked ? 'blocked' : 'eligible_for_guarded_storage',
+      label: publicGitBlocked ? '공개 Git 저장 금지' : '공개 Git 저장 전 검증 필요',
+      blockers: publicGitBlocked ? [`rightsState.effectiveAccess.publicGit=${library.rightsState?.effectiveAccess?.publicGit ?? 'missing'}`] : [],
     },
   };
 }
@@ -477,6 +587,30 @@ async function verifyGitCommittedAnchor(anchorPath, repoRoot, anchorBytes) {
   }
 }
 
+export async function verifyGitCommittedConsumerPolicy(policyPath, repoRoot) {
+  return verifyGitCommittedCanonicalFile(policyPath, repoRoot, 'Consumer policy');
+}
+
+async function verifyGitCommittedLibraryIndex(indexPath, repoRoot) {
+  return verifyGitCommittedCanonicalFile(indexPath, repoRoot, 'Asset library index');
+}
+
+async function verifyGitCommittedCanonicalFile(filePath, repoRoot, label) {
+  const relativePath = relative(resolve(repoRoot), filePath).replaceAll('\\', '/');
+  if (!relativePath || relativePath.startsWith('../')) throw new Error(`${label} is outside the current repository`);
+  try {
+    await execFileAsync('git', ['-C', repoRoot, 'ls-files', '--error-unmatch', '--', relativePath], { windowsHide: true });
+    const [{ stdout: headObject }, { stdout: worktreeObject }] = await Promise.all([
+      execFileAsync('git', ['-C', repoRoot, 'rev-parse', `HEAD:${relativePath}`], { encoding: 'utf8', windowsHide: true }),
+      execFileAsync('git', ['-C', repoRoot, 'hash-object', `--path=${relativePath}`, '--', filePath], { encoding: 'utf8', windowsHide: true }),
+    ]);
+    if (headObject.trim() !== worktreeObject.trim()) throw new Error(`${label} working tree has uncommitted canonical content changes`);
+  } catch (error) {
+    if (/outside the current repository|uncommitted canonical content changes/u.test(error.message)) throw error;
+    throw new Error(`${label} must be tracked in HEAD`);
+  }
+}
+
 function validateConsumerPolicy(consumers) {
   if (!Array.isArray(consumers)) throw new Error('Consumer policy must be an array');
   const ids = new Set();
@@ -490,6 +624,14 @@ function validateConsumerPolicy(consumers) {
     if (typeof consumer.requireGitIgnored !== 'boolean') throw new Error(`Consumer ${consumer.consumerId} requireGitIgnored must be boolean`);
     ids.add(consumer.consumerId);
     roots.add(normalizedRoot);
+  }
+  const rootList = [...roots];
+  for (let left = 0; left < rootList.length; left += 1) {
+    for (let right = left + 1; right < rootList.length; right += 1) {
+      if (isContained(rootList[left], rootList[right]) || isContained(rootList[right], rootList[left])) {
+        throw new Error(`Consumer private roots must not overlap: ${rootList[left]} and ${rootList[right]}`);
+      }
+    }
   }
 }
 
@@ -536,4 +678,12 @@ function escapeHtml(value) {
   return String(value ?? '').replace(/[&<>"']/gu, (character) => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
   })[character]);
+}
+
+function canonicalJson(value) {
+  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(',')}]`;
+  if (value && typeof value === 'object') {
+    return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${canonicalJson(value[key])}`).join(',')}}`;
+  }
+  return JSON.stringify(value);
 }

@@ -33,6 +33,7 @@
     "assets:verify-objects": "node scripts/assets-verify-objects.mjs",
     "assets:materialize": "node scripts/assets-materialize.mjs",
     "assets:library": "node scripts/assets-library.mjs",
+    "assets:library:index": "node scripts/assets-library-index.mjs",
     "assets:set-library-current": "node scripts/update-asset-library-pointer.mjs",
     "assets:build-worker-queue": "node scripts/build-asset-worker-review-queue.mjs",
     "assets:validate-intake-contract": "node scripts/validate-intake-audit-contract.mjs",

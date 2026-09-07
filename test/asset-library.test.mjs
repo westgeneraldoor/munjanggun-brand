@@ -1,10 +1,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
+import { execFile } from 'node:child_process';
 import { mkdir, readFile, readdir, rm, symlink, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
+import { promisify } from 'node:util';
 import { runAssetLibrary } from '../scripts/assets-library.mjs';
+import { loadAssetLibraryIndex, searchAssetLibrary, searchAssetLibraryIndex, verifyGitCommittedConsumerPolicy } from '../scripts/lib/asset-library.mjs';
+
+const execFileAsync = promisify(execFile);
 
 test('private library searches any-size fixture and reports object and separate usage states', async () => {
   const fixture = await makeFixture(3);
@@ -20,6 +25,159 @@ test('private library searches any-size fixture and reports object and separate 
     assert(output.results.every((item) => item.usageStatus.publicGit.status === 'blocked'));
   } finally {
     await rm(fixture.root, { recursive: true, force: true });
+  }
+});
+
+test('library applies every detailed criterion before ranking and limit beyond 500 entries', async () => {
+  const root = join(tmpdir(), `mg-asset-search-large-${Date.now()}-${Math.random().toString(16).slice(2)}`);
+  const objectRoot = join(root, 'objects');
+  await mkdir(objectRoot, { recursive: true });
+  try {
+    const distractors = Array.from({ length: 501 }, (_, index) => {
+      const sha256 = digest(`distractor-${index}`);
+      return catalogEntry({
+        contentId: `DISTRACTOR-${index}`, sha256,
+        semanticSummary: '공통 일반', ocrText: '공통', semanticGroupId: '공통', visualGroupId: '공통',
+        sourceRelativePath: `공통/일반/${index}.jpg`,
+      });
+    });
+    const body = Buffer.from('qualified-rare-asset');
+    const sha256 = digest(body);
+    const objectRef = `sha256/${sha256.slice(0, 2)}/${sha256}.jpg`;
+    const objectPath = join(objectRoot, ...objectRef.split('/'));
+    await mkdir(join(objectPath, '..'), { recursive: true });
+    await writeFile(objectPath, body);
+    const qualified = catalogEntry({
+      contentId: 'QUALIFIED', sha256, objectRef, byteSize: body.length,
+      semanticSummary: '공통 희귀', sourceRelativePath: '제품/희귀/qualified.jpg',
+    });
+    const library = {
+      catalog: { entries: [...distractors, qualified] }, objectRoot,
+      rightsState: { effectiveAccess: { privateCodexSource: 'allowed', blogSnsPublication: 'blocked', publicGit: 'blocked' } },
+    };
+    const results = await searchAssetLibrary(library, { query: '공통', color: '희귀' }, { limit: 1 });
+    assert.deepEqual(results.map((entry) => entry.contentId), ['QUALIFIED']);
+    assert.deepEqual(Object.keys(results[0].matchedDimensions).sort(), ['color', 'query']);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test('library index searches two intakes together and deduplicates one binary with every origin retained', async () => {
+  const root = join(tmpdir(), `mg-asset-index-${Date.now()}-${Math.random().toString(16).slice(2)}`);
+  try {
+    const sharedBody = Buffer.from('shared-binary');
+    const sharedSha = digest(sharedBody);
+    const first = await makeIndexedLibrary(root, 'POINTER-A', 'INTAKE-A', [
+      { body: sharedBody, entry: catalogEntry({ contentId: 'A-SHARED', sha256: sharedSha, byteSize: sharedBody.length, semanticSummary: '현관 공용', sourceRelativePath: 'A/shared.jpg' }) },
+      { body: Buffer.from('first-only'), entry: null, contentId: 'A-ONLY', summary: '현관 첫번째', path: 'A/only.jpg' },
+    ]);
+    const second = await makeIndexedLibrary(root, 'POINTER-B', 'INTAKE-B', [
+      { body: sharedBody, entry: catalogEntry({ contentId: 'B-SHARED', sha256: sharedSha, byteSize: sharedBody.length, semanticSummary: '거실 공용', sourceRelativePath: 'B/shared.jpg' }) },
+      { body: Buffer.from('second-only'), entry: null, contentId: 'B-ONLY', summary: '현관 두번째', path: 'B/only.jpg' },
+    ]);
+    const results = await searchAssetLibraryIndex({ libraries: [first, second] }, { query: '현관' }, { limit: 10 });
+    assert.equal(results.length, 3);
+    const shared = results.find((entry) => entry.sha256 === sharedSha);
+    assert.deepEqual(shared.origins.map((origin) => origin.pointerId).sort(), ['POINTER-A', 'POINTER-B']);
+    assert.deepEqual(shared.origins.map((origin) => origin.sourceRefs[0].sourceRelativePath).sort(), ['A/shared.jpg', 'B/shared.jpg']);
+    assert(results.some((entry) => entry.contentId === 'A-ONLY'));
+    assert(results.some((entry) => entry.contentId === 'B-ONLY'));
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test('library index retains an origin even when its same-SHA hit is below the per-library search window', async () => {
+  const root = join(tmpdir(), `mg-asset-index-window-${Date.now()}-${Math.random().toString(16).slice(2)}`);
+  try {
+    const sharedBody = Buffer.from('window-shared');
+    const sharedSha = digest(sharedBody);
+    const first = await makeIndexedLibrary(root, 'INTAKE-A', 'INTAKE-A', [
+      { body: sharedBody, entry: catalogEntry({ contentId: 'A-SHARED', sha256: sharedSha, byteSize: sharedBody.length, semanticSummary: '현관 공용', ocrText: '현관 공용', semanticGroupId: '현관 공용', sourceRelativePath: '현관/공용/A-shared.jpg' }) },
+    ]);
+    const second = await makeIndexedLibrary(root, 'INTAKE-B', 'INTAKE-B', [
+      { body: Buffer.from('b-first'), entry: null, contentId: 'B-FIRST', summary: '현관 공용', path: '현관/공용/B-first.jpg' },
+      { body: Buffer.from('b-second'), entry: null, contentId: 'B-SECOND', summary: '현관 공용', path: '현관/공용/B-second.jpg' },
+      { body: sharedBody, entry: catalogEntry({ contentId: 'B-SHARED', sha256: sharedSha, byteSize: sharedBody.length, semanticSummary: '현관 공용', sourceRelativePath: 'B/shared.jpg' }) },
+    ]);
+    const results = await searchAssetLibraryIndex({ libraries: [first, second] }, { query: '현관 공용' }, { limit: 1 });
+    assert.equal(results[0].sha256, sharedSha);
+    assert.deepEqual(results[0].origins.map((origin) => origin.pointerId).sort(), ['INTAKE-A', 'INTAKE-B']);
+    assert.deepEqual(results[0].origins.map((origin) => origin.sourceRefs[0].sourceRelativePath).sort(), ['B/shared.jpg', '현관/공용/A-shared.jpg']);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test('library index rejects a pointer label that does not match its catalog intakeId', async () => {
+  const root = join(tmpdir(), `mg-asset-index-id-${Date.now()}-${Math.random().toString(16).slice(2)}`);
+  const pointerPath = join(root, 'pointer.json');
+  const indexPath = join(root, 'index.json');
+  await mkdir(root, { recursive: true });
+  try {
+    const pointerText = '{}\n';
+    await writeFile(pointerPath, pointerText);
+    await writeFile(indexPath, `${JSON.stringify({
+      schema: 'munjanggun.assetLibraryIndex.v1', version: '1.0', libraryId: 'fixture-library',
+      updatedAt: '2099-01-01T00:00:00.000Z',
+      pointers: [{ pointerId: 'INTAKE-A', pointerPath, pointerSha256: digest(pointerText) }],
+    })}\n`);
+    await assert.rejects(loadAssetLibraryIndex(indexPath, {
+      trustedPrivateRoots: [root], repoRoot: root, verifyCommittedIndex: async () => {},
+      loadLibrary: async () => ({ pointerSha256: digest(pointerText), pointer: { libraryId: 'fixture-library' }, catalog: { intakeId: 'INTAKE-B' } }),
+    }), /does not match catalog intakeId/u);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test('library index rejects a pointer that changes between index verification and loading', async () => {
+  const root = join(tmpdir(), `mg-asset-index-race-${Date.now()}-${Math.random().toString(16).slice(2)}`);
+  const pointerPath = join(root, 'pointer.json');
+  const indexPath = join(root, 'index.json');
+  await mkdir(root, { recursive: true });
+  try {
+    const pointerText = '{}\n';
+    await writeFile(pointerPath, pointerText);
+    await writeFile(indexPath, `${JSON.stringify({
+      schema: 'munjanggun.assetLibraryIndex.v1', version: '1.0', libraryId: 'fixture-library',
+      updatedAt: '2099-01-01T00:00:00.000Z',
+      pointers: [{ pointerId: 'INTAKE-A', pointerPath, pointerSha256: digest(pointerText) }],
+    })}\n`);
+    await assert.rejects(loadAssetLibraryIndex(indexPath, {
+      trustedPrivateRoots: [root], repoRoot: root, verifyCommittedIndex: async () => {},
+      loadLibrary: async () => ({
+        pointerSha256: digest('different valid pointer bytes'),
+        pointer: { libraryId: 'fixture-library' },
+        catalog: { intakeId: 'INTAKE-A' },
+      }),
+    }), /changed while loading/u);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test('consumer policy verification accepts checkout EOL conversion but rejects canonical content changes', async () => {
+  const root = join(tmpdir(), `mg-policy-git-${Date.now()}-${Math.random().toString(16).slice(2)}`);
+  const policyPath = join(root, 'policy.json');
+  await mkdir(root, { recursive: true });
+  try {
+    await execFileAsync('git', ['init'], { cwd: root, windowsHide: true });
+    await execFileAsync('git', ['config', 'user.email', 'test@example.invalid'], { cwd: root, windowsHide: true });
+    await execFileAsync('git', ['config', 'user.name', 'Asset Test'], { cwd: root, windowsHide: true });
+    await execFileAsync('git', ['config', 'core.autocrlf', 'true'], { cwd: root, windowsHide: true });
+    await writeFile(join(root, '.gitattributes'), 'policy.json text\n');
+    const policy = '[\n  {"consumerId":"one"}\n]\n';
+    await writeFile(policyPath, policy);
+    await execFileAsync('git', ['add', '.gitattributes', 'policy.json'], { cwd: root, windowsHide: true });
+    await execFileAsync('git', ['commit', '-m', 'fixture'], { cwd: root, windowsHide: true });
+    await writeFile(policyPath, policy.replaceAll('\n', '\r\n'));
+    await verifyGitCommittedConsumerPolicy(policyPath, root);
+    await writeFile(policyPath, policy.replace('"one"', '"two"').replaceAll('\n', '\r\n'));
+    await assert.rejects(verifyGitCommittedConsumerPolicy(policyPath, root), /Consumer policy working tree/u);
+  } finally {
+    await rm(root, { recursive: true, force: true });
   }
 });
 
@@ -58,6 +216,24 @@ test('consumer policy rejects duplicate destination roots', async () => {
         ],
       },
     }), /Duplicate consumer privateRoot/u);
+  } finally {
+    await rm(fixture.root, { recursive: true, force: true });
+  }
+});
+
+test('consumer policy rejects parent and child destination roots', async () => {
+  const fixture = await makeFixture(1);
+  try {
+    await assert.rejects(runAssetLibrary(['--pointer', fixture.pointerPath, '--query', '현관'], {
+      emit: () => {},
+      libraryOptions: {
+        trustedPrivateRoots: [fixture.root], repoRoot: fixture.root, verifyCommittedAnchor: async () => {},
+        consumerPolicy: [
+          { consumerId: 'parent', channel: 'blog', privateRoot: fixture.root, requireGitIgnored: true },
+          { consumerId: 'child', channel: 'sns', privateRoot: join(fixture.root, 'nested'), requireGitIgnored: true },
+        ],
+      },
+    }), /must not overlap/u);
   } finally {
     await rm(fixture.root, { recursive: true, force: true });
   }
@@ -214,6 +390,57 @@ async function writePointer(fixture) {
     },
   };
   await writeFile(fixture.pointerPath, `${JSON.stringify(pointer, null, 2)}\n`);
+}
+
+function catalogEntry({
+  contentId, sha256, objectRef = `sha256/${sha256.slice(0, 2)}/${sha256}.jpg`, byteSize = 1,
+  semanticSummary = '', ocrText = '', semanticGroupId = null, visualGroupId = null, sourceRelativePath,
+}) {
+  return {
+    contentId, sha256, objectRef, byteSize, mediaType: 'image/jpeg', semanticSummary, ocrText, semanticGroupId, visualGroupId,
+    humanReviewStatus: 'reviewed', claimSignals: [], privacySignals: [], rightsSignals: [],
+    rightsStatus: 'owner_approved_recorded', rightsScope: ['private_codex_source'], rightsEvidenceRef: ['RIGHTS-EV-TEST'],
+    privacyStatus: 'cleared', claimReviewStatus: 'not_applicable', claimEvidenceRef: [],
+    publishStatus: 'blocked', publicRepoEligibility: 'prohibited',
+    sourceRefs: [{ sourceId: 'SRC-FIXTURE', sourceRelativePath }],
+  };
+}
+
+async function makeIndexedLibrary(root, pointerId, intakeId, specs) {
+  const objectRoot = join(root, pointerId, 'objects');
+  await mkdir(objectRoot, { recursive: true });
+  const entries = [];
+  for (const spec of specs) {
+    const sha256 = digest(spec.body);
+    const entry = spec.entry ?? catalogEntry({
+      contentId: spec.contentId,
+      sha256,
+      byteSize: spec.body.length,
+      semanticSummary: spec.summary,
+      sourceRelativePath: spec.path,
+    });
+    const objectPath = join(objectRoot, ...entry.objectRef.split('/'));
+    await mkdir(join(objectPath, '..'), { recursive: true });
+    await writeFile(objectPath, spec.body);
+    entries.push(entry);
+  }
+  return {
+    pointerId,
+    pointerSha256: digest(pointerId),
+    library: {
+      pointerPath: join(root, pointerId, 'pointer.json'),
+      pointer: {
+        current: {
+          anchorSha256: digest(`${pointerId}-anchor`),
+          catalogSha256: digest(`${pointerId}-catalog`),
+          rightsStateSha256: digest(`${pointerId}-rights`),
+        },
+      },
+      catalog: { intakeId, entries },
+      objectRoot,
+      rightsState: { effectiveAccess: { privateCodexSource: 'allowed', blogSnsPublication: 'blocked', publicGit: 'blocked' } },
+    },
+  };
 }
 
 function digest(value) {
