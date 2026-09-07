@@ -12,8 +12,12 @@ import { formatSchemaErrors, validateAgainstSchema } from './lib/schema-validati
 import { verifyApprovalAuthority } from './lib/asset-owner-approval.mjs';
 import { verifyUseEvidenceAuthority } from './lib/asset-use-evidence.mjs';
 import { assertTrustedPrivateOutput } from './lib/asset-transfer-policy.mjs';
+import { applyContentAuthority, assertCatalogContentUsable } from './lib/asset-content-quality.mjs';
 
-export async function runAssetExtractContent(argv, { trustedPrivateRoots, emit = console.log } = {}) {
+export async function runAssetExtractContent(argv, {
+  trustedPrivateRoots, emit = console.log, verifyContentQuality = assertCatalogContentUsable,
+  verifyApproval = verifyApprovalAuthority, verifyUseEvidence = verifyUseEvidenceAuthority,
+} = {}) {
 const args = parseArgs(argv);
 const catalogPath = resolve(requiredValue(args, '--catalog'));
 const objectRoot = resolve(requiredValue(args, '--object-root'));
@@ -36,7 +40,7 @@ assertSchema(catalog, catalogSchema, 'catalog');
 assertSchema(evidenceReceipt, evidenceReceiptSchema, 'review evidence receipt');
 validateCatalogInvariants(catalog);
 await verifyReviewEvidenceAuthority({ catalog, catalogPath, evidenceReceipt, evidenceReceiptPath });
-const approvalAuthority = purpose === 'internal-audit' ? null : await verifyApprovalAuthority({
+const approvalAuthority = purpose === 'internal-audit' ? null : await verifyApproval({
   catalog,
   catalogPath,
   ledgerPath: resolve(requiredValue(args, '--approval-ledger')),
@@ -44,12 +48,19 @@ const approvalAuthority = purpose === 'internal-audit' ? null : await verifyAppr
   useEvidenceReceiptPath: resolve(requiredValue(args, '--use-evidence-receipt')),
 });
 
-const matches = catalog.entries.filter((item) => shaArg ? item.sha256 === shaArg : item.contentId === contentIdArg);
+const contentAuthority = purpose === 'internal-audit' ? null : await verifyContentQuality({
+  intakeId: catalog.intakeId,
+  catalogSha256: await sha256File(catalogPath),
+});
+const effectiveCatalog = contentAuthority ? applyContentAuthority(catalog, contentAuthority) : catalog;
+
+const matches = effectiveCatalog.entries.filter((item) => shaArg ? item.sha256 === shaArg : item.contentId === contentIdArg);
 if (matches.length !== 1) throw new Error(`Catalog selector must match exactly one entry; found ${matches.length}`);
 const entry = matches[0];
-await verifySelectedReviewEvidence({ entry, catalogPath, evidenceReceipt, evidenceReceiptPath });
-const useEvidenceAuthority = purpose === 'internal-audit' ? null : await verifyUseEvidenceAuthority({
-  catalog, catalogPath,
+if (contentAuthority) verifySelectedContentAuthority({ entry, authority: contentAuthority });
+else await verifySelectedReviewEvidence({ entry, catalogPath, evidenceReceipt, evidenceReceiptPath });
+const useEvidenceAuthority = purpose === 'internal-audit' ? null : await verifyUseEvidence({
+  catalog: effectiveCatalog, catalogPath,
   registryPath: resolve(requiredValue(args, '--use-evidence-registry')),
   receiptPath: resolve(requiredValue(args, '--use-evidence-receipt')),
   entry, purpose, channel: singleValue(args, '--channel'),
@@ -115,6 +126,12 @@ try {
       registryPath: useEvidenceAuthority.registryPath, registrySha256: useEvidenceAuthority.registrySha256,
       receiptPath: useEvidenceAuthority.receiptPath, receiptSha256: useEvidenceAuthority.receiptSha256,
       resolvedEvidence: useEvidenceAuthority.resolvedEvidence,
+    } : null,
+    contentAuthority: contentAuthority?.record ? {
+      overlaySha256: contentAuthority.record.overlaySha256,
+      receiptSha256: contentAuthority.record.receiptSha256,
+      profileSha256: contentAuthority.record.profileSha256,
+      selectedDecisionHash: contentAuthority.overlay.entries.find((item) => item.sha256 === entry.sha256)?.decisionHash,
     } : null,
     selector: shaArg ? { type: 'sha256', value: shaArg, matchCount: 1 } : { type: 'contentId', value: contentIdArg, matchCount: 1 },
     asset: {
@@ -215,11 +232,16 @@ async function verifySelectedReviewEvidence(context) {
   let targeted = false;
   for (const ref of context.entry.reviewEvidenceRefs ?? []) {
     const [relativeRef, fragment] = String(ref).split('#', 2);
-    const targetPath = resolve(dirname(context.catalogPath), relativeRef);
     const evidenceRoot = dirname(context.evidenceReceiptPath);
-    const evidenceRelative = relative(evidenceRoot, targetPath).replaceAll('\\', '/');
+    const normalizedRef = relativeRef.replaceAll('\\', '/');
+    const marker = '/review-evidence/';
+    const markerIndex = normalizedRef.toLowerCase().indexOf(marker);
+    const evidenceRelative = markerIndex >= 0
+      ? normalizedRef.slice(markerIndex + marker.length)
+      : relative(evidenceRoot, resolve(dirname(context.catalogPath), relativeRef)).replaceAll('\\', '/');
     const sealed = receiptByPath.get(evidenceRelative);
     if (!sealed) throw new Error(`Review evidence is not sealed: ${ref}`);
+    const targetPath = resolveContainedPath(evidenceRoot, evidenceRelative, 'sealed review evidence');
     const targetStat = await stat(targetPath);
     if (!targetStat.isFile() || targetStat.size !== sealed.byteSize || await sha256File(targetPath) !== sealed.sha256) throw new Error(`Review evidence integrity mismatch: ${ref}`);
     const match = fragment?.match(/^sha256=([a-f0-9]{64})$/);
@@ -233,6 +255,20 @@ async function verifySelectedReviewEvidence(context) {
     }
   }
   if (!targeted) throw new Error('Catalog entry has no targeted sealed review evidence');
+}
+
+function verifySelectedContentAuthority({ entry, authority }) {
+  const overlay = authority?.overlay?.entries?.find((item) => item.sha256 === entry.sha256);
+  if (!overlay) throw new Error(`Verified content authority has no selected SHA: ${entry.sha256}`);
+  const fields = ['semanticSummary', 'assetType', 'useCases', 'searchTags', 'ocrText', 'claimSignals', 'privacySignals', 'reviewEvidenceRefs'];
+  for (const field of fields) {
+    if (JSON.stringify(entry[field]) !== JSON.stringify(overlay[field])) {
+      throw new Error(`Selected asset does not match verified content authority: ${field}`);
+    }
+  }
+  if (entry.humanReviewStatus !== 'reviewed' || !String(entry.reviewNotes ?? '').includes(overlay.decisionHash)) {
+    throw new Error('Selected asset is not bound to the verified content decision hash');
+  }
 }
 
 function assertEvidenceRowMatchesEntry(row, entry, ref) {

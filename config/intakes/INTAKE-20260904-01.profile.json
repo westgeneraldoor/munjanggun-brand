@@ -6,16 +6,16 @@
   "logicalRoot": "문장군상품",
   "canonicalExcludeFolders": ["신규"],
   "products": [
-    { "folder": "3연동 자동중문", "productId": "PROD-3PANEL-AUTO-MIDDLE-DOOR", "label": "3연동 자동중문", "slug": "3panel-auto", "sourceId": "SRC-2026-09-04-3PANEL-AUTO-DETAILPAGE" },
-    { "folder": "3연동ㄱ자", "productId": "PROD-3PANEL-LSHAPE-MIDDLE-DOOR", "label": "3연동 ㄱ자 중문", "slug": "3panel-lshape", "sourceId": "SRC-2026-09-04-3PANEL-LSHAPE-DETAILPAGE" },
-    { "folder": "3연동중문", "productId": "PROD-3PANEL-MIDDLE-DOOR", "label": "3연동중문", "slug": "3panel", "sourceId": "SRC-2026-09-04-3PANEL-DETAILPAGE" },
-    { "folder": "ABS도어 문틀리폼 필름시공", "productId": "PROD-ABS-DOOR-FRAME-FILM", "label": "ABS도어 문틀리폼 필름시공", "slug": "abs-door-frame-film", "sourceId": "SRC-2026-09-04-ABS-DOOR-FRAME-FILM-DETAILPAGE" },
-    { "folder": "ABS도어 방문교체", "productId": "PROD-ABS-DOOR-REPLACEMENT", "label": "ABS도어 방문교체", "slug": "abs-door-replacement", "sourceId": "SRC-2026-09-04-ABS-DOOR-REPLACEMENT-DETAILPAGE" },
-    { "folder": "ABS도어 슬라이딩도어", "productId": "PROD-ABS-SLIDING-DOOR", "label": "ABS도어 슬라이딩도어", "slug": "abs-sliding-door", "sourceId": "SRC-2026-09-04-ABS-SLIDING-DOOR-DETAILPAGE" },
-    { "folder": "몰딩", "productId": "PROD-MOLDING", "label": "몰딩", "slug": "molding", "sourceId": "SRC-2026-09-04-MOLDING-DETAILPAGE" },
-    { "folder": "스윙중문", "productId": "PROD-SWING-MIDDLE-DOOR", "label": "스윙중문", "slug": "swing", "sourceId": "SRC-2026-09-04-SWING-DETAILPAGE" },
-    { "folder": "양개형중문 미서기", "productId": "PROD-WIDE-SLIDING-MIDDLE-DOOR", "label": "양개형중문/미서기", "slug": "wide-sliding", "sourceId": "SRC-2026-09-04-WIDE-SLIDING-DETAILPAGE" },
-    { "folder": "원슬라이딩중문", "productId": "PROD-ONE-SLIDING-MIDDLE-DOOR", "label": "원슬라이딩중문", "slug": "onesliding", "sourceId": "SRC-2026-09-04-ONESLIDING-DETAILPAGE" }
+    { "folder": "3연동 자동중문", "productId": "PROD-3PANEL-AUTO-MIDDLE-DOOR", "label": "3연동 자동중문", "slug": "3panel-auto", "sourceId": "SRC-2026-09-04-3PANEL-AUTO-DETAILPAGE", "exclusiveAliases": ["3연동 자동중문", "자동중문"], "requiredAliases": ["자동중문"] },
+    { "folder": "3연동ㄱ자", "productId": "PROD-3PANEL-LSHAPE-MIDDLE-DOOR", "label": "3연동 ㄱ자 중문", "slug": "3panel-lshape", "sourceId": "SRC-2026-09-04-3PANEL-LSHAPE-DETAILPAGE", "exclusiveAliases": ["3연동ㄱ자", "ㄱ자중문"], "requiredAliases": ["3연동ㄱ자", "ㄱ자중문"] },
+    { "folder": "3연동중문", "productId": "PROD-3PANEL-MIDDLE-DOOR", "label": "3연동중문", "slug": "3panel", "sourceId": "SRC-2026-09-04-3PANEL-DETAILPAGE", "exclusiveAliases": [], "requiredAliases": ["3연동중문"] },
+    { "folder": "ABS도어 문틀리폼 필름시공", "productId": "PROD-ABS-DOOR-FRAME-FILM", "label": "ABS도어 문틀리폼 필름시공", "slug": "abs-door-frame-film", "sourceId": "SRC-2026-09-04-ABS-DOOR-FRAME-FILM-DETAILPAGE", "exclusiveAliases": ["ABS도어 문틀리폼 필름시공"], "requiredAliases": ["ABS도어 문틀리폼 필름시공", "문틀리폼", "문틀 필름시공"], "genericAliases": ["ABS도어"] },
+    { "folder": "ABS도어 방문교체", "productId": "PROD-ABS-DOOR-REPLACEMENT", "label": "ABS도어 방문교체", "slug": "abs-door-replacement", "sourceId": "SRC-2026-09-04-ABS-DOOR-REPLACEMENT-DETAILPAGE", "exclusiveAliases": ["ABS도어 방문교체"], "requiredAliases": ["ABS도어 방문교체", "ABS 방문교체", "방문교체"], "genericAliases": ["ABS도어"] },
+    { "folder": "ABS도어 슬라이딩도어", "productId": "PROD-ABS-SLIDING-DOOR", "label": "ABS도어 슬라이딩도어", "slug": "abs-sliding-door", "sourceId": "SRC-2026-09-04-ABS-SLIDING-DOOR-DETAILPAGE", "exclusiveAliases": ["ABS도어 슬라이딩도어"], "requiredAliases": ["ABS도어 슬라이딩도어", "ABS 슬라이딩도어"], "genericAliases": ["ABS도어"] },
+    { "folder": "몰딩", "productId": "PROD-MOLDING", "label": "몰딩", "slug": "molding", "sourceId": "SRC-2026-09-04-MOLDING-DETAILPAGE", "exclusiveAliases": [], "requiredAliases": ["몰딩"] },
+    { "folder": "스윙중문", "productId": "PROD-SWING-MIDDLE-DOOR", "label": "스윙중문", "slug": "swing", "sourceId": "SRC-2026-09-04-SWING-DETAILPAGE", "exclusiveAliases": ["스윙중문"], "requiredAliases": ["스윙중문"] },
+    { "folder": "양개형중문 미서기", "productId": "PROD-WIDE-SLIDING-MIDDLE-DOOR", "label": "양개형중문/미서기", "slug": "wide-sliding", "sourceId": "SRC-2026-09-04-WIDE-SLIDING-DETAILPAGE", "exclusiveAliases": ["양개형중문", "미서기"], "requiredAliases": ["양개형중문", "미서기"] },
+    { "folder": "원슬라이딩중문", "productId": "PROD-ONE-SLIDING-MIDDLE-DOOR", "label": "원슬라이딩중문", "slug": "onesliding", "sourceId": "SRC-2026-09-04-ONESLIDING-DETAILPAGE", "exclusiveAliases": ["원슬라이딩중문", "원슬라이딩"], "requiredAliases": ["원슬라이딩"] }
   ],
   "review": {
     "catalogReports": [

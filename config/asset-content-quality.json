@@ -1,18 +1,31 @@
 {
   "schema": "munjanggun.assetContentQualityPolicy.v1",
   "version": "1.0",
-  "updatedAt": "2026-09-07T04:05:00.000Z",
+  "updatedAt": "2026-09-07T05:44:53.361Z",
   "records": [
     {
       "intakeId": "INTAKE-20260904-01",
       "catalogSha256": "523e2f50ba99e9181c5ebeb814b0af9345118aee01257204b4fa8671841ae61b",
-      "status": "blocked_pending_visual_revalidation",
-      "reason": "실제 원본과 semanticSummary 및 claimSignals 불일치가 확인되어 407개 고유 자산의 내용 정확성을 재검증 중",
+      "status": "visually_verified",
+      "reason": "407개 원본을 source 상품군과 교차 재검증하고 가격·교차상품·ABS 세부상품 및 공용 family 판정을 봉인했으며 전달 도구가 검증된 overlay에서 결과를 재구성하도록 확인함",
       "detectedAt": "2026-09-07T04:05:00.000Z",
+      "verifiedAt": "2026-09-07T05:44:53.361Z",
+      "overlayPath": "C:\\Users\\hjh\\안티그래비티\\문장군_브랜드_private\\INTAKE-20260904-01\\content-revalidation-v1\\verified-v4\\content-overlay.json",
+      "overlaySha256": "a4234503b0cff596926bda06be3b8e1433621d9bc8f5739e7870efef556ef6db",
+      "receiptPath": "C:\\Users\\hjh\\안티그래비티\\문장군_브랜드_private\\INTAKE-20260904-01\\content-revalidation-v1\\verified-v4\\receipt.json",
+      "receiptSha256": "f14c3fbd82e164c66cf3aa018be3129ad74d2a3191625fc0aae656c8d33cc4b3",
+      "profileSha256": "df8160f8419de06c41ebfe134ac1da53c3707d71a73584ec6c56fbce5092371b",
       "confirmedExamples": [
         "3연동중문/014.png",
         "3연동중문/017.png",
-        "스윙중문/013.jpg"
+        "스윙중문/013.jpg",
+        "3연동중문/컬렉션/클래식/썸네일/001.jpg",
+        "3연동중문/컬렉션/모던/013.jpg",
+        "3연동중문/컬렉션/베이직/002.jpg",
+        "3연동중문/컬렉션/클래식/썸네일/008.jpg",
+        "3연동중문/컬렉션/모던/썸네일/006.jpg",
+        "3연동 자동중문/020.jpg",
+        "3연동 자동중문/026.png"
       ]
     }
   ]

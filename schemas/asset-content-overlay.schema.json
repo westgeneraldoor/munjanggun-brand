@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/westgeneraldoor/munjanggun-brand/schemas/asset-content-overlay.schema.json",
+  "title": "Munjanggun Verified Content Overlay",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "version", "intakeId", "generatedAt", "baseCatalogSha256", "entryCount", "entries"],
+  "properties": {
+    "schema": { "const": "munjanggun.assetContentOverlay.v1" },
+    "version": { "const": "1.0" },
+    "intakeId": { "type": "string", "pattern": "^INTAKE-[0-9]{8}-[0-9]{2}$" },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "baseCatalogSha256": { "$ref": "#/$defs/sha256" },
+    "entryCount": { "type": "integer", "minimum": 1 },
+    "entries": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "sha256", "semanticSummary", "assetType", "useCases", "searchTags", "ocrText",
+          "claimSignals", "privacySignals", "humanReviewStatus", "annotationMethod",
+          "reviewEvidenceRefs", "decisionHash"
+        ],
+        "properties": {
+          "sha256": { "$ref": "#/$defs/sha256" },
+          "semanticSummary": { "type": "string", "minLength": 1 },
+          "assetType": { "type": "string", "minLength": 1 },
+          "useCases": { "$ref": "#/$defs/stringArray" },
+          "searchTags": { "$ref": "#/$defs/searchTags" },
+          "ocrText": { "type": "string" },
+          "claimSignals": { "$ref": "#/$defs/stringArray" },
+          "privacySignals": { "$ref": "#/$defs/stringArray" },
+          "humanReviewStatus": { "const": "verified" },
+          "annotationMethod": { "enum": ["full_resolution_original_reviewed", "full_loop_original_reviewed"] },
+          "reviewEvidenceRefs": { "$ref": "#/$defs/stringArray" },
+          "decisionHash": { "$ref": "#/$defs/sha256" },
+          "gifMetadata": {
+            "type": ["object", "null"],
+            "properties": {
+              "frameCount": { "type": "integer", "minimum": 1 },
+              "durationMs": { "type": "integer", "minimum": 0 },
+              "loopBehavior": { "type": "string", "minLength": 1 },
+              "movementEvidence": { "const": "full_loop_reviewed" },
+              "storyboardPaths": { "$ref": "#/$defs/stringArray" }
+            },
+            "required": ["frameCount", "durationMs", "loopBehavior", "movementEvidence", "storyboardPaths"],
+            "additionalProperties": false
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "stringArray": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+    "searchTags": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["productTypes", "scenes", "colors", "designs", "topics"],
+      "properties": {
+        "productTypes": { "$ref": "#/$defs/stringArray" },
+        "scenes": { "$ref": "#/$defs/stringArray" },
+        "colors": { "$ref": "#/$defs/stringArray" },
+        "designs": { "$ref": "#/$defs/stringArray" },
+        "topics": { "$ref": "#/$defs/stringArray" }
+      }
+    }
+  }
+}

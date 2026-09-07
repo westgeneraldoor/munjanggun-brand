@@ -1,5 +1,39 @@
 # CHANGELOG - 문장군 중앙 브랜드 문서
 
+## v5.6 - 2026-09-07
+
+- 독립 감찰에서 `verified-v1` 이후에도 남은 상품군·교차상품·검색 태그 오류를 재현해 v1~v3 authority를 모두 운영에서 철회
+- 정지 이미지 335개와 GIF 72개를 source 상품군 기준으로 다시 교차 검증해 `verified-v4`로 신규 봉인
+  - 기존 catalog 대비 설명 362개, OCR 322개, claim 160개, 개인정보 신호 23개 교정
+  - 알려진 가격·디자인 오분류 3건, 3연동/원슬라이딩 혼동 5건, 자동중문 가격표 2건 교정
+  - 제품명이 설명에 있으나 `productTypes`가 비어 있던 5건 보완
+- `crossProductSourceIds`를 실제 이미지에 보이는 다른 상품만 허용하도록 강화하고 sourceRefs 중복·근거 없는 선언 차단
+- ABS 세부상품은 완전 식별 어구가 있어야 통과하도록 변경
+  - 공용 ABS 이미지는 세부상품으로 강제 치환하지 않고 `genericSourceProduct`와 판독 사유를 봉인한 경우만 허용
+- intake profile snapshot을 private authority에 함께 봉인하고 실제 파일 SHA를 매 사용 시 재검증
+- handoff가 호출자 결과의 objectPath·sourceRefs·권리 상태를 신뢰하지 않고 검증된 overlay/object에서 결과를 재구성하도록 변경
+- 외부 추출은 overlay의 claim·privacy 상태를 먼저 적용하고, legacy evidence 상대경로도 봉인 기준 위치에서 안전하게 해석
+- 공개 Git 저장 보류와 외부 발행의 서명·claim·개인정보 차단은 유지
+
+> 정정: v5.5에 기록된 최초 봉인본은 후속 독립 감찰에서 오류가 확인되어 운영 권위가 아니다. 최종 운영 권위는 v5.6의 `verified-v4`다.
+
+## v5.5 - 2026-09-07
+
+- `INTAKE-20260904-01` 시각 자산 407개를 원본별로 전수 재판독
+  - 정지 이미지 335개 전체 해상도 확인
+  - GIF 72개 전체 루프, 총 605개 시간순 프레임 확인
+- 기존 내용 태깅 생성 계보와 통과 원인 확정
+  - 일회성 OCR·키워드 분류에서 `₩` 가격 누락과 디자인명/동작 오인이 발생
+  - 병합기와 완료 검사가 내용 정확성이 아닌 상태값·필드 존재만 확인했던 결함 기록
+- `ASSET_CONTENT_REVALIDATION_2026-09-07.md` 추가
+  - 확정 오분류 3건의 전후 비교, 변경 집계, 봉인 SHA, 권리·claim 상태 분리 기록
+- 재현 가능한 내용 검증 체계 추가
+  - 원본·object SHA, sourceRefs, 407개 정확한 coverage, 가격 문구/claim 일치, GIF 전체 루프, per-SHA 결정 해시 검증
+  - private content overlay와 receipt를 새 경로에 생성하고 기존 Z 보고서는 덮어쓰지 않음
+- 공용 검색, 직접 catalog 검색, 블로그 선택, handoff, 외부 추출에 동일한 내용 정확성 정책 적용
+- 과거 blog/CRM handoff 4건은 철회 상태 유지; 새 overlay가 적용된 전달물만 사용
+- 공개 Git에는 원본 이미지·GIF·private overlay를 추가하지 않으며 공개 Git 보류 지시 유지
+
 ## v5.4 - 2026-09-07
 
 - 실제 원본과 현재 카탈로그의 설명·claim 태그 불일치를 확인해 `INTAKE-20260904-01` 내용 메타데이터 전체를 재검증 대기로 격리
