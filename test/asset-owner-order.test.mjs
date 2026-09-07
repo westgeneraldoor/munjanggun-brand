@@ -7,8 +7,7 @@ import { buildOwnerOrderDocuments, validateOwnerOrderDocuments } from '../script
 import { validateAgainstSchema } from '../scripts/lib/schema-validation.mjs';
 
 test('owner order records rights while public Git, signatures, claim, privacy, and escalation remain closed', async () => {
-  const documents = buildOwnerOrderDocuments(fixtureCatalog(), {
-    recordedAt: '2026-09-05T04:00:00.000Z',
+  const documents = buildDocuments(fixtureCatalog(), '2026-09-05T04:00:00.000Z', {
     reviewEvidenceReceiptRef: '../../review-evidence/receipt.json',
   });
   assert.deepEqual(validateOwnerOrderDocuments(documents), []);
@@ -16,7 +15,7 @@ test('owner order records rights while public Git, signatures, claim, privacy, a
   assert.equal(documents.useEvidenceReceipt.document.signature, null);
   assert.equal(documents.ownerDecisionReceipt.document.signature, null);
   assert.equal(documents.registry.document.entries.every((entry) => entry.status === 'attested_unsealed'), true);
-  assert.equal(documents.catalog.document.entries.every((entry) => entry.rightsStatus === 'pending' && entry.publishStatus === 'blocked' && entry.publicRepoEligibility === 'not_reviewed'), true);
+  assert.equal(documents.catalog.document.entries.every((entry) => entry.rightsStatus === 'owner_approved_recorded' && entry.publishStatus === 'blocked' && entry.publicRepoEligibility === 'not_reviewed'), true);
   assert.equal(documents.ledger.document.rightsDecisions.internalPreservation.status, 'approved');
   assert.equal(documents.ledger.document.rightsDecisions.externalReuse.status, 'approved');
   assert.equal(documents.ledger.document.rightsDecisions.specialAssetRestrictions.status, 'approved');
@@ -28,7 +27,7 @@ test('owner order records rights while public Git, signatures, claim, privacy, a
 });
 
 test('owner attestation and worker mapping remain separate, catalog-bound records', () => {
-  const documents = buildOwnerOrderDocuments(fixtureCatalog(), { recordedAt: '2026-09-05T04:00:00.000Z' });
+  const documents = buildDocuments();
   assert.equal('entries' in documents.attestation.document, false);
   assert.equal(documents.mapping.document.generatedBy, 'codex_worker_catalog_expansion');
   assert.equal(documents.mapping.document.assetCount, 407);
@@ -41,7 +40,7 @@ test('owner attestation and worker mapping remain separate, catalog-bound record
 });
 
 test('owner order schemas accept the generated fail-closed bundle', async () => {
-  const documents = buildOwnerOrderDocuments(fixtureCatalog(), { recordedAt: '2026-09-05T04:00:00.000Z' });
+  const documents = buildDocuments();
   const cases = [
     ['asset-content-catalog.schema.json', documents.catalog.document],
     ['asset-owner-attestation.schema.json', documents.attestation.document],
@@ -61,7 +60,7 @@ test('owner order schemas accept the generated fail-closed bundle', async () => 
 });
 
 test('owner order invariant detects public Git or publication widening', () => {
-  const documents = buildOwnerOrderDocuments(fixtureCatalog(), { recordedAt: '2026-09-05T04:00:00.000Z' });
+  const documents = buildDocuments();
   documents.ledger.document.rightsDecisions.publicGitStorage.status = 'approved';
   documents.catalog.document.entries[0].publishStatus = 'eligible';
   const errors = validateOwnerOrderDocuments(documents);
@@ -70,25 +69,84 @@ test('owner order invariant detects public Git or publication widening', () => {
 });
 
 test('owner order invariant detects a worker mapping pointed at the wrong catalog asset', () => {
-  const documents = buildOwnerOrderDocuments(fixtureCatalog(), { recordedAt: '2026-09-05T04:00:00.000Z' });
+  const documents = buildDocuments();
   documents.mapping.document.entries[0].contentId = 'CONTENT-WRONG';
   const errors = validateOwnerOrderDocuments(documents);
   assert.match(errors.join('\n'), /worker mapping target mismatch/);
 });
 
 test('owner order invariant rejects a channel wider than the owner attestation', () => {
-  const documents = buildOwnerOrderDocuments(fixtureCatalog(), { recordedAt: '2026-09-05T04:00:00.000Z' });
+  const documents = buildDocuments();
   documents.artifacts[0].document.channels.push('detail_page');
   const errors = validateOwnerOrderDocuments(documents);
   assert.match(errors.join('\n'), /owner rights artifact target mismatch/);
 });
 
 test('owner order invariant rejects verified registry status while receipts are unsigned', () => {
-  const documents = buildOwnerOrderDocuments(fixtureCatalog(), { recordedAt: '2026-09-05T04:00:00.000Z' });
+  const documents = buildDocuments();
   documents.registry.document.entries[0].status = 'verified';
   const errors = validateOwnerOrderDocuments(documents);
   assert.match(errors.join('\n'), /unsigned rights registry must remain attested_unsealed/);
 });
+
+test('owner order derives counts for a different future intake instead of requiring 407 assets', () => {
+  const source = fixtureCatalog();
+  source.intakeId = 'INTAKE-20261001-01';
+  source.entries = source.entries.slice(0, 3);
+  source.binaryGroupCount = 3;
+  const documents = buildDocuments(source, '2026-10-01T01:00:00.000Z');
+  assert.deepEqual(validateOwnerOrderDocuments(documents), []);
+  assert.equal(documents.mapping.document.assetCount, 3);
+  assert.equal(documents.mapping.document.sourcePathCount, 9);
+  assert.deepEqual(documents.rightsState.document.remainingGates, {
+    trustedOwnerSignature: 'missing', claimAssetCount: 3, privacyAssetCount: 3, escalationAssetCount: 3,
+  });
+});
+
+test('owner order never applies the current owner decision to a future intake without explicit input', () => {
+  assert.throws(() => buildOwnerOrderDocuments(fixtureCatalog()), /explicit intake-specific attestation input/);
+});
+
+test('owner order never expands an attestation to a changed catalog in the same intake', () => {
+  const original = fixtureCatalog();
+  const attestationInput = fixtureAttestation(original, '2026-09-05T04:00:00.000Z');
+  const changed = structuredClone(original);
+  changed.entries = changed.entries.slice(0, -1);
+  changed.binaryGroupCount = changed.entries.length;
+  assert.throws(() => buildOwnerOrderDocuments(changed, {
+    attestationInput,
+    sourceCatalogSha256: sourceCatalogHash(changed),
+  }), /source catalog SHA-256 does not match/);
+});
+
+function buildDocuments(source = fixtureCatalog(), recordedAt = '2026-09-05T04:00:00.000Z', options = {}) {
+  return buildOwnerOrderDocuments(source, {
+    ...options,
+    sourceCatalogSha256: sourceCatalogHash(source),
+    attestationInput: fixtureAttestation(source, recordedAt),
+  });
+}
+
+function fixtureAttestation(source, recordedAt) {
+  const sourceGroupIds = [...new Set(source.entries.flatMap((entry) => entry.sourceRefs.map((ref) => ref.sourceId)))].sort();
+  return {
+    schema: 'munjanggun.assetOwnerAttestation.v1', version: '1.0',
+    attestationId: `OWNER-ATTESTATION-${recordedAt.slice(0, 10).replaceAll('-', '')}-01`, intakeId: source.intakeId,
+    sourceCatalogSha256: sourceCatalogHash(source),
+    recordedAt, recordingContext: 'current_codex_session_user_instruction', sourceGroupIds,
+    statements: {
+      selfProduced: 'attested', privateCodexSourceUse: 'approved',
+      externalReuse: { status: 'approved', channels: ['blog', 'sns'] },
+      specialAssetRestrictions: 'no_additional_owner_restriction', publicGitStorage: 'pending',
+    },
+    excludedApprovals: { claimCurrentness: true, privacyClearance: true, humanReviewEscalations: true },
+    signature: null,
+  };
+}
+
+function sourceCatalogHash(source) {
+  return createHash('sha256').update(`${JSON.stringify(source, null, 2)}\n`).digest('hex');
+}
 
 function fixtureCatalog() {
   const entries = Array.from({ length: 407 }, (_, index) => fixtureEntry(index));

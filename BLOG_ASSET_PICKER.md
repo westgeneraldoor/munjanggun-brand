@@ -2,9 +2,27 @@
 
 이 문서는 블로그 작성자가 상품명, 설치 장면, 색상, 디자인, 상담 주제로 자산 후보를 찾고 안전하게 발췌하는 절차를 설명한다. 색상과 디자인은 상품 선택 정보이며 중앙 시각 디자인 기준을 뜻하지 않는다.
 
-2026-09-07 사장 지시로 `INTAKE-20260904-01` 신규 10개 묶음은 문장군 내부 자체제작이며 블로그·SNS 재사용 권리가 확인됐다. 최신 권리 기록은 Z 비공개 `candidate-v2/owner-rights-v2/` 묶음이다. 공개 Git 저장은 보류하고, 가격·행사 등 변동 문구와 개인정보는 발행 전에 작업자가 별도로 확인한다.
+2026-09-07 사장 지시로 `INTAKE-20260904-01` 신규 10개 묶음은 문장군 내부 자체제작이며 블로그·SNS 재사용 권리가 확인됐다. 최신 기준은 공용 `current.json`이 가리키는 비공개 묶음이다. 공개 Git 저장은 보류하고, 가격·행사 등 변동 문구와 개인정보는 발행 전에 작업자가 별도로 확인한다.
 
-## 1. 빠른 검색과 다축 후보 검색
+## 1. 공용 자료실에서 검색·미리보기
+
+버전 폴더와 Z 경로를 직접 찾지 않는다.
+
+```text
+npm run assets:library -- --pointer "C:\Users\hjh\안티그래비티\문장군_브랜드_private\asset-library\current.json" --query "3연동중문 베이지 현관"
+```
+
+결과에는 실제 object 경로와 미리보기 주소, 내부 사용 가능 여부, 외부 발행 차단 이유가 함께 나온다. 선택한 후보는 등록된 블로그 비공개 영역에 바이너리 없이 전달한다.
+
+```text
+npm run assets:library -- --pointer "C:\Users\hjh\안티그래비티\문장군_브랜드_private\asset-library\current.json" --query "3연동ㄱ자 제품 연출 썸네일" --select-content-id <CONTENT-ID> --consumer munjanggun-blog --output-name <작업명>
+```
+
+`asset-handoff.json`과 `preview.html`만 생기며 `data/private/`의 Git 제외 상태를 유지한다. 이 단계는 내부 제작 참고용이고 외부 게시 승인은 아니다.
+
+소비 프로젝트와 비공개 대상 루트는 중앙의 `config/asset-library-consumers.json`에서만 승인한다. `--consumer` 대신 경로를 직접 적어도 동일한 Git 제외·비추적 검사를 통과해야 하며, 저장소에 추적되는 위치에는 handoff를 만들 수 없다.
+
+## 2. 기존 상세 검색
 
 한 문장으로 넓게 찾을 때는 기존 검색을 사용한다.
 
@@ -31,7 +49,7 @@ npm run assets:pick-for-blog -- --catalog <reviewed-content-catalog.json> --prod
 
 `--media-type image/gif`처럼 미디어 형식을 제한할 수 있다. 검색과 후보 선택은 파일이나 상태를 변경하지 않는다.
 
-## 2. 후보 판정 읽기
+## 3. 후보 판정 읽기
 
 모든 후보에는 `catalogMetadataStatus`와 `externalExtractionBlockers`가 표시된다.
 
@@ -40,7 +58,7 @@ npm run assets:pick-for-blog -- --catalog <reviewed-content-catalog.json> --prod
 
 미승인 자산도 검색 결과에서 숨기지 않는다. 출처와 상세페이지 맥락을 보존하고 검토 대상을 찾기 위해서다. 대신 미승인 자산을 선택하면 `externalExtractionRequestStatus: blocked_by_catalog_metadata`, `nextStep: null`이 반환된다.
 
-## 3. 한 후보 선택
+## 4. 외부 발행용 추출
 
 검색 조건에 포함된 `contentId`만 선택할 수 있다.
 
@@ -56,9 +74,10 @@ npm run assets:extract-content -- --catalog <reviewed-content-catalog.json> --ev
 
 추출기는 검색 결과를 신뢰하지 않고 카탈로그 SHA, 봉인된 육안 검토 증거, 사장 결정, 실제 권리·claim 증거, 사용 채널, 개인정보 상태, object SHA를 다시 검증한다. 하나라도 실패하면 출력 묶음을 만들지 않는다.
 
-## 4. 사용 금지
+## 5. 사용 금지
 
 - `review_only` 후보를 object store나 원본 폴더에서 직접 복사하지 않는다.
 - 검색 점수나 `contentId`만으로 사용 승인을 추정하지 않는다.
 - 가격, 이벤트, 월 납입, 스펙, 옵션, 보증, 일정 문구는 이미지 원본 맥락 밖에서 재사용하기 전에 최신 근거를 확인한다.
 - 추출 영수증이 없는 파일을 블로그 원고나 CMS에 연결하지 않는다.
+- 공용 자료실의 `firstReviewCandidates` 수를 즉시 발행 가능 수로 부르지 않는다. 작업자가 우선 판정하기 좋은 묶음이라는 뜻이다.

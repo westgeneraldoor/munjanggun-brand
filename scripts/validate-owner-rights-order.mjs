@@ -8,7 +8,7 @@ import { validateOwnerOrderDocuments } from './lib/asset-owner-order.mjs';
 import { formatSchemaErrors, validateAgainstSchema } from './lib/schema-validation.mjs';
 
 const root = resolve(requiredArg('--bundle-root'));
-const catalog = await readDocument('reviewed-content-catalog-v6.json');
+const catalog = await readDocument('reviewed-content-catalog.json');
 const attestation = await readDocument('owner-rights-attestation.json');
 const mapping = await readDocument('owner-attestation-mapping.json');
 const registry = await readDocument('use-evidence-registry.json');

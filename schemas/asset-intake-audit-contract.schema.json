@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/westgeneraldoor/munjanggun-brand/schemas/asset-intake-audit-contract.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "version", "intakeId", "profileRef", "profileSha256", "expected"],
+  "properties": {
+    "schema": { "const": "munjanggun.assetIntakeAuditContract.v1" },
+    "version": { "const": "1.0" },
+    "intakeId": { "type": "string", "pattern": "^INTAKE-[0-9]{8}-[0-9]{2}$" },
+    "profileRef": { "type": "string", "minLength": 1 },
+    "profileSha256": { "$ref": "#/$defs/sha256" },
+    "expected": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["receiptEntries", "receiptManaged", "productManifests", "visualManifestPaths", "intakeBinaryGroups", "uniqueGifBinaries", "gifSourcePaths", "urlRecords", "combinedCounts", "visualGroups", "unjudgedVisualGroups"],
+      "properties": {
+        "receiptEntries": { "$ref": "#/$defs/count" },
+        "receiptManaged": { "$ref": "#/$defs/count" },
+        "productManifests": { "$ref": "#/$defs/count" },
+        "visualManifestPaths": { "$ref": "#/$defs/count" },
+        "intakeBinaryGroups": { "$ref": "#/$defs/count" },
+        "uniqueGifBinaries": { "$ref": "#/$defs/count" },
+        "gifSourcePaths": { "$ref": "#/$defs/count" },
+        "urlRecords": { "$ref": "#/$defs/count" },
+        "combinedCounts": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["canonicalVisualPaths", "intakeVisualPaths", "logicalVisualPaths", "binaryGroups", "sharedBinaryGroups", "canonicalOnlyBinaryGroups", "intakeOnlyBinaryGroups", "gifBinaryGroups"],
+          "properties": {
+            "canonicalVisualPaths": { "$ref": "#/$defs/count" },
+            "intakeVisualPaths": { "$ref": "#/$defs/count" },
+            "logicalVisualPaths": { "$ref": "#/$defs/count" },
+            "binaryGroups": { "$ref": "#/$defs/count" },
+            "sharedBinaryGroups": { "$ref": "#/$defs/count" },
+            "canonicalOnlyBinaryGroups": { "$ref": "#/$defs/count" },
+            "intakeOnlyBinaryGroups": { "$ref": "#/$defs/count" },
+            "gifBinaryGroups": { "$ref": "#/$defs/count" }
+          }
+        },
+        "visualGroups": { "$ref": "#/$defs/count" },
+        "unjudgedVisualGroups": { "$ref": "#/$defs/count" }
+      }
+    }
+  },
+  "$defs": {
+    "count": { "type": "integer", "minimum": 0 },
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+  }
+}

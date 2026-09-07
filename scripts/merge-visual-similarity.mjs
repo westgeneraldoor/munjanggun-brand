@@ -3,19 +3,26 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { formatSchemaErrors, validateAgainstSchema } from './lib/schema-validation.mjs';
+import { loadIntakeProfile } from './lib/asset-intake-profile.mjs';
 
 const inventoryPath = resolve(requiredArg('--inventory'));
-const staticPath = resolve(requiredArg('--static'));
-const gifPath = resolve(requiredArg('--gif'));
+const reviewRoot = resolve(requiredArg('--review-root'));
+const { profile } = await loadIntakeProfile(resolve(requiredArg('--profile')));
 const outputPath = resolve(requiredArg('--output'));
-const [inventory, staticReview, gifReview] = await Promise.all([readJson(inventoryPath), readJson(staticPath), readJson(gifPath)]);
+const inventory = await readJson(inventoryPath);
+if (profile.intakeId !== inventory.intakeId) throw new Error(`Intake profile ${profile.intakeId} does not match inventory ${inventory.intakeId}`);
+const reports = await Promise.all(profile.review.similarityReports.map(async (spec) => ({
+  spec,
+  report: await readJson(resolve(reviewRoot, ...spec.file.split('/'))),
+})));
 const schema = await readJson(fileURLToPath(new URL('../schemas/asset-visual-similarity-map.schema.json', import.meta.url)));
 
 const reviewed = new Map();
-for (const [label, rows] of [['static-final-375', staticReview.entries], ['gif-final-75', gifReview.entries]]) {
-  for (const entry of rows) {
+for (const { spec, report } of reports) {
+  if (report.intakeId !== undefined && report.intakeId !== inventory.intakeId) throw new Error(`${spec.id}: intakeId does not match inventory`);
+  for (const entry of report.entries ?? []) {
     if (reviewed.has(entry.sha256)) throw new Error(`Duplicate final review SHA ${entry.sha256}`);
-    reviewed.set(entry.sha256, { label, entry });
+    reviewed.set(entry.sha256, { spec, entry });
   }
 }
 if (reviewed.size !== inventory.groups.length) throw new Error(`Final review covers ${reviewed.size}; inventory requires ${inventory.groups.length}`);
@@ -51,7 +58,7 @@ const entries = inventory.groups.map((group) => {
     comparisonScope: 'within_media_only',
     comparisonMethod: [...new Set(comparisonMethod.map(String))],
     humanReviewStatus: 'reviewed',
-    humanReviewEvidence: [`${review.label}.json#sha256=${group.sha256}`],
+    humanReviewEvidence: [`${review.spec.file}#sha256=${group.sha256}`],
   };
 });
 const visualGroups = new Set(entries.map((entry) => entry.visualGroupId));
@@ -68,8 +75,6 @@ const output = {
   unjudgedCount,
   entries,
 };
-if (output.logicalPathCount !== 2013) throw new Error(`Expected 2013 logical paths, got ${output.logicalPathCount}`);
-if (output.binaryGroupCount !== 450) throw new Error(`Expected 450 binary groups, got ${output.binaryGroupCount}`);
 const result = validateAgainstSchema(output, schema);
 if (!result.valid) throw new Error(`Visual similarity schema failed:\n${formatSchemaErrors(result.errors).join('\n')}`);
 await mkdir(dirname(outputPath), { recursive: true });

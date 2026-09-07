@@ -77,7 +77,7 @@
           "claimSignals": { "type": "array", "items": { "type": "string" } },
           "privacySignals": { "type": "array", "items": { "type": "string" } },
           "rightsSignals": { "type": "array", "items": { "type": "string" } },
-          "rightsStatus": { "enum": ["not_reviewed", "pending", "verified", "restricted", "expired"] },
+          "rightsStatus": { "enum": ["not_reviewed", "pending", "owner_approved_recorded", "verified", "restricted", "expired"] },
           "rightsScope": { "type": "array", "uniqueItems": true, "items": { "enum": ["internal_preservation", "private_codex_source", "public_git_storage", "external_reuse"] } },
           "rightsEvidenceRef": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^RIGHTS-EV-[A-Z0-9-]+$" } },
           "privacyStatus": { "enum": ["not_reviewed", "cleared", "restricted", "needs_redaction"] },

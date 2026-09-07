@@ -8,6 +8,7 @@ import { findFiles } from './lib/brand-validation-core.mjs';
 import { sha256File } from './lib/asset-inventory.mjs';
 import { toPosixPath } from './lib/asset-paths.mjs';
 import { formatSchemaErrors, validateAgainstSchema } from './lib/schema-validation.mjs';
+import { loadIntakeProfile } from './lib/asset-intake-profile.mjs';
 
 const reviewSource = resolve(requiredArg('--review-source'));
 const evidenceRoot = resolve(requiredArg('--evidence-root'));
@@ -19,6 +20,7 @@ const intakeReceiptPath = resolve(requiredArg('--intake-receipt'));
 const catalogOutput = resolve(requiredArg('--catalog-output'));
 const similarityOutput = resolve(requiredArg('--similarity-output'));
 const urlReviewOutput = resolve(requiredArg('--url-review-output'));
+const { profile, sealReportPaths } = await loadIntakeProfile(resolve(requiredArg('--profile')));
 
 await mkdir(evidenceRoot, { recursive: true });
 if ((await readdir(evidenceRoot)).length > 0) throw new Error(`Evidence root must be empty: ${evidenceRoot}`);
@@ -27,30 +29,39 @@ const sheetsDir = join(evidenceRoot, 'sheets');
 const storyboardsDir = join(evidenceRoot, 'storyboards');
 await Promise.all([mkdir(reportsDir), mkdir(sheetsDir), mkdir(storyboardsDir)]);
 
-const reportNames = [
-  'static-a.json', 'static-b.json', 'gif.json', 'report-audit.json',
-  'static-final-375.json', 'gif-final-75.json', 'similarity-audit.json', 'combined-inventory-2013.json',
-];
+const reportNames = sealReportPaths;
 const sourceMappings = new Map();
 for (const name of reportNames) sourceMappings.set(normalizeAbsolute(join(reviewSource, name)), `reports/${name}`);
-const rootSheets = (await readdir(reviewSource, { withFileTypes: true }))
-  .filter((entry) => entry.isFile() && entry.name.toLowerCase().endsWith('.jpg'))
-  .map((entry) => entry.name);
-for (const name of rootSheets) sourceMappings.set(normalizeAbsolute(join(reviewSource, name)), `sheets/${name}`);
-const storyboardNames = (await readdir(join(reviewSource, 'storyboards'), { withFileTypes: true }))
-  .filter((entry) => entry.isFile() && entry.name.toLowerCase().endsWith('.jpg'))
-  .map((entry) => entry.name);
-for (const name of storyboardNames) sourceMappings.set(normalizeAbsolute(join(reviewSource, 'storyboards', name)), `storyboards/${name}`);
-
-for (const name of rootSheets) await copyFile(join(reviewSource, name), join(sheetsDir, name), constants.COPYFILE_EXCL);
-for (const name of storyboardNames) await copyFile(join(reviewSource, 'storyboards', name), join(storyboardsDir, name), constants.COPYFILE_EXCL);
+const supportingNames = { contact_sheet: new Set(), storyboard: new Set() };
+for (const collection of profile.review.supportingCollections) {
+  const sourceDir = resolve(reviewSource, ...collection.sourceDir.split('/'));
+  let entries;
+  try {
+    entries = await readdir(sourceDir, { withFileTypes: true });
+  } catch (error) {
+    if (error.code === 'ENOENT' && !collection.required) continue;
+    throw new Error(`Required review supporting collection is unavailable: ${collection.sourceDir}`, { cause: error });
+  }
+  const targetNamespace = collection.kind === 'contact_sheet' ? 'sheets' : 'storyboards';
+  const targetDir = collection.kind === 'contact_sheet' ? sheetsDir : storyboardsDir;
+  const names = entries
+    .filter((entry) => entry.isFile() && entry.name.toLowerCase().endsWith(collection.extension.toLowerCase()))
+    .map((entry) => entry.name);
+  if (collection.required && names.length === 0) throw new Error(`Required review supporting collection is empty: ${collection.sourceDir}`);
+  for (const name of names) {
+    supportingNames[collection.kind].add(name);
+    sourceMappings.set(normalizeAbsolute(join(sourceDir, name)), `${targetNamespace}/${name}`);
+    await copyFile(join(sourceDir, name), join(targetDir, name), constants.COPYFILE_EXCL);
+  }
+}
 for (const name of reportNames) {
   const report = await readJson(join(reviewSource, name));
-  const normalized = normalizeEvidenceValue(report, { rootSheets: new Set(rootSheets), storyboardNames: new Set(storyboardNames) });
+  const normalized = normalizeEvidenceValue(report, supportingNames);
   await writeJsonNew(join(reportsDir, name), normalized);
 }
 
 const [urlReview, intakeReceipt] = await Promise.all([readJson(urlReviewPath), readJson(intakeReceiptPath)]);
+if (profile.intakeId !== intakeReceipt.intakeId) throw new Error(`Intake profile ${profile.intakeId} does not match ${intakeReceipt.intakeId}`);
 const intakeUrlByPath = new Map(intakeReceipt.entries.filter((entry) => entry.kind === 'url' && entry.disposition === 'managed').map((entry) => [entry.sourceRelativePath, entry]));
 const confirmationEntries = urlReview.entries.map((entry) => {
   const source = intakeUrlByPath.get(entry.sourceRelativePath);
@@ -67,7 +78,9 @@ const confirmationEntries = urlReview.entries.map((entry) => {
     method: urlReview.method,
   };
 });
-if (confirmationEntries.length !== 13) throw new Error(`Expected 13 URL confirmations, got ${confirmationEntries.length}`);
+if (confirmationEntries.length !== intakeUrlByPath.size) {
+  throw new Error(`URL confirmation coverage mismatch: expected ${intakeUrlByPath.size}, got ${confirmationEntries.length}`);
+}
 const urlConfirmation = {
   schema: 'munjanggun.urlConfirmationReceipt.v1',
   version: '1.0',
@@ -140,7 +153,7 @@ const sealedCatalog = {
       claimReviewStatus: strictest(assets.map((asset) => asset.claimReviewStatus), ['restricted', 'expired', 'needs_confirmation', 'not_reviewed', 'verified', 'not_applicable']),
       publishStatus: strictest(assets.map((asset) => asset.publishStatus), ['blocked', 'withdrawn', 'needs_confirmation', 'eligible', 'published']),
       publicRepoEligibility: strictest(assets.map((asset) => asset.publicRepoEligibility), ['prohibited', 'not_reviewed', 'eligible']),
-      reviewEvidenceRefs: (entry.reviewEvidenceRefs ?? []).map(toSealedReviewRef),
+      reviewEvidenceRefs: (entry.reviewEvidenceRefs ?? []).map((value) => toSealedReviewRef(value, reportNames)),
     };
   }),
 };
@@ -150,7 +163,7 @@ const sealedSimilarity = {
   reviewEvidenceReceiptSha256: evidenceReceiptSha256,
   entries: similarityMap.entries.map((entry) => ({
     ...entry,
-    humanReviewEvidence: entry.humanReviewEvidence.map(toSealedReviewRef),
+    humanReviewEvidence: entry.humanReviewEvidence.map((value) => toSealedReviewRef(value, reportNames)),
   })),
 };
 const confirmationRelativeRef = '../review-evidence/reports/url-confirmation-receipt.json';
@@ -183,17 +196,20 @@ function normalizeEvidenceValue(value, names) {
   const mapped = sourceMappings.get(normalizeAbsolute(value));
   if (mapped) return mapped;
   const fileName = basename(value.replaceAll('\\', '/'));
-  if (names.rootSheets.has(fileName)) return `sheets/${fileName}`;
-  if (names.storyboardNames.has(fileName)) return `storyboards/${fileName}`;
+  if (names.contact_sheet.has(fileName)) return `sheets/${fileName}`;
+  if (names.storyboard.has(fileName)) return `storyboards/${fileName}`;
   const objectMatch = value.replaceAll('\\', '/').match(/objects\/(sha256\/[a-f0-9]{2}\/[a-f0-9]{64}\.[A-Za-z0-9]+)$/i);
   if (objectMatch) return `object://${objectMatch[1].toLowerCase()}`;
   if (/^[A-Za-z]:[\\/]/.test(value)) return `local-source://${fileName}`;
   return value;
 }
 
-function toSealedReviewRef(value) {
+function toSealedReviewRef(value, configuredReports) {
   const [path, fragment] = String(value).split('#', 2);
-  return `../review-evidence/reports/${basename(path)}${fragment ? `#${fragment}` : ''}`;
+  const normalized = path.replaceAll('\\', '/');
+  const configured = configuredReports.find((entry) => entry === normalized);
+  if (!configured) throw new Error(`Review evidence ref is not configured in intake profile: ${path}`);
+  return `../review-evidence/reports/${configured}${fragment ? `#${fragment}` : ''}`;
 }
 
 async function readCandidateManifests(root) {

@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/westgeneraldoor/munjanggun-brand/schemas/asset-owner-order-anchor.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "version", "intakeId", "recordedAt", "authorityStatus", "allowedChannels", "publicGitStorage", "hashes"],
+  "properties": {
+    "schema": { "const": "munjanggun.assetOwnerOrderAnchor.v1" },
+    "version": { "const": "1.0" },
+    "intakeId": { "type": "string", "pattern": "^INTAKE-[0-9]{8}-[0-9]{2}$" },
+    "recordedAt": { "type": "string", "format": "date-time" },
+    "authorityStatus": { "const": "owner_approved_recorded" },
+    "allowedChannels": { "type": "array", "minItems": 3, "uniqueItems": true, "items": { "enum": ["private_codex", "blog", "sns"] } },
+    "publicGitStorage": { "const": false },
+    "hashes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ownerAttestation", "workerMapping", "catalog", "reviewEvidenceReceipt", "useEvidenceRegistry", "useEvidenceReceipt", "ownerDecisions", "ownerDecisionsReceipt", "rightsState"],
+      "properties": {
+        "ownerAttestation": { "$ref": "#/$defs/sha256" },
+        "workerMapping": { "$ref": "#/$defs/sha256" },
+        "catalog": { "$ref": "#/$defs/sha256" },
+        "reviewEvidenceReceipt": { "$ref": "#/$defs/sha256" },
+        "useEvidenceRegistry": { "$ref": "#/$defs/sha256" },
+        "useEvidenceReceipt": { "$ref": "#/$defs/sha256" },
+        "ownerDecisions": { "$ref": "#/$defs/sha256" },
+        "ownerDecisionsReceipt": { "$ref": "#/$defs/sha256" },
+        "rightsState": { "$ref": "#/$defs/sha256" }
+      }
+    }
+  },
+  "$defs": { "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" } }
+}

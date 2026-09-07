@@ -1,5 +1,22 @@
 # CHANGELOG - 문장군 중앙 브랜드 문서
 
+## v5.2 - 2026-09-07
+
+- 비공개 공용 자산 자료실의 단일 `current.json` 입구와 검색·미리보기·선택 CLI 추가
+  - 사장 지시가 기록된 407개 자산을 `owner_approved_recorded`로 표시하고, 작업자가 서명한 것처럼 `verified`로 오인시키지 않음
+  - 실제 object 미리보기, 내부 사용 가능, 외부 발행 차단 사유, 공개 Git 금지를 한 결과에서 분리 표시
+  - 문장군블로그의 Git 제외 비공개 영역에 첫 자산 handoff JSON과 HTML 미리보기를 바이너리 복사 없이 생성
+  - 중앙에 커밋된 사장 지시 anchor와 소비 프로젝트 정책을 검증하고, 명시 경로로도 Git 제외 검사를 우회하지 못하게 차단
+  - current 교체는 예상 SHA 기반 CAS, 잠금, 이전 pointer 이력, 전환 전후 검증, object 전수 해시 검사와 실패 시 rollback을 거치도록 변경
+  - 이번 v3→v4 수동 전환은 이전 pointer 원문 SHA와 현재 pointer·anchor·rights-state·407 object 재검증 결과를 private bootstrap reconciliation 영수증으로 보완
+- 다음 intake 반복 처리를 profile과 감사 계약으로 분리
+  - 상품명·날짜·출처·검토 증거 목록은 intake profile로 이동
+  - 콘텐츠 판독 shard, GIF 여부, 시각 유사군 보고서, 선택적 storyboard/contact sheet 위치를 profile 설정으로 이동
+  - 407/1,134/2,013/450 같은 이번 묶음의 정확한 수치는 intake 감사 계약에서만 검증
+  - 임의의 새 상품명과 다른 자산 수를 사용하는 회귀 테스트 추가
+- 작업자 검토 큐를 우선 판정 222개, claim 174개, 개인정보 15개, 재판독 57개로 분리하고 신호 조합별 batch 생성
+- 사장 지시 입력을 정확한 source catalog SHA에 고정한 `owner-rights-v4`와 9개 증거 파일 해시 anchor로 공용 자료실 권위를 연결
+
 ## v5.1 - 2026-09-07
 
 - 신규 10개 상품 묶음이 문장군 내부 자체제작이라는 사장 지시를 별도 owner attestation으로 기록

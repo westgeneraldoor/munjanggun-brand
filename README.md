@@ -1,8 +1,8 @@
 # 문장군 중앙 브랜드 문서
 
-> 버전: v5.1
+> 버전: v5.2
 > 최종 업데이트: 2026-09-07
-> 변경 요약: 신규 상품 자산의 자체제작·비공개 Codex 공용 소스·블로그/SNS 재사용 결정을 기술 입력 없이 기록하고, 공개 Git과 변동 claim 검토는 분리했다.
+> 변경 요약: 최신 자산을 한 입구에서 검색·미리보기·선택하고, 다음 intake는 profile과 감사 계약으로 반복 처리하도록 일반화했다.
 
 이 저장소는 문장군의 브랜드 사실, 현장 판단, 변동 claim 근거, 공통 원료, 상품·자산 위키를 관리한다.
 
@@ -58,22 +58,43 @@ npm run report:assets
 
 대량 intake는 원본 복구본, 논리 경로, 단일 object, 발행 상태를 분리한다. 검색은 상태를 바꾸지 않는다. 외부용 추출은 봉인 검토 증거와 권리·개인정보·claim·발행 게이트를 모두 통과해야 하며, 결과 자산과 추출 영수증을 한 묶음으로 만든다.
 
+다른 문장군 프로젝트는 버전 폴더를 직접 찾지 않고 아래 공용 입구만 사용한다.
+
+```text
+C:\Users\hjh\안티그래비티\문장군_브랜드_private\asset-library\current.json
+```
+
+```bash
+npm run assets:library -- --pointer "C:\Users\hjh\안티그래비티\문장군_브랜드_private\asset-library\current.json" --query "3연동ㄱ자 제품 연출 썸네일"
+npm run assets:library -- --pointer "C:\Users\hjh\안티그래비티\문장군_브랜드_private\asset-library\current.json" --query "3연동ㄱ자 제품 연출 썸네일" --select-content-id <CONTENT-ID> --consumer munjanggun-blog --output-name <작업명>
+```
+
+두 번째 명령은 실제 이미지 복사 없이 `asset-handoff.json`과 미리보기 HTML만 등록된 프로젝트의 비공개·Git 제외 영역에 만든다. 검색 결과는 `내부 사용 가능`, `외부 발행 차단 사유`, `공개 Git 금지`를 한꺼번에 보여준다.
+
 ```bash
 npm run assets:search -- --catalog <reviewed-content-catalog.json> --query "검색어"
 npm run assets:pick-for-blog -- --catalog <reviewed-content-catalog.json> --product "3연동중문" --installation-scene "현관" --color "베이지" --design "모던" --consultation-topic "좁은 공간"
 npm run assets:validate-approval-input -- --catalog <reviewed-content-catalog.json> --input <owner-approval-input.json>
-npm run assets:record-owner-rights -- --catalog <reviewed-content-catalog.json> --output-root <private-owner-rights-bundle>
+npm run assets:record-owner-rights -- --catalog <reviewed-content-catalog.json> --attestation-input <private-intake-owner-attestation.json> --output-root <private-owner-rights-bundle>
 npm run assets:validate-owner-rights -- --bundle-root <private-owner-rights-bundle>
 npm run assets:extract-content -- --catalog <reviewed-content-catalog.json> --evidence-receipt <review-evidence/receipt.json> --approval-ledger <owner-decisions.json> --approval-receipt <owner-decisions-receipt.json> --use-evidence-registry <use-evidence-registry.json> --use-evidence-receipt <use-evidence-receipt.json> --channel blog --object-root <private-object-root> --output-root <output> --content-id <CONTENT-ID> --purpose external-publication --destination-class local-publication-staging
 ```
 
-`assets:record-owner-rights`는 사장님의 쉬운 사업 결정을 407개 고유 자산과 1,134개 원래 경로에 작업자 책임으로 연결한다. 자체제작, 비공개 Codex 공용 소스 사용, 블로그·SNS 재사용, 별도 특수 제한 없음은 기록하되 공개 Git은 보류한다. 가격·행사 등 변동 claim, 개인정보, 추가 판독은 사용권과 분리해 계속 검수한다. 사장님에게 SHA나 근거 ID 입력을 요구하지 않는다.
+`assets:record-owner-rights`는 사장님의 쉬운 사업 결정을 해당 intake의 모든 고유 자산과 원래 경로에 작업자 책임으로 연결한다. 자체제작, 비공개 Codex 공용 소스 사용, 블로그·SNS 재사용, 별도 특수 제한 없음은 기록하되 공개 Git은 보류한다. 가격·행사 등 변동 claim, 개인정보, 추가 판독은 사용권과 분리해 계속 검수한다. 사장님에게 SHA나 근거 ID 입력을 요구하지 않는다.
+
+`rightsStatus: owner_approved_recorded`는 사장님의 사용권 결정이 기록됐다는 뜻이다. `verified` 전자서명이나 외부 발행 완료를 뜻하지 않으며, 검색 결과는 권리 승인과 남은 claim·개인정보·발행 차단 사유를 따로 보여야 한다.
 
 블로그 후보 검색과 선택은 `BLOG_ASSET_PICKER.md`를 따른다. 검색 결과의 `ready_for_guarded_extraction_request`는 추출 승인이 아니라 다음 검증을 요청할 수 있다는 뜻이다. 실제 사용 가능 여부는 `assets:extract-content`가 봉인 증거와 사장 승인을 다시 검증해 성공한 경우에만 확정된다.
 
 `assets:extract`와 `assets:materialize`는 외부 발행 도구가 아니다. 두 명령은 `internal-recovery/private-recovery`, 정책에 등록된 비공개 루트, 복구 참조, 요청자, 사유, 발행 금지 확인을 모두 요구하고 복원 영수증을 남긴다. 외부용 자산은 실제 권리·claim 증거 파일이 봉인되고 `config/asset-owner-trust.json`에 등록된 사장 공개키로 use-evidence 및 owner-decision 영수증이 각각 서명된 경우에만 `assets:extract-content`로 추출한다. 현재 신뢰키 목록은 비어 있으므로 사장 키 등록 전 외부 추출은 기술적으로 차단된다.
 
-권리 미검토 자산은 기본 거부된다. 외부용 추출은 카탈로그 SHA와 407개 자산 결정을 고정한 사장 결정 원장·영수증도 검증한다. 내부 감사 예외는 비공개 승인 루트, 감사 참조, 담당자, 사유, 만료일, 발행 금지 확인과 실패 게이트별 정확한 `--override-gate`가 모두 있어야 한다.
+권리 미검토 자산은 기본 거부된다. 외부용 추출은 카탈로그 SHA와 해당 intake 전체 자산 결정을 고정한 사장 결정 원장·영수증도 검증한다. 내부 감사 예외는 비공개 승인 루트, 감사 참조, 담당자, 사유, 만료일, 발행 금지 확인과 실패 게이트별 정확한 `--override-gate`가 모두 있어야 한다.
+
+다음 자료 묶음은 `config/intakes/<INTAKE-ID>.profile.json`에 날짜·상품·출처를 적고, `<INTAKE-ID>.audit.json`에 그 묶음의 정확한 완료 수치를 고정한다. 프로그램에는 이번 묶음의 10개 상품명이나 407/1,134/2,013/450 같은 숫자를 넣지 않는다.
+
+검토 보고서의 개수와 파일명도 프로그램에 고정하지 않는다. profile의 `review.catalogReports`, `review.similarityReports`, `review.supportingCollections`가 정적 이미지·GIF 판독 shard와 선택적 contact sheet/storyboard 위치를 정의하며, 봉인과 병합 도구는 이 설정을 공통으로 읽는다.
+
+공용 자료실의 소비 프로젝트는 `config/asset-library-consumers.json`에 중앙 정책으로 등록한다. `current.json` 안의 경로만으로 새 소비처를 승인할 수 없고, handoff 대상은 실제 Git 제외·비추적 상태여야 한다. `current.json` 갱신은 최초 생성 시 `--expect-absent`, 이후에는 기존 파일의 정확한 `--expected-current-sha256`을 요구하며 이전 pointer와 활성화 영수증을 private history에 남긴다.
 
 ## 민감 정보
 

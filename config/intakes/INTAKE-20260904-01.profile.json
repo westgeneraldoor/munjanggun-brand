@@ -1,0 +1,37 @@
+{
+  "schema": "munjanggun.assetIntakeProfile.v1",
+  "version": "1.0",
+  "intakeId": "INTAKE-20260904-01",
+  "sourceDate": "2026-09-04",
+  "logicalRoot": "문장군상품",
+  "canonicalExcludeFolders": ["신규"],
+  "products": [
+    { "folder": "3연동 자동중문", "productId": "PROD-3PANEL-AUTO-MIDDLE-DOOR", "label": "3연동 자동중문", "slug": "3panel-auto", "sourceId": "SRC-2026-09-04-3PANEL-AUTO-DETAILPAGE" },
+    { "folder": "3연동ㄱ자", "productId": "PROD-3PANEL-LSHAPE-MIDDLE-DOOR", "label": "3연동 ㄱ자 중문", "slug": "3panel-lshape", "sourceId": "SRC-2026-09-04-3PANEL-LSHAPE-DETAILPAGE" },
+    { "folder": "3연동중문", "productId": "PROD-3PANEL-MIDDLE-DOOR", "label": "3연동중문", "slug": "3panel", "sourceId": "SRC-2026-09-04-3PANEL-DETAILPAGE" },
+    { "folder": "ABS도어 문틀리폼 필름시공", "productId": "PROD-ABS-DOOR-FRAME-FILM", "label": "ABS도어 문틀리폼 필름시공", "slug": "abs-door-frame-film", "sourceId": "SRC-2026-09-04-ABS-DOOR-FRAME-FILM-DETAILPAGE" },
+    { "folder": "ABS도어 방문교체", "productId": "PROD-ABS-DOOR-REPLACEMENT", "label": "ABS도어 방문교체", "slug": "abs-door-replacement", "sourceId": "SRC-2026-09-04-ABS-DOOR-REPLACEMENT-DETAILPAGE" },
+    { "folder": "ABS도어 슬라이딩도어", "productId": "PROD-ABS-SLIDING-DOOR", "label": "ABS도어 슬라이딩도어", "slug": "abs-sliding-door", "sourceId": "SRC-2026-09-04-ABS-SLIDING-DOOR-DETAILPAGE" },
+    { "folder": "몰딩", "productId": "PROD-MOLDING", "label": "몰딩", "slug": "molding", "sourceId": "SRC-2026-09-04-MOLDING-DETAILPAGE" },
+    { "folder": "스윙중문", "productId": "PROD-SWING-MIDDLE-DOOR", "label": "스윙중문", "slug": "swing", "sourceId": "SRC-2026-09-04-SWING-DETAILPAGE" },
+    { "folder": "양개형중문 미서기", "productId": "PROD-WIDE-SLIDING-MIDDLE-DOOR", "label": "양개형중문/미서기", "slug": "wide-sliding", "sourceId": "SRC-2026-09-04-WIDE-SLIDING-DETAILPAGE" },
+    { "folder": "원슬라이딩중문", "productId": "PROD-ONE-SLIDING-MIDDLE-DOOR", "label": "원슬라이딩중문", "slug": "onesliding", "sourceId": "SRC-2026-09-04-ONESLIDING-DETAILPAGE" }
+  ],
+  "review": {
+    "catalogReports": [
+      { "id": "static-a", "file": "static-a.json", "kind": "static", "comparisonMethods": ["perceptual_hash"] },
+      { "id": "static-b", "file": "static-b.json", "kind": "static", "comparisonMethods": [] },
+      { "id": "gif", "file": "gif.json", "kind": "gif", "comparisonMethods": ["gif_scene_signature"] }
+    ],
+    "catalogAuditReport": { "id": "report-audit", "file": "report-audit.json" },
+    "similarityReports": [
+      { "id": "static-final", "file": "static-final-375.json" },
+      { "id": "gif-final", "file": "gif-final-75.json" }
+    ],
+    "additionalReports": ["similarity-audit.json", "combined-inventory-2013.json"],
+    "supportingCollections": [
+      { "kind": "contact_sheet", "sourceDir": ".", "extension": ".jpg", "required": false },
+      { "kind": "storyboard", "sourceDir": "storyboards", "extension": ".jpg", "required": false }
+    ]
+  }
+}
