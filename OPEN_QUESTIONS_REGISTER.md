@@ -1,7 +1,7 @@
 # OPEN_QUESTIONS_REGISTER - 문장군 확인 필요 항목
 
-> 버전: v1.6
-> 최종 업데이트: 2026-09-04
+> 버전: v1.7
+> 최종 업데이트: 2026-09-07
 > 목적: 사장 확인, 최신 캡처, 운영 정책 확인이 필요한 브랜드 항목을 중앙에서 추적한다.
 
 이 문서는 발행 가능한 브랜드 기준이 아니다. 여기에 있는 항목은 확인 전 외부 발행물에서 단정하지 않는다.
@@ -40,7 +40,7 @@
 | OQ-019 | ABS도어 방문교체 패키지/시공 범위 claim | 문짝만 교체와 문짝+문틀+문선 패키지를 혼동하면 고객 오해가 큼 | 2026-07-01 사용자 확정: 패키지1 문짝교체. 패키지2 문짝+문틀+문선 케이싱마감, 손잡이, 경첩 포함. 문짝교체 기존 문짝 무상수거. 세트 철거폐기물처리비 세트당 3만원 별도 | 중앙 반영 완료. 가격/총액 오해 방지 문구 함께 사용 | ABS_DOOR_REPLACEMENT_DETAILPAGE_ASSET_INDEX_2026-07-01.md, 문장군상품/ABS도어 방문교체/asset-manifest.json, EVIDENCE_REGISTER.md | `resolved` |
 | OQ-020 | 스윙중문 문 열림 방향/옵션 claim | 스윙중문은 문 열림 방향과 신발장/현관문 간섭이 핵심 변수 | 2026-07-01 사용자 확정: 전체 시공은 무료 방문 실측 상담 필수. 전문가가 시공 가능 여부, 금액, 디자인, 참고사항을 컨설팅 | 중앙 반영 완료. 가격/이벤트/옵션 운영 여부는 최신 조건 확인 | SWING_MIDDLE_DOOR_DETAILPAGE_ASSET_INDEX_2026-07-01.md, 문장군상품/스윙중문/asset-manifest.json, EVIDENCE_REGISTER.md | `resolved` |
 | OQ-021 | 양개형중문/미서기 폭/구조 claim | 넓은 현관 구조는 3연동 양개, 4연동, 미서기 양개, 미서기 중문으로 분기됨 | 2026-07-01 사용자 확정: 전체 시공은 무료 방문 실측 상담 필수. 전문가가 시공 가능 여부, 금액, 디자인, 참고사항을 컨설팅 | 중앙 반영 완료. 구조별 가격/이벤트 문구는 최신 조건 확인 | WIDE_SLIDING_MIDDLE_DOOR_DETAILPAGE_ASSET_INDEX_2026-07-01.md, 문장군상품/양개형중문 미서기/asset-manifest.json, EVIDENCE_REGISTER.md | `resolved` |
-| OQ-022 | 2026-09-04 신규 10개 자산 묶음의 권리 및 공개 Git 저장 범위 | 소스 보존 권리와 외부 발행·공개 저장 권리는 다르며 공개 저장소 노출은 되돌리기 어렵다 | 1,134경로 전체 `rightsStatus: not_reviewed`, `publishStatus: blocked`, `publicRepoEligibility: not_reviewed` | 문장군 소유·제작·납품 범위, 인물·행사·후기·메신저 화면의 동의 범위, 공개 Git 저장 허용 여부를 증거 참조로 확인 | ASSET_INTAKE_2026-09-04.md, SOURCE_REGISTRY.md | `open` |
+| OQ-022 | 2026-09-04 신규 10개 자산 묶음의 자체제작·재사용권 및 공개 Git 범위 | 소스 사용권과 공개 저장 권리는 별개 | 2026-09-07 사장 확인: 문장군 내부 자체제작, 비공개 보존·모든 문장군 비공개 Codex 프로젝트·블로그/SNS 재사용 승인, 사장 차원의 특수 제한 없음. 공개 Git은 보류 | 권리 결정은 Z `candidate-v2/owner-rights-v2/`에 기록 완료. 공개 Git은 별도 재결정 전 계속 차단 | ASSET_INTAKE_2026-09-04.md, SOURCE_REGISTRY.md | `deferred` |
 | OQ-023 | 신규 자산 개인정보 신호 15개 처리 | 아동·작업자 얼굴, 후기·메신저 UI, 계정 흔적은 원본 보존과 외부 발행 판단이 다르다 | 신호가 있는 자산은 외부 발행 금지. 원본은 비공개 복구본에 보존 | 자산별 `cleared`, `restricted`, `needs_redaction` 판단과 동의 증거 참조 확인 | ASSET_INTAKE_2026-09-04.md | `open` |
 | OQ-024 | 신규 자산 claim 신호 174개 최신성 | 가격·할인·이벤트·A/S·안전·성능·스펙은 상세페이지 이미지 안에 있어도 자동 승인되지 않는다 | 원본 맥락 외 재사용 금지. 57개 상향 검토 그룹 포함 | 현재 상품·기간·예외 조건 및 `EVIDENCE_REGISTER.md` 연결을 확인해 `verified`, `needs_confirmation`, `restricted`로 분리 | ASSET_INTAKE_2026-09-04.md, EVIDENCE_REGISTER.md | `open` |
 

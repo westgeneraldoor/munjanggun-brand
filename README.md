@@ -1,8 +1,8 @@
 # 문장군 중앙 브랜드 문서
 
-> 버전: v5.0
-> 최종 업데이트: 2026-09-05
-> 변경 요약: 신규 상품 자산을 Z 원본·중복 제거 object·검토 메타데이터 구조로 전환하고, 사장 승인표와 블로그 안전 검색 절차를 추가했다.
+> 버전: v5.1
+> 최종 업데이트: 2026-09-07
+> 변경 요약: 신규 상품 자산의 자체제작·비공개 Codex 공용 소스·블로그/SNS 재사용 결정을 기술 입력 없이 기록하고, 공개 Git과 변동 claim 검토는 분리했다.
 
 이 저장소는 문장군의 브랜드 사실, 현장 판단, 변동 claim 근거, 공통 원료, 상품·자산 위키를 관리한다.
 
@@ -62,8 +62,12 @@ npm run report:assets
 npm run assets:search -- --catalog <reviewed-content-catalog.json> --query "검색어"
 npm run assets:pick-for-blog -- --catalog <reviewed-content-catalog.json> --product "3연동중문" --installation-scene "현관" --color "베이지" --design "모던" --consultation-topic "좁은 공간"
 npm run assets:validate-approval-input -- --catalog <reviewed-content-catalog.json> --input <owner-approval-input.json>
+npm run assets:record-owner-rights -- --catalog <reviewed-content-catalog.json> --output-root <private-owner-rights-bundle>
+npm run assets:validate-owner-rights -- --bundle-root <private-owner-rights-bundle>
 npm run assets:extract-content -- --catalog <reviewed-content-catalog.json> --evidence-receipt <review-evidence/receipt.json> --approval-ledger <owner-decisions.json> --approval-receipt <owner-decisions-receipt.json> --use-evidence-registry <use-evidence-registry.json> --use-evidence-receipt <use-evidence-receipt.json> --channel blog --object-root <private-object-root> --output-root <output> --content-id <CONTENT-ID> --purpose external-publication --destination-class local-publication-staging
 ```
+
+`assets:record-owner-rights`는 사장님의 쉬운 사업 결정을 407개 고유 자산과 1,134개 원래 경로에 작업자 책임으로 연결한다. 자체제작, 비공개 Codex 공용 소스 사용, 블로그·SNS 재사용, 별도 특수 제한 없음은 기록하되 공개 Git은 보류한다. 가격·행사 등 변동 claim, 개인정보, 추가 판독은 사용권과 분리해 계속 검수한다. 사장님에게 SHA나 근거 ID 입력을 요구하지 않는다.
 
 블로그 후보 검색과 선택은 `BLOG_ASSET_PICKER.md`를 따른다. 검색 결과의 `ready_for_guarded_extraction_request`는 추출 승인이 아니라 다음 검증을 요청할 수 있다는 뜻이다. 실제 사용 가능 여부는 `assets:extract-content`가 봉인 증거와 사장 승인을 다시 검증해 성공한 경우에만 확정된다.
 

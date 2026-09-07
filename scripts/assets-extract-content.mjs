@@ -167,7 +167,8 @@ function evaluateReleaseGate(entry, purpose, approvalAuthority, useEvidenceAutho
     checks.push(check('owner.externalReuse', global.externalReuse.status, 'approved', global.externalReuse.status === 'approved'));
     checks.push(check('owner.specialAssetRestrictions', global.specialAssetRestrictions.status, 'approved', global.specialAssetRestrictions.status === 'approved'));
     const resolvedUseEvidenceIds = new Set(useEvidenceAuthority?.resolvedEvidence.map((item) => item.evidenceId) ?? []);
-    const specialEvidenceBound = (global.specialAssetRestrictions.evidenceRefs?.length ?? 0) > 0 && global.specialAssetRestrictions.evidenceRefs.every((ref) => resolvedUseEvidenceIds.has(ref));
+    const applicableSpecialEvidenceRefs = (global.specialAssetRestrictions.evidenceRefs ?? []).filter((ref) => assetRightsRefs.has(ref));
+    const specialEvidenceBound = applicableSpecialEvidenceRefs.length > 0 && applicableSpecialEvidenceRefs.every((ref) => resolvedUseEvidenceIds.has(ref));
     checks.push(check('owner.specialAssetRestrictionsEvidence', specialEvidenceBound ? 'bound' : 'unbound', 'bound', specialEvidenceBound));
     checks.push(check('owner.asset.humanReviewDecision', assetDecision?.humanReviewDecision, 'approved', assetDecision?.humanReviewDecision === 'approved'));
     checks.push(check('owner.asset.claimDecision', assetDecision?.claimDecision, 'verified_or_not_applicable', ['verified', 'not_applicable'].includes(assetDecision?.claimDecision)));

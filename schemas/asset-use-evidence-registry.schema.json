@@ -19,11 +19,11 @@
         "properties": {
           "evidenceId": { "type": "string", "pattern": "^(RIGHTS|CLAIM)-EV-[A-Z0-9-]+$" },
           "kind": { "enum": ["rights", "claim"] },
-          "status": { "enum": ["verified", "restricted", "revoked", "expired"] },
+          "status": { "enum": ["attested_unsealed", "verified", "restricted", "revoked", "expired"] },
           "subjectSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
           "contentId": { "type": "string", "minLength": 1 },
           "scopes": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "enum": ["internal_preservation", "public_git_storage", "external_reuse"] } },
-          "channels": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "enum": ["blog", "sns", "detail_page", "public_git"] } },
+          "channels": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "enum": ["private_codex", "blog", "sns", "detail_page", "public_git"] } },
           "validFrom": { "type": "string", "format": "date-time" },
           "validUntil": { "type": ["string", "null"], "format": "date-time" },
           "artifactRef": { "type": "string", "pattern": "^(?!/)(?![A-Za-z]:)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\).+$" },

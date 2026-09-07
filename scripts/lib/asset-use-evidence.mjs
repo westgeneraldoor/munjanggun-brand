@@ -18,11 +18,13 @@ export async function verifyUseEvidenceAuthority({
   now = Date.now(),
   ownerSignatureVerifier = verifyTrustedOwnerSignature,
 }) {
-  const [registry, receipt, registrySchema, receiptSchema, artifactSchema] = await Promise.all([
+  const [registry, receipt, registrySchema, receiptSchema, artifactSchema, attestationSchema, mappingSchema] = await Promise.all([
     readJson(registryPath), readJson(receiptPath),
     readJson(fileURLToPath(new URL('../../schemas/asset-use-evidence-registry.schema.json', import.meta.url))),
     readJson(fileURLToPath(new URL('../../schemas/asset-use-evidence-receipt.schema.json', import.meta.url))),
     readJson(fileURLToPath(new URL('../../schemas/asset-use-evidence-artifact.schema.json', import.meta.url))),
+    readJson(fileURLToPath(new URL('../../schemas/asset-owner-attestation.schema.json', import.meta.url))),
+    readJson(fileURLToPath(new URL('../../schemas/asset-owner-attestation-mapping.schema.json', import.meta.url))),
   ]);
   assertSchema(registry, registrySchema, 'use evidence registry');
   assertSchema(receipt, receiptSchema, 'use evidence receipt');
@@ -37,6 +39,7 @@ export async function verifyUseEvidenceAuthority({
   if (receipt.treeHash !== treeHash(receipt.entries)) throw new Error('Use evidence receipt treeHash mismatch');
   const receiptById = uniqueMap(receipt.entries, 'evidenceId', 'receipt');
   const registryById = uniqueMap(registry.entries, 'evidenceId', 'registry');
+  const provenanceCache = new Map();
   if (receiptById.size !== registryById.size) throw new Error('Use evidence registry/receipt coverage mismatch');
   for (const evidence of registry.entries) {
     const sealed = receiptById.get(evidence.evidenceId);
@@ -49,6 +52,7 @@ export async function verifyUseEvidenceAuthority({
     if (!info.isFile() || info.size !== sealed.byteSize || await sha256File(artifactReal) !== sealed.sha256) throw new Error(`Use evidence artifact integrity mismatch: ${evidence.evidenceId}`);
     const artifact = await readJson(artifactReal);
     assertSchema(artifact, artifactSchema, `use evidence artifact ${evidence.evidenceId}`);
+    if (artifact.evidenceOrigin === 'owner_attestation_worker_mapping') await verifyAttestationProvenance(artifact, evidence);
     for (const field of ['evidenceId', 'kind', 'decisionRef', 'subjectSha256', 'contentId', 'validFrom', 'validUntil']) {
       if (artifact[field] !== evidence[field]) throw new Error(`Use evidence artifact ${field} mismatch: ${evidence.evidenceId}`);
     }
@@ -78,6 +82,41 @@ export async function verifyUseEvidenceAuthority({
       if (from > now || until < now) throw new Error(`Use evidence is outside validity window: ${id}`);
       return { evidenceId: id, kind, artifactRef: evidence.artifactRef, artifactSha256: evidence.artifactSha256, decisionRef: evidence.decisionRef };
     });
+  }
+
+  async function verifyAttestationProvenance(artifact, evidence) {
+    const cacheKey = `${artifact.ownerAttestationRef}\0${artifact.workerMappingRef}`;
+    let cached = provenanceCache.get(cacheKey);
+    if (!cached) {
+      cached = (async () => {
+        const authorityRoot = dirname(receiptPath);
+        const attestationPath = resolveContainedPath(authorityRoot, artifact.ownerAttestationRef, 'owner attestation');
+        const mappingPath = resolveContainedPath(authorityRoot, artifact.workerMappingRef, 'owner attestation worker mapping');
+        if (await sha256File(attestationPath) !== artifact.ownerAttestationSha256) throw new Error('Owner attestation SHA mismatch');
+        if (await sha256File(mappingPath) !== artifact.workerMappingSha256) throw new Error('Owner attestation worker mapping SHA mismatch');
+        const [attestation, mapping] = await Promise.all([readJson(attestationPath), readJson(mappingPath)]);
+        assertSchema(attestation, attestationSchema, 'owner attestation');
+        assertSchema(mapping, mappingSchema, 'owner attestation worker mapping');
+        await ownerSignatureVerifier(attestation, 'Owner attestation');
+        if (attestation.intakeId !== catalog.intakeId || mapping.intakeId !== catalog.intakeId) throw new Error('Owner attestation intakeId mismatch');
+        if (mapping.catalogSha256 !== catalogSha256) throw new Error('Owner attestation mapping catalog SHA mismatch');
+        if (mapping.ownerAttestationSha256 !== artifact.ownerAttestationSha256 || mapping.ownerAttestationRef !== artifact.ownerAttestationRef) throw new Error('Owner attestation mapping binding mismatch');
+        if (attestation.statements.publicGitStorage !== 'pending') throw new Error('Owner attestation unexpectedly authorizes public Git');
+        return { attestation, mapping, mappingByEvidenceId: uniqueMap(mapping.entries, 'evidenceId', 'attestation mapping') };
+      })();
+      provenanceCache.set(cacheKey, cached);
+    }
+    const { attestation, mappingByEvidenceId } = await cached;
+    const mapped = mappingByEvidenceId.get(evidence.evidenceId);
+    if (!mapped || mapped.sha256 !== evidence.subjectSha256 || mapped.contentId !== evidence.contentId || mapped.artifactRef !== evidence.artifactRef) throw new Error(`Owner attestation mapping target mismatch: ${evidence.evidenceId}`);
+    if (!mapped.sourceGroupIds.every((sourceId) => attestation.sourceGroupIds.includes(sourceId))) throw new Error(`Owner attestation source group mismatch: ${evidence.evidenceId}`);
+    if (evidence.channels.includes('blog') && !attestation.statements.externalReuse.channels.includes('blog')) throw new Error(`Owner attestation blog scope mismatch: ${evidence.evidenceId}`);
+    if (evidence.channels.includes('sns') && !attestation.statements.externalReuse.channels.includes('sns')) throw new Error(`Owner attestation SNS scope mismatch: ${evidence.evidenceId}`);
+    const allowedChannels = new Set(['private_codex', ...attestation.statements.externalReuse.channels]);
+    const allowedScopes = new Set(['internal_preservation', 'external_reuse']);
+    if (evidence.channels.some((value) => !allowedChannels.has(value)) || evidence.scopes.some((value) => !allowedScopes.has(value))) {
+      throw new Error(`Owner attestation scope/channel expansion is forbidden: ${evidence.evidenceId}`);
+    }
   }
 }
 

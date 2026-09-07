@@ -2,7 +2,7 @@
 
 > intake: `INTAKE-20260904-01`
 >
-> 상태: 저장·복구·검토 증거 기술 게이트 통과 / 외부 발행 및 canonical 승격 차단
+> 상태: 저장·복구·검토 증거 기술 게이트 통과 / 자체제작·비공개 Codex 공용 소스·블로그/SNS 재사용권 확인 / 공개 Git 및 자동 외부 발행 차단
 >
 > 기준일: 2026-09-04
 
@@ -49,17 +49,19 @@
 - 기존 전용까지 포함해 정지 이미지 375개 70,125쌍을 비교했고, GIF 75개의 후보쌍 67개를 animation-level signature와 스토리보드로 판정했다.
 - 최종 결과는 450 SHA → 443 visual group, 미판정 0이다. 정지 이미지와 GIF는 대체 가능한 파일 형식이 아니므로 비교 범위는 `within_media_only`다.
 
-## 4. URL과 발행 상태
+## 4. URL과 사용 상태
 
 - `.url` 13건은 모두 접근 가능했고 폴더의 상품과 연결되는 제목을 확인했다.
 - URL 13건은 원본 `.url` SHA, 확인 시각·방법·제목·상품 연결 상태를 URL 확인 영수증으로 연결했다.
 - URL 접근 확인은 가격·할인·혜택·A/S·스펙 claim 승인이 아니다.
-- 신규 1,134경로는 모두 `rightsStatus: not_reviewed`, `publishStatus: blocked`, `publicRepoEligibility: not_reviewed`다.
+- 2026-09-07 사장 지시로 신규 10개 묶음은 문장군 내부 자체제작이며, 비공개 보존·모든 문장군 비공개 Codex 프로젝트의 공용 소스·블로그/SNS 재사용 권리가 확인됐다.
+- 작업자 mapping이 고유 자산 407개와 원래 경로 1,134개를 전부 연결했다. 공개 Git은 보류하고 `publicRepoEligibility: not_reviewed`를 유지한다.
+- 권리 확인과 발행 가능 판정은 분리한다. 전자서명, 변동 claim, 개인정보와 추가 판독이 남아 있어 `publishStatus: blocked`를 유지한다.
 - 권리 미확인인데 외부 발행 가능으로 표시된 자산은 0개다.
 
 ## 5. 현재 게이트
 
-현재 재감사 기준 파일은 Z 비공개 보관소의 `review-evidence/receipt.json`, `candidate-v2/reviewed-content-catalog-v5.json`, `visual-similarity-map-v2.json`, `url-review-v2.json`, `use-evidence-registry-v2.json`, `use-evidence-receipt-v2.json`, `completion-report-v13.json`, `OWNER_APPROVAL_REPORT-v9.md`, `owner-approval-input-v1.json`, `owner-decisions-v8.json`, `owner-decisions-receipt-v5.json`이다. 이전 번호 파일은 과정 기록이며 현재 판정에 사용하지 않는다.
+저장·복구·시각 분석의 기준 파일은 Z 비공개 보관소의 `review-evidence/receipt.json`, `candidate-v2/reviewed-content-catalog-v5.json`, `visual-similarity-map-v2.json`, `url-review-v2.json`, `completion-report-v13.json`이다. 2026-09-07 권리 결정의 기준 묶음은 `candidate-v2/owner-rights-v2/`이며, 그 안의 `OWNER_RIGHTS_SUMMARY.md`, `owner-rights-attestation.json`, `owner-attestation-mapping.json`, `reviewed-content-catalog-v6.json`, 자산별 증거 407개, registry/receipt, 결정 원장과 `rights-state.json`을 함께 검증한다. 이전 승인표와 번호 파일은 과정 기록이다.
 
 | 게이트 | 결과 |
 | --- | --- |
@@ -77,8 +79,9 @@
 | 콘텐츠 대상 증빙 | 814개 참조, 대상 SHA 407개 연결, 통과 |
 | 시각군 대상 증빙 | 450개 참조, 대상 SHA 450개 연결, 통과 |
 | URL 확인 영수증 | 13/13 연결, 통과 |
-| 사장 결정 원장 | catalog SHA 고정, 407/407 자산 결정·57/57 상향 검토 연결, 현재 전부 pending |
-| 권리·claim 실증거 | registry/receipt는 catalog에 결박, 현재 등록 0건·신뢰된 사장 서명키 0개이므로 외부 사용 차단 |
+| 사장 결정 원장 | 자체제작·비공개 Codex 공용 소스·블로그/SNS 재사용 결정을 407/407 자산과 1,134/1,134 경로에 연결, 공개 Git 보류 |
+| 권리 증거 | 자산별 407개 증거와 registry/receipt 생성·해시 검증 통과, 미서명 상태를 명시 |
+| 남은 작업자 검토 | claim 174개, 개인정보 15개, 상향 판독 57개를 권리와 분리해 유지 |
 | 외부 발행 | 차단 |
 | canonical 승격 | 미시작 |
 
@@ -86,7 +89,7 @@
 
 모든 복사 도구는 기본 거부 방식이다. 호환용 `assets:extract`·`assets:materialize`는 명시적 비공개 복구 계약과 SHA 영수증이 있어야 동작하며 외부용으로 사용할 수 없다. 외부용 `assets:extract-content`는 봉인 검토 증거, 실제 권리·claim 증거 파일의 경로·크기·SHA·대상·범위·채널·유효기간, 개인정보, 발행 상태와 catalog SHA에 묶인 사장 결정 원장·영수증이 모두 통과해야 한다. 내부 감사 예외는 비공개 경로, 담당자, 사유, 만료일, 발행 금지 확인과 실패 게이트별 정확한 인정을 요구하고 자산과 영수증을 한 묶음으로 남긴다.
 
-다음 단계는 `OWNER_APPROVAL_REPORT-v9.md`와 `owner-approval-input-v1.json`을 기준으로 네 가지 독립 권리 결정(내부 보존권, 공개 Git 저장권, 외부 재사용권, 특수 자산 제한)과 57개 자산별 상향 검토, 174개 claim 신호, 15개 개인정보 신호에 대한 사장 판단을 기록하는 것이다. 블로그 작성자는 `BLOG_ASSET_PICKER.md` 절차로 후보를 찾을 수 있지만, 승인 전 후보는 `review_only`이고 외부 추출은 계속 차단된다. 포괄 답변은 개별 자산 결정에 자동 상속하지 않는다.
+사장 권리 결정은 완료됐다. 다음 단계는 작업자가 57개 상향 검토 중 기존 증거로 재분류할 34개와 실제 재판독할 23개를 처리하고, claim 174개와 개인정보 15개를 판정하는 것이다. 사장님에게 SHA·근거 ID·개별 407개 입력을 요구하지 않는다. 블로그 작성자는 `BLOG_ASSET_PICKER.md`로 후보를 찾을 수 있으며, 권리는 확인됐지만 자동 외부 추출은 신뢰 서명과 남은 작업자 게이트가 끝날 때까지 차단된다.
 
 ```text
 소스 보존 여부 ≠ 외부 발행 가능 여부
