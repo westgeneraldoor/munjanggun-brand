@@ -27,6 +27,7 @@ npm run report:assets
 | 변동 claim | `EVIDENCE_REGISTER.md`, `OPEN_QUESTIONS_REGISTER.md` |
 | 상품 설명·이미지·GIF·썸네일 | `BRAND_WIKI_ARCHITECTURE.md`, `SOURCE_REGISTRY.md`, `PRODUCT_WIKI_INDEX.md`, 상품 위키, `ASSET_SEMANTIC_INDEX.md`, manifest |
 | 2026-09-04 신규 자산 intake | `ASSET_INTAKE_2026-09-04.md` |
+| 2026-09-07 쇼핑스토리 자산 intake | `ASSET_INTAKE_2026-09-07.md` |
 | 고객·현장·리뷰·FAQ·카피 원료 | `BRAND_MATERIAL_INDEX.md`와 필요한 원료 은행 문서 |
 | 프로젝트 연결 | `PROJECT_ADAPTERS.md`, `PROMPTS.md` |
 

@@ -6,6 +6,10 @@
 - `config/asset-content-quality.json`을 `blocked_pending_visual_revalidation`로 되돌려 공용 검색·추천·handoff·외부 추출을 기본 거부
 - 원본·object·사용권 결정·공개 Git 보류는 유지하고, v1~v4 의미 필드는 감사 이력으로만 보존
 - 다음 봉인은 visible text와 source context를 분리하고 태그별 근거 및 검토 시간 순서를 검증하기 전까지 생성하지 않음
+- `INTAKE-20260907-01` 쇼핑스토리 추가 묶음 106파일을 Z 한 곳에 보존하고 source↔recovery receipt 불일치 0 확인
+  - 시각 87개 중 기존 object 5개를 재사용하고 새 object 82개만 추가해 private object store를 532개로 확장
+  - 네이버 쇼핑스토리 URL 10개는 읽기 전용으로 접근해 제목·주제 연결만 확인하고 변동 claim은 미승인으로 유지
+  - 실제 소스 경로가 사용자 지정 경로와 달랐던 사실, 로컬 원본 유지, 공개 Git 바이너리 0을 기록
 
 ## v5.6 - 2026-09-07
 
