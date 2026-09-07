@@ -6,7 +6,7 @@
 >
 > 기준일: 2026-09-04
 
-> 2026-09-07 내용 재검증: 기존 `reviewed-content-catalog.json`의 내용 필드는 원본 불일치 사례가 확인되어 감사 이력으로만 보존한다. 407개 원본별 재판독과 새 증거 봉인을 완료했으며, 검색·추천·handoff는 검증된 content overlay를 적용한 결과만 사용한다. 상세 기준과 해시는 `ASSET_CONTENT_REVALIDATION_2026-09-07.md`에 기록한다.
+> 2026-09-07 내용 재검증 정정: 기존 catalog와 `verified-v1`~`verified-v4`의 내용 필드는 원본 불일치 및 증거 범위 과장 사례가 확인되어 감사 이력으로만 보존한다. 현재 검색·추천·handoff·외부 추출은 차단 상태이며, 새 content authority는 전면 재검증 후 별도 봉인한다.
 
 ## 1. 보존과 실물 구조
 
