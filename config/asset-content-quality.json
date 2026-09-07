@@ -1,0 +1,19 @@
+{
+  "schema": "munjanggun.assetContentQualityPolicy.v1",
+  "version": "1.0",
+  "updatedAt": "2026-09-07T04:05:00.000Z",
+  "records": [
+    {
+      "intakeId": "INTAKE-20260904-01",
+      "catalogSha256": "523e2f50ba99e9181c5ebeb814b0af9345118aee01257204b4fa8671841ae61b",
+      "status": "blocked_pending_visual_revalidation",
+      "reason": "실제 원본과 semanticSummary 및 claimSignals 불일치가 확인되어 407개 고유 자산의 내용 정확성을 재검증 중",
+      "detectedAt": "2026-09-07T04:05:00.000Z",
+      "confirmedExamples": [
+        "3연동중문/014.png",
+        "3연동중문/017.png",
+        "스윙중문/013.jpg"
+      ]
+    }
+  ]
+}
