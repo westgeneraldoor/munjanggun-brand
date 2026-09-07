@@ -1,6 +1,6 @@
 # SOURCE_REGISTRY - 문장군 브랜드 소스 등록부
 
-> 버전: v1.6
+> 버전: v1.7
 > 최종 업데이트: 2026-09-07
 > 목적: 중앙 브랜드 원본에 들어오는 상품 상세페이지, CSV, 이미지, 리뷰, 상담, 현장 자료의 출처, 사용 상태, 보존/대체/재검토 상태를 추적한다.
 
@@ -60,6 +60,7 @@
 | `SRC-2026-09-04-SWING-DETAILPAGE` | 스윙중문 신규 상세페이지 묶음 | 비공개 intake `INTAKE-20260904-01` receipt 참조. 공개 Git 바이너리 없음 | `ASSET_INTAKE_2026-09-04.md`, manifest v2 candidate | 이미지/GIF 95경로와 상품 URL | 중간. 인물·화면 신호 재검토 | 높음. 가격·안전·옵션 | `indexed` | `reviewed_candidate` |
 | `SRC-2026-09-04-WIDE-SLIDING-DETAILPAGE` | 양개형중문/미서기 신규 상세페이지 묶음 | 비공개 intake `INTAKE-20260904-01` receipt 참조. 공개 Git 바이너리 없음 | `ASSET_INTAKE_2026-09-04.md`, manifest v2 candidate | 이미지/GIF 156경로와 상품 URL | 중간. 인물·화면 신호 재검토 | 높음. 가격·폭·개폐 구조 | `indexed` | `reviewed_candidate` |
 | `SRC-2026-09-04-ONESLIDING-DETAILPAGE` | 원슬라이딩중문 신규 상세페이지 묶음 | 비공개 intake `INTAKE-20260904-01` receipt 참조. 공개 Git 바이너리 없음 | `ASSET_INTAKE_2026-09-04.md`, manifest v2 candidate | 이미지/GIF 114경로와 상품 URL | 중간. 인물·화면 신호 재검토 | 높음. 가격·옵션·시공 조건 | `indexed` | `reviewed_candidate` |
+| `SRC-2026-09-07-SHOPPING-STORY` | 문장군 쇼핑스토리 9개 주제 묶음 | 비공개 intake `INTAKE-20260907-01` Z receipt와 private object 참조. 공개 Git 바이너리 없음 | `ASSET_INTAKE_2026-09-07.md`, manifest v2 candidate | JPG 74개, GIF 13개, 네이버 쇼핑스토리 URL 10개 | 중간. 인물·후기·행사 장면 판독 중 | 높음. 가격·할부·이벤트·보증·출장비·0원 표현 | `indexed` | `needs_review` |
 
 ## 2-1. 보존/재검토 추적표
 
@@ -88,6 +89,7 @@
 | `SRC-2026-09-04-SWING-DETAILPAGE` | `reference` | `preserve` | 중앙 브랜드 총괄 | 비공개 공용 소스 사용 가능. 외부 발행 전 개인정보·변동 claim 확인, 공개 Git 금지 | 없음 | 없음 |
 | `SRC-2026-09-04-WIDE-SLIDING-DETAILPAGE` | `reference` | `preserve` | 중앙 브랜드 총괄 | 비공개 공용 소스 사용 가능. 외부 발행 전 개인정보·변동 claim 확인, 공개 Git 금지 | 없음 | 없음 |
 | `SRC-2026-09-04-ONESLIDING-DETAILPAGE` | `reference` | `preserve` | 중앙 브랜드 총괄 | 비공개 공용 소스 사용 가능. 외부 발행 전 개인정보·변동 claim 확인, 공개 Git 금지 | 없음 | 없음 |
+| `SRC-2026-09-07-SHOPPING-STORY` | `reference` | `preserve` | 중앙 브랜드 총괄 | 비공개 공용 소스 사용 승인 기록. 시각 내용 판독과 변동 claim 최신성 확인 전 자동 검색·handoff·외부 발행 차단, 공개 Git 금지 | 없음 | 없음 |
 
 2026-09-07 기준 위 2026-09-04 신규 10개 소스의 문장군 자체제작·비공개 Codex 공용 소스·블로그/SNS 재사용 권리는 확인됐다. 추적표의 재검토 조건 중 남은 것은 공개 Git 보류, 개인정보 검수와 변동 claim 최신성 확인이다.
 

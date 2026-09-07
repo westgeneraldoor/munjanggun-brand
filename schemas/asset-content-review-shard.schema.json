@@ -4,95 +4,148 @@
   "title": "Munjanggun Per-object Visual Content Review Shard",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema", "version", "intakeId", "shardId", "mediaKind", "reviewedAt", "reviewer", "entries"],
+  "required": ["schema", "version", "authorityContractVersion", "intakeId", "shardId", "mediaKind", "reviewedAt", "reviewer", "rawReviewSha256", "entries"],
+  "allOf": [
+    {
+      "if": { "properties": { "mediaKind": { "const": "gif" } }, "required": ["mediaKind"] },
+      "then": { "properties": { "entries": { "type": "array", "items": { "type": "object", "properties": { "gifReview": true }, "required": ["gifReview"] } } } },
+      "else": { "properties": { "entries": { "type": "array", "items": { "type": "object", "not": { "type": "object", "properties": { "gifReview": true }, "required": ["gifReview"] } } } } }
+    }
+  ],
   "properties": {
-    "schema": { "const": "munjanggun.assetContentReviewShard.v2" },
-    "version": { "const": "2.0" },
+    "schema": { "const": "munjanggun.assetContentReviewShard.v3" },
+    "version": { "const": "3.0" },
+    "authorityContractVersion": { "const": "content-evidence-v3" },
     "intakeId": { "type": "string", "pattern": "^INTAKE-[0-9]{8}-[0-9]{2}$" },
     "shardId": { "type": "string", "minLength": 1 },
     "mediaKind": { "enum": ["static", "gif"] },
     "reviewedAt": { "type": "string", "format": "date-time" },
     "reviewer": { "type": "string", "minLength": 1 },
-    "entries": {
-      "type": "array",
-      "items": { "$ref": "#/$defs/entry" }
-    }
+    "rawReviewSha256": { "$ref": "#/$defs/sha256" },
+    "entries": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/entry" } }
   },
   "$defs": {
     "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
-    "stringArray": {
-      "type": "array",
-      "items": { "type": "string", "minLength": 1 },
-      "uniqueItems": true
-    },
+    "stringArray": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
     "sourceRef": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["sourceId", "sourceRelativePath"],
-      "properties": {
-        "sourceId": { "type": "string", "minLength": 1 },
-        "sourceRelativePath": { "type": "string", "minLength": 1 }
-      }
+      "type": "object", "additionalProperties": false, "required": ["sourceId", "sourceRelativePath"],
+      "properties": { "sourceId": { "type": "string", "minLength": 1 }, "sourceRelativePath": { "type": "string", "minLength": 1 } }
     },
     "searchTags": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["productTypes", "scenes", "colors", "designs", "topics"],
+      "type": "object", "additionalProperties": false, "required": ["productTypes", "scenes", "colors", "designs", "topics"],
       "properties": {
-        "productTypes": { "$ref": "#/$defs/stringArray" },
-        "scenes": { "$ref": "#/$defs/stringArray" },
-        "colors": { "$ref": "#/$defs/stringArray" },
-        "designs": { "$ref": "#/$defs/stringArray" },
-        "topics": { "$ref": "#/$defs/stringArray" }
+        "productTypes": { "$ref": "#/$defs/stringArray" }, "scenes": { "$ref": "#/$defs/stringArray" },
+        "colors": { "$ref": "#/$defs/stringArray" }, "designs": { "$ref": "#/$defs/stringArray" }, "topics": { "$ref": "#/$defs/stringArray" }
       }
     },
-    "gifReview": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["frameCount", "durationMs", "loopBehavior", "movementEvidence", "storyboardPaths"],
+    "normalizedRegion": {
+      "type": "object", "additionalProperties": false, "required": ["x", "y", "width", "height", "unit"],
       "properties": {
-        "frameCount": { "type": "integer", "minimum": 1 },
-        "durationMs": { "type": "integer", "minimum": 0 },
-        "loopBehavior": { "type": "string", "minLength": 1 },
-        "movementEvidence": { "const": "full_loop_reviewed" },
-        "storyboardPaths": { "$ref": "#/$defs/stringArray" }
+        "x": { "type": "number", "minimum": 0, "maximum": 1 }, "y": { "type": "number", "minimum": 0, "maximum": 1 },
+        "width": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 }, "height": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 },
+        "unit": { "const": "normalized" }
+      }
+    },
+    "visibleTextObservation": {
+      "type": "object", "additionalProperties": false,
+      "required": ["text", "sourceObjectSha256", "provenance", "region", "evidenceRef", "evidenceSha256"],
+      "allOf": [{ "if": { "properties": { "provenance": { "const": "static_pixel" } }, "required": ["provenance"] }, "then": { "properties": { "cropEvidence": true }, "required": ["cropEvidence"] } }],
+      "properties": {
+        "text": { "type": "string", "minLength": 1 }, "sourceObjectSha256": { "$ref": "#/$defs/sha256" },
+        "provenance": { "enum": ["static_pixel", "gif_frame_pixel"] }, "region": { "$ref": "#/$defs/normalizedRegion" },
+        "evidenceRef": { "type": "string", "minLength": 1 }, "evidenceSha256": { "$ref": "#/$defs/sha256" },
+        "frameIndex": { "type": "integer", "minimum": 0 }, "cropEvidence": { "$ref": "#/$defs/staticCropEvidence" }, "secondReview": { "$ref": "#/$defs/visibleTextSecondReview" }
+      }
+    },
+    "visibleTextSecondReview": {
+      "type": "object", "additionalProperties": false,
+      "required": ["status", "method", "reviewerPrincipalId", "reviewedAt", "observationDigest", "evidenceRef", "evidenceSha256"],
+      "properties": {
+        "status": { "const": "confirmed_visible" }, "method": { "const": "independent_crop_review" },
+        "reviewerPrincipalId": { "type": "string", "minLength": 1 }, "reviewedAt": { "type": "string", "format": "date-time" },
+        "observationDigest": { "$ref": "#/$defs/sha256" }, "evidenceRef": { "type": "string", "minLength": 1 }, "evidenceSha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "staticCropEvidence": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "sha256", "pixelSha256", "width", "height", "sourceWidth", "sourceHeight", "pixelRegion", "decoderVersion", "encoderVersion", "sourceObjectSha256"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 }, "sha256": { "$ref": "#/$defs/sha256" }, "pixelSha256": { "$ref": "#/$defs/sha256" },
+        "width": { "type": "integer", "minimum": 1 }, "height": { "type": "integer", "minimum": 1 }, "sourceWidth": { "type": "integer", "minimum": 1 }, "sourceHeight": { "type": "integer", "minimum": 1 },
+        "pixelRegion": { "$ref": "#/$defs/pixelRegion" }, "decoderVersion": { "const": "pngjs@7.0.0+jpeg-js@0.4.4+munjanggun-crop-v1" },
+        "encoderVersion": { "const": "pngjs@7.0.0+munjanggun-canonical-png-v1" }, "sourceObjectSha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "pixelRegion": { "type": "object", "additionalProperties": false, "required": ["left", "top", "width", "height"], "properties": { "left": { "type": "integer", "minimum": 0 }, "top": { "type": "integer", "minimum": 0 }, "width": { "type": "integer", "minimum": 1 }, "height": { "type": "integer", "minimum": 1 } } },
+    "claimEvidence": {
+      "type": "object", "additionalProperties": false,
+      "required": ["signal", "topic", "provenance", "visibleTextIndices", "sourceObjectSha256", "evidenceRef"],
+      "properties": {
+        "signal": { "type": "string", "minLength": 1 },
+        "topic": { "enum": ["price", "after_sales_service", "event", "specification", "review", "schedule", "other"] },
+        "provenance": { "enum": ["visible_text", "gif_frame_visible_text"] },
+        "visibleTextIndices": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "integer", "minimum": 0 } },
+        "sourceObjectSha256": { "$ref": "#/$defs/sha256" }, "evidenceRef": { "type": "string", "minLength": 1 },
+        "frameIndex": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "fullPlaybackObservation": {
+      "type": "object", "additionalProperties": false,
+      "required": ["observed", "method", "observedFromMs", "observedToMs", "reviewedAt", "evidenceRef", "evidenceSha256"],
+      "properties": {
+        "observed": { "const": true }, "method": { "enum": ["continuous_original_playback", "all_decoded_frames_reviewed"] },
+        "observedFromMs": { "const": 0 }, "observedToMs": { "type": "integer", "minimum": 0 },
+        "reviewedAt": { "type": "string", "format": "date-time" }, "evidenceRef": { "type": "string", "minLength": 1 },
+        "evidenceSha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "sampleEvidence": {
+      "type": "object", "additionalProperties": false, "required": ["frameIndex", "path", "sha256", "pixelSha256", "width", "height", "decoderVersion", "sourceObjectSha256"],
+      "properties": {
+        "frameIndex": { "type": "integer", "minimum": 0 }, "path": { "type": "string", "minLength": 1 },
+        "sha256": { "$ref": "#/$defs/sha256" }, "pixelSha256": { "$ref": "#/$defs/sha256" },
+        "width": { "type": "integer", "minimum": 1 }, "height": { "type": "integer", "minimum": 1 },
+        "decoderVersion": { "const": "gifuct-js@2.1.2+munjanggun-compositor-v1" }, "sourceObjectSha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "evidenceFile": {
+      "type": "object", "additionalProperties": false, "required": ["path", "sha256"],
+      "properties": { "path": { "type": "string", "minLength": 1 }, "sha256": { "$ref": "#/$defs/sha256" } }
+    },
+    "gifReview": {
+      "type": "object", "additionalProperties": false,
+      "required": ["decodedFrameCount", "decodedDurationMs", "decodedLoopCount", "sampledFrameCount", "sampledFrameIndices", "loopBehavior", "storyboardEvidence", "sampleEvidence", "fullPlaybackObservation"],
+      "properties": {
+        "decodedFrameCount": { "type": "integer", "minimum": 1 }, "decodedDurationMs": { "type": "integer", "minimum": 0 },
+        "decodedLoopCount": { "type": ["integer", "null"], "minimum": 0 }, "sampledFrameCount": { "type": "integer", "minimum": 1 },
+        "sampledFrameIndices": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "integer", "minimum": 0 } },
+        "loopBehavior": { "type": "string", "minLength": 1 }, "storyboardEvidence": { "type": "array", "items": { "$ref": "#/$defs/evidenceFile" } },
+        "sampleEvidence": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/sampleEvidence" } },
+        "fullPlaybackObservation": { "$ref": "#/$defs/fullPlaybackObservation" }
       }
     },
     "entry": {
-      "type": "object",
-      "additionalProperties": false,
+      "type": "object", "additionalProperties": false,
       "required": [
-        "sourceObjectSha256", "originalPath", "sourceRefs", "mediaType", "semanticSummary",
-        "assetType", "useCases", "searchTags", "crossProductSourceIds", "visibleText", "ocrText", "claimSignals",
-        "privacySignals", "humanReviewStatus", "reviewer", "reviewedAt", "annotationMethod",
-        "evidenceRefs", "reviewNotes", "decisionHash"
+        "sourceObjectSha256", "originalPath", "sourceRefs", "mediaType", "semanticSummary", "assetType", "useCases", "searchTags",
+        "crossProductSourceIds", "textPresence", "visibleText", "visibleTextObservations", "ocrText", "sourceContext", "inferredText", "claimSignals", "claimEvidence",
+        "privacySignals", "humanReviewStatus", "reviewer", "primaryReviewedAt", "reviewedAt", "annotationMethod", "evidenceRefs", "reviewNotes", "decisionHash"
       ],
       "properties": {
-        "sourceObjectSha256": { "$ref": "#/$defs/sha256" },
-        "originalPath": { "type": "string", "minLength": 1 },
-        "sourceRefs": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/sourceRef" } },
-        "mediaType": { "type": "string", "minLength": 1 },
-        "semanticSummary": { "type": "string", "minLength": 1 },
-        "assetType": { "type": "string", "minLength": 1 },
-        "useCases": { "$ref": "#/$defs/stringArray" },
-        "searchTags": { "$ref": "#/$defs/searchTags" },
-        "crossProductSourceIds": { "$ref": "#/$defs/stringArray" },
-        "visibleText": { "$ref": "#/$defs/stringArray" },
-        "ocrText": { "type": "string" },
-        "claimSignals": { "$ref": "#/$defs/stringArray" },
-        "privacySignals": { "$ref": "#/$defs/stringArray" },
-        "humanReviewStatus": { "enum": ["verified", "needs_escalation"] },
-        "reviewer": { "type": "string", "minLength": 1 },
-        "reviewedAt": { "type": "string", "format": "date-time" },
+        "sourceObjectSha256": { "$ref": "#/$defs/sha256" }, "originalPath": { "type": "string", "minLength": 1 },
+        "sourceRefs": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/sourceRef" } }, "mediaType": { "type": "string", "minLength": 1 },
+        "semanticSummary": { "type": "string", "minLength": 1 }, "assetType": { "type": "string", "minLength": 1 },
+        "useCases": { "$ref": "#/$defs/stringArray" }, "searchTags": { "$ref": "#/$defs/searchTags" },
+        "crossProductSourceIds": { "$ref": "#/$defs/stringArray" }, "textPresence": { "enum": ["observed", "none_observed"] },
+        "visibleText": { "$ref": "#/$defs/stringArray" }, "visibleTextObservations": { "type": "array", "items": { "$ref": "#/$defs/visibleTextObservation" } }, "ocrText": { "type": "string" },
+        "sourceContext": { "$ref": "#/$defs/stringArray" }, "inferredText": { "$ref": "#/$defs/stringArray" },
+        "claimSignals": { "$ref": "#/$defs/stringArray" }, "claimEvidence": { "type": "array", "items": { "$ref": "#/$defs/claimEvidence" } },
+        "privacySignals": { "$ref": "#/$defs/stringArray" }, "humanReviewStatus": { "enum": ["verified", "needs_escalation"] },
+        "reviewer": { "type": "string", "minLength": 1 }, "primaryReviewedAt": { "type": "string", "format": "date-time" }, "reviewedAt": { "type": "string", "format": "date-time" },
         "annotationMethod": { "enum": ["full_resolution_original_reviewed", "full_loop_original_reviewed"] },
-        "evidenceRefs": { "$ref": "#/$defs/stringArray" },
-        "reviewNotes": { "type": "string" },
-        "genericSourceProduct": { "const": true },
-        "genericSourceProductReason": { "type": "string", "minLength": 1 },
-        "explicitClaimFalsePositive": { "type": "boolean" },
-        "explicitClaimFalsePositiveReason": { "type": "string", "minLength": 1 },
-        "gifReview": { "$ref": "#/$defs/gifReview" },
-        "decisionHash": { "$ref": "#/$defs/sha256" }
+        "evidenceRefs": { "$ref": "#/$defs/stringArray" }, "reviewNotes": { "type": "string" },
+        "genericSourceProduct": { "const": true }, "genericSourceProductReason": { "type": "string", "minLength": 1 },
+        "gifReview": { "$ref": "#/$defs/gifReview" }, "decisionHash": { "$ref": "#/$defs/sha256" }
       }
     }
   }

@@ -1,0 +1,64 @@
+{
+  "schema": "munjanggun.assetIntakeProfile.v1",
+  "version": "1.0",
+  "intakeId": "INTAKE-20260907-01",
+  "sourceDate": "2026-09-07",
+  "logicalRoot": "문장군상품/신규",
+  "canonicalExcludeFolders": [],
+  "products": [
+    {
+      "folder": "쇼핑스토리",
+      "productId": "PROD-MUNJANGGUN-SHOPPING-STORY",
+      "label": "문장군 쇼핑스토리",
+      "slug": "shopping-story",
+      "sourceId": "SRC-2026-09-07-SHOPPING-STORY",
+      "exclusiveAliases": ["쇼핑스토리"],
+      "requiredAliases": ["쇼핑스토리", "문장군"]
+    }
+  ],
+  "review": {
+    "catalogReports": [
+      {
+        "id": "visual-static",
+        "file": "visual-static.json",
+        "kind": "static",
+        "comparisonMethods": ["full_resolution_original_review"]
+      },
+      {
+        "id": "visual-gif",
+        "file": "visual-gif.json",
+        "kind": "gif",
+        "comparisonMethods": ["full_duration_sampling", "decoded_frame_metadata"]
+      }
+    ],
+    "catalogAuditReport": {
+      "id": "report-audit",
+      "file": "report-audit.json"
+    },
+    "similarityReports": [
+      {
+        "id": "static-final",
+        "file": "static-final.json"
+      },
+      {
+        "id": "gif-final",
+        "file": "gif-final.json"
+      }
+    ],
+    "additionalReports": ["intake-origin-audit.json"],
+    "supportingCollections": [
+      {
+        "kind": "contact_sheet",
+        "sourceDir": "contact-sheets",
+        "extension": ".jpg",
+        "required": false
+      },
+      {
+        "kind": "storyboard",
+        "sourceDir": "storyboards",
+        "extension": ".jpg",
+        "required": false
+      }
+    ]
+  }
+}

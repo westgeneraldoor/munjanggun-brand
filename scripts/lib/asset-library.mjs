@@ -16,12 +16,12 @@ const DEFAULT_TRUSTED_PRIVATE_ROOTS = Object.freeze([
 ].map((value) => resolve(value)));
 
 const DIMENSION_FIELDS = Object.freeze({
-  query: ['semanticSummary', 'assetType', 'useCases', 'searchTags', 'ocrText', 'semanticGroupId', 'visualGroupId', 'claimSignals', 'sourceRefs'],
+  query: ['semanticSummary', 'assetType', 'useCases', 'searchTags', 'visibleText', 'semanticGroupId', 'visualGroupId', 'claimSignals'],
   product: ['sourceRefs', 'semanticSummary', 'searchTags.productTypes'],
-  scene: ['semanticSummary', 'ocrText', 'sourceRefs', 'searchTags.scenes'],
-  color: ['semanticSummary', 'ocrText', 'sourceRefs', 'searchTags.colors'],
-  design: ['semanticSummary', 'ocrText', 'semanticGroupId', 'sourceRefs', 'searchTags.designs'],
-  topic: ['semanticSummary', 'ocrText', 'claimSignals', 'sourceRefs', 'useCases', 'searchTags.topics'],
+  scene: ['semanticSummary', 'searchTags.scenes'],
+  color: ['semanticSummary', 'visibleText', 'searchTags.colors'],
+  design: ['semanticSummary', 'visibleText', 'semanticGroupId', 'searchTags.designs'],
+  topic: ['semanticSummary', 'visibleText', 'claimSignals', 'useCases', 'searchTags.topics'],
 });
 
 const PRIVATE_CODEX_ALLOWED = new Set(['allowed_by_recorded_owner_order', 'allowed']);
@@ -361,6 +361,7 @@ function summarizeResult(library, entry, objectPath, score, matchedDimensions, r
     useCases: entry.useCases ?? [],
     searchTags: entry.searchTags ?? { productTypes: [], scenes: [], colors: [], designs: [], topics: [] },
     ocrText: entry.ocrText,
+    visibleText: entry.visibleText ?? [],
     contentDecisionHash: entry.contentDecisionHash,
     matchedDimensions,
     sourceRefs: entry.sourceRefs,
