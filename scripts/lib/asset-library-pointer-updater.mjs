@@ -30,6 +30,7 @@ export async function activateAssetLibraryPointer({
     if (expectedCurrentSha256 && previousSha256 !== expectedCurrentSha256) throw new Error('Current pointer CAS mismatch');
 
     if (previousBytes && sameTarget(JSON.parse(previousBytes.toString('utf8')), pointer)) {
+      await validateActivation(destination);
       return { result: 'no_change', pointerPath: destination, previousSha256, currentSha256: previousSha256 };
     }
     const nextBytes = Buffer.from(`${JSON.stringify(pointer, null, 2)}\n`, 'utf8');
@@ -52,9 +53,9 @@ export async function activateAssetLibraryPointer({
       if (digest(await readFile(historyPath)) !== previousSha256) throw new Error('Pointer history verification failed');
     }
 
-    let displacedPath = null;
+    const transitionState = { displacedPath: null };
     try {
-      displacedPath = await transition({ destination, partialPath, previousBytes });
+      await transition({ destination, partialPath, previousBytes, state: transitionState });
       partialPath = null;
       await validateActivation(destination);
       const receipt = {
@@ -65,10 +66,10 @@ export async function activateAssetLibraryPointer({
       await mkdir(resolve(historyRoot, 'activations'), { recursive: true });
       const receiptPath = resolve(historyRoot, 'activations', `${timestamp}-${nextSha256}.json`);
       await writeFile(receiptPath, `${JSON.stringify(receipt, null, 2)}\n`, { encoding: 'utf8', flag: 'wx' });
-      if (displacedPath) await rm(displacedPath, { force: true });
+      if (transitionState.displacedPath) await rm(transitionState.displacedPath, { force: true });
       return { result: previousBytes ? 'updated' : 'created', pointerPath: destination, historyPath, receiptPath, previousSha256, currentSha256: nextSha256 };
     } catch (error) {
-      await rollbackTransition({ destination, displacedPath, previousBytes });
+      await rollbackTransition({ destination, displacedPath: transitionState.displacedPath, previousBytes });
       if (historyPath) await rm(historyPath, { force: true });
       throw error;
     }
@@ -84,24 +85,19 @@ export async function validateFullActivation(pointerPath) {
   return library;
 }
 
-async function defaultTransition({ destination, partialPath, previousBytes }) {
-  let displacedPath = null;
+async function defaultTransition({ destination, partialPath, previousBytes, state }) {
   if (previousBytes) {
-    displacedPath = `${destination}.displaced-${randomUUID()}`;
+    const displacedPath = `${destination}.displaced-${randomUUID()}`;
     await rename(destination, displacedPath);
+    state.displacedPath = displacedPath;
   }
-  try {
-    await rename(partialPath, destination);
-    return displacedPath;
-  } catch (error) {
-    if (displacedPath) await rename(displacedPath, destination);
-    throw error;
-  }
+  await rename(partialPath, destination);
 }
 
 async function rollbackTransition({ destination, displacedPath, previousBytes }) {
+  if (previousBytes && !displacedPath) return;
   await rm(destination, { force: true });
-  if (previousBytes && displacedPath) await rename(displacedPath, destination);
+  if (displacedPath) await rename(displacedPath, destination);
 }
 
 async function readOptional(path) {

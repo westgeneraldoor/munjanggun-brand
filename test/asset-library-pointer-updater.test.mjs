@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, readdir, rename, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { activateAssetLibraryPointer } from '../scripts/lib/asset-library-pointer-updater.mjs';
@@ -40,10 +40,47 @@ test('pointer updater is idempotent and does not create history for the same tar
     const currentBytes = await readFile(pointerPath);
     const beforeHistory = (await readdir(join(root, 'history'), { recursive: true })).sort();
     const same = { ...first, updatedAt: '2100-01-01T00:00:00.000Z' };
-    const result = await activateAssetLibraryPointer({ pointerPath, pointer: same, expectedCurrentSha256: digest(currentBytes), validateActivation: async () => {} });
+    let validationCalls = 0;
+    const result = await activateAssetLibraryPointer({
+      pointerPath, pointer: same, expectedCurrentSha256: digest(currentBytes),
+      validateActivation: async () => { validationCalls += 1; },
+    });
     assert.equal(result.result, 'no_change');
+    assert.equal(validationCalls, 1);
     assert.deepEqual(await readFile(pointerPath), currentBytes);
     assert.deepEqual((await readdir(join(root, 'history'), { recursive: true })).sort(), beforeHistory);
+  } finally { await rm(root, { recursive: true, force: true }); }
+});
+
+test('transition failure restores the previous current pointer byte for byte', async () => {
+  const root = await makeRoot();
+  const pointerPath = join(root, 'current.json');
+  try {
+    await activateAssetLibraryPointer({ pointerPath, pointer: fixturePointer('a'), expectAbsent: true, validateActivation: async () => {} });
+    const currentBytes = await readFile(pointerPath);
+    await assert.rejects(activateAssetLibraryPointer({
+      pointerPath, pointer: fixturePointer('b'), expectedCurrentSha256: digest(currentBytes), validateActivation: async () => {},
+      transition: async ({ destination, state }) => {
+        state.displacedPath = `${destination}.displaced-test`;
+        await rename(destination, state.displacedPath);
+        throw new Error('candidate rename failed');
+      },
+    }), /candidate rename failed/u);
+    assert.deepEqual(await readFile(pointerPath), currentBytes);
+  } finally { await rm(root, { recursive: true, force: true }); }
+});
+
+test('failure before displacement never removes the existing current pointer', async () => {
+  const root = await makeRoot();
+  const pointerPath = join(root, 'current.json');
+  try {
+    await activateAssetLibraryPointer({ pointerPath, pointer: fixturePointer('a'), expectAbsent: true, validateActivation: async () => {} });
+    const currentBytes = await readFile(pointerPath);
+    await assert.rejects(activateAssetLibraryPointer({
+      pointerPath, pointer: fixturePointer('b'), expectedCurrentSha256: digest(currentBytes), validateActivation: async () => {},
+      transition: async () => { throw new Error('initial rename failed'); },
+    }), /initial rename failed/u);
+    assert.deepEqual(await readFile(pointerPath), currentBytes);
   } finally { await rm(root, { recursive: true, force: true }); }
 });
 

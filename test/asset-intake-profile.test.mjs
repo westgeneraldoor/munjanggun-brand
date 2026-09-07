@@ -57,3 +57,9 @@ test('intake profile rejects traversal in configured paths', async () => {
   value.logicalRoot = '../outside';
   await assert.rejects(loadIntakeProfile(await writeProfile(value)), /schema failed/);
 });
+
+test('intake profile requires comparison methods for every catalog review shard', async () => {
+  const value = fixture();
+  delete value.review.catalogReports[0].comparisonMethods;
+  await assert.rejects(loadIntakeProfile(await writeProfile(value)), /schema failed/);
+});

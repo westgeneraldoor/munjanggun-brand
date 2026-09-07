@@ -168,7 +168,6 @@ export async function writeAssetLibraryHandoff(library, results, selectedContent
   const approvedRoot = await assertTrustedPrivatePath(approvedPrivateRoot, {
     trustedPrivateRoots: [...trustedPrivateRoots, ...registeredRoots], kind: 'directory', label: 'Approved private root', rejectSymlinks: true,
   });
-  if (matchedConsumer.requireGitIgnored) await verifyConsumerDestination(approvedRoot);
   const destination = resolveRequiredAbsolute(outputRoot, 'Output root');
   if (!isContained(approvedRoot, destination) || destination === approvedRoot) {
     throw new Error('Output root must be a child of the approved private root');
@@ -179,6 +178,7 @@ export async function writeAssetLibraryHandoff(library, results, selectedContent
   if (isContained(library.objectRoot, destination) || isContained(destination, library.objectRoot)) {
     throw new Error('Handoff output and object root must be separate');
   }
+  if (matchedConsumer.requireGitIgnored) await verifyConsumerDestination(approvedRoot, destination);
   await assertNoSymlinkSegments(approvedRoot, destination, 'Output root');
   const parent = dirname(destination);
   const parentInfo = await lstat(parent);
@@ -493,18 +493,21 @@ function validateConsumerPolicy(consumers) {
   }
 }
 
-async function verifyGitIgnoredConsumerDestination(approvedRoot) {
+async function verifyGitIgnoredConsumerDestination(approvedRoot, destination = approvedRoot) {
   try {
     const { stdout } = await execFileAsync('git', ['-C', approvedRoot, 'rev-parse', '--show-toplevel'], { encoding: 'utf8', windowsHide: true });
     const gitRoot = stdout.trim();
     const relativeRoot = relative(gitRoot, approvedRoot).replaceAll('\\', '/');
+    const relativeDestination = relative(gitRoot, destination).replaceAll('\\', '/');
     if (!relativeRoot || relativeRoot.startsWith('../')) throw new Error('registered private root is outside its Git repository');
+    if (!relativeDestination || relativeDestination.startsWith('../')) throw new Error('handoff destination is outside its Git repository');
     await execFileAsync('git', ['-C', gitRoot, 'check-ignore', '--quiet', '--', relativeRoot], { windowsHide: true });
+    await execFileAsync('git', ['-C', gitRoot, 'check-ignore', '--quiet', '--', relativeDestination], { windowsHide: true });
     const tracked = await execFileAsync('git', ['-C', gitRoot, 'ls-files', '--', relativeRoot], { encoding: 'utf8', windowsHide: true });
     if (tracked.stdout.trim()) throw new Error('registered private root contains tracked files');
   } catch (error) {
     if (/tracked files|outside its Git repository/u.test(error.message)) throw error;
-    throw new Error('Registered consumer root must currently be Git-ignored');
+    throw new Error('Registered consumer root and handoff destination must currently be Git-ignored');
   }
 }
 

@@ -8,6 +8,7 @@
   - 문장군블로그의 Git 제외 비공개 영역에 첫 자산 handoff JSON과 HTML 미리보기를 바이너리 복사 없이 생성
   - 중앙에 커밋된 사장 지시 anchor와 소비 프로젝트 정책을 검증하고, 명시 경로로도 Git 제외 검사를 우회하지 못하게 차단
   - current 교체는 예상 SHA 기반 CAS, 잠금, 이전 pointer 이력, 전환 전후 검증, object 전수 해시 검사와 실패 시 rollback을 거치도록 변경
+  - 이번 v3→v4 수동 전환은 이전 pointer 원문 SHA와 현재 pointer·anchor·rights-state·407 object 재검증 결과를 private bootstrap reconciliation 영수증으로 보완
 - 다음 intake 반복 처리를 profile과 감사 계약으로 분리
   - 상품명·날짜·출처·검토 증거 목록은 intake profile로 이동
   - 콘텐츠 판독 shard, GIF 여부, 시각 유사군 보고서, 선택적 storyboard/contact sheet 위치를 profile 설정으로 이동

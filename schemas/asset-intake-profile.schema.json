@@ -44,7 +44,7 @@
     "reviewReport": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "file", "kind"],
+      "required": ["id", "file", "kind", "comparisonMethods"],
       "properties": {
         "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
         "file": { "$ref": "#/$defs/relativePath" },
