@@ -61,6 +61,8 @@
 
 ## 5. 현재 게이트
 
+2026-09-07 실제 원본 대조에서 설명 오분류와 가격·기능 claim 누락이 확인됐다. 기존 `reviewed`는 개수·SHA·필드 완전성과 contact sheet/OCR 확인을 뜻할 뿐, 원본별 의미 설명 정확성을 입증하지 못한다. 따라서 현재 407개 카탈로그는 `config/asset-content-quality.json`에서 `blocked_pending_visual_revalidation`이며, 원본별 full-resolution 확인과 GIF 전체 루프 확인이 끝날 때까지 검색·추천·handoff에 사용할 수 없다.
+
 저장·복구·시각 분석의 기준 파일은 Z 비공개 보관소의 `review-evidence/receipt.json`, `candidate-v2/reviewed-content-catalog-v5.json`, `visual-similarity-map-v2.json`, `url-review-v2.json`, `completion-report-v13.json`이다. 2026-09-07 권리 결정의 최신 묶음은 `candidate-v2/owner-rights-v4/`이며, 공용 `current.json`이 이를 가리킨다. 누적 검색은 `config/asset-library-index.json`이 SHA로 고정한 불변 pointer 이력을 사용한다. 그 안의 `OWNER_RIGHTS_SUMMARY.md`, `owner-rights-attestation.json`, `owner-attestation-mapping.json`, `reviewed-content-catalog.json`, 자산별 증거 407개, registry/receipt, 결정 원장, `rights-state.json`, `worker-review-queue.json`을 함께 사용한다. 이전 승인표와 번호 파일은 과정 기록이다.
 
 공용 pointer의 v3→v4 전환은 교체기 완성 전에 이뤄졌으므로 private `asset-library/history/`에 v3 원문을 SHA 그대로 보존하고 `activationMethod: bootstrap_reconciled` 영수증으로 사후 대조 사실을 명시한다. 이후 전환은 반드시 CAS 교체기를 사용한다.

@@ -16,7 +16,7 @@ test('blog picker matches product, installation scene, color, design, and consul
       '--color', '베이지',
       '--design', '모던',
       '--consultation-topic', '좁은 공간',
-    ], { emit: () => {} });
+    ], { emit: () => {}, verifyContentQuality: async () => {} });
     assert.equal(output.candidateCount, 2);
     assert.deepEqual(output.candidates.map((item) => item.contentId).sort(), ['CONTENT-APPROVED', 'CONTENT-BLOCKED']);
     assert(output.candidates.every((item) => Object.keys(item.matchedDimensions).length === 5));
@@ -32,7 +32,7 @@ test('blog picker permits planning selection but never emits an extraction step 
   try {
     const blocked = await runBlogAssetPicker([
       '--catalog', fixture.catalogPath, '--query', '베이지 모던', '--select-content-id', 'CONTENT-BLOCKED',
-    ], { emit: () => {} });
+    ], { emit: () => {}, verifyContentQuality: async () => {} });
     assert.equal(blocked.selection.planningSelectionAllowed, true);
     assert.equal(blocked.selection.externalExtractionRequestStatus, 'blocked_by_catalog_metadata');
     assert(blocked.selection.blockers.includes('rightsStatus=not_reviewed'));
@@ -40,14 +40,14 @@ test('blog picker permits planning selection but never emits an extraction step 
 
     const approved = await runBlogAssetPicker([
       '--catalog', fixture.catalogPath, '--query', '베이지 모던', '--select-content-id', 'CONTENT-APPROVED',
-    ], { emit: () => {} });
+    ], { emit: () => {}, verifyContentQuality: async () => {} });
     assert.equal(approved.selection.externalExtractionRequestStatus, 'requires_assets_extract_content_revalidation');
     assert.equal(approved.selection.nextStep.command, 'npm run assets:extract-content');
     assert.equal(approved.selection.nextStep.guarantee, 'none_until_extractor_succeeds');
 
     await assert.rejects(runBlogAssetPicker([
       '--catalog', fixture.catalogPath, '--product', '3연동중문', '--select-content-id', 'CONTENT-OTHER',
-    ], { emit: () => {} }), /not in the current candidate results/);
+    ], { emit: () => {}, verifyContentQuality: async () => {} }), /not in the current candidate results/);
   } finally {
     await rm(fixture.root, { recursive: true, force: true });
   }

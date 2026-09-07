@@ -8,6 +8,7 @@ import { join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { promisify } from 'node:util';
 import { runAssetExtractContent } from '../scripts/assets-extract-content.mjs';
+import { runAssetSearchCatalog } from '../scripts/assets-search-catalog.mjs';
 import { runBlogAssetPicker } from '../scripts/assets-pick-for-blog.mjs';
 import { verifyApprovalAuthority } from '../scripts/lib/asset-owner-approval.mjs';
 import { verifyTrustedOwnerSignature } from '../scripts/lib/asset-owner-trust.mjs';
@@ -25,14 +26,14 @@ process.once('exit', () => {
 
 test('catalog search works and external extraction denies an unreviewed asset', async () => {
   const fixture = await createFixture();
-  const search = await execFileAsync(process.execPath, [
-    join(repoRoot, 'scripts/assets-search-catalog.mjs'), '--catalog', fixture.catalogPath, '--query', '손 끼임',
-  ]);
-  assert.equal(JSON.parse(search.stdout).results[0].contentId, fixture.entry.contentId);
+  const search = await runAssetSearchCatalog([
+    '--catalog', fixture.catalogPath, '--query', '손 끼임',
+  ], { emit: () => {}, verifyContentQuality: async () => {} });
+  assert.equal(search.results[0].contentId, fixture.entry.contentId);
   const picker = await runBlogAssetPicker([
     '--catalog', fixture.catalogPath, '--product', '상품', '--consultation-topic', '손 끼임',
     '--select-content-id', fixture.entry.contentId,
-  ], { emit: () => {} });
+  ], { emit: () => {}, verifyContentQuality: async () => {} });
   assert.equal(picker.candidates[0].catalogMetadataStatus, 'review_only');
   assert.equal(picker.selection.externalExtractionRequestStatus, 'blocked_by_catalog_metadata');
   assert.equal(picker.selection.nextStep, null);

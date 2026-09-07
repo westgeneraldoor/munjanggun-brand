@@ -55,7 +55,7 @@ test('library applies every detailed criterion before ranking and limit beyond 5
       catalog: { entries: [...distractors, qualified] }, objectRoot,
       rightsState: { effectiveAccess: { privateCodexSource: 'allowed', blogSnsPublication: 'blocked', publicGit: 'blocked' } },
     };
-    const results = await searchAssetLibrary(library, { query: '공통', color: '희귀' }, { limit: 1 });
+    const results = await searchAssetLibrary(library, { query: '공통', color: '희귀' }, { limit: 1, verifyContentQuality: async () => {} });
     assert.deepEqual(results.map((entry) => entry.contentId), ['QUALIFIED']);
     assert.deepEqual(Object.keys(results[0].matchedDimensions).sort(), ['color', 'query']);
   } finally {
@@ -76,7 +76,7 @@ test('library index searches two intakes together and deduplicates one binary wi
       { body: sharedBody, entry: catalogEntry({ contentId: 'B-SHARED', sha256: sharedSha, byteSize: sharedBody.length, semanticSummary: '거실 공용', sourceRelativePath: 'B/shared.jpg' }) },
       { body: Buffer.from('second-only'), entry: null, contentId: 'B-ONLY', summary: '현관 두번째', path: 'B/only.jpg' },
     ]);
-    const results = await searchAssetLibraryIndex({ libraries: [first, second] }, { query: '현관' }, { limit: 10 });
+    const results = await searchAssetLibraryIndex({ libraries: [first, second] }, { query: '현관' }, { limit: 10, verifyContentQuality: async () => {} });
     assert.equal(results.length, 3);
     const shared = results.find((entry) => entry.sha256 === sharedSha);
     assert.deepEqual(shared.origins.map((origin) => origin.pointerId).sort(), ['POINTER-A', 'POINTER-B']);
@@ -101,7 +101,7 @@ test('library index retains an origin even when its same-SHA hit is below the pe
       { body: Buffer.from('b-second'), entry: null, contentId: 'B-SECOND', summary: '현관 공용', path: '현관/공용/B-second.jpg' },
       { body: sharedBody, entry: catalogEntry({ contentId: 'B-SHARED', sha256: sharedSha, byteSize: sharedBody.length, semanticSummary: '현관 공용', sourceRelativePath: 'B/shared.jpg' }) },
     ]);
-    const results = await searchAssetLibraryIndex({ libraries: [first, second] }, { query: '현관 공용' }, { limit: 1 });
+    const results = await searchAssetLibraryIndex({ libraries: [first, second] }, { query: '현관 공용' }, { limit: 1, verifyContentQuality: async () => {} });
     assert.equal(results[0].sha256, sharedSha);
     assert.deepEqual(results[0].origins.map((origin) => origin.pointerId).sort(), ['INTAKE-A', 'INTAKE-B']);
     assert.deepEqual(results[0].origins.map((origin) => origin.sourceRefs[0].sourceRelativePath).sort(), ['B/shared.jpg', '현관/공용/A-shared.jpg']);
@@ -208,6 +208,7 @@ test('consumer policy rejects duplicate destination roots', async () => {
   try {
     await assert.rejects(runAssetLibrary(['--pointer', fixture.pointerPath, '--query', '현관'], {
       emit: () => {},
+      searchOptions: { verifyContentQuality: async () => {} },
       libraryOptions: {
         trustedPrivateRoots: [fixture.root], repoRoot: fixture.root, verifyCommittedAnchor: async () => {},
         consumerPolicy: [
@@ -226,6 +227,7 @@ test('consumer policy rejects parent and child destination roots', async () => {
   try {
     await assert.rejects(runAssetLibrary(['--pointer', fixture.pointerPath, '--query', '현관'], {
       emit: () => {},
+      searchOptions: { verifyContentQuality: async () => {} },
       libraryOptions: {
         trustedPrivateRoots: [fixture.root], repoRoot: fixture.root, verifyCommittedAnchor: async () => {},
         consumerPolicy: [
@@ -306,7 +308,8 @@ async function run(fixture, extra, handoffOptions = {}) {
       trustedPrivateRoots: [fixture.root], repoRoot: fixture.root, verifyCommittedAnchor: async () => {},
       consumerPolicy: [{ consumerId: 'fixture-consumer', channel: 'blog', privateRoot: fixture.root, requireGitIgnored: true }],
     },
-    handoffOptions: { trustedPrivateRoots: [fixture.root], repoRoot: fixture.repoRoot, verifyConsumerDestination: async () => {}, ...handoffOptions },
+    searchOptions: { verifyContentQuality: async () => {} },
+    handoffOptions: { trustedPrivateRoots: [fixture.root], repoRoot: fixture.repoRoot, verifyConsumerDestination: async () => {}, verifyContentQuality: async () => {}, ...handoffOptions },
   });
 }
 

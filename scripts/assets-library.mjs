@@ -4,7 +4,9 @@ import { fileURLToPath } from 'node:url';
 import { loadAssetLibrary, searchAssetLibrary, writeAssetLibraryHandoff } from './lib/asset-library.mjs';
 import { many, one, parseStrictArgs, required } from './lib/strict-cli-args.mjs';
 
-export async function runAssetLibrary(argv, { emit = console.log, libraryOptions = {}, handoffOptions = {} } = {}) {
+export async function runAssetLibrary(argv, {
+  emit = console.log, libraryOptions = {}, searchOptions = {}, handoffOptions = {},
+} = {}) {
   const args = parseStrictArgs(argv, {
     valueFlags: [
       '--pointer', '--query', '--product', '--scene', '--installation-scene', '--color', '--design', '--topic', '--consultation-topic',
@@ -26,6 +28,7 @@ export async function runAssetLibrary(argv, { emit = console.log, libraryOptions
   const results = await searchAssetLibrary(library, criteria, {
     mediaType: one(args, '--media-type'),
     limit,
+    ...searchOptions,
   });
   const selectedIds = many(args, '--select-content-id');
   const consumerId = one(args, '--consumer');
