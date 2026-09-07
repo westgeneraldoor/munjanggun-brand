@@ -21,6 +21,13 @@ export function searchCatalogEntries(catalog, { query, limit = 20, mediaType, pr
   if (!normalizedQuery) throw new Error('Search query must not be empty');
   if (!Number.isInteger(limit) || limit < 1 || limit > 500) throw new Error('--limit must be an integer from 1 to 500');
   if (!Array.isArray(catalog?.entries)) throw new Error('Catalog entries must be an array');
+  return rankCatalogEntries(catalog, { query: normalizedQuery, mediaType, product }).slice(0, limit);
+}
+
+export function rankCatalogEntries(catalog, { query, mediaType, product } = {}) {
+  const normalizedQuery = String(query ?? '').trim();
+  if (!normalizedQuery) throw new Error('Search query must not be empty');
+  if (!Array.isArray(catalog?.entries)) throw new Error('Catalog entries must be an array');
   const terms = normalizedQuery.toLocaleLowerCase('ko').split(/\s+/u).filter(Boolean);
   const productNeedle = normalizeSearchText(product);
 
@@ -32,7 +39,6 @@ export function searchCatalogEntries(catalog, { query, limit = 20, mediaType, pr
     .map((entry) => ({ entry, score: scoreEntry(entry, terms) }))
     .filter((result) => result.score > 0)
     .sort((left, right) => right.score - left.score || left.entry.sha256.localeCompare(right.entry.sha256))
-    .slice(0, limit)
     .map(({ entry, score }) => ({
       score,
       contentId: entry.contentId,

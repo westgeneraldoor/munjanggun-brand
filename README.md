@@ -58,18 +58,18 @@ npm run report:assets
 
 대량 intake는 원본 복구본, 논리 경로, 단일 object, 발행 상태를 분리한다. 검색은 상태를 바꾸지 않는다. 외부용 추출은 봉인 검토 증거와 권리·개인정보·claim·발행 게이트를 모두 통과해야 하며, 결과 자산과 추출 영수증을 한 묶음으로 만든다.
 
-다른 문장군 프로젝트는 버전 폴더를 직접 찾지 않고 아래 공용 입구만 사용한다.
+다른 문장군 프로젝트는 버전 폴더를 직접 찾지 않고 아래 누적 공용 입구만 사용한다. 이 인덱스는 각 intake의 불변 pointer와 SHA를 연결하므로 새 묶음을 추가해도 이전 묶음이 검색에서 사라지지 않는다.
 
 ```text
-C:\Users\hjh\안티그래비티\문장군_브랜드_private\asset-library\current.json
+C:\Users\hjh\안티그래비티\문장군_브랜드\config\asset-library-index.json
 ```
 
 ```bash
-npm run assets:library -- --pointer "C:\Users\hjh\안티그래비티\문장군_브랜드_private\asset-library\current.json" --query "3연동ㄱ자 제품 연출 썸네일"
-npm run assets:library -- --pointer "C:\Users\hjh\안티그래비티\문장군_브랜드_private\asset-library\current.json" --query "3연동ㄱ자 제품 연출 썸네일" --select-content-id <CONTENT-ID> --consumer munjanggun-blog --output-name <작업명>
+npm run assets:library:index -- --index "C:\Users\hjh\안티그래비티\문장군_브랜드\config\asset-library-index.json" --query "3연동ㄱ자 제품 연출 썸네일"
+npm run assets:library:index -- --index "C:\Users\hjh\안티그래비티\문장군_브랜드\config\asset-library-index.json" --query "3연동ㄱ자 제품 연출 썸네일" --select-sha256 <SHA-256> --consumer munjanggun-blog --output-name <작업명>
 ```
 
-두 번째 명령은 실제 이미지 복사 없이 `asset-handoff.json`과 미리보기 HTML만 등록된 프로젝트의 비공개·Git 제외 영역에 만든다. 검색 결과는 `내부 사용 가능`, `외부 발행 차단 사유`, `공개 Git 금지`를 한꺼번에 보여준다.
+두 번째 명령은 실제 이미지 복사 없이 `asset-handoff.json`과 미리보기 HTML만 등록된 프로젝트의 비공개·Git 제외 영역에 만든다. 검색 결과는 같은 바이너리가 여러 intake에 있으면 하나로 합치고 모든 출처를 `origins`에 남긴다. `내부 사용 가능`, `외부 발행 차단 사유`, `공개 Git 금지`도 함께 보여준다. 기존 단일 최신 묶음용 `assets:library -- --pointer ...`는 호환 목적으로 유지한다.
 
 ```bash
 npm run assets:search -- --catalog <reviewed-content-catalog.json> --query "검색어"
@@ -94,7 +94,7 @@ npm run assets:extract-content -- --catalog <reviewed-content-catalog.json> --ev
 
 검토 보고서의 개수와 파일명도 프로그램에 고정하지 않는다. profile의 `review.catalogReports`, `review.similarityReports`, `review.supportingCollections`가 정적 이미지·GIF 판독 shard와 선택적 contact sheet/storyboard 위치를 정의하며, 봉인과 병합 도구는 이 설정을 공통으로 읽는다.
 
-공용 자료실의 소비 프로젝트는 `config/asset-library-consumers.json`에 중앙 정책으로 등록한다. `current.json` 안의 경로만으로 새 소비처를 승인할 수 없고, handoff 대상은 실제 Git 제외·비추적 상태여야 한다. `current.json` 갱신은 최초 생성 시 `--expect-absent`, 이후에는 기존 파일의 정확한 `--expected-current-sha256`을 요구하며 이전 pointer와 활성화 영수증을 private history에 남긴다.
+공용 자료실의 소비 프로젝트는 `config/asset-library-consumers.json`에 중앙 정책으로 등록한다. 현재 실제 전달이 검증되는 대상은 `munjanggun-blog`와 `munjanggun-crm` 두 곳이다. 등록 루트는 서로 같거나 부모·자식으로 겹칠 수 없고, handoff 대상은 실제 Git 제외·비추적 상태여야 한다. `current.json` 갱신은 최초 생성 시 `--expect-absent`, 이후에는 기존 파일의 정확한 `--expected-current-sha256`을 요구하며 이전 pointer와 활성화 영수증을 private history에 남긴다. 누적 인덱스에는 그 불변 이력 pointer만 SHA와 함께 추가한다.
 
 ## 민감 정보
 

@@ -1,5 +1,17 @@
 # CHANGELOG - 문장군 중앙 브랜드 문서
 
+## v5.3 - 2026-09-07
+
+- Windows 체크아웃에서 소비 프로젝트 정책의 LF/CRLF 차이만으로 공용 검색이 중단되던 문제 수정
+  - 정책과 누적 인덱스의 저장 줄바꿈을 LF로 고정하고 Git canonical object로 실제 내용 변경만 차단
+  - 오류 메시지를 사장 지시 anchor와 소비 정책·누적 인덱스로 구분
+- 색상·장면 등 세부 조건을 전체 후보에 먼저 적용한 뒤 순위와 개수 제한을 적용해 500개 초과 자료의 검색 누락 차단
+- `config/asset-library-index.json` 누적 입구와 `assets:library:index` 추가
+  - intake별 불변 비공개 pointer를 SHA로 검증하고 여러 묶음을 함께 검색
+  - 같은 바이너리는 SHA 기준 한 결과로 합치되 모든 intake 출처를 `origins`에 보존
+  - 기존 `current.json`과 단일 pointer 명령은 호환 목적으로 유지
+- 소비 프로젝트를 블로그와 CRM 두 곳으로 확대하고, 등록 루트 중복·부모 자식 겹침·채널 불일치 차단 추가
+
 ## v5.2 - 2026-09-07
 
 - 비공개 공용 자산 자료실의 단일 `current.json` 입구와 검색·미리보기·선택 CLI 추가
