@@ -45,6 +45,9 @@
   },
   "devDependencies": {
     "ajv": "^8.20.0",
-    "ajv-formats": "^3.0.1"
+    "ajv-formats": "^3.0.1",
+    "gifuct-js": "^2.1.2",
+    "jpeg-js": "^0.4.4",
+    "pngjs": "^7.0.0"
   }
 }

@@ -33,17 +33,34 @@ test('visually verified status without sealed overlay and receipt is rejected', 
   }), /missing sealed authority fields/u);
 });
 
+test('legacy visually verified authority without the evidence contract is rejected', async () => {
+  const value = policy([{ status: 'visually_verified' }]);
+  delete value.records[0].authorityContractVersion;
+  await assert.rejects(assertCatalogContentUsable({ intakeId: 'INTAKE-TEST', catalogSha256: CATALOG_SHA }, {
+    policy: value,
+  }), /missing sealed authority fields/u);
+});
+
+test('older evidence contract cannot be promoted under the v3 runtime', async () => {
+  const value = policy([{ status: 'visually_verified' }]);
+  value.records[0].authorityContractVersion = 'content-evidence-v2';
+  await assert.rejects(assertCatalogContentUsable({ intakeId: 'INTAKE-TEST', catalogSha256: CATALOG_SHA }, {
+    policy: value,
+  }), /missing sealed authority fields/u);
+});
+
 function policy(records) {
   return {
-    schema: 'munjanggun.assetContentQualityPolicy.v1', version: '1.0', updatedAt: '2099-01-01T00:00:00.000Z',
+    schema: 'munjanggun.assetContentQualityPolicy.v1', version: '1.0', updatedAt: '2026-09-07T06:00:00.000Z',
     records: records.map((record) => ({
       intakeId: 'INTAKE-TEST', catalogSha256: CATALOG_SHA,
       reason: 'fixture visual review status', ...record,
       ...(record.status === 'visually_verified' ? {
         overlayPath: resolve('fixture-private', 'content-overlay.json'), overlaySha256: 'c'.repeat(64),
         receiptPath: resolve('fixture-private', 'receipt.json'), receiptSha256: 'd'.repeat(64),
-        profileSha256: 'e'.repeat(64),
-        verifiedAt: '2099-01-01T00:00:00.000Z',
+        profileSha256: 'e'.repeat(64), reviewerTrustSha256: 'f'.repeat(64),
+        authorityContractVersion: 'content-evidence-v3',
+        verifiedAt: '2026-09-07T06:00:00.000Z',
       } : {}),
     })),
   };

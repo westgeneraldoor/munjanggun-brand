@@ -5,45 +5,44 @@
   "type": "object",
   "additionalProperties": false,
   "required": [
-    "schema", "version", "intakeId", "sealedAt", "baseCatalogSha256", "profilePath", "profileSha256", "overlaySha256",
-    "entryCount", "verifiedCount", "needsEscalationCount", "staticCount", "gifCount",
-    "fullLoopGifCount", "claimSignalAssetCount", "priceClaimAssetCount", "privacySignalAssetCount", "reviewFiles", "treeHash"
+    "schema", "version", "authorityContractVersion", "intakeId", "sealedAt", "baseCatalogPath", "baseCatalogSha256", "profilePath", "profileSha256", "reviewerTrustPath", "reviewerTrustSha256", "rawRootPath", "overlaySha256",
+    "entryCount", "verifiedCount", "needsEscalationCount", "staticCount", "gifCount", "decodedGifFrameCount",
+    "sampledGifFrameCount", "fullPlaybackObservedGifCount", "claimSignalAssetCount", "sensitiveClaimEvidenceAssetCount",
+    "visibleTextObservationCount", "verifiedCropCount", "sensitiveClaimObservationCount", "secondReviewedSensitiveObservationCount",
+    "priceClaimAssetCount", "privacySignalAssetCount", "reviewFiles", "treeHash"
   ],
   "properties": {
-    "schema": { "const": "munjanggun.assetContentRevalidationReceipt.v1" },
-    "version": { "const": "1.0" },
+    "schema": { "const": "munjanggun.assetContentRevalidationReceipt.v2" },
+    "version": { "const": "2.0" },
+    "authorityContractVersion": { "const": "content-evidence-v3" },
     "intakeId": { "type": "string", "pattern": "^INTAKE-[0-9]{8}-[0-9]{2}$" },
     "sealedAt": { "type": "string", "format": "date-time" },
+    "baseCatalogPath": { "type": "string", "minLength": 1 },
     "baseCatalogSha256": { "$ref": "#/$defs/sha256" },
-    "profilePath": { "type": "string", "minLength": 1 },
-    "profileSha256": { "$ref": "#/$defs/sha256" },
-    "overlaySha256": { "$ref": "#/$defs/sha256" },
-    "entryCount": { "type": "integer", "minimum": 1 },
-    "verifiedCount": { "type": "integer", "minimum": 0 },
-    "needsEscalationCount": { "type": "integer", "minimum": 0 },
-    "staticCount": { "type": "integer", "minimum": 0 },
-    "gifCount": { "type": "integer", "minimum": 0 },
-    "fullLoopGifCount": { "type": "integer", "minimum": 0 },
-    "claimSignalAssetCount": { "type": "integer", "minimum": 0 },
-    "priceClaimAssetCount": { "type": "integer", "minimum": 0 },
+    "profilePath": { "type": "string", "minLength": 1 }, "profileSha256": { "$ref": "#/$defs/sha256" },
+    "reviewerTrustPath": { "type": "string", "minLength": 1 }, "reviewerTrustSha256": { "$ref": "#/$defs/sha256" },
+    "rawRootPath": { "type": "string", "minLength": 1 },
+    "overlaySha256": { "$ref": "#/$defs/sha256" }, "entryCount": { "type": "integer", "minimum": 1 },
+    "verifiedCount": { "type": "integer", "minimum": 0 }, "needsEscalationCount": { "type": "integer", "minimum": 0 },
+    "staticCount": { "type": "integer", "minimum": 0 }, "gifCount": { "type": "integer", "minimum": 0 },
+    "decodedGifFrameCount": { "type": "integer", "minimum": 0 }, "sampledGifFrameCount": { "type": "integer", "minimum": 0 },
+    "fullPlaybackObservedGifCount": { "type": "integer", "minimum": 0 }, "claimSignalAssetCount": { "type": "integer", "minimum": 0 },
+    "visibleTextObservationCount": { "type": "integer", "minimum": 0 }, "verifiedCropCount": { "type": "integer", "minimum": 0 },
+    "sensitiveClaimObservationCount": { "type": "integer", "minimum": 0 }, "secondReviewedSensitiveObservationCount": { "type": "integer", "minimum": 0 },
+    "sensitiveClaimEvidenceAssetCount": { "type": "integer", "minimum": 0 }, "priceClaimAssetCount": { "type": "integer", "minimum": 0 },
     "privacySignalAssetCount": { "type": "integer", "minimum": 0 },
     "reviewFiles": {
-      "type": "array",
-      "minItems": 1,
+      "type": "array", "minItems": 1,
       "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": ["path", "sha256", "entryCount"],
+        "type": "object", "additionalProperties": false, "required": ["path", "sha256", "rawPath", "rawSha256", "entryCount"],
         "properties": {
-          "path": { "type": "string", "minLength": 1 },
-          "sha256": { "$ref": "#/$defs/sha256" },
+          "path": { "type": "string", "minLength": 1 }, "sha256": { "$ref": "#/$defs/sha256" },
+          "rawPath": { "type": "string", "minLength": 1 }, "rawSha256": { "$ref": "#/$defs/sha256" },
           "entryCount": { "type": "integer", "minimum": 1 }
         }
       }
     },
     "treeHash": { "$ref": "#/$defs/sha256" }
   },
-  "$defs": {
-    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
-  }
+  "$defs": { "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" } }
 }

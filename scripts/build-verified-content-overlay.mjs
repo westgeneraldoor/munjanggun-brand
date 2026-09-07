@@ -10,6 +10,7 @@ export async function runBuildVerifiedContentOverlay(argv, options = {}) {
     objectRoot: required(argv, '--object-root'),
     rawRoot: required(argv, '--raw-root'),
     reviewFiles: repeated(argv, '--review-file'),
+    reviewerTrustPath: required(argv, '--reviewer-trust'),
     outputRoot: required(argv, '--output-root'),
     ...options,
   });

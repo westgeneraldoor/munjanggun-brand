@@ -42,6 +42,7 @@ export function rankCatalogEntries(catalog, { query, mediaType, product } = {}) 
     .filter((entry) => !productNeedle || normalizeSearchText(
       entry.sourceRefs?.map((ref) => ref.sourceRelativePath).join(' '),
     ).includes(productNeedle))
+    .filter((entry) => sensitiveQueryTopics(terms).every((topic) => entry.claimEvidence?.some((item) => item.topic === topic)))
     .map((entry) => ({ entry, score: scoreEntry(entry, terms) }))
     .filter((result) => result.score > 0)
     .sort((left, right) => right.score - left.score || left.entry.sha256.localeCompare(right.entry.sha256))
@@ -51,7 +52,13 @@ export function rankCatalogEntries(catalog, { query, mediaType, product } = {}) 
       sha256: entry.sha256,
       mediaType: entry.mediaType,
       semanticSummary: entry.semanticSummary,
-      ocrText: entry.ocrText,
+      assetType: entry.assetType,
+      useCases: entry.useCases ?? [],
+      searchTags: entry.searchTags ?? { productTypes: [], scenes: [], colors: [], designs: [], topics: [] },
+      visibleText: entry.visibleText ?? [],
+      unverifiedOcrText: entry.ocrText,
+      claimEvidence: entry.claimEvidence ?? [],
+      contentDecisionHash: entry.contentDecisionHash,
       semanticGroupId: entry.semanticGroupId ?? null,
       visualGroupId: entry.visualGroupId ?? null,
       humanReviewStatus: entry.humanReviewStatus,
@@ -77,18 +84,39 @@ function scoreEntry(entry, terms) {
     [entry.assetType, 6],
     [(entry.useCases ?? []).join(' '), 5],
     [Object.values(entry.searchTags ?? {}).flat().join(' '), 7],
-    [entry.ocrText, 5],
+    [(entry.visibleText ?? []).join(' '), 5],
     [entry.semanticGroupId, 4],
     [entry.visualGroupId, 2],
     [(entry.claimSignals ?? []).join(' '), 3],
     [(entry.privacySignals ?? []).join(' '), 2],
     [(entry.rightsSignals ?? []).join(' '), 1],
-    [(entry.sourceRefs ?? []).map((ref) => ref.sourceRelativePath).join(' '), 4],
   ];
   return terms.reduce((total, term) => total + weighted.reduce((sum, [value, weight]) => {
     const haystack = String(value ?? '').toLocaleLowerCase('ko');
-    return sum + (haystack.includes(term) ? weight : 0);
+    return sum + (matchesSearchTerm(haystack, term) ? weight : 0);
   }, 0), 0);
+}
+
+function matchesSearchTerm(haystack, term) {
+  if (/^[a-z0-9]{1,3}$/iu.test(term)) {
+    return new RegExp(`(?:^|[^a-z0-9])${escapeRegExp(term)}(?:$|[^a-z0-9])`, 'iu').test(haystack);
+  }
+  if (/^a\s*\/\s*s$/iu.test(term)) return /(?:^|[^a-z])a\s*\/\s*s(?:$|[^a-z])/iu.test(haystack);
+  return haystack.includes(term);
+}
+
+function sensitiveQueryTopics(terms) {
+  const topics = new Set();
+  for (const term of terms) {
+    if (/^(?:as|a\s*\/\s*s|에이에스|보증)$/iu.test(term)) topics.add('after_sales_service');
+    if (/^(?:price|pricing|가격|금액|할인)$/iu.test(term)) topics.add('price');
+    if (/^(?:event|promotion|이벤트|행사|프로모션)$/iu.test(term)) topics.add('event');
+  }
+  return [...topics];
+}
+
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&');
 }
 
 function normalizeSearchText(value) {

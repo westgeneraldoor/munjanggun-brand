@@ -2,17 +2,17 @@
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { searchCatalogEntries } from './assets-search-catalog.mjs';
+import { rankCatalogEntries } from './assets-search-catalog.mjs';
 import { applyContentAuthority, assertCatalogContentUsable, sha256 } from './lib/asset-content-quality.mjs';
 import { one, parseStrictArgs, required } from './lib/strict-cli-args.mjs';
 
 const DIMENSION_FIELDS = Object.freeze({
-  query: ['semanticSummary', 'ocrText', 'semanticGroupId', 'visualGroupId', 'claimSignals', 'sourceRefs'],
+  query: ['semanticSummary', 'visibleText', 'semanticGroupId', 'visualGroupId', 'claimSignals'],
   product: ['sourceRefs', 'semanticSummary'],
-  installationScene: ['semanticSummary', 'ocrText', 'sourceRefs'],
-  color: ['semanticSummary', 'ocrText', 'sourceRefs'],
-  design: ['semanticSummary', 'ocrText', 'semanticGroupId', 'sourceRefs'],
-  consultationTopic: ['semanticSummary', 'ocrText', 'claimSignals', 'sourceRefs'],
+  installationScene: ['semanticSummary'],
+  color: ['semanticSummary', 'visibleText'],
+  design: ['semanticSummary', 'visibleText', 'semanticGroupId'],
+  consultationTopic: ['semanticSummary', 'visibleText', 'claimSignals'],
 });
 
 export async function runBlogAssetPicker(argv, {
@@ -43,17 +43,20 @@ export async function runBlogAssetPicker(argv, {
   const authority = await verifyContentQuality({ intakeId: catalog.intakeId, catalogSha256: sha256(catalogBytes) }, qualityOptions);
   const searchableCatalog = authority?.overlay ? applyContentAuthority(catalog, authority) : catalog;
   const query = Object.values(criteria).join(' ');
-  const searched = searchCatalogEntries(searchableCatalog, {
-    query,
-    limit: 500,
-    mediaType: one(args, '--media-type'),
-    product: criteria.product,
-  });
-  const candidates = searched
+  const matchedEntries = searchableCatalog.entries
+    .filter((entry) => !one(args, '--media-type') || entry.mediaType === one(args, '--media-type'))
     .map((entry) => ({ entry, matchedDimensions: matchDimensions(entry, criteria) }))
-    .filter(({ matchedDimensions }) => Object.keys(matchedDimensions).length === Object.keys(criteria).length)
+    .filter(({ matchedDimensions }) => Object.keys(matchedDimensions).length === Object.keys(criteria).length);
+  const matchedBySha = new Map(matchedEntries.map((item) => [item.entry.sha256, item]));
+  const candidates = rankCatalogEntries({ ...searchableCatalog, entries: matchedEntries.map((item) => item.entry) }, {
+    query, mediaType: one(args, '--media-type'), product: criteria.product,
+  })
     .slice(0, limit)
-    .map(({ entry, matchedDimensions }, index) => summarizeCandidate(entry, matchedDimensions, index + 1));
+    .map((summary, index) => summarizeCandidate(
+      { ...matchedBySha.get(summary.sha256).entry, score: summary.score },
+      matchedBySha.get(summary.sha256).matchedDimensions,
+      index + 1,
+    ));
 
   const selectContentId = one(args, '--select-content-id');
   const selection = selectContentId ? buildSelection(selectContentId, candidates, catalogPath) : null;
@@ -109,7 +112,10 @@ function summarizeCandidate(entry, matchedDimensions, rank) {
     sha256: entry.sha256,
     mediaType: entry.mediaType,
     semanticSummary: entry.semanticSummary,
-    ocrText: entry.ocrText,
+    visibleText: entry.visibleText ?? [],
+    unverifiedOcrText: entry.ocrText,
+    claimEvidence: entry.claimEvidence ?? [],
+    contentDecisionHash: entry.contentDecisionHash,
     matchedDimensions,
     sourceRefs: entry.sourceRefs,
     catalogMetadataStatus: blockers.length === 0 ? 'ready_for_guarded_extraction_request' : 'review_only',
