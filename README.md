@@ -68,8 +68,8 @@ C:\Users\hjh\안티그래비티\문장군_브랜드\config\asset-library-index.j
 ```
 
 ```bash
-npm run assets:library:index -- --index "C:\Users\hjh\안티그래비티\문장군_브랜드\config\asset-library-index.json" --query "3연동ㄱ자 제품 연출 썸네일"
-npm run assets:library:index -- --index "C:\Users\hjh\안티그래비티\문장군_브랜드\config\asset-library-index.json" --query "3연동ㄱ자 제품 연출 썸네일" --select-sha256 <SHA-256> --consumer munjanggun-blog --output-name <작업명>
+npm run assets:library:index -- --index "C:\Users\hjh\안티그래비티\문장군_브랜드\config\asset-library-index.json" --query "3연동ㄱ자"
+npm run assets:library:index -- --index "C:\Users\hjh\안티그래비티\문장군_브랜드\config\asset-library-index.json" --query "3연동ㄱ자" --select-sha256 <SHA-256> --consumer munjanggun-blog --output-name <작업명>
 ```
 
 두 번째 명령은 봉인된 시각 재검증 overlay를 검증한 뒤 실행된다. 실제 이미지 복사 없이 `asset-handoff.json`과 미리보기 HTML만 등록된 프로젝트의 비공개·Git 제외 영역에 만든다. 기존 단일 최신 묶음용 `assets:library -- --pointer ...`도 같은 내용 정확성 게이트를 거치므로 base catalog의 낡은 설명으로 우회할 수 없다.
