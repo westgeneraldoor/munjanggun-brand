@@ -22,6 +22,8 @@
     "assets:merge-similarity": "node scripts/merge-visual-similarity.mjs",
     "assets:approval-report": "node scripts/generate-asset-approval-report.mjs",
     "assets:validate-approval-input": "node scripts/validate-asset-owner-approval-input.mjs",
+    "assets:record-owner-rights": "node scripts/record-owner-rights-order.mjs",
+    "assets:validate-owner-rights": "node scripts/validate-owner-rights-order.mjs",
     "assets:seal-evidence": "node scripts/seal-review-evidence.mjs",
     "assets:seal-use-evidence": "node scripts/seal-asset-use-evidence.mjs",
     "assets:upgrade-catalog": "node scripts/upgrade-sealed-content-catalog.mjs",

@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/westgeneraldoor/munjanggun-brand/schemas/asset-owner-attestation.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "version", "attestationId", "intakeId", "recordedAt", "recordingContext", "sourceGroupIds", "statements", "excludedApprovals", "signature"],
+  "properties": {
+    "schema": { "const": "munjanggun.assetOwnerAttestation.v1" },
+    "version": { "const": "1.0" },
+    "attestationId": { "type": "string", "pattern": "^OWNER-ATTESTATION-[0-9]{8}-[0-9]{2}$" },
+    "intakeId": { "type": "string", "pattern": "^INTAKE-[0-9]{8}-[0-9]{2}$" },
+    "recordedAt": { "type": "string", "format": "date-time" },
+    "recordingContext": { "const": "current_codex_session_user_instruction" },
+    "sourceGroupIds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+    "statements": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["selfProduced", "privateCodexSourceUse", "externalReuse", "specialAssetRestrictions", "publicGitStorage"],
+      "properties": {
+        "selfProduced": { "const": "attested" },
+        "privateCodexSourceUse": { "const": "approved" },
+        "externalReuse": {
+          "type": "object", "additionalProperties": false, "required": ["status", "channels"],
+          "properties": {
+            "status": { "const": "approved" },
+            "channels": { "type": "array", "minItems": 2, "uniqueItems": true, "items": { "enum": ["blog", "sns"] }, "contains": { "const": "blog" } }
+          }
+        },
+        "specialAssetRestrictions": { "const": "no_additional_owner_restriction" },
+        "publicGitStorage": { "const": "pending" }
+      }
+    },
+    "excludedApprovals": {
+      "type": "object", "additionalProperties": false,
+      "required": ["claimCurrentness", "privacyClearance", "humanReviewEscalations"],
+      "properties": {
+        "claimCurrentness": { "const": true },
+        "privacyClearance": { "const": true },
+        "humanReviewEscalations": { "const": true }
+      }
+    },
+    "signature": { "$ref": "#/$defs/signature" }
+  },
+  "$defs": {
+    "signature": { "anyOf": [
+      { "type": "null" },
+      { "type": "object", "additionalProperties": false, "required": ["algorithm", "keyId", "valueBase64"], "properties": {
+        "algorithm": { "const": "Ed25519" }, "keyId": { "type": "string", "minLength": 1 }, "valueBase64": { "type": "string", "minLength": 40 }
+      } }
+    ] }
+  }
+}
