@@ -36,6 +36,7 @@
     "assets:library:index": "node scripts/assets-library-index.mjs",
     "assets:set-library-current": "node scripts/update-asset-library-pointer.mjs",
     "assets:build-worker-queue": "node scripts/build-asset-worker-review-queue.mjs",
+    "assets:build-content-overlay": "node scripts/build-verified-content-overlay.mjs",
     "assets:validate-intake-contract": "node scripts/validate-intake-audit-contract.mjs",
     "report:assets": "node scripts/report-asset-coverage.mjs"
   },

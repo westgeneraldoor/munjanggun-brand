@@ -19,8 +19,17 @@ test('unregistered catalog SHA is denied by default', async () => {
 test('visually verified catalog authority is usable', async () => {
   const result = await assertCatalogContentUsable({ intakeId: 'INTAKE-TEST', catalogSha256: CATALOG_SHA }, {
     policy: policy([{ status: 'visually_verified' }]),
+    loadVerifiedAuthority: async (record) => ({ record, overlay: { entries: [] }, receipt: {} }),
   });
-  assert.equal(result.status, 'visually_verified');
+  assert.equal(result.record.status, 'visually_verified');
+});
+
+test('visually verified status without sealed overlay and receipt is rejected', async () => {
+  const value = policy([{ status: 'visually_verified' }]);
+  delete value.records[0].overlaySha256;
+  await assert.rejects(assertCatalogContentUsable({ intakeId: 'INTAKE-TEST', catalogSha256: CATALOG_SHA }, {
+    policy: value,
+  }), /missing sealed authority fields/u);
 });
 
 function policy(records) {
@@ -29,6 +38,11 @@ function policy(records) {
     records: records.map((record) => ({
       intakeId: 'INTAKE-TEST', catalogSha256: CATALOG_SHA,
       reason: 'fixture visual review status', ...record,
+      ...(record.status === 'visually_verified' ? {
+        overlayPath: 'C:\\private\\content-overlay.json', overlaySha256: 'c'.repeat(64),
+        receiptPath: 'C:\\private\\receipt.json', receiptSha256: 'd'.repeat(64),
+        verifiedAt: '2099-01-01T00:00:00.000Z',
+      } : {}),
     })),
   };
 }

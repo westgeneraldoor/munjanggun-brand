@@ -1,14 +1,19 @@
 {
   "schema": "munjanggun.assetContentQualityPolicy.v1",
   "version": "1.0",
-  "updatedAt": "2026-09-07T04:05:00.000Z",
+  "updatedAt": "2026-09-07T04:38:11.986Z",
   "records": [
     {
       "intakeId": "INTAKE-20260904-01",
       "catalogSha256": "523e2f50ba99e9181c5ebeb814b0af9345118aee01257204b4fa8671841ae61b",
-      "status": "blocked_pending_visual_revalidation",
-      "reason": "실제 원본과 semanticSummary 및 claimSignals 불일치가 확인되어 407개 고유 자산의 내용 정확성을 재검증 중",
+      "status": "visually_verified",
+      "reason": "정지 이미지 335개 전체 해상도 및 GIF 72개 전체 루프를 원본별로 재판독하고 원본·object·증거·결정 해시를 봉인함",
       "detectedAt": "2026-09-07T04:05:00.000Z",
+      "verifiedAt": "2026-09-07T04:38:11.986Z",
+      "overlayPath": "C:\\Users\\hjh\\안티그래비티\\문장군_브랜드_private\\INTAKE-20260904-01\\content-revalidation-v1\\verified-v1\\content-overlay.json",
+      "overlaySha256": "c7a8aaa67f8b51fc8e2f7208fde58178b33372930b268b57013eae56e1a6310d",
+      "receiptPath": "C:\\Users\\hjh\\안티그래비티\\문장군_브랜드_private\\INTAKE-20260904-01\\content-revalidation-v1\\verified-v1\\receipt.json",
+      "receiptSha256": "5c3123ead9970bfb3d5c424776ba41da56af5b476bcb6e98c7a36032315496ef",
       "confirmedExamples": [
         "3연동중문/014.png",
         "3연동중문/017.png",

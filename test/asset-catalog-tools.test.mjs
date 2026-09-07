@@ -183,6 +183,18 @@ test('isolated trusted verifier reaches and passes both approval and use-evidenc
   assert.deepEqual(evidence.resolvedEvidence.map((item) => item.evidenceId), ['RIGHTS-EV-TEST-001']);
 });
 
+test('external extraction fails closed when content accuracy authority rejects the catalog', async () => {
+  const fixture = await createFixture({ approved: true });
+  const { approval, evidence } = await verifyFixtureAuthorities(fixture);
+  await assert.rejects(runTrustedTestExtract(fixture, [
+    '--purpose', 'external-publication', '--destination-class', 'local-publication-staging',
+  ], {
+    verifyContentQuality: async () => { throw new Error('content accuracy quarantine fixture'); },
+    verifyApproval: async () => approval,
+    verifyUseEvidence: async () => evidence,
+  }), /content accuracy quarantine fixture/u);
+});
+
 test('isolated trusted verifier rejects a missing evidence artifact', async () => {
   const fixture = await createFixture({ approved: true });
   await rm(join(fixture.evidenceRoot, 'rights-evidence.json'));
@@ -397,7 +409,7 @@ function runExtract(fixture, extras) {
   ], { env: { ...process.env, MUNJANGGUN_TEST_OWNER_TRUST_CONFIG: fixture.trustConfigPath } });
 }
 
-function runTrustedTestExtract(fixture, extras) {
+function runTrustedTestExtract(fixture, extras, options = {}) {
   return runAssetExtractContent([
     '--catalog', fixture.catalogPath,
     '--object-root', fixture.objectRoot,
@@ -410,7 +422,7 @@ function runTrustedTestExtract(fixture, extras) {
     '--channel', 'blog',
     '--content-id', fixture.entry.contentId,
     ...extras,
-  ], { trustedPrivateRoots: [fixture.root], emit: () => {} });
+  ], { trustedPrivateRoots: [fixture.root], emit: () => {}, verifyContentQuality: async () => ({}), ...options });
 }
 
 function hash(value) { return createHash('sha256').update(value).digest('hex'); }

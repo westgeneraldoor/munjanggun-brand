@@ -8,7 +8,7 @@ import { rankCatalogEntries } from '../assets-search-catalog.mjs';
 import { resolveAssetObject } from './asset-resolver.mjs';
 import { resolveContainedPath } from './asset-paths.mjs';
 import { formatSchemaErrors, validateAgainstSchema } from './schema-validation.mjs';
-import { assertCatalogContentUsable } from './asset-content-quality.mjs';
+import { applyContentAuthority, assertCatalogContentUsable } from './asset-content-quality.mjs';
 
 const DEFAULT_TRUSTED_PRIVATE_ROOTS = Object.freeze([
   'C:/Users/hjh/안티그래비티/문장군_브랜드_private',
@@ -16,12 +16,12 @@ const DEFAULT_TRUSTED_PRIVATE_ROOTS = Object.freeze([
 ].map((value) => resolve(value)));
 
 const DIMENSION_FIELDS = Object.freeze({
-  query: ['semanticSummary', 'ocrText', 'semanticGroupId', 'visualGroupId', 'claimSignals', 'sourceRefs'],
-  product: ['sourceRefs', 'semanticSummary'],
-  scene: ['semanticSummary', 'ocrText', 'sourceRefs'],
-  color: ['semanticSummary', 'ocrText', 'sourceRefs'],
-  design: ['semanticSummary', 'ocrText', 'semanticGroupId', 'sourceRefs'],
-  topic: ['semanticSummary', 'ocrText', 'claimSignals', 'sourceRefs'],
+  query: ['semanticSummary', 'assetType', 'useCases', 'searchTags', 'ocrText', 'semanticGroupId', 'visualGroupId', 'claimSignals', 'sourceRefs'],
+  product: ['sourceRefs', 'semanticSummary', 'searchTags.productTypes'],
+  scene: ['semanticSummary', 'ocrText', 'sourceRefs', 'searchTags.scenes'],
+  color: ['semanticSummary', 'ocrText', 'sourceRefs', 'searchTags.colors'],
+  design: ['semanticSummary', 'ocrText', 'semanticGroupId', 'sourceRefs', 'searchTags.designs'],
+  topic: ['semanticSummary', 'ocrText', 'claimSignals', 'sourceRefs', 'useCases', 'searchTags.topics'],
 });
 
 const PRIVATE_CODEX_ALLOWED = new Set(['allowed_by_recorded_owner_order', 'allowed']);
@@ -157,14 +157,15 @@ export async function searchAssetLibrary(library, criteria, {
   verifyContentQuality = assertCatalogContentUsable,
   repoRoot = resolve(fileURLToPath(new URL('../..', import.meta.url))),
 } = {}) {
-  await verifyContentQuality({ intakeId: library.catalog.intakeId, catalogSha256: library.pointer?.current?.catalogSha256 });
+  const authority = await verifyContentQuality({ intakeId: library.catalog.intakeId, catalogSha256: library.pointer?.current?.catalogSha256 });
+  const searchableCatalog = authority?.overlay ? applyContentAuthority(library.catalog, authority) : library.catalog;
   const normalizedCriteria = compactCriteria(criteria);
   if (Object.keys(normalizedCriteria).length === 0) {
     throw new Error('Provide at least one criterion: query, product, scene, color, design, or topic');
   }
   if (!Number.isInteger(limit) || limit < 1 || limit > 500) throw new Error('limit must be an integer from 1 to 500');
   const criterionCount = Object.keys(normalizedCriteria).length;
-  const candidates = library.catalog.entries
+  const candidates = searchableCatalog.entries
     .filter((entry) => !mediaType || entry.mediaType === mediaType)
     .map((entry) => ({ entry, matchedDimensions: matchDimensions(entry, normalizedCriteria) }))
     .filter(({ matchedDimensions }) => Object.keys(matchedDimensions).length === criterionCount);
@@ -240,7 +241,7 @@ export async function writeAssetLibraryHandoff(library, results, selectedContent
   libraryIndexAuthority = null,
   verifyContentQuality = assertCatalogContentUsable,
 } = {}) {
-  await verifyContentQuality({ intakeId: library.catalog.intakeId, catalogSha256: library.pointer?.current?.catalogSha256 });
+  const contentAuthority = await verifyContentQuality({ intakeId: library.catalog.intakeId, catalogSha256: library.pointer?.current?.catalogSha256 });
   const selectedIds = [...new Set(selectedContentIds ?? [])];
   if (selectedIds.length === 0) throw new Error('Select at least one contentId');
   const selected = selectedIds.map((contentId) => {
@@ -299,6 +300,10 @@ export async function writeAssetLibraryHandoff(library, results, selectedContent
       pointerSha256: library.pointerSha256,
       anchorSha256: library.pointer.current.anchorSha256,
       rightsStateSha256: library.pointer.current.rightsStateSha256,
+      ...(contentAuthority?.record ? {
+        contentOverlaySha256: contentAuthority.record.overlaySha256,
+        contentRevalidationReceiptSha256: contentAuthority.record.receiptSha256,
+      } : {}),
     },
     catalog: { path: library.catalogPath, sha256: library.pointer.current.catalogSha256 },
     selectionCount: selected.length,
@@ -340,6 +345,9 @@ function summarizeResult(library, entry, objectPath, score, matchedDimensions, r
     sha256: entry.sha256,
     mediaType: entry.mediaType,
     semanticSummary: entry.semanticSummary,
+    assetType: entry.assetType,
+    useCases: entry.useCases ?? [],
+    searchTags: entry.searchTags ?? { productTypes: [], scenes: [], colors: [], designs: [], topics: [] },
     ocrText: entry.ocrText,
     matchedDimensions,
     sourceRefs: entry.sourceRefs,
@@ -454,8 +462,10 @@ function criterionMatches(criterion, value) {
 
 function searchableValue(entry, field) {
   if (field === 'sourceRefs') return entry.sourceRefs?.map((ref) => ref.sourceRelativePath).join(' ') ?? '';
-  if (Array.isArray(entry[field])) return entry[field].join(' ');
-  return entry[field] ?? '';
+  const value = field.split('.').reduce((current, key) => current?.[key], entry);
+  if (field === 'searchTags') return Object.values(value ?? {}).flat().join(' ');
+  if (Array.isArray(value)) return value.join(' ');
+  return value ?? '';
 }
 
 function normalizeSearchText(value) {

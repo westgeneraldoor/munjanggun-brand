@@ -12,8 +12,12 @@ import { formatSchemaErrors, validateAgainstSchema } from './lib/schema-validati
 import { verifyApprovalAuthority } from './lib/asset-owner-approval.mjs';
 import { verifyUseEvidenceAuthority } from './lib/asset-use-evidence.mjs';
 import { assertTrustedPrivateOutput } from './lib/asset-transfer-policy.mjs';
+import { assertCatalogContentUsable } from './lib/asset-content-quality.mjs';
 
-export async function runAssetExtractContent(argv, { trustedPrivateRoots, emit = console.log } = {}) {
+export async function runAssetExtractContent(argv, {
+  trustedPrivateRoots, emit = console.log, verifyContentQuality = assertCatalogContentUsable,
+  verifyApproval = verifyApprovalAuthority, verifyUseEvidence = verifyUseEvidenceAuthority,
+} = {}) {
 const args = parseArgs(argv);
 const catalogPath = resolve(requiredValue(args, '--catalog'));
 const objectRoot = resolve(requiredValue(args, '--object-root'));
@@ -36,7 +40,7 @@ assertSchema(catalog, catalogSchema, 'catalog');
 assertSchema(evidenceReceipt, evidenceReceiptSchema, 'review evidence receipt');
 validateCatalogInvariants(catalog);
 await verifyReviewEvidenceAuthority({ catalog, catalogPath, evidenceReceipt, evidenceReceiptPath });
-const approvalAuthority = purpose === 'internal-audit' ? null : await verifyApprovalAuthority({
+const approvalAuthority = purpose === 'internal-audit' ? null : await verifyApproval({
   catalog,
   catalogPath,
   ledgerPath: resolve(requiredValue(args, '--approval-ledger')),
@@ -48,7 +52,7 @@ const matches = catalog.entries.filter((item) => shaArg ? item.sha256 === shaArg
 if (matches.length !== 1) throw new Error(`Catalog selector must match exactly one entry; found ${matches.length}`);
 const entry = matches[0];
 await verifySelectedReviewEvidence({ entry, catalogPath, evidenceReceipt, evidenceReceiptPath });
-const useEvidenceAuthority = purpose === 'internal-audit' ? null : await verifyUseEvidenceAuthority({
+const useEvidenceAuthority = purpose === 'internal-audit' ? null : await verifyUseEvidence({
   catalog, catalogPath,
   registryPath: resolve(requiredValue(args, '--use-evidence-registry')),
   receiptPath: resolve(requiredValue(args, '--use-evidence-receipt')),
@@ -64,6 +68,10 @@ if (auditContext) for (const gate of releaseGate.failures) gate.overridden = tru
 if (!releaseGate.allowed && purpose !== 'internal-audit') {
   throw new Error(`Extraction blocked by release gate: ${releaseGate.failures.map((item) => `${item.gate}=${item.observed}`).join(', ')}`);
 }
+const contentAuthority = purpose === 'internal-audit' ? null : await verifyContentQuality({
+  intakeId: catalog.intakeId,
+  catalogSha256: await sha256File(catalogPath),
+});
 
 const objectPath = await resolveAssetObject(objectRoot, entry);
 if (canonicalExtensionForMediaType(entry.mediaType) !== extname(objectPath).toLowerCase()) {
@@ -115,6 +123,10 @@ try {
       registryPath: useEvidenceAuthority.registryPath, registrySha256: useEvidenceAuthority.registrySha256,
       receiptPath: useEvidenceAuthority.receiptPath, receiptSha256: useEvidenceAuthority.receiptSha256,
       resolvedEvidence: useEvidenceAuthority.resolvedEvidence,
+    } : null,
+    contentAuthority: contentAuthority?.record ? {
+      overlaySha256: contentAuthority.record.overlaySha256,
+      receiptSha256: contentAuthority.record.receiptSha256,
     } : null,
     selector: shaArg ? { type: 'sha256', value: shaArg, matchCount: 1 } : { type: 'contentId', value: contentIdArg, matchCount: 1 },
     asset: {

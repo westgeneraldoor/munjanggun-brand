@@ -2,7 +2,7 @@
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { assertCatalogContentUsable, sha256 } from './lib/asset-content-quality.mjs';
+import { applyContentAuthority, assertCatalogContentUsable, sha256 } from './lib/asset-content-quality.mjs';
 
 export async function runAssetSearchCatalog(argv, {
   emit = console.log, qualityOptions = {}, verifyContentQuality = assertCatalogContentUsable,
@@ -14,8 +14,9 @@ export async function runAssetSearchCatalog(argv, {
   const product = getArg(argv, '--product');
   const catalogBytes = await readFile(catalogPath);
   const catalog = JSON.parse(catalogBytes.toString('utf8'));
-  await verifyContentQuality({ intakeId: catalog.intakeId, catalogSha256: sha256(catalogBytes) }, qualityOptions);
-  const results = searchCatalogEntries(catalog, { query, limit, mediaType, product });
+  const authority = await verifyContentQuality({ intakeId: catalog.intakeId, catalogSha256: sha256(catalogBytes) }, qualityOptions);
+  const searchableCatalog = authority?.overlay ? applyContentAuthority(catalog, authority) : catalog;
+  const results = searchCatalogEntries(searchableCatalog, { query, limit, mediaType, product });
   const output = { query, resultCount: results.length, results };
   emit(JSON.stringify(output, null, 2));
   return output;
@@ -73,6 +74,9 @@ export function rankCatalogEntries(catalog, { query, mediaType, product } = {}) 
 function scoreEntry(entry, terms) {
   const weighted = [
     [entry.semanticSummary, 8],
+    [entry.assetType, 6],
+    [(entry.useCases ?? []).join(' '), 5],
+    [Object.values(entry.searchTags ?? {}).flat().join(' '), 7],
     [entry.ocrText, 5],
     [entry.semanticGroupId, 4],
     [entry.visualGroupId, 2],

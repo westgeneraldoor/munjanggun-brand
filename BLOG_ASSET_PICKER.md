@@ -4,7 +4,7 @@
 
 2026-09-07 사장 지시로 `INTAKE-20260904-01` 신규 10개 묶음은 문장군 내부 자체제작이며 블로그·SNS 재사용 권리가 확인됐다. 검색 기준은 `config/asset-library-index.json`이 연결하는 비공개 누적 묶음이다. 공개 Git 저장은 보류하고, 가격·행사 등 변동 문구와 개인정보는 발행 전에 작업자가 별도로 확인한다.
 
-현재 이 intake는 실제 원본과 설명·claim 태그 불일치가 확인되어 내용 정확성 재검증 중이다. 보존권과 재사용권을 취소한 것이 아니라 잘못된 검색 추천을 중지한 것이다. `assets:library`, `assets:library:index`, `assets:search`, `assets:pick-for-blog`는 모두 재검증 완료 전까지 이 카탈로그를 거부한다. 기존에 만든 네 handoff도 `REVOCATION.json`으로 설명 신뢰가 철회됐다.
+이 intake의 정지 이미지 335개와 GIF 72개는 2026-09-07 원본별 내용 재검증을 마쳤다. `assets:library`, `assets:library:index`, `assets:search`, `assets:pick-for-blog`는 base catalog의 기존 설명을 직접 쓰지 않고 봉인된 content overlay를 적용한다. 재검증 전에 만든 네 handoff는 `REVOCATION.json`으로 계속 철회 상태이며 다시 사용하지 않는다.
 
 ## 1. 공용 자료실에서 검색·미리보기
 

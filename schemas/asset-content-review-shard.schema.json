@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/westgeneraldoor/munjanggun-brand/schemas/asset-content-review-shard.schema.json",
+  "title": "Munjanggun Per-object Visual Content Review Shard",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "version", "intakeId", "shardId", "mediaKind", "reviewedAt", "reviewer", "entries"],
+  "properties": {
+    "schema": { "const": "munjanggun.assetContentReviewShard.v2" },
+    "version": { "const": "2.0" },
+    "intakeId": { "type": "string", "pattern": "^INTAKE-[0-9]{8}-[0-9]{2}$" },
+    "shardId": { "type": "string", "minLength": 1 },
+    "mediaKind": { "enum": ["static", "gif"] },
+    "reviewedAt": { "type": "string", "format": "date-time" },
+    "reviewer": { "type": "string", "minLength": 1 },
+    "entries": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/entry" }
+    }
+  },
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "stringArray": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "sourceRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sourceId", "sourceRelativePath"],
+      "properties": {
+        "sourceId": { "type": "string", "minLength": 1 },
+        "sourceRelativePath": { "type": "string", "minLength": 1 }
+      }
+    },
+    "searchTags": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["productTypes", "scenes", "colors", "designs", "topics"],
+      "properties": {
+        "productTypes": { "$ref": "#/$defs/stringArray" },
+        "scenes": { "$ref": "#/$defs/stringArray" },
+        "colors": { "$ref": "#/$defs/stringArray" },
+        "designs": { "$ref": "#/$defs/stringArray" },
+        "topics": { "$ref": "#/$defs/stringArray" }
+      }
+    },
+    "gifReview": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["frameCount", "durationMs", "loopBehavior", "movementEvidence", "storyboardPaths"],
+      "properties": {
+        "frameCount": { "type": "integer", "minimum": 1 },
+        "durationMs": { "type": "integer", "minimum": 0 },
+        "loopBehavior": { "type": "string", "minLength": 1 },
+        "movementEvidence": { "const": "full_loop_reviewed" },
+        "storyboardPaths": { "$ref": "#/$defs/stringArray" }
+      }
+    },
+    "entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sourceObjectSha256", "originalPath", "sourceRefs", "mediaType", "semanticSummary",
+        "assetType", "useCases", "searchTags", "visibleText", "ocrText", "claimSignals",
+        "privacySignals", "humanReviewStatus", "reviewer", "reviewedAt", "annotationMethod",
+        "evidenceRefs", "reviewNotes", "decisionHash"
+      ],
+      "properties": {
+        "sourceObjectSha256": { "$ref": "#/$defs/sha256" },
+        "originalPath": { "type": "string", "minLength": 1 },
+        "sourceRefs": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/sourceRef" } },
+        "mediaType": { "type": "string", "minLength": 1 },
+        "semanticSummary": { "type": "string", "minLength": 1 },
+        "assetType": { "type": "string", "minLength": 1 },
+        "useCases": { "$ref": "#/$defs/stringArray" },
+        "searchTags": { "$ref": "#/$defs/searchTags" },
+        "visibleText": { "$ref": "#/$defs/stringArray" },
+        "ocrText": { "type": "string" },
+        "claimSignals": { "$ref": "#/$defs/stringArray" },
+        "privacySignals": { "$ref": "#/$defs/stringArray" },
+        "humanReviewStatus": { "enum": ["verified", "needs_escalation"] },
+        "reviewer": { "type": "string", "minLength": 1 },
+        "reviewedAt": { "type": "string", "format": "date-time" },
+        "annotationMethod": { "enum": ["full_resolution_original_reviewed", "full_loop_original_reviewed"] },
+        "evidenceRefs": { "$ref": "#/$defs/stringArray" },
+        "reviewNotes": { "type": "string" },
+        "explicitClaimFalsePositive": { "type": "boolean" },
+        "explicitClaimFalsePositiveReason": { "type": "string", "minLength": 1 },
+        "gifReview": { "$ref": "#/$defs/gifReview" },
+        "decisionHash": { "$ref": "#/$defs/sha256" }
+      }
+    }
+  }
+}
