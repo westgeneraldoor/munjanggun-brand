@@ -1,5 +1,12 @@
 # CHANGELOG - 문장군 중앙 브랜드 문서
 
+## v5.7 - 2026-09-07
+
+- 독립 감찰에서 `verified-v4`의 이미지 미존재 문구, A/S·가격 오분류, GIF 표본 판독 과장, 검토·봉인 시간 역전을 확인해 v4를 운영에서 즉시 철회
+- `config/asset-content-quality.json`을 `blocked_pending_visual_revalidation`로 되돌려 공용 검색·추천·handoff·외부 추출을 기본 거부
+- 원본·object·사용권 결정·공개 Git 보류는 유지하고, v1~v4 의미 필드는 감사 이력으로만 보존
+- 다음 봉인은 visible text와 source context를 분리하고 태그별 근거 및 검토 시간 순서를 검증하기 전까지 생성하지 않음
+
 ## v5.6 - 2026-09-07
 
 - 독립 감찰에서 `verified-v1` 이후에도 남은 상품군·교차상품·검색 태그 오류를 재현해 v1~v3 authority를 모두 운영에서 철회
@@ -15,7 +22,7 @@
 - 외부 추출은 overlay의 claim·privacy 상태를 먼저 적용하고, legacy evidence 상대경로도 봉인 기준 위치에서 안전하게 해석
 - 공개 Git 저장 보류와 외부 발행의 서명·claim·개인정보 차단은 유지
 
-> 정정: v5.5에 기록된 최초 봉인본은 후속 독립 감찰에서 오류가 확인되어 운영 권위가 아니다. 최종 운영 권위는 v5.6의 `verified-v4`다.
+> 정정: v5.5와 v5.6에 기록된 봉인본은 후속 독립 감찰에서 오류가 확인되어 운영 권위가 아니다. 현재 사용 가능한 content authority는 없다.
 
 ## v5.5 - 2026-09-07
 
