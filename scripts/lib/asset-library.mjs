@@ -110,6 +110,7 @@ export async function loadAssetLibraryIndex(indexPath, {
   trustedPrivateRoots = DEFAULT_TRUSTED_PRIVATE_ROOTS,
   repoRoot = resolve(fileURLToPath(new URL('../..', import.meta.url))),
   verifyCommittedIndex = verifyGitCommittedLibraryIndex,
+  loadLibrary = loadAssetLibrary,
   libraryOptions = {},
 } = {}) {
   const indexFile = await assertRepositoryFile(indexPath, repoRoot, 'Asset library index');
@@ -121,6 +122,7 @@ export async function loadAssetLibraryIndex(indexPath, {
   if (!validation.valid) throw new Error(`Asset library index schema failed:\n${formatSchemaErrors(validation.errors).join('\n')}`);
   const pointerIds = new Set();
   const pointerPaths = new Set();
+  const intakeIds = new Set();
   const libraries = [];
   for (const spec of index.pointers) {
     if (pointerIds.has(spec.pointerId)) throw new Error(`Duplicate library index pointerId: ${spec.pointerId}`);
@@ -130,10 +132,14 @@ export async function loadAssetLibraryIndex(indexPath, {
     const normalizedPath = pointerFile.toLowerCase();
     if (pointerPaths.has(normalizedPath)) throw new Error(`Duplicate library index pointerPath: ${spec.pointerPath}`);
     assertDigest(await readFile(pointerFile), spec.pointerSha256, `Library index pointer ${spec.pointerId}`);
-    const library = await loadAssetLibrary(pointerFile, { trustedPrivateRoots, repoRoot, ...libraryOptions });
+    const library = await loadLibrary(pointerFile, { trustedPrivateRoots, repoRoot, ...libraryOptions });
+    if (library.pointerSha256 !== spec.pointerSha256) throw new Error(`Library index pointer ${spec.pointerId} changed while loading`);
     if (library.pointer.libraryId !== index.libraryId) throw new Error(`Library index pointer ${spec.pointerId} has a different libraryId`);
+    if (library.catalog.intakeId !== spec.pointerId) throw new Error(`Library index pointerId ${spec.pointerId} does not match catalog intakeId ${library.catalog.intakeId}`);
+    if (intakeIds.has(library.catalog.intakeId)) throw new Error(`Duplicate library index intakeId: ${library.catalog.intakeId}`);
     pointerIds.add(spec.pointerId);
     pointerPaths.add(normalizedPath);
+    intakeIds.add(library.catalog.intakeId);
     libraries.push({ pointerId: spec.pointerId, pointerSha256: spec.pointerSha256, library });
   }
   return {
@@ -185,24 +191,19 @@ export async function searchAssetLibraryIndex(libraryIndex, criteria, options = 
       limit: Math.min(perLibraryLimit, indexed.library.catalog.entries.length || 1),
     }),
   })));
+  const allOriginsBySha = new Map();
+  for (const indexed of libraryIndex.libraries) {
+    for (const entry of indexed.library.catalog.entries) {
+      const origins = allOriginsBySha.get(entry.sha256) ?? [];
+      origins.push(summarizeOrigin(indexed, entry));
+      allOriginsBySha.set(entry.sha256, origins);
+    }
+  }
   const bySha = new Map();
   for (const { indexed, results } of perLibrary) {
     for (const result of results) {
-      const origin = {
-        pointerId: indexed.pointerId,
-        pointerPath: indexed.library.pointerPath,
-        pointerSha256: indexed.pointerSha256,
-        intakeId: indexed.library.catalog.intakeId,
-        contentId: result.contentId,
-        sourceRefs: result.sourceRefs,
-        anchorSha256: indexed.library.pointer.current.anchorSha256,
-        catalogSha256: indexed.library.pointer.current.catalogSha256,
-        rightsStateSha256: indexed.library.pointer.current.rightsStateSha256,
-        usageStatus: result.usageStatus,
-      };
       const existing = bySha.get(result.sha256);
       if (existing) {
-        existing.origins.push(origin);
         if (result.score > existing.score) {
           const origins = existing.origins;
           Object.assign(existing, result, { origins, originPointerId: indexed.pointerId });
@@ -212,7 +213,7 @@ export async function searchAssetLibraryIndex(libraryIndex, criteria, options = 
           ...result,
           libraryAssetId: `sha256:${result.sha256}`,
           originPointerId: indexed.pointerId,
-          origins: [origin],
+          origins: allOriginsBySha.get(result.sha256) ?? [],
         });
       }
     }
@@ -326,9 +327,6 @@ export async function writeAssetLibraryHandoff(library, results, selectedContent
 }
 
 function summarizeResult(library, entry, objectPath, score, matchedDimensions, rank) {
-  const privateAllowed = PRIVATE_CODEX_ALLOWED.has(library.rightsState?.effectiveAccess?.privateCodexSource);
-  const externalBlockers = externalPublicationBlockers(library.rightsState, entry);
-  const publicGitBlocked = library.rightsState?.effectiveAccess?.publicGit !== 'allowed';
   return {
     rank,
     score,
@@ -341,23 +339,7 @@ function summarizeResult(library, entry, objectPath, score, matchedDimensions, r
     sourceRefs: entry.sourceRefs,
     objectPath,
     previewUrl: pathToFileURL(objectPath).href,
-    usageStatus: {
-      privateCodexSource: {
-        status: privateAllowed ? 'usable' : 'blocked',
-        label: privateAllowed ? '내부 사용 가능' : '내부 사용 차단',
-        authority: `rightsState.effectiveAccess.privateCodexSource=${library.rightsState?.effectiveAccess?.privateCodexSource ?? 'missing'}`,
-      },
-      externalPublication: {
-        status: externalBlockers.length === 0 ? 'eligible_for_guarded_extraction' : 'blocked',
-        label: externalBlockers.length === 0 ? '외부 발행 전 추출 검증 필요' : '외부 발행 차단',
-        blockers: externalBlockers,
-      },
-      publicGit: {
-        status: publicGitBlocked ? 'blocked' : 'eligible_for_guarded_storage',
-        label: publicGitBlocked ? '공개 Git 저장 금지' : '공개 Git 저장 전 검증 필요',
-        blockers: publicGitBlocked ? [`rightsState.effectiveAccess.publicGit=${library.rightsState?.effectiveAccess?.publicGit ?? 'missing'}`] : [],
-      },
-    },
+    usageStatus: summarizeUsageStatus(library, entry),
     catalogStatus: {
       rightsStatus: entry.rightsStatus,
       publishStatus: entry.publishStatus,
@@ -366,6 +348,44 @@ function summarizeResult(library, entry, objectPath, score, matchedDimensions, r
       claimReviewStatus: entry.claimReviewStatus,
       claimSignals: entry.claimSignals,
       privacySignals: entry.privacySignals,
+    },
+  };
+}
+
+function summarizeOrigin(indexed, entry) {
+  return {
+    pointerId: indexed.pointerId,
+    pointerPath: indexed.library.pointerPath,
+    pointerSha256: indexed.pointerSha256,
+    intakeId: indexed.library.catalog.intakeId,
+    contentId: entry.contentId,
+    sourceRefs: entry.sourceRefs,
+    anchorSha256: indexed.library.pointer.current.anchorSha256,
+    catalogSha256: indexed.library.pointer.current.catalogSha256,
+    rightsStateSha256: indexed.library.pointer.current.rightsStateSha256,
+    usageStatus: summarizeUsageStatus(indexed.library, entry),
+  };
+}
+
+function summarizeUsageStatus(library, entry) {
+  const privateAllowed = PRIVATE_CODEX_ALLOWED.has(library.rightsState?.effectiveAccess?.privateCodexSource);
+  const externalBlockers = externalPublicationBlockers(library.rightsState, entry);
+  const publicGitBlocked = library.rightsState?.effectiveAccess?.publicGit !== 'allowed';
+  return {
+    privateCodexSource: {
+      status: privateAllowed ? 'usable' : 'blocked',
+      label: privateAllowed ? '내부 사용 가능' : '내부 사용 차단',
+      authority: `rightsState.effectiveAccess.privateCodexSource=${library.rightsState?.effectiveAccess?.privateCodexSource ?? 'missing'}`,
+    },
+    externalPublication: {
+      status: externalBlockers.length === 0 ? 'eligible_for_guarded_extraction' : 'blocked',
+      label: externalBlockers.length === 0 ? '외부 발행 전 추출 검증 필요' : '외부 발행 차단',
+      blockers: externalBlockers,
+    },
+    publicGit: {
+      status: publicGitBlocked ? 'blocked' : 'eligible_for_guarded_storage',
+      label: publicGitBlocked ? '공개 Git 저장 금지' : '공개 Git 저장 전 검증 필요',
+      blockers: publicGitBlocked ? [`rightsState.effectiveAccess.publicGit=${library.rightsState?.effectiveAccess?.publicGit ?? 'missing'}`] : [],
     },
   };
 }

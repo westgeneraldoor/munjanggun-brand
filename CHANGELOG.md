@@ -8,7 +8,8 @@
 - 색상·장면 등 세부 조건을 전체 후보에 먼저 적용한 뒤 순위와 개수 제한을 적용해 500개 초과 자료의 검색 누락 차단
 - `config/asset-library-index.json` 누적 입구와 `assets:library:index` 추가
   - intake별 불변 비공개 pointer를 SHA로 검증하고 여러 묶음을 함께 검색
-  - 같은 바이너리는 SHA 기준 한 결과로 합치되 모든 intake 출처를 `origins`에 보존
+  - 같은 바이너리는 SHA 기준 한 결과로 합치되 검색어·순위와 무관하게 모든 intake 출처를 `origins`에 보존
+  - pointer ID와 실제 intake ID 불일치, 중복 intake, 검증 직후 pointer 교체를 차단
   - 기존 `current.json`과 단일 pointer 명령은 호환 목적으로 유지
 - 소비 프로젝트를 블로그와 CRM 두 곳으로 확대하고, 등록 루트 중복·부모 자식 겹침·채널 불일치 차단 추가
 
