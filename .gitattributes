@@ -1,2 +1,3 @@
 # Existing product media remain regular Git blobs.
 # Add Git LFS rules only for a future dedicated path containing rights-approved assets.
+config/intakes/*.json text eol=lf

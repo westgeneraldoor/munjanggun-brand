@@ -5,11 +5,13 @@ import { resolveContainedPath } from './lib/asset-paths.mjs';
 import { buildCountList, validateManifestV2 } from './lib/asset-manifest-v2.mjs';
 import { canonicalExtensionForMediaType, inspectMedia } from './lib/media-metadata.mjs';
 import { formatSchemaErrors, validateAgainstSchema } from './lib/schema-validation.mjs';
+import { loadIntakeProfile } from './lib/asset-intake-profile.mjs';
 
 const sourceRoot = resolve(requiredArg('--source'));
 const receiptPath = resolve(requiredArg('--receipt'));
 const outputRoot = resolve(requiredArg('--output-root'));
 const intakeId = requiredArg('--intake-id');
+const { profile, productByFolder } = await loadIntakeProfile(resolve(requiredArg('--profile')), intakeId);
 await requireEmptyOutput(outputRoot);
 
 const schemas = await loadSchemas();
@@ -42,7 +44,7 @@ for (const entry of sortedVisuals) {
     productId: config.productId,
     sourceId: config.sourceId,
     sourceRelativePath: entry.sourceRelativePath,
-    logicalPath: `문장군상품/${entry.sourceRelativePath}`,
+    logicalPath: `${profile.logicalRoot}/${entry.sourceRelativePath}`,
     sourceOrder,
     objectId: `sha256:${entry.sha256}`,
     objectRef: `sha256/${entry.sha256.slice(0, 2)}/${entry.sha256}${canonicalExtension}`,
@@ -206,25 +208,13 @@ function folderRoleFor(sourceRelativePath) {
 }
 
 function productConfig(folder) {
-  const configs = {
-    '3연동 자동중문': ['PROD-3PANEL-AUTO-MIDDLE-DOOR', '3연동 자동중문', '3panel-auto'],
-    '3연동ㄱ자': ['PROD-3PANEL-LSHAPE-MIDDLE-DOOR', '3연동 ㄱ자 중문', '3panel-lshape'],
-    '3연동중문': ['PROD-3PANEL-MIDDLE-DOOR', '3연동중문', '3panel'],
-    'ABS도어 문틀리폼 필름시공': ['PROD-ABS-DOOR-FRAME-FILM', 'ABS도어 문틀리폼 필름시공', 'abs-door-frame-film'],
-    'ABS도어 방문교체': ['PROD-ABS-DOOR-REPLACEMENT', 'ABS도어 방문교체', 'abs-door-replacement'],
-    'ABS도어 슬라이딩도어': ['PROD-ABS-SLIDING-DOOR', 'ABS도어 슬라이딩도어', 'abs-sliding-door'],
-    '몰딩': ['PROD-MOLDING', '몰딩', 'molding'],
-    '스윙중문': ['PROD-SWING-MIDDLE-DOOR', '스윙중문', 'swing'],
-    '양개형중문 미서기': ['PROD-WIDE-SLIDING-MIDDLE-DOOR', '양개형중문/미서기', 'wide-sliding'],
-    '원슬라이딩중문': ['PROD-ONE-SLIDING-MIDDLE-DOOR', '원슬라이딩중문', 'onesliding'],
-  };
-  const selected = configs[folder];
+  const selected = productByFolder.get(folder);
   if (!selected) throw new Error(`Unknown product folder: ${folder}`);
   return {
-    productId: selected[0],
-    product: selected[1],
-    slug: selected[2],
-    sourceId: `SRC-2026-09-04-${selected[2].toUpperCase()}-DETAILPAGE`,
+    productId: selected.productId,
+    product: selected.label,
+    slug: selected.slug,
+    sourceId: selected.sourceId,
   };
 }
 

@@ -1,13 +1,26 @@
 import { createHash } from 'node:crypto';
 
 export function buildOwnerOrderDocuments(sourceCatalog, {
-  recordedAt = new Date().toISOString(),
-  attestationId = defaultAttestationId(recordedAt),
-  catalogRef = 'reviewed-content-catalog-v6.json',
+  attestationInput,
+  sourceCatalogSha256,
+  catalogRef = 'reviewed-content-catalog.json',
   reviewEvidenceReceiptRef,
 } = {}) {
+  if (!attestationInput) throw new Error('Owner order requires an explicit intake-specific attestation input');
+  if (!sourceCatalogSha256) throw new Error('Owner order requires the exact source catalog SHA-256');
+  const recordedAt = attestationInput.recordedAt;
+  const attestationId = attestationInput.attestationId;
   const sortedEntries = [...sourceCatalog.entries].sort((left, right) => left.sha256.localeCompare(right.sha256));
+  if (sortedEntries.length === 0) throw new Error('Owner order requires at least one catalog asset');
   const sourceGroupIds = [...new Set(sortedEntries.flatMap((entry) => entry.sourceRefs.map((ref) => ref.sourceId)))].sort();
+  if (attestationInput.intakeId !== sourceCatalog.intakeId) throw new Error('Owner attestation intakeId does not match catalog');
+  if (attestationInput.sourceCatalogSha256 !== sourceCatalogSha256) throw new Error('Owner attestation source catalog SHA-256 does not match catalog');
+  if (JSON.stringify([...attestationInput.sourceGroupIds].sort()) !== JSON.stringify(sourceGroupIds)) throw new Error('Owner attestation source groups do not exactly match catalog');
+  if (attestationInput.signature !== null) throw new Error('Recorded owner instruction input must remain unsigned until the separate trust workflow runs');
+  const sourcePathCount = sortedEntries.reduce((sum, entry) => sum + entry.sourcePathCount, 0);
+  const claimAssetCount = sortedEntries.filter((entry) => entry.claimSignals.length > 0).length;
+  const privacyAssetCount = sortedEntries.filter((entry) => entry.privacySignals.length > 0).length;
+  const escalationAssetCount = sortedEntries.filter((entry) => entry.humanReviewStatus === 'needs_escalation').length;
   const evidenceIdBySha = new Map(sortedEntries.map((entry) => [entry.sha256, `RIGHTS-EV-OWNER-ORDER-${entry.sha256.slice(0, 16).toUpperCase()}`]));
   const catalog = {
     ...sourceCatalog,
@@ -16,7 +29,7 @@ export function buildOwnerOrderDocuments(sourceCatalog, {
     entries: sortedEntries.map((entry) => ({
       ...entry,
       rightsSignals: [...new Set(entry.rightsSignals.map((signal) => signal === 'source_rights_unverified' ? 'owner_attested_self_produced_pending_signature' : signal))],
-      rightsStatus: 'pending',
+      rightsStatus: 'owner_approved_recorded',
       rightsScope: ['internal_preservation', 'private_codex_source', 'external_reuse'],
       rightsEvidenceRef: [evidenceIdBySha.get(entry.sha256)],
       publishStatus: 'blocked',
@@ -25,24 +38,7 @@ export function buildOwnerOrderDocuments(sourceCatalog, {
   };
   const catalogText = jsonText(catalog);
   const catalogSha256 = hash(catalogText);
-  const attestation = {
-    schema: 'munjanggun.assetOwnerAttestation.v1',
-    version: '1.0',
-    attestationId,
-    intakeId: catalog.intakeId,
-    recordedAt,
-    recordingContext: 'current_codex_session_user_instruction',
-    sourceGroupIds,
-    statements: {
-      selfProduced: 'attested',
-      privateCodexSourceUse: 'approved',
-      externalReuse: { status: 'approved', channels: ['blog', 'sns'] },
-      specialAssetRestrictions: 'no_additional_owner_restriction',
-      publicGitStorage: 'pending',
-    },
-    excludedApprovals: { claimCurrentness: true, privacyClearance: true, humanReviewEscalations: true },
-    signature: null,
-  };
+  const attestation = structuredClone(attestationInput);
   const attestationText = jsonText(attestation);
   const attestationSha256 = hash(attestationText);
   const mapping = {
@@ -57,7 +53,7 @@ export function buildOwnerOrderDocuments(sourceCatalog, {
     ownerAttestationRef: 'owner-rights-attestation.json',
     ownerAttestationSha256: attestationSha256,
     assetCount: catalog.entries.length,
-    sourcePathCount: catalog.entries.reduce((sum, entry) => sum + entry.sourcePathCount, 0),
+    sourcePathCount,
     entries: catalog.entries.map((entry) => {
       const evidenceId = evidenceIdBySha.get(entry.sha256);
       return {
@@ -80,7 +76,7 @@ export function buildOwnerOrderDocuments(sourceCatalog, {
       evidenceId,
       kind: 'rights',
       decisionRef: attestationId,
-      decisionStatus: 'verified',
+      decisionStatus: 'owner_approved_recorded',
       subjectSha256: entry.sha256,
       contentId: entry.contentId,
       scopes: ['internal_preservation', 'external_reuse'],
@@ -213,7 +209,7 @@ export function buildOwnerOrderDocuments(sourceCatalog, {
       blogSnsPublication: 'blocked_pending_signature_claim_privacy_and_human_review',
       publicGit: 'blocked_owner_pending',
     },
-    remainingGates: { trustedOwnerSignature: 'missing', claimAssetCount: 174, privacyAssetCount: 15, escalationAssetCount: 57 },
+    remainingGates: { trustedOwnerSignature: 'missing', claimAssetCount, privacyAssetCount, escalationAssetCount },
   };
   return {
     catalog: { document: catalog, text: catalogText, sha256: catalogSha256 },
@@ -233,20 +229,26 @@ export function validateOwnerOrderDocuments(documents) {
   const { catalog, attestation, mapping, artifacts, registry, useEvidenceReceipt, ledger, ownerDecisionReceipt, rightsState } = documents;
   const catalogBySha = new Map(catalog.document.entries.map((entry) => [entry.sha256, entry]));
   const artifactById = new Map(artifacts.map((artifact) => [artifact.evidenceId, artifact]));
-  if (catalog.document.entries.length !== 407) errors.push('catalog asset count must be 407');
-  if (mapping.document.assetCount !== 407 || mapping.document.entries.length !== 407) errors.push('worker mapping asset count mismatch');
-  if (mapping.document.sourcePathCount !== 1134) errors.push('worker mapping source path count must be 1134');
-  if (new Set(mapping.document.entries.map((entry) => entry.sha256)).size !== 407) errors.push('worker mapping SHA coverage mismatch');
-  if (artifacts.length !== 407 || registry.document.entryCount !== 407 || useEvidenceReceipt.document.fileCount !== 407) errors.push('rights artifact coverage mismatch');
+  const expectedAssetCount = catalog.document.entries.length;
+  const expectedSourcePathCount = catalog.document.entries.reduce((sum, entry) => sum + entry.sourcePathCount, 0);
+  const expectedClaimCount = catalog.document.entries.filter((entry) => entry.claimSignals.length > 0).length;
+  const expectedPrivacyCount = catalog.document.entries.filter((entry) => entry.privacySignals.length > 0).length;
+  const expectedEscalationCount = catalog.document.entries.filter((entry) => entry.humanReviewStatus === 'needs_escalation').length;
+  if (expectedAssetCount === 0) errors.push('catalog must contain at least one asset');
+  if (mapping.document.assetCount !== expectedAssetCount || mapping.document.entries.length !== expectedAssetCount) errors.push('worker mapping asset count mismatch');
+  if (mapping.document.sourcePathCount !== expectedSourcePathCount) errors.push('worker mapping source path count mismatch');
+  if (new Set(mapping.document.entries.map((entry) => entry.sha256)).size !== expectedAssetCount) errors.push('worker mapping SHA coverage mismatch');
+  if (artifacts.length !== expectedAssetCount || registry.document.entryCount !== expectedAssetCount || useEvidenceReceipt.document.fileCount !== expectedAssetCount) errors.push('rights artifact coverage mismatch');
   if (registry.document.entries.some((entry) => entry.status !== 'attested_unsealed')) errors.push('unsigned rights registry must remain attested_unsealed');
-  if (ledger.document.assetDecisionCount !== 407 || ledger.document.escalationDecisionCount !== 57) errors.push('owner decision coverage mismatch');
-  if (catalog.document.entries.filter((entry) => entry.claimSignals.length > 0).length !== 174) errors.push('claim gate count mismatch');
-  if (catalog.document.entries.filter((entry) => entry.privacySignals.length > 0).length !== 15) errors.push('privacy gate count mismatch');
-  if (catalog.document.entries.some((entry) => entry.publishStatus !== 'blocked' || entry.publicRepoEligibility !== 'not_reviewed' || entry.rightsStatus !== 'pending')) errors.push('catalog release state is not fail-closed');
+  if (ledger.document.assetDecisionCount !== expectedAssetCount || ledger.document.escalationDecisionCount !== expectedEscalationCount) errors.push('owner decision coverage mismatch');
+  if (catalog.document.entries.some((entry) => entry.publishStatus !== 'blocked' || entry.publicRepoEligibility !== 'not_reviewed' || entry.rightsStatus !== 'owner_approved_recorded')) errors.push('catalog release state is not fail-closed');
   if (ledger.document.rightsDecisions.publicGitStorage.status !== 'pending') errors.push('public Git decision must remain pending');
   if (ledger.document.assetDecisions.some((decision) => decision.humanReviewDecision !== 'pending' || decision.claimDecision !== 'pending' || decision.privacyDecision !== 'pending')) errors.push('non-rights asset gates were changed');
   if (attestation.document.signature !== null || useEvidenceReceipt.document.signature !== null || ownerDecisionReceipt.document.signature !== null) errors.push('unsigned documents must not contain a signature');
   if (rightsState.document.effectiveAccess.publicGit !== 'blocked_owner_pending' || !rightsState.document.effectiveAccess.blogSnsPublication.startsWith('blocked_')) errors.push('effective access is not fail-closed');
+  if (rightsState.document.remainingGates.claimAssetCount !== expectedClaimCount
+    || rightsState.document.remainingGates.privacyAssetCount !== expectedPrivacyCount
+    || rightsState.document.remainingGates.escalationAssetCount !== expectedEscalationCount) errors.push('remaining gate counts mismatch');
   const expectedSourceGroups = [...new Set(catalog.document.entries.flatMap((entry) => entry.sourceRefs.map((ref) => ref.sourceId)))].sort();
   if (JSON.stringify(attestation.document.sourceGroupIds) !== JSON.stringify(expectedSourceGroups)) errors.push('owner attestation source group coverage mismatch');
   for (const mapped of mapping.document.entries) {
@@ -267,6 +269,7 @@ export function validateOwnerOrderDocuments(documents) {
       || JSON.stringify(artifact.scopes) !== JSON.stringify(['internal_preservation', 'external_reuse'])) {
       errors.push(`owner rights artifact target mismatch: ${mapped.evidenceId}`);
     }
+    if (artifact && artifact.decisionStatus !== 'owner_approved_recorded') errors.push(`unsigned owner artifact status mismatch: ${mapped.evidenceId}`);
   }
   return errors;
 }
@@ -283,9 +286,4 @@ function receiptTreeHash(artifacts) {
 
 function hash(value) {
   return createHash('sha256').update(value).digest('hex');
-}
-
-function defaultAttestationId(recordedAt) {
-  const date = recordedAt.slice(0, 10).replaceAll('-', '');
-  return `OWNER-ATTESTATION-${date}-01`;
 }

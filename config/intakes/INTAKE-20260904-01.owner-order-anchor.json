@@ -1,0 +1,20 @@
+{
+  "schema": "munjanggun.assetOwnerOrderAnchor.v1",
+  "version": "1.0",
+  "intakeId": "INTAKE-20260904-01",
+  "recordedAt": "2026-09-07T01:45:00.000Z",
+  "authorityStatus": "owner_approved_recorded",
+  "allowedChannels": ["private_codex", "blog", "sns"],
+  "publicGitStorage": false,
+  "hashes": {
+    "ownerAttestation": "14e5ea693ca20d2e0f3decf53918a27034d27361d37fa4c528e1960f87678303",
+    "workerMapping": "332409b2804676514c1a3c769b9083969e8ba077b47a317ac5d977701d935c91",
+    "catalog": "523e2f50ba99e9181c5ebeb814b0af9345118aee01257204b4fa8671841ae61b",
+    "reviewEvidenceReceipt": "0f38a249a2409642df0a5906534ca16b33b14b8f97d03083f9054b4a613a9230",
+    "useEvidenceRegistry": "d845db7df8b6a3f70a66326921651962f16b60df52e5b94e7ee0042ffefd99eb",
+    "useEvidenceReceipt": "3ef5f011c21075cebdbc4a00b0b2be90dd5796a29c7e22e8bf260e4430b4d230",
+    "ownerDecisions": "66e4cb3ae2c39a96c02448c450f24d9fda5bdf76bba8e50a563e4722e75b53d0",
+    "ownerDecisionsReceipt": "c2f3d20305dc92dfe04a0b5d5f2b0ab096568ca4cb7d4c8eb26687ed43229edb",
+    "rightsState": "abcddbb46adf72f5d01aa0c632bebb26b2a770c8dde8cc76547ca3d02b020355"
+  }
+}

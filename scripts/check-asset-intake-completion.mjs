@@ -10,6 +10,8 @@ import { verifyManifestObjects } from './lib/asset-resolver.mjs';
 import { formatSchemaErrors, validateAgainstSchema } from './lib/schema-validation.mjs';
 import { resolveContainedPath } from './lib/asset-paths.mjs';
 import { compareSimilarityEvidenceRow, validateSimilarityMapInvariants } from './lib/asset-similarity-validation.mjs';
+import { loadIntakeProfile } from './lib/asset-intake-profile.mjs';
+import { validateIntakeAuditContract } from './lib/asset-intake-audit-contract.mjs';
 
 const isDirectEntry = process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 if (isDirectEntry) await main();
@@ -36,9 +38,11 @@ const evidenceReceiptPath = resolve(requiredArg('--evidence-receipt'));
 const ownerDecisionsPath = resolve(requiredArg('--owner-decisions'));
 const ownerDecisionsReceiptPath = resolve(requiredArg('--owner-decisions-receipt'));
 const useEvidenceReceiptPath = resolve(requiredArg('--use-evidence-receipt'));
+const profilePath = resolve(requiredArg('--profile'));
+const auditContractPath = resolve(requiredArg('--audit-contract'));
 const outputPath = getArg('--output') ? resolve(getArg('--output')) : null;
 
-const [receipt, catalog, urlReview, gates, combinedInventory, similarityMap, evidenceReceipt, ownerDecisions, ownerDecisionsReceipt, useEvidenceReceipt] = await Promise.all([
+const [receipt, catalog, urlReview, gates, combinedInventory, similarityMap, evidenceReceipt, ownerDecisions, ownerDecisionsReceipt, useEvidenceReceipt, auditContract] = await Promise.all([
   readJson(receiptPath),
   readJson(catalogPath),
   readJson(urlReviewPath),
@@ -49,6 +53,7 @@ const [receipt, catalog, urlReview, gates, combinedInventory, similarityMap, evi
   readJson(ownerDecisionsPath),
   readJson(ownerDecisionsReceiptPath),
   readJson(useEvidenceReceiptPath),
+  readJson(auditContractPath),
 ]);
 const schemas = await loadSchemas();
 const errors = [];
@@ -62,6 +67,7 @@ for (const [label, value, schema] of [
   ['owner decisions', ownerDecisions, schemas.ownerDecisions],
   ['owner decisions receipt', ownerDecisionsReceipt, schemas.ownerDecisionsReceipt],
   ['use evidence receipt', useEvidenceReceipt, schemas.useEvidenceReceipt],
+  ['intake audit contract', auditContract, schemas.auditContract],
 ]) {
   const result = validateAgainstSchema(value, schema);
   errors.push(...formatSchemaErrors(result.errors).map((message) => `${label}: ${message}`));
@@ -70,7 +76,7 @@ if (gates.sourceEvidence) {
   if (gates.sourceEvidence.sourceState !== sourceState) errors.push(`completion gates: sourceState expected ${gates.sourceEvidence.sourceState}, got ${sourceState}`);
   if (gates.sourceEvidence.recoveryLiveVerificationRequired !== true) errors.push('completion gates: recovery live verification must be required');
 }
-for (const value of [catalog, urlReview, gates, similarityMap, evidenceReceipt, ownerDecisions, ownerDecisionsReceipt, useEvidenceReceipt]) {
+for (const value of [catalog, urlReview, gates, similarityMap, evidenceReceipt, ownerDecisions, ownerDecisionsReceipt, useEvidenceReceipt, auditContract]) {
   if (value.intakeId !== receipt.intakeId) errors.push(`${value.schema}: intakeId mismatch`);
 }
 
@@ -82,6 +88,21 @@ for (const manifestPath of manifestPaths) {
   manifests.push(result.manifest);
 }
 const assets = manifests.flatMap((manifest) => manifest.assets);
+const { profile } = await loadIntakeProfile(profilePath, receipt.intakeId);
+if (resolve(dirname(auditContractPath), auditContract.profileRef) !== profilePath) errors.push('intake audit contract: profileRef mismatch');
+const auditContractResult = validateIntakeAuditContract({
+  contract: auditContract,
+  profileSha256: await sha256File(profilePath),
+  profile,
+  receipt,
+  manifests,
+  manifestPaths,
+  catalog,
+  combinedInventory,
+  similarityMap,
+  urlReview,
+});
+errors.push(...auditContractResult.errors.map((message) => `intake audit contract: ${message}`));
 const byHash = new Map();
 for (const asset of assets) {
   const group = byHash.get(asset.sha256) ?? [];
@@ -118,11 +139,11 @@ for (const group of combinedInventory.groups) {
   }
 }
 errors.push(...combinedObjectErrors.map((message) => `combined object: ${message}`));
-if (combinedInventory.counts.logicalVisualPaths !== 2013 || combinedInventory.counts.binaryGroups !== 450) {
-  errors.push('combined inventory: expected 2013 logical paths and 450 binary groups');
-}
-if (similarityMap.logicalPathCount !== 2013 || similarityMap.binaryGroupCount !== 450) {
-  errors.push('visual similarity map: expected 2013 logical paths and 450 binary groups');
+if (combinedInventory.paths.length !== combinedInventory.counts.logicalVisualPaths) errors.push('combined inventory: logical path count mismatch');
+if (combinedInventory.groups.length !== combinedInventory.counts.binaryGroups) errors.push('combined inventory: binary group count mismatch');
+if (similarityMap.logicalPathCount !== combinedInventory.counts.logicalVisualPaths
+  || similarityMap.binaryGroupCount !== combinedInventory.counts.binaryGroups) {
+  errors.push('visual similarity map: inventory count mismatch');
 }
 errors.push(...validateSimilarityMapInvariants(similarityMap).map((message) => `visual similarity map: ${message}`));
 const inventoryHashes = [...combinedInventory.groups.map((entry) => entry.sha256)].sort();
@@ -200,14 +221,14 @@ const report = {
   checkedAt: new Date().toISOString(),
   technicalGateStatus: errors.length === 0 ? 'passed' : 'failed',
   externalReleaseStatus: 'blocked',
-  finalCompletionStatus: 'blocked_pending_rights_claim_privacy_and_owner_approval',
+  finalCompletionStatus: 'blocked_pending_claim_privacy_and_human_review',
   provenance: {
     checkerSha256: await sha256File(fileURLToPath(import.meta.url)),
     inputs: Object.fromEntries(await Promise.all([
       ['intakeReceipt', receiptPath], ['catalog', catalogPath], ['urlReview', urlReviewPath], ['urlReviewSource', urlReviewSourcePath],
       ['combinedInventory', combinedInventoryPath], ['similarityMap', similarityMapPath], ['evidenceReceipt', evidenceReceiptPath],
       ['ownerDecisions', ownerDecisionsPath], ['ownerDecisionsReceipt', ownerDecisionsReceiptPath],
-      ['useEvidenceReceipt', useEvidenceReceiptPath],
+      ['useEvidenceReceipt', useEvidenceReceiptPath], ['intakeProfile', profilePath], ['intakeAuditContract', auditContractPath],
     ].map(async ([key, path]) => [key, await sha256File(path)]))),
   },
   sourceVerification: {
@@ -227,6 +248,12 @@ const report = {
   },
   expected: gates.expected,
   actual,
+  intakeAuditContract: {
+    status: auditContractResult.passed ? 'passed' : 'failed',
+    profileSha256: await sha256File(profilePath),
+    contractSha256: await sha256File(auditContractPath),
+    errorCount: auditContractResult.errors.length,
+  },
   objectVerification: {
     incomingVerifiedUniqueObjects: objectResult.verified,
     incomingReferencedLogicalPaths: objectResult.referenced,
@@ -358,6 +385,7 @@ async function loadSchemas() {
     ownerDecisions: 'asset-owner-decisions.schema.json',
     ownerDecisionsReceipt: 'asset-owner-decision-receipt.schema.json',
     useEvidenceReceipt: 'asset-use-evidence-receipt.schema.json',
+    auditContract: 'asset-intake-audit-contract.schema.json',
   };
   return Object.fromEntries(await Promise.all(Object.entries(names).map(async ([key, name]) => [key, await readJson(new URL(`../schemas/${name}`, import.meta.url))])));
 }

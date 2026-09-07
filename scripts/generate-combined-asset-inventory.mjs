@@ -4,12 +4,14 @@ import { join, resolve } from 'node:path';
 import { inventoryTree } from './lib/asset-inventory.mjs';
 import { findFiles } from './lib/brand-validation-core.mjs';
 import { canonicalExtensionForMediaType, inspectMedia } from './lib/media-metadata.mjs';
+import { loadIntakeProfile } from './lib/asset-intake-profile.mjs';
 
 const receiptPath = resolve(requiredArg('--receipt'));
 const canonicalRoot = resolve(requiredArg('--canonical-root'));
 const candidateRoot = resolve(requiredArg('--candidate-root'));
 const outputPath = resolve(requiredArg('--output'));
 const receipt = await readJson(receiptPath);
+const { profile } = await loadIntakeProfile(resolve(requiredArg('--profile')), receipt.intakeId);
 
 const manifestPaths = await findFiles(resolve(candidateRoot, 'manifests'), (path) => path.endsWith('asset-manifest.json'));
 const candidateAssets = (await Promise.all(manifestPaths.map(readJson))).flatMap((manifest) => manifest.assets);
@@ -31,7 +33,7 @@ for (const entry of receipt.entries.filter((item) => item.disposition === 'manag
 }
 
 const canonicalDirs = (await readdir(canonicalRoot, { withFileTypes: true }))
-  .filter((entry) => entry.isDirectory() && entry.name !== '신규')
+  .filter((entry) => entry.isDirectory() && !profile.canonicalExcludeFolders.includes(entry.name))
   .map((entry) => entry.name)
   .sort(natural);
 for (const folder of canonicalDirs) {
@@ -49,7 +51,7 @@ for (const folder of canonicalDirs) {
       objectRef = `sha256/${entry.sha256.slice(0, 2)}/${entry.sha256}${extension}`;
     }
     paths.push({
-      logicalInstancePath: `canonical/문장군상품/${sourceRelativePath}`,
+      logicalInstancePath: `canonical/${profile.logicalRoot}/${sourceRelativePath}`,
       origin: 'canonical',
       sourceRelativePath,
       sha256: entry.sha256,
@@ -98,19 +100,6 @@ const counts = {
   intakeOnlyBinaryGroups: groups.filter((entry) => entry.canonicalPathCount === 0 && entry.intakePathCount > 0).length,
   gifBinaryGroups: groups.filter((entry) => entry.mediaType === 'image/gif').length,
 };
-const expected = {
-  canonicalVisualPaths: 879,
-  intakeVisualPaths: 1134,
-  logicalVisualPaths: 2013,
-  binaryGroups: 450,
-  sharedBinaryGroups: 297,
-  canonicalOnlyBinaryGroups: 43,
-  intakeOnlyBinaryGroups: 110,
-  gifBinaryGroups: 75,
-};
-for (const [key, value] of Object.entries(expected)) {
-  if (counts[key] !== value) throw new Error(`${key}: expected ${value}, got ${counts[key]}`);
-}
 const output = {
   schema: 'munjanggun.combinedAssetInventory.v1',
   version: '1.0',

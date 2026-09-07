@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/westgeneraldoor/munjanggun-brand/schemas/asset-intake-profile.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "version", "intakeId", "sourceDate", "logicalRoot", "canonicalExcludeFolders", "products", "review"],
+  "properties": {
+    "schema": { "const": "munjanggun.assetIntakeProfile.v1" },
+    "version": { "const": "1.0" },
+    "intakeId": { "type": "string", "pattern": "^INTAKE-[0-9]{8}-[0-9]{2}$" },
+    "sourceDate": { "type": "string", "format": "date" },
+    "logicalRoot": { "$ref": "#/$defs/relativePath" },
+    "canonicalExcludeFolders": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/folder" } },
+    "review": { "$ref": "#/$defs/review" },
+    "products": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["folder", "productId", "label", "slug", "sourceId"],
+        "properties": {
+          "folder": { "$ref": "#/$defs/folder" },
+          "productId": { "type": "string", "pattern": "^PROD-[A-Z0-9-]+$" },
+          "label": { "type": "string", "minLength": 1 },
+          "slug": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+          "sourceId": { "type": "string", "pattern": "^SRC-[A-Z0-9-]+$" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "folder": { "type": "string", "minLength": 1, "pattern": "^(?!\\.\\.?$)(?!.*[\\\\/]).+$" },
+    "relativePath": { "type": "string", "minLength": 1, "pattern": "^(?!/)(?![A-Za-z]:)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\).+$" },
+    "labeledReport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "file"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+        "file": { "$ref": "#/$defs/relativePath" }
+      }
+    },
+    "reviewReport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "file", "kind"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+        "file": { "$ref": "#/$defs/relativePath" },
+        "kind": { "enum": ["static", "gif"] },
+        "comparisonMethods": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "supportingCollection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "sourceDir", "extension", "required"],
+      "properties": {
+        "kind": { "enum": ["contact_sheet", "storyboard"] },
+        "sourceDir": { "$ref": "#/$defs/relativePath" },
+        "extension": { "type": "string", "pattern": "^\\.[A-Za-z0-9]+$" },
+        "required": { "type": "boolean" }
+      }
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["catalogReports", "catalogAuditReport", "similarityReports", "additionalReports", "supportingCollections"],
+      "properties": {
+        "catalogReports": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/reviewReport" } },
+        "catalogAuditReport": { "$ref": "#/$defs/labeledReport" },
+        "similarityReports": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/labeledReport" } },
+        "additionalReports": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/relativePath" } },
+        "supportingCollections": { "type": "array", "items": { "$ref": "#/$defs/supportingCollection" } }
+      }
+    }
+  }
+}

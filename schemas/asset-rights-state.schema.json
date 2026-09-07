@@ -29,9 +29,9 @@
       "required": ["trustedOwnerSignature", "claimAssetCount", "privacyAssetCount", "escalationAssetCount"],
       "properties": {
         "trustedOwnerSignature": { "const": "missing" },
-        "claimAssetCount": { "const": 174 },
-        "privacyAssetCount": { "const": 15 },
-        "escalationAssetCount": { "const": 57 }
+        "claimAssetCount": { "type": "integer", "minimum": 0 },
+        "privacyAssetCount": { "type": "integer", "minimum": 0 },
+        "escalationAssetCount": { "type": "integer", "minimum": 0 }
       }
     }
   },

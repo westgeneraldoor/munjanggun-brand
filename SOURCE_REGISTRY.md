@@ -78,16 +78,16 @@
 | `SRC-2026-07-01-SWING-DETAILPAGE` | `active` | `preserve` | 중앙 브랜드 총괄 | 가격/이벤트/옵션/시공 조건 문구 재사용 시 최신성 확인 | 없음 | 없음 |
 | `SRC-2026-07-01-WIDE-SLIDING-DETAILPAGE` | `active` | `preserve` | 중앙 브랜드 총괄 | 폭/개폐 구조, 가격/이벤트/스펙 문구 재사용 시 최신성 확인 | 없음 | 없음 |
 | `SRC-2026-06-30-BRANDSTORE-SCREENSHOTS` | `reference` | `external_only` | 중앙 브랜드 총괄 | 리뷰 수 또는 상품 노출 claim 사용 전 최신 캡처 확인 | 없음 | 원본 캡처 중앙 미저장. 요약 근거로만 사용 |
-| `SRC-2026-09-04-3PANEL-AUTO-DETAILPAGE` | `reference` | `preserve` | 중앙 브랜드 총괄 | 권리·개인정보·변동 claim 및 공개 저장 범위 승인 후 | 없음 | 없음 |
-| `SRC-2026-09-04-3PANEL-LSHAPE-DETAILPAGE` | `reference` | `preserve` | 중앙 브랜드 총괄 | 권리·개인정보·변동 claim 및 공개 저장 범위 승인 후 | 없음 | 없음 |
-| `SRC-2026-09-04-3PANEL-DETAILPAGE` | `reference` | `preserve` | 중앙 브랜드 총괄 | 권리·개인정보·변동 claim 및 공개 저장 범위 승인 후 | 없음 | 없음 |
-| `SRC-2026-09-04-ABS-DOOR-FRAME-FILM-DETAILPAGE` | `reference` | `preserve` | 중앙 브랜드 총괄 | 권리·개인정보·변동 claim 및 공개 저장 범위 승인 후 | 없음 | 없음 |
-| `SRC-2026-09-04-ABS-DOOR-REPLACEMENT-DETAILPAGE` | `reference` | `preserve` | 중앙 브랜드 총괄 | 권리·개인정보·변동 claim 및 공개 저장 범위 승인 후 | 없음 | 없음 |
-| `SRC-2026-09-04-ABS-SLIDING-DOOR-DETAILPAGE` | `reference` | `preserve` | 중앙 브랜드 총괄 | 권리·개인정보·변동 claim 및 공개 저장 범위 승인 후 | 없음 | 없음 |
-| `SRC-2026-09-04-MOLDING-DETAILPAGE` | `reference` | `preserve` | 중앙 브랜드 총괄 | 권리·개인정보·변동 claim 및 공개 저장 범위 승인 후 | 없음 | 없음 |
-| `SRC-2026-09-04-SWING-DETAILPAGE` | `reference` | `preserve` | 중앙 브랜드 총괄 | 권리·개인정보·변동 claim 및 공개 저장 범위 승인 후 | 없음 | 없음 |
-| `SRC-2026-09-04-WIDE-SLIDING-DETAILPAGE` | `reference` | `preserve` | 중앙 브랜드 총괄 | 권리·개인정보·변동 claim 및 공개 저장 범위 승인 후 | 없음 | 없음 |
-| `SRC-2026-09-04-ONESLIDING-DETAILPAGE` | `reference` | `preserve` | 중앙 브랜드 총괄 | 권리·개인정보·변동 claim 및 공개 저장 범위 승인 후 | 없음 | 없음 |
+| `SRC-2026-09-04-3PANEL-AUTO-DETAILPAGE` | `reference` | `preserve` | 중앙 브랜드 총괄 | 비공개 공용 소스 사용 가능. 외부 발행 전 개인정보·변동 claim 확인, 공개 Git 금지 | 없음 | 없음 |
+| `SRC-2026-09-04-3PANEL-LSHAPE-DETAILPAGE` | `reference` | `preserve` | 중앙 브랜드 총괄 | 비공개 공용 소스 사용 가능. 외부 발행 전 개인정보·변동 claim 확인, 공개 Git 금지 | 없음 | 없음 |
+| `SRC-2026-09-04-3PANEL-DETAILPAGE` | `reference` | `preserve` | 중앙 브랜드 총괄 | 비공개 공용 소스 사용 가능. 외부 발행 전 개인정보·변동 claim 확인, 공개 Git 금지 | 없음 | 없음 |
+| `SRC-2026-09-04-ABS-DOOR-FRAME-FILM-DETAILPAGE` | `reference` | `preserve` | 중앙 브랜드 총괄 | 비공개 공용 소스 사용 가능. 외부 발행 전 개인정보·변동 claim 확인, 공개 Git 금지 | 없음 | 없음 |
+| `SRC-2026-09-04-ABS-DOOR-REPLACEMENT-DETAILPAGE` | `reference` | `preserve` | 중앙 브랜드 총괄 | 비공개 공용 소스 사용 가능. 외부 발행 전 개인정보·변동 claim 확인, 공개 Git 금지 | 없음 | 없음 |
+| `SRC-2026-09-04-ABS-SLIDING-DOOR-DETAILPAGE` | `reference` | `preserve` | 중앙 브랜드 총괄 | 비공개 공용 소스 사용 가능. 외부 발행 전 개인정보·변동 claim 확인, 공개 Git 금지 | 없음 | 없음 |
+| `SRC-2026-09-04-MOLDING-DETAILPAGE` | `reference` | `preserve` | 중앙 브랜드 총괄 | 비공개 공용 소스 사용 가능. 외부 발행 전 개인정보·변동 claim 확인, 공개 Git 금지 | 없음 | 없음 |
+| `SRC-2026-09-04-SWING-DETAILPAGE` | `reference` | `preserve` | 중앙 브랜드 총괄 | 비공개 공용 소스 사용 가능. 외부 발행 전 개인정보·변동 claim 확인, 공개 Git 금지 | 없음 | 없음 |
+| `SRC-2026-09-04-WIDE-SLIDING-DETAILPAGE` | `reference` | `preserve` | 중앙 브랜드 총괄 | 비공개 공용 소스 사용 가능. 외부 발행 전 개인정보·변동 claim 확인, 공개 Git 금지 | 없음 | 없음 |
+| `SRC-2026-09-04-ONESLIDING-DETAILPAGE` | `reference` | `preserve` | 중앙 브랜드 총괄 | 비공개 공용 소스 사용 가능. 외부 발행 전 개인정보·변동 claim 확인, 공개 Git 금지 | 없음 | 없음 |
 
 2026-09-07 기준 위 2026-09-04 신규 10개 소스의 문장군 자체제작·비공개 Codex 공용 소스·블로그/SNS 재사용 권리는 확인됐다. 추적표의 재검토 조건 중 남은 것은 공개 Git 보류, 개인정보 검수와 변동 claim 최신성 확인이다.
 

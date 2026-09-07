@@ -61,7 +61,7 @@
 
 ## 5. 현재 게이트
 
-저장·복구·시각 분석의 기준 파일은 Z 비공개 보관소의 `review-evidence/receipt.json`, `candidate-v2/reviewed-content-catalog-v5.json`, `visual-similarity-map-v2.json`, `url-review-v2.json`, `completion-report-v13.json`이다. 2026-09-07 권리 결정의 기준 묶음은 `candidate-v2/owner-rights-v2/`이며, 그 안의 `OWNER_RIGHTS_SUMMARY.md`, `owner-rights-attestation.json`, `owner-attestation-mapping.json`, `reviewed-content-catalog-v6.json`, 자산별 증거 407개, registry/receipt, 결정 원장과 `rights-state.json`을 함께 검증한다. 이전 승인표와 번호 파일은 과정 기록이다.
+저장·복구·시각 분석의 기준 파일은 Z 비공개 보관소의 `review-evidence/receipt.json`, `candidate-v2/reviewed-content-catalog-v5.json`, `visual-similarity-map-v2.json`, `url-review-v2.json`, `completion-report-v13.json`이다. 2026-09-07 권리 결정의 최신 묶음은 `candidate-v2/owner-rights-v4/`이며, 공용 `current.json`이 이를 가리킨다. 그 안의 `OWNER_RIGHTS_SUMMARY.md`, `owner-rights-attestation.json`, `owner-attestation-mapping.json`, `reviewed-content-catalog.json`, 자산별 증거 407개, registry/receipt, 결정 원장, `rights-state.json`, `worker-review-queue.json`을 함께 사용한다. 이전 승인표와 번호 파일은 과정 기록이다.
 
 | 게이트 | 결과 |
 | --- | --- |
@@ -90,6 +90,10 @@
 모든 복사 도구는 기본 거부 방식이다. 호환용 `assets:extract`·`assets:materialize`는 명시적 비공개 복구 계약과 SHA 영수증이 있어야 동작하며 외부용으로 사용할 수 없다. 외부용 `assets:extract-content`는 봉인 검토 증거, 실제 권리·claim 증거 파일의 경로·크기·SHA·대상·범위·채널·유효기간, 개인정보, 발행 상태와 catalog SHA에 묶인 사장 결정 원장·영수증이 모두 통과해야 한다. 내부 감사 예외는 비공개 경로, 담당자, 사유, 만료일, 발행 금지 확인과 실패 게이트별 정확한 인정을 요구하고 자산과 영수증을 한 묶음으로 남긴다.
 
 사장 권리 결정은 완료됐다. 다음 단계는 작업자가 57개 상향 검토 중 기존 증거로 재분류할 34개와 실제 재판독할 23개를 처리하고, claim 174개와 개인정보 15개를 판정하는 것이다. 사장님에게 SHA·근거 ID·개별 407개 입력을 요구하지 않는다. 블로그 작성자는 `BLOG_ASSET_PICKER.md`로 후보를 찾을 수 있으며, 권리는 확인됐지만 자동 외부 추출은 신뢰 서명과 남은 작업자 게이트가 끝날 때까지 차단된다.
+
+현재 작업자 큐는 전체 407개 중 우선 판정 후보 222개, claim 신호 174개, 개인정보 신호 15개, 재판독 57개로 분리했다. claim은 96개 신호 조합 묶음, 개인정보는 12개 신호 조합 묶음으로 먼저 모아 같은 질문을 반복하지 않는다. 우선 판정 후보는 즉시 발행 가능 수가 아니다.
+
+프로그램의 공통 처리와 이번 묶음의 합격 수치는 분리했다. 상품명·날짜·출처는 `config/intakes/INTAKE-20260904-01.profile.json`, 정확한 1,158/1,154/1,134/407/450 등의 완료 수치는 `config/intakes/INTAKE-20260904-01.audit.json`이 고정한다. 새 묶음은 새 profile과 감사 계약을 추가해 같은 엔진으로 처리한다.
 
 ```text
 소스 보존 여부 ≠ 외부 발행 가능 여부

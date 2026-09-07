@@ -3,18 +3,19 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { formatSchemaErrors, validateAgainstSchema } from './lib/schema-validation.mjs';
+import { loadIntakeProfile } from './lib/asset-intake-profile.mjs';
 
 const catalogPath = resolve(requiredArg('--catalog'));
-const reportSpecs = [
-  ['static-a', resolve(requiredArg('--static-a'))],
-  ['static-b', resolve(requiredArg('--static-b'))],
-  ['gif', resolve(requiredArg('--gif'))],
-];
-const auditPath = resolve(requiredArg('--audit'));
+const reviewRoot = resolve(requiredArg('--review-root'));
+const { profile } = await loadIntakeProfile(resolve(requiredArg('--profile')));
+const reportSpecs = profile.review.catalogReports.map((spec) => ({ ...spec, path: resolve(reviewRoot, ...spec.file.split('/')) }));
+const auditSpec = profile.review.catalogAuditReport;
+const auditPath = resolve(reviewRoot, ...auditSpec.file.split('/'));
 const outputPath = resolve(requiredArg('--output'));
 
 const catalog = await readJson(catalogPath);
-const reports = await Promise.all(reportSpecs.map(async ([label, path]) => [label, await readJson(path)]));
+if (profile.intakeId !== catalog.intakeId) throw new Error(`Intake profile ${profile.intakeId} does not match catalog ${catalog.intakeId}`);
+const reports = await Promise.all(reportSpecs.map(async (spec) => ({ spec, report: await readJson(spec.path) })));
 const audit = await readJson(auditPath);
 const schema = await readJson(fileURLToPath(new URL('../schemas/asset-content-catalog.schema.json', import.meta.url)));
 assertSchema(catalog, schema, 'input content catalog');
@@ -25,13 +26,17 @@ for (const group of [...(audit.visualGroupAudit?.flaggedGroups ?? []), ...(audit
   for (const member of group.members ?? []) splitAfterAudit.add(member.sha256);
 }
 const reviewByHash = new Map();
-for (const [label, report] of reports) {
+for (const { spec, report } of reports) {
+  const label = spec.id;
   if (report.intakeId !== catalog.intakeId) throw new Error(`${label}: intakeId does not match catalog`);
   const entries = Array.isArray(report.entries) ? report.entries : [];
   for (const entry of entries) {
     if (reviewByHash.has(entry.sha256)) throw new Error(`${label}: duplicate review SHA ${entry.sha256}`);
     if (!baselineByHash.has(entry.sha256)) throw new Error(`${label}: unexpected review SHA ${entry.sha256}`);
-    reviewByHash.set(entry.sha256, { label, entry });
+    const baselineMediaType = baselineByHash.get(entry.sha256).mediaType;
+    if (spec.kind === 'gif' && baselineMediaType !== 'image/gif') throw new Error(`${label}: GIF report contains non-GIF SHA ${entry.sha256}`);
+    if (spec.kind === 'static' && baselineMediaType === 'image/gif') throw new Error(`${label}: static report contains GIF SHA ${entry.sha256}`);
+    reviewByHash.set(entry.sha256, { spec, entry });
   }
 }
 
@@ -45,7 +50,7 @@ const reviewedAt = new Date().toISOString();
 for (const sha256 of splitAfterAudit) {
   if (!baselineByHash.has(sha256)) throw new Error(`Audit requests split for unknown SHA ${sha256}`);
 }
-const entries = catalog.entries.map((baseline) => mergeEntry(baseline, reviewByHash.get(baseline.sha256), splitAfterAudit));
+const entries = catalog.entries.map((baseline) => mergeEntry(baseline, reviewByHash.get(baseline.sha256), splitAfterAudit, auditSpec));
 const gifEntries = entries.filter((entry) => entry.mediaType === 'image/gif');
 const output = {
   ...catalog,
@@ -70,8 +75,9 @@ console.log(`Human review: ${output.reviewSummary.reviewedBinaryGroups} reviewed
 console.log(`GIF unique: ${output.reviewSummary.uniqueGifFrames} frames / ${output.reviewSummary.uniqueGifDurationMs}ms.`);
 console.log(`GIF linked paths: ${output.reviewSummary.linkedGifFrames} frames / ${output.reviewSummary.linkedGifDurationMs}ms.`);
 
-function mergeEntry(baseline, review, splitHashes) {
-  const { label, entry } = review;
+function mergeEntry(baseline, review, splitHashes, configuredAudit) {
+  const { spec, entry } = review;
+  const label = spec.id;
   assertIdentity(baseline, entry, label);
   const semanticGroupId = textOrNull(entry.visualGroupCandidate);
   if (!semanticGroupId) throw new Error(`${label}: unresolved visual group for ${baseline.sha256}`);
@@ -79,10 +85,9 @@ function mergeEntry(baseline, review, splitHashes) {
   const visualGroupId = splitAfterAudit ? `${semanticGroupId}::sha256-${baseline.sha256.slice(0, 16)}` : semanticGroupId;
 
   const visibleText = Array.isArray(entry.visibleText) ? entry.visibleText.join('; ') : String(entry.ocrText ?? entry.visibleText ?? '');
-  const humanReviewStatus = normalizeHumanStatus(label, entry.humanReviewStatus);
+  const humanReviewStatus = normalizeHumanStatus(spec.kind, label, entry.humanReviewStatus);
   const comparisonMethod = ['sha256_exact'];
-  if (label === 'static-a') comparisonMethod.push('perceptual_hash');
-  if (label === 'gif') comparisonMethod.push('gif_scene_signature');
+  comparisonMethod.push(...spec.comparisonMethods);
   if (visibleText.trim()) comparisonMethod.push('ocr');
   comparisonMethod.push('human_visual_review');
 
@@ -95,13 +100,13 @@ function mergeEntry(baseline, review, splitHashes) {
     humanReviewStatus,
     semanticSummary: String(entry.semanticSummary ?? entry.sceneSummary ?? '').trim(),
     ocrText: visibleText.trim(),
-    gifReviewStatus: label === 'gif' ? 'reviewed' : 'not_applicable',
+    gifReviewStatus: spec.kind === 'gif' ? 'reviewed' : 'not_applicable',
     claimSignals: uniqueStrings(entry.claimSignals),
     privacySignals: uniqueStrings(entry.privacySignals),
     rightsSignals: uniqueStrings([...(entry.rightsSignals ?? []), 'source_rights_unverified']),
-    reviewEvidenceRefs: [`${label}.json#sha256=${baseline.sha256}`, 'report-audit.json'],
+    reviewEvidenceRefs: [`${spec.file}#sha256=${baseline.sha256}`, configuredAudit.file],
     reviewNotes: [String(entry.reviewNotes ?? ''), splitAfterAudit ? '독립 감사에서 엄격한 시각 유사군을 개별 그룹으로 분리함' : ''].filter(Boolean).join('; '),
-    gifMetadata: label === 'gif' ? {
+    gifMetadata: spec.kind === 'gif' ? {
       frameCount: positiveInteger(entry.frameCount, `${label}.frameCount`, baseline.sha256),
       durationMs: nonnegativeInteger(entry.durationMs, `${label}.durationMs`, baseline.sha256),
       loopCount: nonnegativeInteger(entry.loopCount, `${label}.loopCount`, baseline.sha256),
@@ -109,7 +114,7 @@ function mergeEntry(baseline, review, splitHashes) {
     } : null,
   };
   if (!merged.semanticSummary) throw new Error(`${label}: empty semantic summary for ${baseline.sha256}`);
-  if (label === 'gif' && !merged.gifMetadata.loopBehavior) throw new Error(`${label}: missing loop behavior for ${baseline.sha256}`);
+  if (spec.kind === 'gif' && !merged.gifMetadata.loopBehavior) throw new Error(`${label}: missing loop behavior for ${baseline.sha256}`);
   return merged;
 }
 
@@ -151,9 +156,9 @@ function uniqueMap(entries, label) {
   return result;
 }
 
-function normalizeHumanStatus(label, value) {
+function normalizeHumanStatus(kind, label, value) {
   if (value === 'reviewed' || value === 'needs_escalation') return value;
-  if (label === 'gif' && value === 'reviewed_full_loop_storyboard') return 'reviewed';
+  if (kind === 'gif' && value === 'reviewed_full_loop_storyboard') return 'reviewed';
   throw new Error(`${label}: unfinished or unknown humanReviewStatus ${value}`);
 }
 

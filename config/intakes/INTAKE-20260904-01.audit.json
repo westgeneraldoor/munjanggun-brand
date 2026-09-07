@@ -1,0 +1,29 @@
+{
+  "schema": "munjanggun.assetIntakeAuditContract.v1",
+  "version": "1.0",
+  "intakeId": "INTAKE-20260904-01",
+  "profileRef": "INTAKE-20260904-01.profile.json",
+  "profileSha256": "c874f4115c6009665e80938b00215e2f3310829275b7fc788325314670a6bb06",
+  "expected": {
+    "receiptEntries": 1158,
+    "receiptManaged": 1154,
+    "productManifests": 10,
+    "visualManifestPaths": 1134,
+    "intakeBinaryGroups": 407,
+    "uniqueGifBinaries": 72,
+    "gifSourcePaths": 252,
+    "urlRecords": 13,
+    "combinedCounts": {
+      "canonicalVisualPaths": 879,
+      "intakeVisualPaths": 1134,
+      "logicalVisualPaths": 2013,
+      "binaryGroups": 450,
+      "sharedBinaryGroups": 297,
+      "canonicalOnlyBinaryGroups": 43,
+      "intakeOnlyBinaryGroups": 110,
+      "gifBinaryGroups": 75
+    },
+    "visualGroups": 443,
+    "unjudgedVisualGroups": 0
+  }
+}

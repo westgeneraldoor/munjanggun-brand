@@ -8,16 +8,18 @@ import { sha256File } from './lib/asset-inventory.mjs';
 import { formatSchemaErrors, validateAgainstSchema } from './lib/schema-validation.mjs';
 
 const catalogPath = resolve(requiredArg('--catalog'));
+const attestationInputPath = resolve(requiredArg('--attestation-input'));
 const outputRoot = resolve(requiredArg('--output-root'));
-const sourceCatalog = await readJson(catalogPath);
+const [sourceCatalog, attestationInput] = await Promise.all([readJson(catalogPath), readJson(attestationInputPath)]);
 const reviewEvidenceReceiptPath = resolve(dirname(catalogPath), sourceCatalog.reviewEvidenceReceiptRef);
 if (await sha256File(reviewEvidenceReceiptPath) !== sourceCatalog.reviewEvidenceReceiptSha256) {
   throw new Error('Source catalog review evidence receipt SHA mismatch');
 }
 const reviewEvidenceReceiptRef = relative(outputRoot, reviewEvidenceReceiptPath).replaceAll('\\', '/');
 const documents = buildOwnerOrderDocuments(sourceCatalog, {
+  attestationInput,
+  sourceCatalogSha256: await sha256File(catalogPath),
   reviewEvidenceReceiptRef,
-  recordedAt: optionalArg('--recorded-at') ?? new Date().toISOString(),
 });
 const errors = validateOwnerOrderDocuments(documents);
 if (errors.length > 0) throw new Error(`Owner rights order invariant failure:\n${errors.join('\n')}`);
@@ -28,7 +30,7 @@ const partialRoot = resolve(parent, `.${basename(outputRoot)}.partial-${randomUU
 if (dirname(partialRoot) !== parent) throw new Error('Partial output escaped the requested parent');
 await mkdir(partialRoot, { recursive: false });
 try {
-  await writeDocument('reviewed-content-catalog-v6.json', documents.catalog.text);
+  await writeDocument('reviewed-content-catalog.json', documents.catalog.text);
   await writeDocument('owner-rights-attestation.json', documents.attestation.text);
   await writeDocument('owner-attestation-mapping.json', documents.mapping.text);
   for (const artifact of documents.artifacts) await writeDocument(artifact.relativePath, artifact.text);
@@ -50,7 +52,14 @@ console.log(JSON.stringify({
   ownerAttestation: { signature: null, sha256: documents.attestation.sha256 },
   workerMapping: { assets: documents.mapping.document.assetCount, sourcePaths: documents.mapping.document.sourcePathCount, sha256: documents.mapping.sha256 },
   rights: { internalPreservation: 'approved_recorded', privateCodexSource: 'approved_recorded', blogSnsReuse: 'approved_recorded_unsealed' },
-  blocked: { publicGit: true, externalPublication: true, trustedOwnerSignature: 'missing', claimAssets: 174, privacyAssets: 15, escalationAssets: 57 },
+  blocked: {
+    publicGit: true,
+    externalPublication: true,
+    trustedOwnerSignature: documents.rightsState.document.remainingGates.trustedOwnerSignature,
+    claimAssets: documents.rightsState.document.remainingGates.claimAssetCount,
+    privacyAssets: documents.rightsState.document.remainingGates.privacyAssetCount,
+    escalationAssets: documents.rightsState.document.remainingGates.escalationAssetCount,
+  },
 }, null, 2));
 
 async function validateSchemas(value) {
@@ -95,18 +104,14 @@ function requiredArg(name) {
   return value;
 }
 
-function optionalArg(name) {
-  const index = process.argv.indexOf(name);
-  const value = index === -1 ? undefined : process.argv[index + 1];
-  if (index !== -1 && (!value || value.startsWith('--'))) throw new Error(`Missing value for ${name}`);
-  return value;
-}
-
 function ownerSummary(documents) {
   const recordedAt = documents.attestation.document.recordedAt;
+  const assetCount = documents.mapping.document.assetCount;
+  const sourcePathCount = documents.mapping.document.sourcePathCount;
+  const { claimAssetCount, privacyAssetCount, escalationAssetCount } = documents.rightsState.document.remainingGates;
   return `# 문장군 신규 상품 자산 사용 결정\n\n` +
     `> 기록 시각: ${recordedAt}\n` +
-    `> 대상: 신규 10개 상품 묶음, 고유 자산 407개, 원래 경로 1,134개\n\n` +
+    `> 대상: ${documents.catalog.document.intakeId}, 고유 자산 ${assetCount}개, 원래 경로 ${sourcePathCount}개\n\n` +
     `## 사장님 결정\n\n` +
     `- 자료 출처: 문장군 내부 자체제작\n` +
     `- 비공개 보존: 승인\n` +
@@ -115,10 +120,10 @@ function ownerSummary(documents) {
     `- 인물·후기 등에 대한 사장님 차원의 추가 제한: 없음\n` +
     `- 공개 Git에 이미지 원본 저장: 보류\n\n` +
     `## 작업자가 계속 확인할 사항\n\n` +
-    `- 가격·행사·혜택처럼 바뀔 수 있는 문구 174개는 게시 시점의 최신 사실을 확인하거나 문구를 빼고 사용한다.\n` +
-    `- 개인정보 가능성 15개와 추가 판독 57개는 작업자가 검수한다. 이는 사용권을 다시 묻는 절차가 아니다.\n` +
+    `- 가격·행사·혜택처럼 바뀔 수 있는 문구 신호 ${claimAssetCount}개는 게시 시점의 최신 사실을 확인하거나 문구를 빼고 사용한다.\n` +
+    `- 개인정보 가능성 ${privacyAssetCount}개와 추가 판독 ${escalationAssetCount}개는 작업자가 검수한다. 이는 사용권을 다시 묻는 절차가 아니다.\n` +
     `- 공개 Git 저장과 자동 외부 추출은 신뢰 서명 및 나머지 안전 검토가 끝날 때까지 차단한다.\n\n` +
     `## 기록 방식\n\n` +
-    `사장님은 위 사업 결정을 내렸고, Codex 작업자가 그 결정을 자산 407개와 경로 1,134개에 연결했다. ` +
+    `사장님은 위 사업 결정을 내렸고, Codex 작업자가 그 결정을 자산 ${assetCount}개와 경로 ${sourcePathCount}개에 연결했다. ` +
     `해시·근거 ID는 작업자가 관리하며 사장님에게 기술값 입력을 요구하지 않는다. 현재 전자서명은 임의 생성하지 않아 미서명으로 명시했다.\n`;
 }
