@@ -9,6 +9,7 @@ import { assertCatalogContentUsable } from '../scripts/lib/asset-content-quality
 import { decodeGifFramePixels, GIF_PIXEL_DECODER_VERSION } from '../scripts/lib/gif-frame-pixels.mjs';
 import { applyExifOrientation, decodeStaticRegionPixels, encodeRgbaPng, STATIC_PIXEL_DECODER_VERSION, STATIC_PNG_ENCODER_VERSION } from '../scripts/lib/static-image-region-pixels.mjs';
 import { stableJson } from '../scripts/lib/asset-owner-trust.mjs';
+import { contentReviewerKeyFingerprint } from '../scripts/lib/asset-content-reviewer-trust.mjs';
 
 test('static pixel decoder applies EXIF orientation before normalized cropping', () => {
   const source = { width: 2, height: 1, data: Uint8Array.from([255, 0, 0, 255, 0, 0, 255, 255]) };
@@ -79,6 +80,11 @@ test('builder rejects an entry reviewer that differs from the signed primary rev
   const fixture = await makeFixture();
   await mutateReview(fixture, (entry) => { entry.reviewEvidence.reviewer = 'invented-entry-reviewer'; });
   await assert.rejects(buildVerifiedContentAuthority(fixture.options), /does not match signed review principal/u);
+});
+
+test('builder rejects one Ed25519 key represented with different PEM line endings as two reviewers', async () => {
+  const fixture = await makeFixture({ visibleText: ['가격 600원'], claimSignals: ['price_claim'], reusePrimaryKeyForSecondReviewer: true });
+  await assert.rejects(buildVerifiedContentAuthority(fixture.options), /fingerprint cannot represent multiple reviewer principals/u);
 });
 
 test('builder rejects a second-review receipt whose bytes and declared hash were changed without its trusted signature', async () => {
@@ -334,6 +340,39 @@ test('sealed quality authority rejects review evidence changed after receipt cre
   }), /Content review shard SHA-256 mismatch/u);
 });
 
+test('sealed quality authority rejects one Ed25519 key represented as two reviewer principals', async () => {
+  const fixture = await makeFixture({ visibleText: ['600,000원'], claimSignals: ['price_claim'] });
+  const result = await buildVerifiedContentAuthority(fixture.options);
+  const receipt = JSON.parse(await readFile(result.receiptPath, 'utf8'));
+  const reviewerTrust = JSON.parse(await readFile(receipt.reviewerTrustPath, 'utf8'));
+  const reusedPublicKeyPem = reviewerTrust.keys[0].publicKeyPem.replaceAll('\n', '\r\n');
+  reviewerTrust.keys[1].publicKeyPem = reusedPublicKeyPem;
+  reviewerTrust.keys[1].fingerprint = contentReviewerKeyFingerprint(reusedPublicKeyPem);
+  const reviewerTrustBytes = bytes(reviewerTrust);
+  const reviewerTrustSha256 = digest(reviewerTrustBytes);
+  await writeFile(receipt.reviewerTrustPath, reviewerTrustBytes);
+
+  receipt.reviewerTrustSha256 = reviewerTrustSha256;
+  receipt.treeHash = digest(Buffer.from(`${[
+    `${receipt.overlaySha256}  content-overlay.json`,
+    `${receipt.baseCatalogSha256}  base-catalog.json`,
+    `${receipt.profileSha256}  intake-profile.json`,
+    `${reviewerTrustSha256}  reviewer-trust.json`,
+    ...receipt.reviewFiles.map((entry) => `${entry.sha256}  ${entry.path}`),
+    ...receipt.reviewFiles.map((entry) => `${entry.rawSha256}  ${entry.rawPath}`),
+  ].sort().join('\n')}\n`, 'utf8'));
+  const receiptBytes = bytes(receipt);
+  await writeFile(result.receiptPath, receiptBytes);
+
+  const policy = qualityPolicy(result);
+  policy.records[0].reviewerTrustSha256 = reviewerTrustSha256;
+  policy.records[0].receiptSha256 = digest(receiptBytes);
+  await assert.rejects(assertCatalogContentUsable({ intakeId: fixture.catalog.intakeId, catalogSha256: fixture.catalogSha256 }, {
+    policy,
+    trustedRoots: [fixture.root],
+  }), /fingerprint cannot represent multiple reviewer principals/u);
+});
+
 test('sealed quality authority rejects a policy bound to a different intake profile', async () => {
   const fixture = await makeFixture({ visibleText: [], claimSignals: [] });
   const result = await buildVerifiedContentAuthority(fixture.options);
@@ -535,20 +574,24 @@ test('sealed quality authority rejects policy verification before receipt sealin
 async function makeFixture({
   visibleText = [], claimSignals = [], claimEvidence, ocrText = '', sourceContext,
   inferredText = [], searchTopics = ['상품 안내'], mediaKind = 'static', generatedAt = '2026-09-07T06:00:00.000Z', staticBytes = staticPngFixture(),
+  reusePrimaryKeyForSecondReviewer = false,
 } = {}) {
   const root = await mkdtemp(join(tmpdir(), 'munjanggun-content-review-'));
   const { publicKey: primaryPublicKey, privateKey: primaryPrivateKey } = generateKeyPairSync('ed25519');
-  const { publicKey: secondPublicKey, privateKey: secondPrivateKey } = generateKeyPairSync('ed25519');
+  const generatedSecondPair = generateKeyPairSync('ed25519');
+  const secondPublicKey = reusePrimaryKeyForSecondReviewer ? primaryPublicKey : generatedSecondPair.publicKey;
+  const secondPrivateKey = reusePrimaryKeyForSecondReviewer ? primaryPrivateKey : generatedSecondPair.privateKey;
   const primaryPublicKeyPem = primaryPublicKey.export({ type: 'spki', format: 'pem' });
-  const secondPublicKeyPem = secondPublicKey.export({ type: 'spki', format: 'pem' });
+  const secondPublicKeyPem = secondPublicKey.export({ type: 'spki', format: 'pem' })
+    .replaceAll('\n', reusePrimaryKeyForSecondReviewer ? '\r\n' : '\n');
   const reviewerTrustPath = resolve(root, 'reviewer-trust.json');
   const reviewerTrustBytes = bytes({
     schema: 'munjanggun.assetContentReviewerTrust.v1', version: '1.0', keys: [{
       principalId: 'fixture reviewer', keyId: 'fixture-primary-reviewer', status: 'active',
-      publicKeyPem: primaryPublicKeyPem, fingerprint: digest(Buffer.from(primaryPublicKeyPem, 'utf8')),
+      publicKeyPem: primaryPublicKeyPem, fingerprint: contentReviewerKeyFingerprint(primaryPublicKeyPem),
     }, {
       principalId: 'fixture independent reviewer', keyId: 'fixture-second-reviewer', status: 'active',
-      publicKeyPem: secondPublicKeyPem, fingerprint: digest(Buffer.from(secondPublicKeyPem, 'utf8')),
+      publicKeyPem: secondPublicKeyPem, fingerprint: contentReviewerKeyFingerprint(secondPublicKeyPem),
     }],
   });
   await writeFile(reviewerTrustPath, reviewerTrustBytes);

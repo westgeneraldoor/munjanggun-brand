@@ -1,5 +1,12 @@
 # CHANGELOG - 문장군 중앙 브랜드 문서
 
+## v5.10 - 2026-09-07
+
+- 검토자 공개키 fingerprint를 PEM 문자열 SHA가 아니라 파싱된 Ed25519 canonical SPKI DER SHA-256으로 계산해 LF·CRLF·공백 등 표기만 다른 동일 키의 다중 principal 등록을 거부
+- 동일 개인키로 이름만 다른 1·2차 검토자를 구성한 봉인 공격을 회귀 테스트로 고정하고, 서로 다른 정상 Ed25519 키는 기존대로 허용
+- `BLOG_ASSET_PICKER.md`에서 폐기된 “335개 정지 이미지·72개 GIF 재검증 완료” 표현을 제거하고 현재 운영 검색·handoff 중지 및 명령의 재개 후 참고 용도를 명시
+- 사장님의 기존 내부 보존·비공개 Codex·블로그/SNS 재사용 승인은 유지하며, 공개 Git과 내용 authority 승격 차단은 변경하지 않음
+
 ## v5.9 - 2026-09-07
 
 - 정지 이미지 `visibleText`에 원본 normalized region에서 결정론적으로 재계산한 crop PNG·byte SHA·pixel SHA·크기·decoder version 결속 추가

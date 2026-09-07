@@ -4,9 +4,13 @@
 
 2026-09-07 사장 지시로 `INTAKE-20260904-01` 신규 10개 묶음은 문장군 내부 자체제작이며 블로그·SNS 재사용 권리가 확인됐다. 검색 기준은 `config/asset-library-index.json`이 연결하는 비공개 누적 묶음이다. 공개 Git 저장은 보류하고, 가격·행사 등 변동 문구와 개인정보는 발행 전에 작업자가 별도로 확인한다.
 
-이 intake의 정지 이미지 335개와 GIF 72개는 2026-09-07 원본별 내용 재검증을 마쳤다. `assets:library`, `assets:library:index`, `assets:search`, `assets:pick-for-blog`는 base catalog의 기존 설명을 직접 쓰지 않고 봉인된 content overlay를 적용한다. 재검증 전에 만든 네 handoff는 `REVOCATION.json`으로 계속 철회 상태이며 다시 사용하지 않는다.
+## 현재 운영 중지 안내
 
-## 1. 공용 자료실에서 검색·미리보기
+2026-09-07 `verified-v4`는 내용 오류 때문에 철회됐다. 정지 이미지 335개는 비공개 의미 판독 후보까지만 준비됐고, GIF 72개는 시간축 표본 판독만 있어 전체 재생 검토가 끝나지 않았다. 현재 대체 content authority는 없으며 `assets:library`, `assets:library:index`, `assets:search`, `assets:pick-for-blog`의 운영 검색과 handoff는 `blocked_pending_visual_revalidation`로 중지돼 있다.
+
+아래 명령은 새 authority가 검증·승격된 뒤 사용할 절차를 보존한 참고 문서다. 지금 실행하면 차단되는 것이 정상이며, 결과가 없다고 사장님의 기존 사용권 승인이 취소된 것은 아니다. 재검증 전에 만든 네 handoff는 `REVOCATION.json`으로 계속 철회 상태이며 다시 사용하지 않는다.
+
+## 1. 재개 후 공용 자료실 검색·미리보기
 
 버전 폴더와 Z 경로를 직접 찾지 않는다.
 
@@ -14,7 +18,7 @@
 npm run assets:library:index -- --index "C:\Users\hjh\안티그래비티\문장군_브랜드\config\asset-library-index.json" --query "3연동중문 베이지 현관"
 ```
 
-결과에는 실제 object 경로와 미리보기 주소, 내부 사용 가능 여부, 외부 발행 차단 이유가 함께 나온다. 선택한 후보는 등록된 블로그 비공개 영역에 바이너리 없이 전달한다.
+운영이 재개되면 결과에는 실제 object 경로와 미리보기 주소, 내부 사용 가능 여부, 외부 발행 차단 이유가 함께 나온다. 선택한 후보는 등록된 블로그 비공개 영역에 바이너리 없이 전달한다.
 
 ```text
 npm run assets:library:index -- --index "C:\Users\hjh\안티그래비티\문장군_브랜드\config\asset-library-index.json" --query "3연동ㄱ자 제품 연출 썸네일" --select-sha256 <SHA-256> --consumer munjanggun-blog --output-name <작업명>
@@ -24,7 +28,7 @@ npm run assets:library:index -- --index "C:\Users\hjh\안티그래비티\문장�
 
 소비 프로젝트와 비공개 대상 루트는 중앙의 `config/asset-library-consumers.json`에서만 승인한다. 현재 등록·검증 대상은 블로그와 CRM이다. `--consumer` 대신 경로를 직접 적어도 동일한 Git 제외·비추적 검사를 통과해야 하며, 저장소에 추적되는 위치에는 handoff를 만들 수 없다.
 
-## 2. 기존 상세 검색
+## 2. 재개 후 기존 상세 검색
 
 한 문장으로 넓게 찾을 때는 기존 검색을 사용한다.
 

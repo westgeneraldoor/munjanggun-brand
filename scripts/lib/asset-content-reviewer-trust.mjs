@@ -16,7 +16,7 @@ export function parseContentReviewerTrust(bytesOrValue) {
     if (!principalId || !item?.keyId || keyIds.has(item.keyId) || !item.publicKeyPem || !['active', 'revoked'].includes(item.status)) {
       throw new Error('Content reviewer trust key is invalid or duplicated');
     }
-    const fingerprint = createHash('sha256').update(item.publicKeyPem, 'utf8').digest('hex');
+    const fingerprint = contentReviewerKeyFingerprint(item.publicKeyPem);
     if (fingerprint !== item.fingerprint) throw new Error(`Content reviewer trust key fingerprint mismatch: ${item.keyId}`);
     const priorPrincipal = fingerprints.get(fingerprint);
     if (priorPrincipal && priorPrincipal !== principalId) throw new Error('Content reviewer trust key fingerprint cannot represent multiple reviewer principals');
@@ -43,4 +43,18 @@ export function verifyTrustedContentReviewerSignature(document, expectedPrincipa
 
 export function normalizeReviewerPrincipal(value) {
   return String(value ?? '').trim().normalize('NFKC').toLocaleLowerCase('en-US');
+}
+
+export function contentReviewerKeyFingerprint(publicKeyPem) {
+  let publicKey;
+  try {
+    publicKey = createPublicKey(publicKeyPem);
+  } catch {
+    throw new Error('Content reviewer public key is invalid');
+  }
+  if (publicKey.asymmetricKeyType !== 'ed25519') {
+    throw new Error('Content reviewer public key must be Ed25519');
+  }
+  const canonicalSpki = publicKey.export({ type: 'spki', format: 'der' });
+  return createHash('sha256').update(canonicalSpki).digest('hex');
 }
