@@ -242,13 +242,24 @@ export async function writeAssetLibraryHandoff(library, results, selectedContent
   verifyContentQuality = assertCatalogContentUsable,
 } = {}) {
   const contentAuthority = await verifyContentQuality({ intakeId: library.catalog.intakeId, catalogSha256: library.pointer?.current?.catalogSha256 });
+  const effectiveCatalog = contentAuthority?.overlay ? applyContentAuthority(library.catalog, contentAuthority) : library.catalog;
+  const effectiveByContentId = new Map(effectiveCatalog.entries.map((entry) => [entry.contentId, entry]));
   const selectedIds = [...new Set(selectedContentIds ?? [])];
   if (selectedIds.length === 0) throw new Error('Select at least one contentId');
-  const selected = selectedIds.map((contentId) => {
+  const selected = await Promise.all(selectedIds.map(async (contentId, selectionIndex) => {
     const matches = results.filter((entry) => entry.contentId === contentId);
     if (matches.length !== 1) throw new Error(`Selected contentId is not uniquely present in current results: ${contentId}`);
-    return matches[0];
-  });
+    const result = matches[0];
+    const effective = effectiveByContentId.get(contentId);
+    if (!effective || result.sha256 !== effective.sha256) {
+      throw new Error(`Selected result does not match the verified content authority: ${contentId}`);
+    }
+    if (contentAuthority?.overlay && result.contentDecisionHash !== effective.contentDecisionHash) {
+      throw new Error(`Selected result is stale or differs from the verified content authority: ${contentId}`);
+    }
+    const objectPath = await resolveAssetObject(library.objectRoot, effective);
+    return summarizeResult(library, effective, objectPath, 0, {}, selectionIndex + 1);
+  }));
   const consumers = library.consumers ?? [];
   const consumer = consumerId ? consumers.find((entry) => entry.consumerId === consumerId) : null;
   if (consumerId && !consumer) throw new Error(`Unknown registered consumer: ${consumerId}`);
@@ -303,6 +314,7 @@ export async function writeAssetLibraryHandoff(library, results, selectedContent
       ...(contentAuthority?.record ? {
         contentOverlaySha256: contentAuthority.record.overlaySha256,
         contentRevalidationReceiptSha256: contentAuthority.record.receiptSha256,
+        contentProfileSha256: contentAuthority.record.profileSha256,
       } : {}),
     },
     catalog: { path: library.catalogPath, sha256: library.pointer.current.catalogSha256 },
@@ -349,6 +361,7 @@ function summarizeResult(library, entry, objectPath, score, matchedDimensions, r
     useCases: entry.useCases ?? [],
     searchTags: entry.searchTags ?? { productTypes: [], scenes: [], colors: [], designs: [], topics: [] },
     ocrText: entry.ocrText,
+    contentDecisionHash: entry.contentDecisionHash,
     matchedDimensions,
     sourceRefs: entry.sourceRefs,
     objectPath,

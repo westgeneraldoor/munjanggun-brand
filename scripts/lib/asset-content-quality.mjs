@@ -63,6 +63,7 @@ export function applyContentAuthority(catalog, authority) {
           'sha256_exact', overlay.annotationMethod,
         ])],
         reviewEvidenceRefs: overlay.reviewEvidenceRefs,
+        contentDecisionHash: overlay.decisionHash,
         reviewNotes: `시각 내용 재검증 완료; decisionHash=${overlay.decisionHash}`,
         ...(overlay.gifMetadata ? { gifMetadata: {
           frameCount: overlay.gifMetadata.frameCount,
@@ -75,6 +76,7 @@ export function applyContentAuthority(catalog, authority) {
     contentAuthority: {
       overlaySha256: authority.record.overlaySha256,
       receiptSha256: authority.record.receiptSha256,
+      profileSha256: authority.record.profileSha256,
       verifiedAt: authority.record.verifiedAt,
     },
   };
@@ -123,6 +125,7 @@ function validatePolicy(policy) {
     if (record.status === 'visually_verified' && (
       !isAbsolute(record.overlayPath ?? '') || !/^[a-f0-9]{64}$/u.test(record.overlaySha256 ?? '')
       || !isAbsolute(record.receiptPath ?? '') || !/^[a-f0-9]{64}$/u.test(record.receiptSha256 ?? '')
+      || !/^[a-f0-9]{64}$/u.test(record.profileSha256 ?? '')
       || Number.isNaN(new Date(record.verifiedAt).valueOf())
     )) throw new Error('Visually verified content quality record is missing sealed authority fields');
     keys.add(key);
@@ -146,15 +149,25 @@ async function loadAndVerifyAuthority(record, { intakeId, catalogSha256, trusted
   const receipt = JSON.parse(receiptBytes.toString('utf8'));
   assertSchema(overlay, overlaySchema, 'Content overlay');
   assertSchema(receipt, receiptSchema, 'Content revalidation receipt');
+  const profilePath = await assertTrustedFile(receipt.profilePath, trustedRoots, 'Content intake profile snapshot');
+  const profileBytes = await readFile(profilePath);
+  assertDigest(profileBytes, receipt.profileSha256, 'Content intake profile snapshot');
   if (overlay.intakeId !== intakeId || receipt.intakeId !== intakeId
     || overlay.baseCatalogSha256 !== catalogSha256 || receipt.baseCatalogSha256 !== catalogSha256
+    || receipt.profileSha256 !== record.profileSha256
     || receipt.overlaySha256 !== record.overlaySha256
     || overlay.entryCount !== receipt.entryCount || receipt.verifiedCount !== receipt.entryCount
-    || receipt.needsEscalationCount !== 0 || receipt.gifCount !== receipt.fullLoopGifCount) {
+    || receipt.needsEscalationCount !== 0 || receipt.gifCount !== receipt.fullLoopGifCount
+    || receipt.claimSignalAssetCount !== overlay.entries.filter((entry) => entry.claimSignals.length > 0).length
+    || receipt.priceClaimAssetCount !== overlay.entries.filter((entry) => entry.claimSignals.some((value) => /(?:price|pricing|discount|가격|금액|할인)/iu.test(value))).length
+    || receipt.privacySignalAssetCount !== overlay.entries.filter((entry) => entry.privacySignals.length > 0).length) {
     throw new Error('Content revalidation authority binding is invalid');
   }
   const overlayBySha = new Map(overlay.entries.map((entry) => [entry.sha256, entry]));
-  const treeLines = [`${record.overlaySha256}  content-overlay.json`];
+  const treeLines = [
+    `${record.overlaySha256}  content-overlay.json`,
+    `${receipt.profileSha256}  intake-profile.json`,
+  ];
   let reviewEntryCount = 0;
   const reviewedShas = new Set();
   const reviewPaths = new Set();

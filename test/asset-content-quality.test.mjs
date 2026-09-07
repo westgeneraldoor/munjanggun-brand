@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { resolve } from 'node:path';
 import { assertCatalogContentUsable } from '../scripts/lib/asset-content-quality.mjs';
 
 const CATALOG_SHA = 'a'.repeat(64);
@@ -39,8 +40,9 @@ function policy(records) {
       intakeId: 'INTAKE-TEST', catalogSha256: CATALOG_SHA,
       reason: 'fixture visual review status', ...record,
       ...(record.status === 'visually_verified' ? {
-        overlayPath: 'C:\\private\\content-overlay.json', overlaySha256: 'c'.repeat(64),
-        receiptPath: 'C:\\private\\receipt.json', receiptSha256: 'd'.repeat(64),
+        overlayPath: resolve('fixture-private', 'content-overlay.json'), overlaySha256: 'c'.repeat(64),
+        receiptPath: resolve('fixture-private', 'receipt.json'), receiptSha256: 'd'.repeat(64),
+        profileSha256: 'e'.repeat(64),
         verifiedAt: '2099-01-01T00:00:00.000Z',
       } : {}),
     })),

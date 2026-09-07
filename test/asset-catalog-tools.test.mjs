@@ -183,6 +183,40 @@ test('isolated trusted verifier reaches and passes both approval and use-evidenc
   assert.deepEqual(evidence.resolvedEvidence.map((item) => item.evidenceId), ['RIGHTS-EV-TEST-001']);
 });
 
+test('internal audit resolves a sealed legacy review path from the evidence receipt root', async () => {
+  const fixture = await createFixture();
+  const catalog = JSON.parse(await readFile(fixture.catalogPath, 'utf8'));
+  catalog.entries[0].reviewEvidenceRefs = [`../review-evidence/report.json#sha256=${fixture.sha256}`];
+  await writeFile(fixture.catalogPath, `${JSON.stringify(catalog, null, 2)}\n`);
+  const output = await runTrustedTestExtract(fixture, [
+    '--purpose', 'internal-audit', '--destination-class', 'private-temporary',
+    '--approved-private-root', fixture.root, '--audit-ref', 'AUDIT-TEST-LEGACY-PATH', '--requested-by', 'test-operator',
+    '--reason', '기존 상대경로 증빙 참조의 안전한 해석을 검증합니다.',
+    '--expires-at', new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), '--acknowledge-no-publication',
+    '--override-gate', 'rightsStatus=not_reviewed', '--override-gate', 'rightsScope.external_reuse=absent',
+    '--override-gate', 'rightsEvidenceRef=0', '--override-gate', 'privacyStatus=not_reviewed',
+    '--override-gate', 'claimReviewStatus=not_reviewed', '--override-gate', 'publishStatus=blocked',
+  ]);
+  assert.equal(JSON.parse(await readFile(output.receiptPath, 'utf8')).result, 'success');
+});
+
+test('internal audit resolves a Windows-backslash legacy review path from the evidence receipt root', async () => {
+  const fixture = await createFixture();
+  const catalog = JSON.parse(await readFile(fixture.catalogPath, 'utf8'));
+  catalog.entries[0].reviewEvidenceRefs = [`..\\review-evidence\\report.json#sha256=${fixture.sha256}`];
+  await writeFile(fixture.catalogPath, `${JSON.stringify(catalog, null, 2)}\n`);
+  const output = await runTrustedTestExtract(fixture, [
+    '--purpose', 'internal-audit', '--destination-class', 'private-temporary',
+    '--approved-private-root', fixture.root, '--audit-ref', 'AUDIT-TEST-LEGACY-WINDOWS-PATH', '--requested-by', 'test-operator',
+    '--reason', 'Windows 역슬래시 상대경로 증빙 참조의 안전한 해석을 검증합니다.',
+    '--expires-at', new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), '--acknowledge-no-publication',
+    '--override-gate', 'rightsStatus=not_reviewed', '--override-gate', 'rightsScope.external_reuse=absent',
+    '--override-gate', 'rightsEvidenceRef=0', '--override-gate', 'privacyStatus=not_reviewed',
+    '--override-gate', 'claimReviewStatus=not_reviewed', '--override-gate', 'publishStatus=blocked',
+  ]);
+  assert.equal(JSON.parse(await readFile(output.receiptPath, 'utf8')).result, 'success');
+});
+
 test('external extraction fails closed when content accuracy authority rejects the catalog', async () => {
   const fixture = await createFixture({ approved: true });
   const { approval, evidence } = await verifyFixtureAuthorities(fixture);
@@ -193,6 +227,23 @@ test('external extraction fails closed when content accuracy authority rejects t
     verifyApproval: async () => approval,
     verifyUseEvidence: async () => evidence,
   }), /content accuracy quarantine fixture/u);
+});
+
+test('external extraction applies overlay claim signals before evidence and release gates', async () => {
+  const fixture = await createFixture({ approved: true });
+  const { approval, evidence } = await verifyFixtureAuthorities(fixture);
+  const authority = fixtureContentAuthority(fixture);
+  authority.overlay.entries[0].claimSignals = ['price_or_commercial_terms'];
+  let observedClaims = null;
+  await assert.rejects(runTrustedTestExtract(fixture, [
+    '--purpose', 'external-publication', '--destination-class', 'local-publication-staging',
+  ], {
+    verifyContentQuality: async () => authority,
+    verifyApproval: async () => approval,
+    verifyUseEvidence: async ({ entry }) => { observedClaims = entry.claimSignals; return evidence; },
+  }), /claimSignalsConsistency=1/u);
+  assert.deepEqual(observedClaims, ['price_or_commercial_terms']);
+  await assert.rejects(readFile(fixture.outputRoot), { code: 'ENOENT' });
 });
 
 test('isolated trusted verifier rejects a missing evidence artifact', async () => {
@@ -422,7 +473,30 @@ function runTrustedTestExtract(fixture, extras, options = {}) {
     '--channel', 'blog',
     '--content-id', fixture.entry.contentId,
     ...extras,
-  ], { trustedPrivateRoots: [fixture.root], emit: () => {}, verifyContentQuality: async () => ({}), ...options });
+  ], { trustedPrivateRoots: [fixture.root], emit: () => {}, verifyContentQuality: async () => fixtureContentAuthority(fixture), ...options });
+}
+
+function fixtureContentAuthority(fixture) {
+  const overlayEntry = {
+    sha256: fixture.entry.sha256,
+    semanticSummary: fixture.entry.semanticSummary,
+    assetType: 'product_guide',
+    useCases: ['safety_guide'],
+    searchTags: { productTypes: ['상품'], scenes: [], colors: [], designs: [], topics: ['안전'] },
+    ocrText: fixture.entry.ocrText,
+    claimSignals: fixture.entry.claimSignals,
+    privacySignals: fixture.entry.privacySignals,
+    humanReviewStatus: 'verified',
+    annotationMethod: 'full_resolution_original_reviewed',
+    reviewEvidenceRefs: fixture.entry.reviewEvidenceRefs,
+    decisionHash: 'e'.repeat(64),
+    gifMetadata: null,
+  };
+  return {
+    record: { overlaySha256: 'c'.repeat(64), receiptSha256: 'd'.repeat(64), verifiedAt: '2099-01-01T00:00:00.000Z' },
+    overlay: { entryCount: 1, entries: [overlayEntry] },
+    receipt: { entryCount: 1 },
+  };
 }
 
 function hash(value) { return createHash('sha256').update(value).digest('hex'); }

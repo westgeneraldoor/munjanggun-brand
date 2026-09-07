@@ -63,7 +63,7 @@
       "additionalProperties": false,
       "required": [
         "sourceObjectSha256", "originalPath", "sourceRefs", "mediaType", "semanticSummary",
-        "assetType", "useCases", "searchTags", "visibleText", "ocrText", "claimSignals",
+        "assetType", "useCases", "searchTags", "crossProductSourceIds", "visibleText", "ocrText", "claimSignals",
         "privacySignals", "humanReviewStatus", "reviewer", "reviewedAt", "annotationMethod",
         "evidenceRefs", "reviewNotes", "decisionHash"
       ],
@@ -76,6 +76,7 @@
         "assetType": { "type": "string", "minLength": 1 },
         "useCases": { "$ref": "#/$defs/stringArray" },
         "searchTags": { "$ref": "#/$defs/searchTags" },
+        "crossProductSourceIds": { "$ref": "#/$defs/stringArray" },
         "visibleText": { "$ref": "#/$defs/stringArray" },
         "ocrText": { "type": "string" },
         "claimSignals": { "$ref": "#/$defs/stringArray" },
@@ -86,6 +87,8 @@
         "annotationMethod": { "enum": ["full_resolution_original_reviewed", "full_loop_original_reviewed"] },
         "evidenceRefs": { "$ref": "#/$defs/stringArray" },
         "reviewNotes": { "type": "string" },
+        "genericSourceProduct": { "const": true },
+        "genericSourceProductReason": { "type": "string", "minLength": 1 },
         "explicitClaimFalsePositive": { "type": "boolean" },
         "explicitClaimFalsePositiveReason": { "type": "string", "minLength": 1 },
         "gifReview": { "$ref": "#/$defs/gifReview" },

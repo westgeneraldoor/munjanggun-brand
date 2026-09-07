@@ -6,6 +6,7 @@ import { buildVerifiedContentAuthority } from './lib/asset-content-revalidation.
 export async function runBuildVerifiedContentOverlay(argv, options = {}) {
   const result = await buildVerifiedContentAuthority({
     catalogPath: required(argv, '--catalog'),
+    profilePath: required(argv, '--profile'),
     objectRoot: required(argv, '--object-root'),
     rawRoot: required(argv, '--raw-root'),
     reviewFiles: repeated(argv, '--review-file'),

@@ -1,5 +1,22 @@
 # CHANGELOG - 문장군 중앙 브랜드 문서
 
+## v5.6 - 2026-09-07
+
+- 독립 감찰에서 `verified-v1` 이후에도 남은 상품군·교차상품·검색 태그 오류를 재현해 v1~v3 authority를 모두 운영에서 철회
+- 정지 이미지 335개와 GIF 72개를 source 상품군 기준으로 다시 교차 검증해 `verified-v4`로 신규 봉인
+  - 기존 catalog 대비 설명 362개, OCR 322개, claim 160개, 개인정보 신호 23개 교정
+  - 알려진 가격·디자인 오분류 3건, 3연동/원슬라이딩 혼동 5건, 자동중문 가격표 2건 교정
+  - 제품명이 설명에 있으나 `productTypes`가 비어 있던 5건 보완
+- `crossProductSourceIds`를 실제 이미지에 보이는 다른 상품만 허용하도록 강화하고 sourceRefs 중복·근거 없는 선언 차단
+- ABS 세부상품은 완전 식별 어구가 있어야 통과하도록 변경
+  - 공용 ABS 이미지는 세부상품으로 강제 치환하지 않고 `genericSourceProduct`와 판독 사유를 봉인한 경우만 허용
+- intake profile snapshot을 private authority에 함께 봉인하고 실제 파일 SHA를 매 사용 시 재검증
+- handoff가 호출자 결과의 objectPath·sourceRefs·권리 상태를 신뢰하지 않고 검증된 overlay/object에서 결과를 재구성하도록 변경
+- 외부 추출은 overlay의 claim·privacy 상태를 먼저 적용하고, legacy evidence 상대경로도 봉인 기준 위치에서 안전하게 해석
+- 공개 Git 저장 보류와 외부 발행의 서명·claim·개인정보 차단은 유지
+
+> 정정: v5.5에 기록된 최초 봉인본은 후속 독립 감찰에서 오류가 확인되어 운영 권위가 아니다. 최종 운영 권위는 v5.6의 `verified-v4`다.
+
 ## v5.5 - 2026-09-07
 
 - `INTAKE-20260904-01` 시각 자산 407개를 원본별로 전수 재판독

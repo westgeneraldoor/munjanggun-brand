@@ -24,7 +24,23 @@
           "productId": { "type": "string", "pattern": "^PROD-[A-Z0-9-]+$" },
           "label": { "type": "string", "minLength": 1 },
           "slug": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
-          "sourceId": { "type": "string", "pattern": "^SRC-[A-Z0-9-]+$" }
+          "sourceId": { "type": "string", "pattern": "^SRC-[A-Z0-9-]+$" },
+          "exclusiveAliases": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": { "type": "string", "minLength": 1 }
+          },
+          "requiredAliases": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": { "type": "string", "minLength": 1 }
+          },
+          "genericAliases": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": { "type": "string", "minLength": 1 }
+          }
         }
       }
     }

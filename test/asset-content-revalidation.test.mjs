@@ -25,6 +25,73 @@ test('builder rejects visible price text without a price claim signal', async ()
   await assert.rejects(buildVerifiedContentAuthority(fixture.options), /requires a price claim signal/u);
 });
 
+test('builder rejects a product name that conflicts with the source product profile', async () => {
+  const fixture = await makeFixture({ visibleText: [], claimSignals: [] });
+  const profile = JSON.parse(await readFile(fixture.options.profilePath, 'utf8'));
+  profile.products.push({ folder: '다른상품', productId: 'PROD-OTHER', label: '원슬라이딩중문', slug: 'other', sourceId: 'SRC-OTHER', exclusiveAliases: ['원슬라이딩중문'], requiredAliases: ['원슬라이딩중문'] });
+  await writeFile(fixture.options.profilePath, bytes(profile));
+  const review = JSON.parse(await readFile(fixture.options.reviewFiles[0], 'utf8'));
+  review.entries[0].observedSummary = '원슬라이딩중문 제품 이미지';
+  review.entries[0].searchTags.productTypes = ['원슬라이딩중문'];
+  await writeFile(fixture.options.reviewFiles[0], bytes(review));
+  await assert.rejects(buildVerifiedContentAuthority(fixture.options), /product identity conflicts with source/u);
+});
+
+test('builder rejects a nonempty product tag that omits its single-source product identity', async () => {
+  const fixture = await makeFixture({ visibleText: [], claimSignals: [] });
+  const review = JSON.parse(await readFile(fixture.options.reviewFiles[0], 'utf8'));
+  review.entries[0].observedSummary = '가격을 안내하는 상세 이미지';
+  review.entries[0].searchTags.productTypes = ['일반 중문'];
+  await writeFile(fixture.options.reviewFiles[0], bytes(review));
+  await assert.rejects(buildVerifiedContentAuthority(fixture.options), /omits its single-source product identity/u);
+});
+
+test('builder rejects a source product named in the summary but omitted from productTypes', async () => {
+  const fixture = await makeFixture({ visibleText: [], claimSignals: [] });
+  const review = JSON.parse(await readFile(fixture.options.reviewFiles[0], 'utf8'));
+  review.entries[0].searchTags.productTypes = [];
+  await writeFile(fixture.options.reviewFiles[0], bytes(review));
+  await assert.rejects(buildVerifiedContentAuthority(fixture.options), /names a source product but omits its productTypes tag/u);
+});
+
+test('builder does not accept a generic shared token as a detailed product identity', async () => {
+  const fixture = await makeFixture({ visibleText: [], claimSignals: [] });
+  const profile = JSON.parse(await readFile(fixture.options.profilePath, 'utf8'));
+  profile.products[0].label = 'ABS도어 방문교체';
+  profile.products[0].requiredAliases = ['ABS도어 방문교체', '방문교체'];
+  await writeFile(fixture.options.profilePath, bytes(profile));
+  const review = JSON.parse(await readFile(fixture.options.reviewFiles[0], 'utf8'));
+  review.entries[0].observedSummary = 'ABS도어 제품 이미지';
+  review.entries[0].searchTags.productTypes = ['ABS도어'];
+  await writeFile(fixture.options.reviewFiles[0], bytes(review));
+  await assert.rejects(buildVerifiedContentAuthority(fixture.options), /omits its single-source product identity/u);
+});
+
+test('builder accepts a generic family tag only with profile support and an explicit visual reason', async () => {
+  const fixture = await makeFixture({ visibleText: [], claimSignals: [] });
+  const profile = JSON.parse(await readFile(fixture.options.profilePath, 'utf8'));
+  profile.products[0].label = 'ABS도어 방문교체';
+  profile.products[0].requiredAliases = ['ABS도어 방문교체', '방문교체'];
+  profile.products[0].genericAliases = ['ABS도어'];
+  await writeFile(fixture.options.profilePath, bytes(profile));
+  const review = JSON.parse(await readFile(fixture.options.reviewFiles[0], 'utf8'));
+  review.entries[0].observedSummary = '세부 패키지를 특정하지 않는 ABS도어 공용 색상표';
+  review.entries[0].searchTags.productTypes = ['ABS도어'];
+  review.entries[0].genericSourceProduct = true;
+  review.entries[0].genericSourceProductReason = '원본에는 ABS도어 공용 색상만 보이고 세부 서비스명은 표시되지 않는다.';
+  await writeFile(fixture.options.reviewFiles[0], bytes(review));
+  const result = await buildVerifiedContentAuthority(fixture.options);
+  assert.equal(result.entryCount, 1);
+});
+
+test('builder rejects cross-product declarations duplicated from catalog sourceRefs', async () => {
+  const fixture = await makeFixture({ visibleText: [], claimSignals: [] });
+  const review = JSON.parse(await readFile(fixture.options.reviewFiles[0], 'utf8'));
+  review.entries[0].crossProductSourceIds = ['SRC-FIXTURE'];
+  await writeFile(fixture.options.reviewFiles[0], bytes(review));
+  await assert.rejects(buildVerifiedContentAuthority(fixture.options), /duplicates a catalog sourceRef/u);
+});
+
 test('sealed quality authority rejects review evidence changed after receipt creation', async () => {
   const fixture = await makeFixture({ visibleText: [], claimSignals: [] });
   const result = await buildVerifiedContentAuthority(fixture.options);
@@ -34,6 +101,43 @@ test('sealed quality authority rejects review evidence changed after receipt cre
     policy: qualityPolicy(result),
     trustedRoots: [fixture.root],
   }), /Content review shard SHA-256 mismatch/u);
+});
+
+test('sealed quality authority rejects a policy bound to a different intake profile', async () => {
+  const fixture = await makeFixture({ visibleText: [], claimSignals: [] });
+  const result = await buildVerifiedContentAuthority(fixture.options);
+  const policy = qualityPolicy(result);
+  policy.records[0].profileSha256 = 'f'.repeat(64);
+  await assert.rejects(assertCatalogContentUsable({ intakeId: fixture.catalog.intakeId, catalogSha256: fixture.catalogSha256 }, {
+    policy,
+    trustedRoots: [fixture.root],
+  }), /authority binding is invalid/u);
+});
+
+test('sealed quality authority rejects a changed intake profile snapshot', async () => {
+  const fixture = await makeFixture({ visibleText: [], claimSignals: [] });
+  const result = await buildVerifiedContentAuthority(fixture.options);
+  const receipt = JSON.parse(await readFile(result.receiptPath, 'utf8'));
+  await writeFile(receipt.profilePath, '{}\n', 'utf8');
+  await assert.rejects(assertCatalogContentUsable({ intakeId: fixture.catalog.intakeId, catalogSha256: fixture.catalogSha256 }, {
+    policy: qualityPolicy(result),
+    trustedRoots: [fixture.root],
+  }), /Content intake profile snapshot SHA-256 mismatch/u);
+});
+
+test('sealed quality authority recomputes claim risk counts from overlay entries', async () => {
+  const fixture = await makeFixture({ visibleText: [], claimSignals: [] });
+  const result = await buildVerifiedContentAuthority(fixture.options);
+  const receipt = JSON.parse(await readFile(result.receiptPath, 'utf8'));
+  receipt.claimSignalAssetCount = 1;
+  const receiptBytes = bytes(receipt);
+  await writeFile(result.receiptPath, receiptBytes);
+  const policy = qualityPolicy(result);
+  policy.records[0].receiptSha256 = digest(receiptBytes);
+  await assert.rejects(assertCatalogContentUsable({ intakeId: fixture.catalog.intakeId, catalogSha256: fixture.catalogSha256 }, {
+    policy,
+    trustedRoots: [fixture.root],
+  }), /authority binding is invalid/u);
 });
 
 async function makeFixture({ visibleText, claimSignals }) {
@@ -60,6 +164,11 @@ async function makeFixture({ visibleText, claimSignals }) {
   const catalogBytes = bytes(catalog);
   const catalogPath = resolve(root, 'catalog.json');
   await writeFile(catalogPath, catalogBytes);
+  const profilePath = resolve(root, 'profile.json');
+  await writeFile(profilePath, bytes({
+    schema: 'munjanggun.assetIntakeProfile.v1', version: '1.0', intakeId: catalog.intakeId,
+    products: [{ folder: '제품', productId: 'PROD-FIXTURE', label: '제품', slug: 'fixture', sourceId: 'SRC-FIXTURE', exclusiveAliases: [], requiredAliases: ['제품'] }],
+  }));
   const review = {
     schema: 'raw-fixture', version: '1', intakeId: catalog.intakeId, reviewId: 'static-fixture', reviewedAt: '2099-01-01T00:00:00.000Z', reviewer: 'fixture reviewer',
     entries: [{
@@ -75,7 +184,7 @@ async function makeFixture({ visibleText, claimSignals }) {
   await writeFile(reviewPath, bytes(review));
   return {
     root, catalog, catalogSha256: digest(catalogBytes),
-    options: { catalogPath, objectRoot, rawRoot, reviewFiles: [reviewPath], outputRoot, generatedAt: '2099-01-02T00:00:00.000Z', repoRoot: resolve(root, 'public-repo') },
+    options: { catalogPath, profilePath, objectRoot, rawRoot, reviewFiles: [reviewPath], outputRoot, generatedAt: '2099-01-02T00:00:00.000Z', repoRoot: resolve(root, 'public-repo') },
   };
 }
 
@@ -85,6 +194,7 @@ function qualityPolicy(result) {
     records: [{
       intakeId: 'INTAKE-20990101-01', catalogSha256: result.baseCatalogSha256,
       status: 'visually_verified', reason: 'fixture verified original review', verifiedAt: '2099-01-02T00:00:00.000Z',
+      profileSha256: result.profileSha256,
       overlayPath: result.overlayPath, overlaySha256: result.overlaySha256,
       receiptPath: result.receiptPath, receiptSha256: result.receiptSha256,
     }],

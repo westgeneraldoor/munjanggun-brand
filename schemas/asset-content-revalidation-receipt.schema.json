@@ -5,9 +5,9 @@
   "type": "object",
   "additionalProperties": false,
   "required": [
-    "schema", "version", "intakeId", "sealedAt", "baseCatalogSha256", "overlaySha256",
+    "schema", "version", "intakeId", "sealedAt", "baseCatalogSha256", "profilePath", "profileSha256", "overlaySha256",
     "entryCount", "verifiedCount", "needsEscalationCount", "staticCount", "gifCount",
-    "fullLoopGifCount", "reviewFiles", "treeHash"
+    "fullLoopGifCount", "claimSignalAssetCount", "priceClaimAssetCount", "privacySignalAssetCount", "reviewFiles", "treeHash"
   ],
   "properties": {
     "schema": { "const": "munjanggun.assetContentRevalidationReceipt.v1" },
@@ -15,6 +15,8 @@
     "intakeId": { "type": "string", "pattern": "^INTAKE-[0-9]{8}-[0-9]{2}$" },
     "sealedAt": { "type": "string", "format": "date-time" },
     "baseCatalogSha256": { "$ref": "#/$defs/sha256" },
+    "profilePath": { "type": "string", "minLength": 1 },
+    "profileSha256": { "$ref": "#/$defs/sha256" },
     "overlaySha256": { "$ref": "#/$defs/sha256" },
     "entryCount": { "type": "integer", "minimum": 1 },
     "verifiedCount": { "type": "integer", "minimum": 0 },
@@ -22,6 +24,9 @@
     "staticCount": { "type": "integer", "minimum": 0 },
     "gifCount": { "type": "integer", "minimum": 0 },
     "fullLoopGifCount": { "type": "integer", "minimum": 0 },
+    "claimSignalAssetCount": { "type": "integer", "minimum": 0 },
+    "priceClaimAssetCount": { "type": "integer", "minimum": 0 },
+    "privacySignalAssetCount": { "type": "integer", "minimum": 0 },
     "reviewFiles": {
       "type": "array",
       "minItems": 1,

@@ -1,8 +1,8 @@
 # 문장군 중앙 브랜드 문서
 
-> 버전: v5.5
+> 버전: v5.6
 > 최종 업데이트: 2026-09-07
-> 변경 요약: 2026-09-04 intake의 407개 자산을 원본별로 재판독하고 봉인된 content overlay를 공용 검색·추천·handoff에 연결한다.
+> 변경 요약: 오분류 봉인본 v1~v3를 폐기하고 407개 자산의 상품 정체성·가격·교차상품을 다시 검증한 v4 authority를 공용 검색·추천·handoff에 연결한다.
 
 이 저장소는 문장군의 브랜드 사실, 현장 판단, 변동 claim 근거, 공통 원료, 상품·자산 위키를 관리한다.
 
@@ -59,7 +59,7 @@ npm run report:assets
 
 대량 intake는 원본 복구본, 논리 경로, 단일 object, 발행 상태를 분리한다. 검색은 상태를 바꾸지 않는다. 외부용 추출은 봉인 검토 증거와 권리·개인정보·claim·발행 게이트를 모두 통과해야 하며, 결과 자산과 추출 영수증을 한 묶음으로 만든다.
 
-> **내용 정확성 재검증 완료:** `INTAKE-20260904-01`의 정지 이미지 335개는 전체 해상도, GIF 72개는 전체 루프로 다시 확인했다. 기존 catalog의 내용 필드는 감사 이력으로만 보존하고, 검색·추천·handoff·외부 추출은 `config/asset-content-quality.json`이 고정한 private content overlay와 receipt를 검증한 뒤 새 내용만 사용한다. 기존 catalog JSON의 `semanticSummary`를 직접 읽어 재사용하면 안 된다. 상세 기록은 `ASSET_CONTENT_REVALIDATION_2026-09-07.md`를 따른다.
+> **내용 정확성 재검증 완료:** `INTAKE-20260904-01`의 정지 이미지 335개는 전체 해상도, GIF 72개는 전체 루프로 다시 확인했다. 최초 v1과 추가 감찰 중 만든 v2·v3는 모두 폐기했고, 상품별 필수명·실제 교차상품·공용 ABS family 사유까지 검증한 `verified-v4`만 운영 권위다. 검색·추천·handoff·외부 추출은 `config/asset-content-quality.json`이 고정한 private overlay·receipt·profile snapshot을 검증한 뒤 새 내용만 사용한다. 기존 catalog JSON의 `semanticSummary`를 직접 읽어 재사용하면 안 된다. 상세 기록은 `ASSET_CONTENT_REVALIDATION_2026-09-07.md`를 따른다.
 
 다른 문장군 프로젝트는 버전 폴더를 직접 찾지 않고 아래 누적 공용 입구만 사용한다. 이 인덱스는 각 intake의 불변 pointer와 SHA를 연결하므로 새 묶음을 추가해도 이전 묶음이 검색에서 사라지지 않는다.
 

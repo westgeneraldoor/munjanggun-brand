@@ -11,6 +11,7 @@ const TAG_KEYS = ['productTypes', 'scenes', 'colors', 'designs', 'topics'];
 
 export async function buildVerifiedContentAuthority({
   catalogPath,
+  profilePath,
   objectRoot,
   rawRoot,
   reviewFiles,
@@ -18,26 +19,30 @@ export async function buildVerifiedContentAuthority({
   generatedAt = new Date().toISOString(),
   repoRoot = resolve(fileURLToPath(new URL('../..', import.meta.url))),
 } = {}) {
-  if (!catalogPath || !objectRoot || !rawRoot || !outputRoot || !Array.isArray(reviewFiles) || reviewFiles.length < 1) {
-    throw new Error('catalogPath, objectRoot, rawRoot, reviewFiles, and outputRoot are required');
+  if (!catalogPath || !profilePath || !objectRoot || !rawRoot || !outputRoot || !Array.isArray(reviewFiles) || reviewFiles.length < 1) {
+    throw new Error('catalogPath, profilePath, objectRoot, rawRoot, reviewFiles, and outputRoot are required');
   }
   const destination = resolve(outputRoot);
   if (!isAbsolute(outputRoot)) throw new Error('Output root must be absolute');
   if (isContained(resolve(repoRoot), destination)) throw new Error('Verified content authority must be stored outside the public repository');
   await assertMissing(destination, 'Output root');
 
-  const [catalogBytes, rawReviews, reviewSchema, overlaySchema, receiptSchema] = await Promise.all([
+  const [catalogBytes, profileBytes, rawReviews, reviewSchema, overlaySchema, receiptSchema] = await Promise.all([
     readFile(resolve(catalogPath)),
+    readFile(resolve(profilePath)),
     Promise.all(reviewFiles.map(async (path) => ({ path: resolve(path), bytes: await readFile(resolve(path)) }))),
     readJson(new URL('../../schemas/asset-content-review-shard.schema.json', import.meta.url)),
     readJson(new URL('../../schemas/asset-content-overlay.schema.json', import.meta.url)),
     readJson(new URL('../../schemas/asset-content-revalidation-receipt.schema.json', import.meta.url)),
   ]);
   const catalog = JSON.parse(catalogBytes.toString('utf8'));
+  const profile = JSON.parse(profileBytes.toString('utf8'));
   if (!Array.isArray(catalog.entries) || catalog.entries.length !== catalog.binaryGroupCount) {
     throw new Error('Base catalog entry count is invalid');
   }
+  const productIdentity = buildProductIdentity(profile, catalog.intakeId);
   const baseCatalogSha256 = digest(catalogBytes);
+  const profileSha256 = digest(profileBytes);
   const resolvedObjectRoot = resolve(objectRoot);
   const baselineBySha = uniqueMap(catalog.entries, (entry) => entry.sha256, 'base catalog');
   await Promise.all(catalog.entries.map(async (entry) => {
@@ -55,7 +60,7 @@ export async function buildVerifiedContentAuthority({
 
   for (const raw of rawReviews) {
     const document = JSON.parse(raw.bytes.toString('utf8'));
-    const shard = await normalizeReviewShard(document, raw.path, catalog, baselineBySha, resolve(rawRoot));
+    const shard = await normalizeReviewShard(document, raw.path, catalog, baselineBySha, resolve(rawRoot), productIdentity);
     assertSchema(shard, reviewSchema, `normalized review shard ${shard.shardId}`);
     for (const entry of shard.entries) {
       if (reviewedBySha.has(entry.sourceObjectSha256)) throw new Error(`Duplicate review SHA: ${entry.sourceObjectSha256}`);
@@ -108,6 +113,7 @@ export async function buildVerifiedContentAuthority({
     const overlayBytes = jsonBytes(overlay);
     const overlaySha256 = digest(overlayBytes);
     await writeFile(resolve(partial, 'content-overlay.json'), overlayBytes, { flag: 'wx' });
+    await writeFile(resolve(partial, 'intake-profile.json'), profileBytes, { flag: 'wx' });
 
     const receiptReviewFiles = sealedReviewFiles.map((item) => ({
       path: resolve(destination, 'reviews', item.filename),
@@ -116,6 +122,7 @@ export async function buildVerifiedContentAuthority({
     }));
     const treeHash = digest(Buffer.from([
       `${overlaySha256}  content-overlay.json`,
+      `${profileSha256}  intake-profile.json`,
       ...receiptReviewFiles.map((entry) => `${entry.sha256}  ${entry.path}`),
     ].sort().join('\n') + '\n', 'utf8'));
     const gifEntries = overlay.entries.filter((entry) => baselineBySha.get(entry.sha256).mediaType === 'image/gif');
@@ -125,6 +132,8 @@ export async function buildVerifiedContentAuthority({
       intakeId: catalog.intakeId,
       sealedAt: generatedAt,
       baseCatalogSha256,
+      profilePath: resolve(destination, 'intake-profile.json'),
+      profileSha256,
       overlaySha256,
       entryCount: overlay.entryCount,
       verifiedCount: overlay.entries.length,
@@ -132,6 +141,9 @@ export async function buildVerifiedContentAuthority({
       staticCount: overlay.entries.length - gifEntries.length,
       gifCount: gifEntries.length,
       fullLoopGifCount: gifEntries.filter((entry) => entry.gifMetadata?.movementEvidence === 'full_loop_reviewed').length,
+      claimSignalAssetCount: overlay.entries.filter((entry) => entry.claimSignals.length > 0).length,
+      priceClaimAssetCount: overlay.entries.filter((entry) => entry.claimSignals.some((value) => PRICE_SIGNAL.test(value))).length,
+      privacySignalAssetCount: overlay.entries.filter((entry) => entry.privacySignals.length > 0).length,
       reviewFiles: receiptReviewFiles,
       treeHash,
     };
@@ -145,6 +157,7 @@ export async function buildVerifiedContentAuthority({
       receiptPath: resolve(destination, 'receipt.json'),
       receiptSha256: digest(jsonBytes(receipt)),
       baseCatalogSha256,
+      profileSha256,
       entryCount: overlay.entryCount,
       staticCount: receipt.staticCount,
       gifCount: receipt.gifCount,
@@ -165,6 +178,9 @@ export function computeContentDecisionHash(entry) {
     assetType: entry.assetType,
     useCases: uniqueStrings(entry.useCases),
     searchTags: normalizeSearchTags(entry.searchTags),
+    crossProductSourceIds: uniqueStrings(entry.crossProductSourceIds),
+    genericSourceProduct: entry.genericSourceProduct === true,
+    genericSourceProductReason: entry.genericSourceProductReason ?? '',
     visibleText: uniqueStrings(entry.visibleText),
     ocrText: entry.ocrText,
     claimSignals: uniqueStrings(entry.claimSignals),
@@ -178,7 +194,7 @@ export function computeContentDecisionHash(entry) {
   return digest(Buffer.from(canonicalJson(decision), 'utf8'));
 }
 
-async function normalizeReviewShard(raw, rawPath, catalog, baselineBySha, rawRoot) {
+async function normalizeReviewShard(raw, rawPath, catalog, baselineBySha, rawRoot, productIdentity) {
   if (raw?.intakeId !== catalog.intakeId || !Array.isArray(raw?.entries)) {
     throw new Error(`Review file does not match catalog intake or has no entries: ${rawPath}`);
   }
@@ -194,6 +210,7 @@ async function normalizeReviewShard(raw, rawPath, catalog, baselineBySha, rawRoo
     }
     const baseline = baselineBySha.get(sourceObjectSha256);
     const entry = await normalizeReviewEntry(source, baseline, { reviewer, reviewedAt, mediaKind, rawRoot });
+    assertProductIdentity(entry, productIdentity);
     entry.decisionHash = computeContentDecisionHash(entry);
     entries.push(entry);
   }
@@ -207,6 +224,90 @@ async function normalizeReviewShard(raw, rawPath, catalog, baselineBySha, rawRoo
     reviewer,
     entries,
   };
+}
+
+function buildProductIdentity(profile, intakeId) {
+  if (profile?.schema !== 'munjanggun.assetIntakeProfile.v1' || profile?.intakeId !== intakeId || !Array.isArray(profile.products) || !profile.products.length) {
+    throw new Error('Asset intake profile is invalid or does not match the catalog intake');
+  }
+  const bySourceId = new Map();
+  const products = profile.products.map((product) => {
+    if (!Array.isArray(product.exclusiveAliases)) throw new Error(`Asset intake profile product is missing exclusiveAliases: ${product.folder ?? 'unknown'}`);
+    if (!Array.isArray(product.requiredAliases) || product.requiredAliases.length === 0) throw new Error(`Asset intake profile product is missing requiredAliases: ${product.folder ?? 'unknown'}`);
+    const aliases = [...new Set(product.exclusiveAliases.map(normalizeProductText).filter(Boolean))];
+    const requiredAliases = [...new Set(product.requiredAliases.map(normalizeProductText).filter(Boolean))];
+    const genericAliases = [...new Set((product.genericAliases ?? []).map(normalizeProductText).filter(Boolean))];
+    if (!product.sourceId || bySourceId.has(product.sourceId)) throw new Error('Asset intake profile has an invalid or duplicate product sourceId');
+    const normalized = { sourceId: product.sourceId, folder: product.folder, label: product.label, aliases, requiredAliases, genericAliases };
+    bySourceId.set(product.sourceId, normalized);
+    return normalized;
+  });
+  return { bySourceId, products };
+}
+
+function assertProductIdentity(entry, productIdentity) {
+  const allowed = new Set();
+  for (const ref of entry.sourceRefs) {
+    const product = productIdentity.bySourceId.get(ref.sourceId);
+    if (!product) throw new Error(`Review sourceId is absent from intake profile for ${entry.sourceObjectSha256}: ${ref.sourceId}`);
+    const firstFolder = String(ref.sourceRelativePath).replaceAll('\\', '/').split('/')[0];
+    if (firstFolder !== product.folder) {
+      throw new Error(`Review source path product mismatch for ${entry.sourceObjectSha256}: ${ref.sourceRelativePath}`);
+    }
+    allowed.add(product.sourceId);
+  }
+  const declaredCrossProducts = new Set(entry.crossProductSourceIds);
+  for (const sourceId of declaredCrossProducts) {
+    if (!productIdentity.bySourceId.has(sourceId)) throw new Error(`Review cross-product sourceId is absent from intake profile for ${entry.sourceObjectSha256}: ${sourceId}`);
+    if (allowed.has(sourceId)) throw new Error(`Review cross-product sourceId duplicates a catalog sourceRef for ${entry.sourceObjectSha256}: ${sourceId}`);
+  }
+  const meaning = normalizeProductText([entry.semanticSummary, ...entry.searchTags.productTypes].join(' '));
+  if (entry.searchTags.productTypes.length === 0) {
+    const namedSourceProducts = [...allowed]
+      .map((sourceId) => productIdentity.bySourceId.get(sourceId))
+      .filter((product) => product.requiredAliases.some((alias) => meaning.includes(alias)));
+    if (namedSourceProducts.length > 0) {
+      throw new Error(`Review names a source product but omits its productTypes tag for ${entry.sourceObjectSha256}: ${namedSourceProducts.map((product) => product.label).join(', ')}`);
+    }
+  }
+  for (const sourceId of declaredCrossProducts) {
+    const product = productIdentity.bySourceId.get(sourceId);
+    if (![...product.aliases, ...product.requiredAliases].some((alias) => meaning.includes(alias))) {
+      throw new Error(`Review cross-product sourceId has no matching visible meaning for ${entry.sourceObjectSha256}: ${sourceId}`);
+    }
+  }
+  if (allowed.size === 1 && entry.searchTags.productTypes.length > 0) {
+    const sourceProduct = productIdentity.bySourceId.get([...allowed][0]);
+    const sourceMatch = sourceProduct.requiredAliases.some((alias) => meaning.includes(alias));
+    const genericMatch = entry.genericSourceProduct === true
+      && sourceProduct.genericAliases.some((alias) => meaning.includes(alias));
+    const declaredMatch = [...declaredCrossProducts].some((sourceId) => {
+      const product = productIdentity.bySourceId.get(sourceId);
+      return [...product.aliases, ...product.requiredAliases].some((alias) => meaning.includes(alias));
+    });
+    if (!sourceMatch && !genericMatch && !declaredMatch) {
+      throw new Error(`Review omits its single-source product identity for ${entry.sourceObjectSha256}: ${sourceProduct.label}`);
+    }
+  }
+  if (entry.genericSourceProduct === true) {
+    if (!entry.genericSourceProductReason) throw new Error(`Generic source product requires a reason for ${entry.sourceObjectSha256}`);
+    const sourceProducts = [...allowed].map((sourceId) => productIdentity.bySourceId.get(sourceId));
+    if (!sourceProducts.length || sourceProducts.some((product) => !product.genericAliases.some((alias) => meaning.includes(alias)))) {
+      throw new Error(`Generic source product is not allowed by every source profile for ${entry.sourceObjectSha256}`);
+    }
+  }
+  const conflicts = [];
+  for (const product of productIdentity.products) {
+    if (allowed.has(product.sourceId) || declaredCrossProducts.has(product.sourceId)) continue;
+    if (product.aliases.some((alias) => meaning.includes(alias))) conflicts.push(product.label);
+  }
+  if (conflicts.length) {
+    throw new Error(`Review product identity conflicts with source for ${entry.sourceObjectSha256}: ${conflicts.join(', ')}`);
+  }
+}
+
+function normalizeProductText(value) {
+  return String(value ?? '').toLowerCase().replace(/[\s/_-]+/gu, '');
 }
 
 async function normalizeReviewEntry(source, baseline, context) {
@@ -264,6 +365,7 @@ async function normalizeReviewEntry(source, baseline, context) {
     assetType,
     useCases: uniqueStrings(source.useCases?.length ? source.useCases : [...searchTags.topics, assetType]),
     searchTags,
+    crossProductSourceIds: uniqueStrings(source.crossProductSourceIds),
     visibleText,
     ocrText,
     claimSignals,
@@ -275,6 +377,10 @@ async function normalizeReviewEntry(source, baseline, context) {
     evidenceRefs,
     reviewNotes,
   };
+  if (source.genericSourceProduct === true) {
+    entry.genericSourceProduct = true;
+    entry.genericSourceProductReason = String(source.genericSourceProductReason ?? '').trim();
+  }
   if (source.explicitClaimFalsePositive === true) {
     entry.explicitClaimFalsePositive = true;
     entry.explicitClaimFalsePositiveReason = String(source.explicitClaimFalsePositiveReason).trim();
@@ -350,6 +456,21 @@ function assertKnownRegressionCases(reviewedBySha) {
     if (/개폐 기능|천천히 닫|통행 공간/u.test(entry.semanticSummary)) throw new Error(`Known motion misclassification remains for ${sha256}`);
     if (requiresPrice && !entry.claimSignals.some((value) => PRICE_SIGNAL.test(value))) {
       throw new Error(`Known price claim regression remains for ${sha256}`);
+    }
+  }
+  const wrongOneSlidingCases = [
+    'fef70b4e71f3819b3c368e3be0f1cdced1accd831d0ec5493c091232137fd00b',
+    '9c3de5edbf7e833b5bfd4ec1fd1f53234c74820fbd184b119ed9b4fe66349baf',
+    'aca4011963a40e1ece03d7a5f8e2513df0290116e258f9795a355d1e35146400',
+    'cd16b5b5f5453fccff183ebb1e8599fe8caac471911cb51ffa4e7f160e3e9eec',
+    'eeee6f488819eea8bc914538f9001c302f8e93b960fead9c0aba4f0c7b8bf853',
+  ];
+  for (const sha256 of wrongOneSlidingCases) {
+    if (!reviewedBySha.has(sha256)) continue;
+    const entry = reviewedBySha.get(sha256)?.entry;
+    if (/원\s*슬라이딩/u.test(entry.semanticSummary)
+      || !entry.searchTags.productTypes.some((value) => normalizeProductText(value) === normalizeProductText('3연동중문'))) {
+      throw new Error(`Known 3-panel product identity regression remains for ${sha256}`);
     }
   }
 }

@@ -7,7 +7,7 @@ import { join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import { promisify } from 'node:util';
 import { runAssetLibrary } from '../scripts/assets-library.mjs';
-import { loadAssetLibraryIndex, searchAssetLibrary, searchAssetLibraryIndex, verifyGitCommittedConsumerPolicy } from '../scripts/lib/asset-library.mjs';
+import { loadAssetLibrary, loadAssetLibraryIndex, searchAssetLibrary, searchAssetLibraryIndex, verifyGitCommittedConsumerPolicy, writeAssetLibraryHandoff } from '../scripts/lib/asset-library.mjs';
 
 const execFileAsync = promisify(execFile);
 
@@ -198,6 +198,71 @@ test('selection atomically writes only JSON handoff and HTML preview without cop
     assert.equal(handoff.selected[0].contentId, 'CONTENT-0');
     assert.match(await readFile(join(outputRoot, 'preview.html'), 'utf8'), /file:\/\//u);
     assert.equal(destinationChecks, 1);
+  } finally {
+    await rm(fixture.root, { recursive: true, force: true });
+  }
+});
+
+test('handoff rejects stale search results that differ from the verified content overlay', async () => {
+  const fixture = await makeFixture(1);
+  try {
+    const entry = JSON.parse(fixture.catalogText).entries[0];
+    const overlayEntry = {
+      sha256: entry.sha256,
+      semanticSummary: '시각 재검증으로 교정된 설명',
+      assetType: 'product_guide',
+      useCases: ['상품 안내'],
+      searchTags: { productTypes: ['3연동 중문'], scenes: ['현관 설치'], colors: ['베이지'], designs: ['모던'], topics: ['좁은 공간'] },
+      ocrText: '', claimSignals: [], privacySignals: [], humanReviewStatus: 'verified',
+      annotationMethod: 'full_resolution_original_reviewed', reviewEvidenceRefs: [], decisionHash: 'f'.repeat(64), gifMetadata: null,
+    };
+    await assert.rejects(run(fixture, [
+      '--query', '현관', '--select-content-id', entry.contentId, '--consumer', 'fixture-consumer', '--output-name', 'stale-selection',
+    ], {
+      verifyContentQuality: async () => ({
+        record: { overlaySha256: 'a'.repeat(64), receiptSha256: 'b'.repeat(64), profileSha256: 'c'.repeat(64) },
+        overlay: { entryCount: 1, entries: [overlayEntry] }, receipt: {},
+      }),
+    }), /stale or differs from the verified content authority/u);
+  } finally {
+    await rm(fixture.root, { recursive: true, force: true });
+  }
+});
+
+test('handoff rebuilds selected metadata and object path from verified authority instead of caller fields', async () => {
+  const fixture = await makeFixture(1);
+  try {
+    const library = await loadAssetLibrary(fixture.pointerPath, {
+      trustedPrivateRoots: [fixture.root], repoRoot: fixture.root, verifyCommittedAnchor: async () => {},
+      consumerPolicy: [{ consumerId: 'fixture-consumer', channel: 'blog', privateRoot: fixture.root, requireGitIgnored: true }],
+    });
+    const entry = library.catalog.entries[0];
+    const overlayEntry = {
+      sha256: entry.sha256, semanticSummary: '검증된 교정 설명', assetType: 'product_guide', useCases: ['상품 안내'],
+      searchTags: { productTypes: ['3연동 중문'], scenes: [], colors: [], designs: [], topics: ['상품 안내'] },
+      ocrText: '', claimSignals: [], privacySignals: [], humanReviewStatus: 'verified',
+      annotationMethod: 'full_resolution_original_reviewed', reviewEvidenceRefs: [], decisionHash: 'f'.repeat(64), gifMetadata: null,
+    };
+    const authority = {
+      record: { overlaySha256: 'a'.repeat(64), receiptSha256: 'b'.repeat(64), profileSha256: 'c'.repeat(64) },
+      overlay: { entryCount: 1, entries: [overlayEntry] }, receipt: {},
+    };
+    const malicious = [{
+      contentId: entry.contentId, sha256: entry.sha256, contentDecisionHash: overlayEntry.decisionHash,
+      semanticSummary: overlayEntry.semanticSummary, objectPath: 'C:/Windows/System32/notepad.exe',
+      sourceRefs: [{ sourceId: 'EVIL', sourceRelativePath: 'EVIL' }],
+      usageStatus: { externalPublication: { status: 'eligible' }, publicGit: { status: 'eligible' } },
+    }];
+    const output = await writeAssetLibraryHandoff(library, malicious, [entry.contentId], {
+      consumerId: 'fixture-consumer', outputName: 'rebuilt-selection', repoRoot: fixture.repoRoot,
+      trustedPrivateRoots: [fixture.root], verifyConsumerDestination: async () => {}, verifyContentQuality: async () => authority,
+    });
+    const handoff = JSON.parse(await readFile(output.handoffPath, 'utf8'));
+    assert.equal(handoff.selected[0].semanticSummary, overlayEntry.semanticSummary);
+    assert.equal(handoff.selected[0].objectPath.startsWith(resolve(fixture.objectRoot)), true);
+    assert.deepEqual(handoff.selected[0].sourceRefs, entry.sourceRefs);
+    assert.equal(handoff.selected[0].usageStatus.externalPublication.status, 'blocked');
+    assert.equal(handoff.selected[0].usageStatus.publicGit.status, 'blocked');
   } finally {
     await rm(fixture.root, { recursive: true, force: true });
   }
