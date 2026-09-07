@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { searchCatalogEntries } from './assets-search-catalog.mjs';
+import { assertCatalogContentUsable, sha256 } from './lib/asset-content-quality.mjs';
 import { one, parseStrictArgs, required } from './lib/strict-cli-args.mjs';
 
 const DIMENSION_FIELDS = Object.freeze({
@@ -14,7 +15,9 @@ const DIMENSION_FIELDS = Object.freeze({
   consultationTopic: ['semanticSummary', 'ocrText', 'claimSignals', 'sourceRefs'],
 });
 
-export async function runBlogAssetPicker(argv, { emit = console.log } = {}) {
+export async function runBlogAssetPicker(argv, {
+  emit = console.log, qualityOptions = {}, verifyContentQuality = assertCatalogContentUsable,
+} = {}) {
   const args = parseStrictArgs(argv, {
     valueFlags: [
       '--catalog', '--query', '--product', '--installation-scene', '--color', '--design',
@@ -35,7 +38,9 @@ export async function runBlogAssetPicker(argv, { emit = console.log } = {}) {
   }
   const limit = Number(one(args, '--limit') ?? 20);
   if (!Number.isInteger(limit) || limit < 1 || limit > 100) throw new Error('--limit must be an integer from 1 to 100');
-  const catalog = JSON.parse(await readFile(catalogPath, 'utf8'));
+  const catalogBytes = await readFile(catalogPath);
+  const catalog = JSON.parse(catalogBytes.toString('utf8'));
+  await verifyContentQuality({ intakeId: catalog.intakeId, catalogSha256: sha256(catalogBytes) }, qualityOptions);
   const query = Object.values(criteria).join(' ');
   const searched = searchCatalogEntries(catalog, {
     query,

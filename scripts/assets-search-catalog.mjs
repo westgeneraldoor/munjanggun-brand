@@ -2,14 +2,19 @@
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { assertCatalogContentUsable, sha256 } from './lib/asset-content-quality.mjs';
 
-export async function runAssetSearchCatalog(argv, { emit = console.log } = {}) {
+export async function runAssetSearchCatalog(argv, {
+  emit = console.log, qualityOptions = {}, verifyContentQuality = assertCatalogContentUsable,
+} = {}) {
   const catalogPath = resolve(requiredArg(argv, '--catalog'));
   const query = requiredArg(argv, '--query').trim();
   const limit = Number(getArg(argv, '--limit') ?? 20);
   const mediaType = getArg(argv, '--media-type');
   const product = getArg(argv, '--product');
-  const catalog = JSON.parse(await readFile(catalogPath, 'utf8'));
+  const catalogBytes = await readFile(catalogPath);
+  const catalog = JSON.parse(catalogBytes.toString('utf8'));
+  await verifyContentQuality({ intakeId: catalog.intakeId, catalogSha256: sha256(catalogBytes) }, qualityOptions);
   const results = searchCatalogEntries(catalog, { query, limit, mediaType, product });
   const output = { query, resultCount: results.length, results };
   emit(JSON.stringify(output, null, 2));

@@ -3,3 +3,4 @@
 config/intakes/*.json text eol=lf
 config/asset-library-consumers.json text eol=lf
 config/asset-library-index.json text eol=lf
+config/asset-content-quality.json text eol=lf

@@ -8,6 +8,7 @@ import { rankCatalogEntries } from '../assets-search-catalog.mjs';
 import { resolveAssetObject } from './asset-resolver.mjs';
 import { resolveContainedPath } from './asset-paths.mjs';
 import { formatSchemaErrors, validateAgainstSchema } from './schema-validation.mjs';
+import { assertCatalogContentUsable } from './asset-content-quality.mjs';
 
 const DEFAULT_TRUSTED_PRIVATE_ROOTS = Object.freeze([
   'C:/Users/hjh/안티그래비티/문장군_브랜드_private',
@@ -153,7 +154,10 @@ export async function loadAssetLibraryIndex(indexPath, {
 export async function searchAssetLibrary(library, criteria, {
   mediaType,
   limit = 20,
+  verifyContentQuality = assertCatalogContentUsable,
+  repoRoot = resolve(fileURLToPath(new URL('../..', import.meta.url))),
 } = {}) {
+  await verifyContentQuality({ intakeId: library.catalog.intakeId, catalogSha256: library.pointer?.current?.catalogSha256 });
   const normalizedCriteria = compactCriteria(criteria);
   if (Object.keys(normalizedCriteria).length === 0) {
     throw new Error('Provide at least one criterion: query, product, scene, color, design, or topic');
@@ -234,7 +238,9 @@ export async function writeAssetLibraryHandoff(library, results, selectedContent
   trustedPrivateRoots = library.trustedPrivateRoots ?? DEFAULT_TRUSTED_PRIVATE_ROOTS,
   generatedAt = new Date().toISOString(),
   libraryIndexAuthority = null,
+  verifyContentQuality = assertCatalogContentUsable,
 } = {}) {
+  await verifyContentQuality({ intakeId: library.catalog.intakeId, catalogSha256: library.pointer?.current?.catalogSha256 });
   const selectedIds = [...new Set(selectedContentIds ?? [])];
   if (selectedIds.length === 0) throw new Error('Select at least one contentId');
   const selected = selectedIds.map((contentId) => {
