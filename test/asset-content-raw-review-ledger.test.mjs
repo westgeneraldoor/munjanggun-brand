@@ -137,7 +137,7 @@ test('pilot-complete rejects a freshly re-signed canonical value that contradict
   const signedPath = resolve(fixture.ledgerRoot, 'adjudications', 'adjudication-0.json');
   const changed = JSON.parse(await readFile(signedPath, 'utf8'));
   delete changed.signature;
-  changed.canonicalObservation.textPresence = 'uncertain';
+  changed.canonicalObservation.contentType = 'fabricated_content_type';
   const changedInput = resolve(fixture.privateRoot, 're-signed-contradiction.json');
   await writeJson(changedInput, changed);
   await rm(signedPath);
@@ -156,6 +156,148 @@ test('pilot-complete rejects a freshly re-signed canonical value that contradict
   }), /decision does not match the canonical observation/u);
 });
 
+test('pilot-complete rejects freshly re-signed canonical fields omitted from decisions', async (t) => {
+  const fixture = await makeFixture(t);
+  const signing = await createTrust(fixture);
+  await createSignedPilotEvidence(fixture, signing);
+  const signedPath = resolve(fixture.ledgerRoot, 'adjudications', 'adjudication-0.json');
+  const changed = JSON.parse(await readFile(signedPath, 'utf8'));
+  delete changed.signature;
+  changed.canonicalObservation.observedSummary = '가격 9,999,999원 및 평생 무상 A/S를 안내하는 이미지';
+  changed.canonicalObservation.signals.price = 'observed';
+  changed.canonicalObservation.signals.afterService = 'observed';
+  const changedInput = resolve(fixture.privateRoot, 're-signed-unlisted-fields.json');
+  await writeJson(changedInput, changed);
+  await rm(signedPath);
+  await signContentReviewDocument({
+    inputPath: changedInput,
+    privateKeyPath: signing.adjudicator.privateKeyPath,
+    keyId: signing.adjudicator.keyId,
+    reviewerTrustPath: signing.trustPath,
+    outputPath: signedPath,
+    repoRoot: fixture.repoRoot,
+  });
+  await assert.rejects(validateAssetContentRawReviewLedger({
+    ledgerIndexPath: fixture.ledgerPath,
+    mode: 'pilot-complete',
+    now: NOW,
+  }), /decision coverage mismatch/u);
+});
+
+test('pilot-complete rejects array drift, missing decisions, duplicate decisions and non-atomic pointers', async (t) => {
+  const cases = [
+    {
+      name: 'array insertion',
+      mutate(value) { value.canonicalObservation.practicalUses.push('외부 광고'); },
+      expected: /decision coverage mismatch/u,
+    },
+    {
+      name: 'array deletion',
+      mutate(value) { value.canonicalObservation.practicalUses.pop(); },
+      expected: /decision coverage mismatch/u,
+    },
+    {
+      name: 'array reorder',
+      mutate(value) { value.canonicalObservation.practicalUses.reverse(); },
+      expected: /decision coverage mismatch/u,
+    },
+    {
+      name: 'decision deletion',
+      mutate(value) { value.decisions = []; },
+      expected: /decision coverage mismatch/u,
+    },
+    {
+      name: 'duplicate decision',
+      mutate(value) { value.decisions.push(structuredClone(value.decisions[0])); },
+      expected: /repeats decision field/u,
+    },
+    {
+      name: 'array index pointer',
+      mutate(value) { value.decisions[0].field = '/visibleText/0'; },
+      expected: /not atomic or allowed/u,
+    },
+    {
+      name: 'false primary value',
+      mutate(value) { value.decisions[0].primaryValue = 'fabricated_primary'; },
+      expected: /does not match the paired raw observations/u,
+    },
+    {
+      name: 'false secondary value',
+      mutate(value) { value.decisions[0].secondaryValue = 'fabricated_secondary'; },
+      expected: /does not match the paired raw observations/u,
+    },
+  ];
+  for (const current of cases) {
+    await t.test(current.name, async (st) => {
+      const fixture = await makeFixture(st);
+      const signing = await createTrust(fixture);
+      await createSignedPilotEvidence(fixture, signing);
+      const signedPath = resolve(fixture.ledgerRoot, 'adjudications', 'adjudication-0.json');
+      const changed = JSON.parse(await readFile(signedPath, 'utf8'));
+      delete changed.signature;
+      current.mutate(changed);
+      const changedInput = resolve(fixture.privateRoot, `re-signed-${current.name.replaceAll(' ', '-')}.json`);
+      await writeJson(changedInput, changed);
+      await rm(signedPath);
+      await signContentReviewDocument({
+        inputPath: changedInput,
+        privateKeyPath: signing.adjudicator.privateKeyPath,
+        keyId: signing.adjudicator.keyId,
+        reviewerTrustPath: signing.trustPath,
+        outputPath: signedPath,
+        repoRoot: fixture.repoRoot,
+      });
+      await assert.rejects(validateAssetContentRawReviewLedger({
+        ledgerIndexPath: fixture.ledgerPath,
+        mode: 'pilot-complete',
+        now: NOW,
+      }), current.expected);
+    });
+  }
+});
+
+test('pilot-complete accepts a complete reconstruction with zero decisions when both observations agree', async (t) => {
+  const fixture = await makeFixture(t, { sameCanonicalObservations: true });
+  const signing = await createTrust(fixture);
+  await createSignedPilotEvidence(fixture, signing);
+  const result = await validateAssetContentRawReviewLedger({
+    ledgerIndexPath: fixture.ledgerPath,
+    mode: 'pilot-complete',
+    now: NOW,
+  });
+  assert.equal(result.pilotStatus, 'complete_non_authority');
+});
+
+test('pilot-complete accepts explicit secondary and original-observation resolutions', async (t) => {
+  for (const resolution of ['accept_secondary', 'new_original_observation']) {
+    await t.test(resolution, async (st) => {
+      const fixture = await makeFixture(st);
+      const signing = await createTrust(fixture);
+      await createSignedPilotEvidence(fixture, signing);
+      const signedPath = resolve(fixture.ledgerRoot, 'adjudications', 'adjudication-0.json');
+      const changed = JSON.parse(await readFile(signedPath, 'utf8'));
+      delete changed.signature;
+      const adjudicatedValue = resolution === 'accept_secondary' ? 'secondary_product_visual' : 'originally_adjudicated_visual';
+      changed.decisions[0].resolution = resolution;
+      changed.decisions[0].adjudicatedValue = adjudicatedValue;
+      changed.canonicalObservation.contentType = adjudicatedValue;
+      const changedInput = resolve(fixture.privateRoot, `${resolution}.json`);
+      await writeJson(changedInput, changed);
+      await rm(signedPath);
+      await signContentReviewDocument({
+        inputPath: changedInput,
+        privateKeyPath: signing.adjudicator.privateKeyPath,
+        keyId: signing.adjudicator.keyId,
+        reviewerTrustPath: signing.trustPath,
+        outputPath: signedPath,
+        repoRoot: fixture.repoRoot,
+      });
+      const result = await validateAssetContentRawReviewLedger({ ledgerIndexPath: fixture.ledgerPath, mode: 'pilot-complete', now: NOW });
+      assert.equal(result.pilotStatus, 'complete_non_authority');
+    });
+  }
+});
+
 test('pilot-complete rejects a primary reviewer reused as the adjudicator', async (t) => {
   const fixture = await makeFixture(t, { adjudicatorPrincipal: 'reviewer alpha' });
   const signing = await createTrust(fixture, { adjudicatorUsesPrimaryKey: true });
@@ -172,6 +314,7 @@ async function makeFixture(t, {
   sameReviewer = false,
   secondaryStartsEarly = false,
   adjudicatorPrincipal = 'reviewer gamma',
+  sameCanonicalObservations = false,
 } = {}) {
   const root = await mkdtemp(resolve(tmpdir(), 'munjanggun-raw-ledger-'));
   t.after(() => rm(root, { recursive: true, force: true }));
@@ -231,7 +374,10 @@ async function makeFixture(t, {
     entrySetSha256: queue.entrySetSha256,
     startedAt: secondaryStartsEarly ? '2026-09-08T01:01:00.000Z' : '2026-09-08T02:00:00.000Z',
     completedAt: '2026-09-08T02:02:00.000Z',
-    entries: [rawEntry(0, staticZero, '02:00:30', '02:01:30'), rawEntry(1, projectedSecond, '02:00:40', '02:01:40')],
+    entries: [
+      { ...rawEntry(0, staticZero, '02:00:30', '02:01:30'), contentType: sameCanonicalObservations ? 'interior_product_visual' : 'secondary_product_visual' },
+      { ...rawEntry(1, projectedSecond, '02:00:40', '02:01:40'), contentType: sameCanonicalObservations ? 'interior_product_visual' : 'secondary_product_visual' },
+    ],
   });
   const primaryBatch = await writeJson(resolve(ledgerRoot, 'PRIMARY.raw.json'), primaryValue);
   const secondaryBatch = await writeJson(resolve(ledgerRoot, 'SECONDARY.raw.json'), secondaryValue);
@@ -295,6 +441,7 @@ async function makeFixture(t, {
     secondaryBatch,
     staticPaths,
     staticFacts: [staticZero, staticOne],
+    sameCanonicalObservations,
     principals: { primary: primaryPrincipal, secondary: secondaryPrincipal, adjudicator: adjudicatorPrincipal },
   };
 }
@@ -394,9 +541,12 @@ async function createSignedPilotEvidence(fixture, signing, { adjudicationCount =
 
 function adjudicationValue(fixture, pair, source, queueIndex) {
   return {
-    schema: 'munjanggun.assetContentReviewAdjudication.v1',
-    version: '1.0',
+    schema: 'munjanggun.assetContentReviewAdjudication.v2',
+    version: '2.0',
     authorityStatus: 'non_authority',
+    baseTranscriptRole: 'fresh_primary',
+    normalizationVersion: 'raw-to-canonical-observation-v1',
+    reconstructionMethod: 'primary-projection-plus-complete-decisions-v1',
     adjudicationId: `ADJ-${queueIndex}`,
     pairIndexRef: fixture.pairFile.path,
     pairIndexSha256: fixture.pairFile.sha256,
@@ -409,27 +559,27 @@ function adjudicationValue(fixture, pair, source, queueIndex) {
     secondaryTranscriptSha256: fixture.secondaryBatch.sha256,
     amendsTranscriptSha256: [fixture.primaryBatch.sha256, fixture.secondaryBatch.sha256],
     result: 'resolved',
-    decisions: [{
-      field: '/textPresence',
-      classification: 'status_alias_equivalent',
-      resolution: 'new_original_observation',
-      primaryValue: 'none',
-      secondaryValue: 'none',
-      adjudicatedValue: 'none_observed',
-      rationale: '독립 원문 비교 결과 동일한 무문자 관찰로 판정',
+    decisions: fixture.sameCanonicalObservations ? [] : [{
+      field: '/contentType',
+      classification: 'semantic_conflict',
+      resolution: 'accept_primary',
+      primaryValue: 'interior_product_visual',
+      secondaryValue: 'secondary_product_visual',
+      adjudicatedValue: 'interior_product_visual',
+      rationale: '독립 원문 비교 뒤 1차 콘텐츠 유형을 채택',
       evidenceRefs: [{ path: source.path, sha256: source.sha256 }],
     }],
     unresolvedUncertainties: [],
     canonicalObservation: {
       observationMethod: 'view_image_original',
       openResult: 'opened_successfully',
-      rawObservationText: '원본에서 제품 이미지가 보이고 문구는 보이지 않는다.',
+      rawObservationText: '제품 이미지가 보이고 문구는 보이지 않는다.',
       observedSummary: '문구가 없는 제품 이미지',
       contentType: 'interior_product_visual',
       textPresence: 'none_observed',
       visibleText: [],
       visibleTextLocations: [],
-      practicalUses: ['비공개 비교 검토'],
+      practicalUses: ['비공개 비교 검토', '정확성 회귀 검사'],
       signals: noSignals(),
       privacySignals: [],
     },
@@ -474,7 +624,7 @@ function rawEntry(queueIndex, source, openedTime, observedTime) {
     textPresence: 'none',
     visibleText: [],
     visibleTextLocations: [],
-    practicalUses: ['비공개 비교 검토'],
+    practicalUses: ['비공개 비교 검토', '정확성 회귀 검사'],
     signals: noSignals(),
     privacySignals: [],
     uncertainties: ['제품 세부 사양은 이미지에서 확정할 수 없음'],

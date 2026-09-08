@@ -262,6 +262,12 @@ function contractForDocument(document) {
       principalField: 'adjudicatorPrincipalId',
     };
   }
+  if (document?.schema === 'munjanggun.assetContentReviewAdjudication.v2' && document.version === '2.0') {
+    return {
+      schemaPath: fileURLToPath(new URL('../../schemas/asset-content-review-adjudication.schema.json', import.meta.url)),
+      principalField: 'adjudicatorPrincipalId',
+    };
+  }
   throw new Error(`Unsupported content review document schema/version: ${String(document?.schema ?? '<missing>')}@${String(document?.version ?? '<missing>')}`);
 }
 
