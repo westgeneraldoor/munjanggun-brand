@@ -1,0 +1,176 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/westgeneraldoor/munjanggun-brand/schemas/asset-content-raw-review-batch.schema.json",
+  "title": "Munjanggun Exact Raw Visual Review Batch",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "version",
+    "transcriptId",
+    "reviewRole",
+    "reviewerPrincipalId",
+    "queueRef",
+    "queueSha256",
+    "entrySetSha256",
+    "priorSemanticResultsConsulted",
+    "startedAt",
+    "completedAt",
+    "captureStatus",
+    "entries"
+  ],
+  "properties": {
+    "schema": { "const": "munjanggun.assetContentReviewRawBatch.v1" },
+    "version": { "const": "1.0" },
+    "transcriptId": { "type": "string", "minLength": 1 },
+    "reviewRole": { "enum": ["fresh_primary", "fresh_secondary"] },
+    "reviewerPrincipalId": { "type": "string", "minLength": 1 },
+    "queueRef": { "type": "string", "minLength": 1 },
+    "queueSha256": { "$ref": "#/$defs/sha256" },
+    "entrySetSha256": { "$ref": "#/$defs/sha256" },
+    "priorSemanticResultsConsulted": { "const": false },
+    "startedAt": { "type": "string", "format": "date-time" },
+    "completedAt": { "type": "string", "format": "date-time" },
+    "captureStatus": { "const": "complete" },
+    "entries": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/entry" }
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "stringArray": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "signalState": {
+      "enum": ["observed", "none_observed", "uncertain"]
+    },
+    "signals": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["price", "event", "afterService", "spec", "review", "schedule", "people", "privacy"],
+      "properties": {
+        "price": { "$ref": "#/$defs/signalState" },
+        "event": { "$ref": "#/$defs/signalState" },
+        "afterService": { "$ref": "#/$defs/signalState" },
+        "spec": { "$ref": "#/$defs/signalState" },
+        "review": { "$ref": "#/$defs/signalState" },
+        "schedule": { "$ref": "#/$defs/signalState" },
+        "people": { "$ref": "#/$defs/signalState" },
+        "privacy": { "$ref": "#/$defs/signalState" }
+      }
+    },
+    "visibleTextLocation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["text", "region", "certainty"],
+      "properties": {
+        "text": { "type": "string", "minLength": 1 },
+        "region": { "type": "string", "minLength": 1 },
+        "certainty": { "enum": ["certain", "probable", "uncertain"] }
+      }
+    },
+    "entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "queueIndex",
+        "sha256",
+        "primaryOriginalPath",
+        "openedAt",
+        "observedAt",
+        "observationMethod",
+        "openResult",
+        "rawObservationText",
+        "observedSummary",
+        "contentType",
+        "textPresence",
+        "visibleText",
+        "visibleTextLocations",
+        "practicalUses",
+        "signals",
+        "privacySignals",
+        "uncertainties"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "textPresence": {
+                "enum": ["observed", "present", "present_dense", "present_minimal"]
+              }
+            },
+            "required": ["textPresence"]
+          },
+          "then": {
+            "properties": {
+              "visibleText": { "type": "array", "minItems": 1 },
+              "visibleTextLocations": { "type": "array", "minItems": 1 }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "textPresence": {
+                "enum": ["none", "none_observed", "absent"]
+              }
+            },
+            "required": ["textPresence"]
+          },
+          "then": {
+            "properties": {
+              "visibleText": { "type": "array", "maxItems": 0 },
+              "visibleTextLocations": { "type": "array", "maxItems": 0 }
+            }
+          }
+        }
+      ],
+      "properties": {
+        "queueIndex": { "type": "integer", "minimum": 0 },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "primaryOriginalPath": { "type": "string", "minLength": 1 },
+        "openedAt": { "type": "string", "format": "date-time" },
+        "observedAt": { "type": "string", "format": "date-time" },
+        "observationMethod": { "const": "view_image_original" },
+        "openResult": { "enum": ["success", "opened", "opened_successfully"] },
+        "rawObservationText": { "type": "string", "minLength": 1 },
+        "observedSummary": { "type": "string", "minLength": 1 },
+        "contentType": { "type": "string", "minLength": 1 },
+        "textPresence": {
+          "enum": [
+            "observed",
+            "present",
+            "present_dense",
+            "present_minimal",
+            "none",
+            "none_observed",
+            "absent",
+            "uncertain"
+          ]
+        },
+        "visibleText": { "$ref": "#/$defs/stringArray" },
+        "visibleTextLocations": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/visibleTextLocation" },
+          "uniqueItems": true
+        },
+        "practicalUses": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "signals": { "$ref": "#/$defs/signals" },
+        "privacySignals": { "$ref": "#/$defs/stringArray" },
+        "uncertainties": { "$ref": "#/$defs/stringArray" }
+      }
+    }
+  }
+}

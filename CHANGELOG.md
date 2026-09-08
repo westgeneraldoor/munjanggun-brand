@@ -1,5 +1,17 @@
 # CHANGELOG - 문장군 중앙 브랜드 문서
 
+## v5.13 - 2026-09-08
+
+- 첫 정지 이미지 12개에 대해 수정 불가 원문 1차 12건·독립 2차 12건, pair 12건, 원본 대조 교정본 12건을 비공개 Z 원장으로 연결
+- `눈을 넓히고`, 우측 상단 `문장군`, Q/A 라벨, 무문자 이미지와 사양 신호를 원본 해상도 대조로 교정하고 원문은 덮어쓰지 않음
+- raw batch, exact-byte attestation, pair index, non-authority adjudication 스키마와 서명 도구의 schema/principal/key 결속을 추가
+- 원본·원문·대기열·pair·신뢰키·서명·교정 수량·시간 순서를 재검증하는 `assets:validate-raw-review-ledger` 추가
+- 같은 1·2차 작성자를 교정자로 재사용하거나 서명 후 내용을 바꾸고 장부 수량만 다르게 적는 경우를 거절하는 회귀 검사 추가
+- 교정 결정의 JSON pointer·1차 값·2차 값·최종 값을 실제 두 원문과 canonical observation에 교차 결속해, 올바른 결정값을 둔 채 최종 문구만 바꿔 재서명하는 우회를 차단
+- `PROJECT_ADAPTERS.md`에 남아 있던 철회된 v4의 “335개 정지 이미지·72개 GIF 봉인 완료” 안내를 첫 12개 non-authority 파일럿과 전체 차단 상태로 정정
+- `ASSET_INTAKE_2026-09-04.md`의 과거 “GIF 전체 루프 검토”와 407개 내용 분석 통과 표현을 철회 이력·표본 605프레임·SHA 연결 범위로 바로잡음
+- 파일럿은 12개 비교 절차의 `complete_non_authority`일 뿐이며, 나머지 397개·GIF 2차·content authority·공용 자료실 차단 상태는 변경하지 않음
+
 ## v5.12 - 2026-09-08
 
 - GIF 전체 재생 workbench가 결정 영수증을 쓰는 동안 늦은 heartbeat가 같은 이벤트 배열에 추가되어, 저장 직전 통과한 이벤트 digest가 재읽기 시 달라질 수 있던 경합을 차단

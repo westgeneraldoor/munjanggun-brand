@@ -6,12 +6,13 @@ import { parseStrictArgs, required } from './lib/strict-cli-args.mjs';
 
 export async function runSignContentReviewDocument(argv, { emit = console.log, ...options } = {}) {
   const args = parseStrictArgs(argv, {
-    valueFlags: ['--input', '--private-key', '--key-id', '--output'],
+    valueFlags: ['--input', '--private-key', '--key-id', '--reviewer-trust', '--output'],
   });
   const result = await signContentReviewDocument({
     inputPath: resolve(required(args, '--input')),
     privateKeyPath: resolve(required(args, '--private-key')),
     keyId: required(args, '--key-id'),
+    reviewerTrustPath: resolve(required(args, '--reviewer-trust')),
     outputPath: resolve(required(args, '--output')),
     ...options,
   });

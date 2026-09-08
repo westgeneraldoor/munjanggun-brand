@@ -37,6 +37,7 @@
     "assets:set-library-current": "node scripts/update-asset-library-pointer.mjs",
     "assets:build-worker-queue": "node scripts/build-asset-worker-review-queue.mjs",
     "assets:build-visual-review-queue": "node scripts/build-asset-visual-review-queue.mjs",
+    "assets:validate-raw-review-ledger": "node scripts/validate-asset-content-raw-review-ledger.mjs",
     "assets:review-gif-playback": "node scripts/gif-playback-workbench.mjs",
     "assets:generate-static-tiles": "node scripts/generate-static-tile-evidence.mjs",
     "assets:create-reviewer-key": "node scripts/create-content-reviewer-key.mjs",

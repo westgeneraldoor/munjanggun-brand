@@ -1,8 +1,8 @@
 # 문장군 중앙 브랜드 문서
 
-> 버전: v5.11
+> 버전: v5.13
 > 최종 업데이트: 2026-09-08
-> 변경 요약: 두 intake를 합친 재검토 대기열, GIF 연속 재생 workbench, 검토자 서명 도구와 `content-evidence-v4` 검증 계약을 추가한다. 실제 내용 재검토와 공용 자료실 재개는 아직 완료하지 않았다.
+> 변경 요약: 첫 정지 이미지 12개에서 독립 원문 보존 → 두 검토 결과 비교 → 별도 교정 → 작성자·교정자 서명 → 원본 SHA 재검증 절차를 완주했다. 나머지 397개와 GIF 2차 검토, 공용 자료실 재개는 아직 완료하지 않았다.
 
 이 저장소는 문장군의 브랜드 사실, 현장 판단, 변동 claim 근거, 공통 원료, 상품·자산 위키를 관리한다.
 
@@ -62,6 +62,12 @@ npm run report:assets
 대량 intake는 원본 복구본, 논리 경로, 단일 object, 발행 상태를 분리한다. 검색은 상태를 바꾸지 않는다. 외부용 추출은 봉인 검토 증거와 권리·개인정보·claim·발행 게이트를 모두 통과해야 하며, 결과 자산과 추출 영수증을 한 묶음으로 만든다.
 
 > **내용 정확성 사용 중지:** 독립 감찰에서 `verified-v4`에도 이미지에 없는 문구, 경로 문자열에 따른 A/S·가격 오분류, GIF 표본 판독 범위 과장, 검토·봉인 시간 역전이 확인됐다. 따라서 현재 `INTAKE-20260904-01`의 내용 authority는 없으며 공용 검색·추천·handoff·외부 추출은 `config/asset-content-quality.json`에서 차단된다. 원본·object·사용권 기록은 유지하되 새 재검증 결과가 별도 봉인되기 전에는 기존 catalog나 v1~v4 overlay의 의미 필드를 사용하지 않는다. 상세 기록은 `ASSET_CONTENT_REVALIDATION_2026-09-07.md`를 따른다.
+
+첫 12개 정지 이미지의 새 검토 원문과 교정본은 비공개 Z 원장에서 `complete_non_authority`로 검증됐다. 여기서 `resolved`는 두 검토자의 관찰 차이를 원본 대조로 정리했다는 뜻이며, 가격·행사·사양 문구의 최신성이나 409개 전체 완료·자료실 승격을 뜻하지 않는다. 실제 원장은 아래 명령으로 원본·서명·작성자 독립성·12개 교정 연결을 다시 검사한다.
+
+```powershell
+npm run assets:validate-raw-review-ledger -- --ledger "Z:\문장군_브랜드_원본보관\VISUAL-REVIEW-2026-09-08\raw-review-ledger-v1\LEDGER_INDEX.json" --mode pilot-complete --reviewer-trust "Z:\문장군_브랜드_원본보관\VISUAL-REVIEW-2026-09-08\raw-review-ledger-v1\reviewer-trust.json"
+```
 
 다른 문장군 프로젝트는 버전 폴더를 직접 찾지 않고 아래 누적 공용 입구만 사용한다. 이 인덱스는 각 intake의 불변 pointer와 SHA를 연결하므로 새 묶음을 추가해도 이전 묶음이 검색에서 사라지지 않는다.
 
