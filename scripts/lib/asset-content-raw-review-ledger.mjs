@@ -13,6 +13,27 @@ import { formatSchemaErrors, validateAgainstSchema } from './schema-validation.m
 const SHA256 = /^[a-f0-9]{64}$/u;
 const MODES = new Set(['integrity', 'pilot-complete']);
 const CLOCK_SKEW_MS = 5 * 60 * 1000;
+const CANONICAL_DECISION_POINTERS = Object.freeze([
+  '/observationMethod',
+  '/openResult',
+  '/rawObservationText',
+  '/observedSummary',
+  '/contentType',
+  '/textPresence',
+  '/visibleText',
+  '/visibleTextLocations',
+  '/practicalUses',
+  '/signals/price',
+  '/signals/event',
+  '/signals/afterService',
+  '/signals/spec',
+  '/signals/review',
+  '/signals/schedule',
+  '/signals/people',
+  '/signals/privacy',
+  '/privacySignals',
+]);
+const CANONICAL_DECISION_POINTER_SET = new Set(CANONICAL_DECISION_POINTERS);
 
 const schemaPaths = {
   rawBatch: fileURLToPath(new URL('../../schemas/asset-content-raw-review-batch.schema.json', import.meta.url)),
@@ -237,6 +258,13 @@ async function validateAdjudications(context, reviewerTrust, attestations, root,
   for (const file of files) {
     assertSchema(file.value, schemas.adjudication, `Raw review adjudication ${file.path}`);
     const value = file.value;
+    if (value.schema !== 'munjanggun.assetContentReviewAdjudication.v2'
+      || value.version !== '2.0'
+      || value.baseTranscriptRole !== 'fresh_primary'
+      || value.normalizationVersion !== 'raw-to-canonical-observation-v1'
+      || value.reconstructionMethod !== 'primary-projection-plus-complete-decisions-v1') {
+      throw new Error(`Pilot-complete requires complete-reconstruction adjudication v2 at queueIndex ${value.queueIndex}`);
+    }
     if (byIndex.has(value.queueIndex)) throw new Error(`Duplicate raw review adjudication queueIndex ${value.queueIndex}`);
     const binding = context.pairsByIndex.get(value.queueIndex);
     if (!binding) throw new Error(`Raw review adjudication references an unknown pair: ${value.queueIndex}`);
@@ -266,14 +294,26 @@ async function validateAdjudications(context, reviewerTrust, attestations, root,
       `Raw review adjudication predates secondary attestation at queueIndex ${value.queueIndex}`);
     assertNotFuture(value.adjudicatedAt, now, `Raw review adjudication ${value.queueIndex}`);
     assertCanonicalTextPresence(value.canonicalObservation, value.queueIndex);
+    const primaryObservation = normalizeRawObservation(binding.primary.entry);
+    const secondaryObservation = normalizeRawObservation(binding.secondary.entry);
+    const reconstructedObservation = structuredClone(primaryObservation);
+    const requiredDecisionFields = new Set(CANONICAL_DECISION_POINTERS.filter((pointer) => (
+      !isDeepStrictEqual(readJsonPointer(primaryObservation, pointer, 'normalized primary raw observation'),
+        readJsonPointer(secondaryObservation, pointer, 'normalized secondary raw observation'))
+      || !isDeepStrictEqual(readJsonPointer(primaryObservation, pointer, 'normalized primary raw observation'),
+        readJsonPointer(value.canonicalObservation, pointer, 'canonical observation'))
+    )));
     const decisionFields = new Set();
     for (const decision of value.decisions) {
+      if (!CANONICAL_DECISION_POINTER_SET.has(decision.field)) {
+        throw new Error(`Raw review adjudication decision field is not atomic or allowed at queueIndex ${value.queueIndex}: ${decision.field}`);
+      }
       if (decisionFields.has(decision.field)) {
         throw new Error(`Raw review adjudication repeats decision field ${decision.field} at queueIndex ${value.queueIndex}`);
       }
       decisionFields.add(decision.field);
-      const primaryValue = readJsonPointer(binding.primary.entry, decision.field, 'primary raw observation');
-      const secondaryValue = readJsonPointer(binding.secondary.entry, decision.field, 'secondary raw observation');
+      const primaryValue = readJsonPointer(primaryObservation, decision.field, 'normalized primary raw observation');
+      const secondaryValue = readJsonPointer(secondaryObservation, decision.field, 'normalized secondary raw observation');
       const adjudicatedValue = readJsonPointer(value.canonicalObservation, decision.field, 'canonical observation');
       if (!isDeepStrictEqual(decision.primaryValue, primaryValue)
         || !isDeepStrictEqual(decision.secondaryValue, secondaryValue)) {
@@ -286,10 +326,23 @@ async function validateAdjudications(context, reviewerTrust, attestations, root,
         || (decision.resolution === 'accept_secondary' && !isDeepStrictEqual(adjudicatedValue, secondaryValue))) {
         throw new Error(`Raw review adjudication accepted value does not match its declared source at queueIndex ${value.queueIndex}: ${decision.field}`);
       }
+      if (decision.resolution === 'new_original_observation'
+        && (isDeepStrictEqual(adjudicatedValue, primaryValue) || isDeepStrictEqual(adjudicatedValue, secondaryValue))) {
+        throw new Error(`Raw review adjudication new observation duplicates a raw source at queueIndex ${value.queueIndex}: ${decision.field}`);
+      }
+      replaceJsonPointer(reconstructedObservation, decision.field, adjudicatedValue);
       for (const evidence of decision.evidenceRefs) {
         await verifyEvidence(evidence.path, evidence.sha256, evidenceCache,
           `Raw review adjudication evidence ${value.queueIndex}`);
       }
+    }
+    if (!sameStringSet([...decisionFields], [...requiredDecisionFields])) {
+      const missing = [...requiredDecisionFields].filter((field) => !decisionFields.has(field));
+      const extra = [...decisionFields].filter((field) => !requiredDecisionFields.has(field));
+      throw new Error(`Raw review adjudication decision coverage mismatch at queueIndex ${value.queueIndex}; missing=${missing.join(',') || '<none>'}; extra=${extra.join(',') || '<none>'}`);
+    }
+    if (!isDeepStrictEqual(reconstructedObservation, value.canonicalObservation)) {
+      throw new Error(`Raw review adjudication canonical observation is not fully reconstructed at queueIndex ${value.queueIndex}`);
     }
     const adjudicator = verifyTrustedContentReviewerSignature(
       value,
@@ -545,6 +598,54 @@ function readJsonPointer(document, pointer, label) {
     }
   }
   return current;
+}
+
+function replaceJsonPointer(document, pointer, value) {
+  const segments = pointer.slice(1).split('/').map((encoded) => encoded.replaceAll('~1', '/').replaceAll('~0', '~'));
+  const leaf = segments.pop();
+  let parent = document;
+  for (const segment of segments) {
+    if (!parent || typeof parent !== 'object' || !Object.hasOwn(parent, segment)) {
+      throw new Error(`Raw review adjudication replacement path is absent: ${pointer}`);
+    }
+    parent = parent[segment];
+  }
+  if (!parent || typeof parent !== 'object' || !Object.hasOwn(parent, leaf)) {
+    throw new Error(`Raw review adjudication replacement field is absent: ${pointer}`);
+  }
+  parent[leaf] = structuredClone(value);
+}
+
+function normalizeRawObservation(entry) {
+  const openResult = {
+    success: 'opened_successfully',
+    opened: 'opened_successfully',
+    opened_successfully: 'opened_successfully',
+  }[entry.openResult];
+  const textPresence = {
+    present: 'observed',
+    present_dense: 'observed',
+    present_minimal: 'observed',
+    observed: 'observed',
+    none: 'none_observed',
+    absent: 'none_observed',
+    none_observed: 'none_observed',
+    uncertain: 'uncertain',
+  }[entry.textPresence];
+  if (!openResult || !textPresence) throw new Error('Raw review observation uses an unsupported normalization alias');
+  return {
+    observationMethod: entry.observationMethod,
+    openResult,
+    rawObservationText: entry.rawObservationText,
+    observedSummary: entry.observedSummary,
+    contentType: entry.contentType,
+    textPresence,
+    visibleText: structuredClone(entry.visibleText),
+    visibleTextLocations: structuredClone(entry.visibleTextLocations),
+    practicalUses: structuredClone(entry.practicalUses),
+    signals: structuredClone(entry.signals),
+    privacySignals: structuredClone(entry.privacySignals),
+  };
 }
 
 function summary(context, mode, attestedBatchCount, adjudicatedPairCount) {

@@ -94,6 +94,7 @@ test('signing CLI signs only registered review documents with a trusted matching
     ['secondary-semantic-verdict', secondarySemanticVerdictDocument(), 'reviewer alpha'],
     ['raw-batch-attestation', rawBatchAttestationDocument(), 'reviewer alpha'],
     ['review-adjudication', reviewAdjudicationDocument(), 'reviewer alpha'],
+    ['review-adjudication-v2', reviewAdjudicationV2Document(), 'reviewer alpha'],
   ];
   const signatures = new Map();
   for (const [name, document, principal] of documents) {
@@ -462,6 +463,16 @@ function reviewAdjudicationDocument() {
     adjudicatorPrincipalId: 'reviewer alpha',
     adjudicatedAt: '2026-09-08T02:00:00.000Z',
   };
+}
+
+function reviewAdjudicationV2Document() {
+  const value = reviewAdjudicationDocument();
+  value.schema = 'munjanggun.assetContentReviewAdjudication.v2';
+  value.version = '2.0';
+  value.baseTranscriptRole = 'fresh_primary';
+  value.normalizationVersion = 'raw-to-canonical-observation-v1';
+  value.reconstructionMethod = 'primary-projection-plus-complete-decisions-v1';
+  return value;
 }
 
 async function readJson(path) {

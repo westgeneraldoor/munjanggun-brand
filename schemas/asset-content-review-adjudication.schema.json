@@ -50,12 +50,47 @@
           }
         }
       }
+    },
+    {
+      "if": {
+        "properties": { "schema": { "const": "munjanggun.assetContentReviewAdjudication.v1" } },
+        "required": ["schema"]
+      },
+      "then": {
+        "properties": {
+          "version": { "const": "1.0" },
+          "decisions": { "type": "array", "minItems": 1 }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "schema": { "const": "munjanggun.assetContentReviewAdjudication.v2" } },
+        "required": ["schema"]
+      },
+      "then": {
+        "required": ["baseTranscriptRole", "normalizationVersion", "reconstructionMethod"],
+        "properties": {
+          "version": { "const": "2.0" },
+          "baseTranscriptRole": { "const": "fresh_primary" },
+          "normalizationVersion": { "const": "raw-to-canonical-observation-v1" },
+          "reconstructionMethod": { "const": "primary-projection-plus-complete-decisions-v1" }
+        }
+      }
     }
   ],
   "properties": {
-    "schema": { "const": "munjanggun.assetContentReviewAdjudication.v1" },
-    "version": { "const": "1.0" },
+    "schema": {
+      "enum": [
+        "munjanggun.assetContentReviewAdjudication.v1",
+        "munjanggun.assetContentReviewAdjudication.v2"
+      ]
+    },
+    "version": { "enum": ["1.0", "2.0"] },
     "authorityStatus": { "const": "non_authority" },
+    "baseTranscriptRole": { "const": "fresh_primary" },
+    "normalizationVersion": { "const": "raw-to-canonical-observation-v1" },
+    "reconstructionMethod": { "const": "primary-projection-plus-complete-decisions-v1" },
     "adjudicationId": { "type": "string", "minLength": 1 },
     "pairIndexRef": { "type": "string", "minLength": 1 },
     "pairIndexSha256": { "$ref": "#/$defs/sha256" },
@@ -76,7 +111,7 @@
     "result": { "enum": ["resolved", "unresolved"] },
     "decisions": {
       "type": "array",
-      "minItems": 1,
+      "minItems": 0,
       "items": { "$ref": "#/$defs/decision" }
     },
     "unresolvedUncertainties": { "$ref": "#/$defs/stringArray" },

@@ -106,6 +106,23 @@ test('resolved adjudication is signed, remains non-authority and carries a canon
   const value = validAdjudication();
   assertValid(value, adjudicationSchema);
 
+  const completeReconstruction = structuredClone(value);
+  completeReconstruction.schema = 'munjanggun.assetContentReviewAdjudication.v2';
+  completeReconstruction.version = '2.0';
+  completeReconstruction.baseTranscriptRole = 'fresh_primary';
+  completeReconstruction.normalizationVersion = 'raw-to-canonical-observation-v1';
+  completeReconstruction.reconstructionMethod = 'primary-projection-plus-complete-decisions-v1';
+  completeReconstruction.decisions = [];
+  assertValid(completeReconstruction, adjudicationSchema);
+
+  const incompleteV2 = structuredClone(completeReconstruction);
+  delete incompleteV2.reconstructionMethod;
+  assertInvalid(incompleteV2, adjudicationSchema, 'required');
+
+  const injectedCanonicalField = structuredClone(completeReconstruction);
+  injectedCanonicalField.canonicalObservation.unlistedClaim = '평생 무상 A/S';
+  assertInvalid(injectedCanonicalField, adjudicationSchema, 'additionalProperties');
+
   const promoted = structuredClone(value);
   promoted.authorityStatus = 'candidate_eligible';
   assertInvalid(promoted, adjudicationSchema, 'const');
