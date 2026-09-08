@@ -11,7 +11,7 @@ import {
 import { formatSchemaErrors, validateAgainstSchema } from './schema-validation.mjs';
 
 const SHA256 = /^[a-f0-9]{64}$/u;
-const MODES = new Set(['integrity', 'pilot-complete']);
+const MODES = new Set(['integrity', 'attested-integrity', 'pilot-complete']);
 const CLOCK_SKEW_MS = 5 * 60 * 1000;
 const CANONICAL_DECISION_POINTERS = Object.freeze([
   '/observationMethod',
@@ -63,6 +63,10 @@ export async function validateAssetContentRawReviewLedger({
   const trustFile = await readJsonDocument(trustPath, 'Reviewer trust');
   const reviewerTrust = parseContentReviewerTrust(trustFile.bytes);
   const attestations = await validateAttestations(context, reviewerTrust, attestationsPath, now);
+  if (context.ledger.value.freshReview.attestedBatchCount !== attestations.size) {
+    throw new Error('Raw review attested-count binding mismatch');
+  }
+  if (mode === 'attested-integrity') return summary(context, mode, attestations.size, 0);
   const adjudications = await validateAdjudications(context, reviewerTrust, attestations, adjudicationsPath, now);
   if (context.ledger.value.freshReview.adjudicatedCount !== adjudications.size) {
     throw new Error('Raw review adjudicated-count binding mismatch');
@@ -243,7 +247,7 @@ async function validateAttestations(context, reviewerTrust, root, now) {
   }
   for (const { batch } of context.batches) {
     if (!byBatchSha.has(batch.sha256)) {
-      throw new Error(`Pilot-complete requires a verified raw review attestation for ${batch.value.transcriptId}`);
+      throw new Error(`Attested validation requires a verified raw review attestation for ${batch.value.transcriptId}`);
     }
   }
   if (byBatchSha.size !== context.batches.length) throw new Error('Raw review attestation coverage mismatch');
@@ -381,6 +385,9 @@ function assertLedgerIndex(value) {
     || !Number.isInteger(value.freshReview.primaryCapturedCount)
     || !Number.isInteger(value.freshReview.secondaryCapturedCount)
     || !Number.isInteger(value.freshReview.pairedCount)
+    || !Number.isInteger(value.freshReview.attestedBatchCount)
+    || value.freshReview.attestedBatchCount < 0
+    || value.freshReview.attestedBatchCount > value.freshReview.batches.length
     || !Number.isInteger(value.freshReview.adjudicatedCount)
     || value.freshReview.adjudicatedCount < 0
     || value.freshReview.adjudicatedCount > value.freshReview.pairedCount) {
@@ -653,7 +660,11 @@ function summary(context, mode, attestedBatchCount, adjudicatedPairCount) {
     result: 'passed',
     mode,
     integrityStatus: 'valid_non_authority',
-    pilotStatus: mode === 'pilot-complete' ? 'complete_non_authority' : 'not_requested',
+    pilotStatus: mode === 'pilot-complete'
+      ? 'complete_non_authority'
+      : mode === 'attested-integrity'
+        ? 'attested_non_authority'
+        : 'not_requested',
     authorityStatus: context.ledger.value.authorityStatus,
     libraryStatus: context.ledger.value.libraryStatus,
     staticAssetCount: context.staticEntries.length,
