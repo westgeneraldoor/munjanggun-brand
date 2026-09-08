@@ -9,13 +9,16 @@
     {
       "if": { "properties": { "mediaKind": { "const": "gif" } }, "required": ["mediaKind"] },
       "then": { "properties": { "entries": { "type": "array", "items": { "type": "object", "properties": { "gifReview": true }, "required": ["gifReview"] } } } },
-      "else": { "properties": { "entries": { "type": "array", "items": { "type": "object", "not": { "type": "object", "properties": { "gifReview": true }, "required": ["gifReview"] } } } } }
+      "else": { "properties": { "entries": { "type": "array", "items": { "type": "object", "allOf": [
+        { "not": { "type": "object", "properties": { "gifReview": true }, "required": ["gifReview"] } },
+        { "properties": { "staticTileCoverage": true }, "required": ["staticTileCoverage"] }
+      ] } } } }
     }
   ],
   "properties": {
-    "schema": { "const": "munjanggun.assetContentReviewShard.v3" },
-    "version": { "const": "3.0" },
-    "authorityContractVersion": { "const": "content-evidence-v3" },
+    "schema": { "const": "munjanggun.assetContentReviewShard.v4" },
+    "version": { "const": "4.0" },
+    "authorityContractVersion": { "const": "content-evidence-v4" },
     "intakeId": { "type": "string", "pattern": "^INTAKE-[0-9]{8}-[0-9]{2}$" },
     "shardId": { "type": "string", "minLength": 1 },
     "mediaKind": { "enum": ["static", "gif"] },
@@ -64,6 +67,28 @@
         "status": { "const": "confirmed_visible" }, "method": { "const": "independent_crop_review" },
         "reviewerPrincipalId": { "type": "string", "minLength": 1 }, "reviewedAt": { "type": "string", "format": "date-time" },
         "observationDigest": { "$ref": "#/$defs/sha256" }, "evidenceRef": { "type": "string", "minLength": 1 }, "evidenceSha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "staticTileCoverage": {
+      "type": "object", "additionalProperties": false,
+      "required": ["manifestRef", "manifestSha256", "coverageDigest"],
+      "properties": {
+        "manifestRef": { "type": "string", "minLength": 1 },
+        "manifestSha256": { "$ref": "#/$defs/sha256" },
+        "coverageDigest": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "secondarySemanticVerdict": {
+      "type": "object", "additionalProperties": false,
+      "required": ["status", "method", "reviewerPrincipalId", "reviewedAt", "primaryDecisionDigest", "evidenceRef", "evidenceSha256"],
+      "properties": {
+        "status": { "const": "confirmed_match" },
+        "method": { "const": "independent_full_content_review" },
+        "reviewerPrincipalId": { "type": "string", "minLength": 1 },
+        "reviewedAt": { "type": "string", "format": "date-time" },
+        "primaryDecisionDigest": { "$ref": "#/$defs/sha256" },
+        "evidenceRef": { "type": "string", "minLength": 1 },
+        "evidenceSha256": { "$ref": "#/$defs/sha256" }
       }
     },
     "staticCropEvidence": {
@@ -129,7 +154,7 @@
       "required": [
         "sourceObjectSha256", "originalPath", "sourceRefs", "mediaType", "semanticSummary", "assetType", "useCases", "searchTags",
         "crossProductSourceIds", "textPresence", "visibleText", "visibleTextObservations", "ocrText", "sourceContext", "inferredText", "claimSignals", "claimEvidence",
-        "privacySignals", "humanReviewStatus", "reviewer", "primaryReviewedAt", "reviewedAt", "annotationMethod", "evidenceRefs", "reviewNotes", "decisionHash"
+        "privacySignals", "uncertainties", "humanReviewStatus", "reviewer", "primaryReviewedAt", "reviewedAt", "annotationMethod", "evidenceRefs", "reviewNotes", "secondarySemanticVerdict", "decisionHash"
       ],
       "properties": {
         "sourceObjectSha256": { "$ref": "#/$defs/sha256" }, "originalPath": { "type": "string", "minLength": 1 },
@@ -140,13 +165,19 @@
         "visibleText": { "$ref": "#/$defs/stringArray" }, "visibleTextObservations": { "type": "array", "items": { "$ref": "#/$defs/visibleTextObservation" } }, "ocrText": { "type": "string" },
         "sourceContext": { "$ref": "#/$defs/stringArray" }, "inferredText": { "$ref": "#/$defs/stringArray" },
         "claimSignals": { "$ref": "#/$defs/stringArray" }, "claimEvidence": { "type": "array", "items": { "$ref": "#/$defs/claimEvidence" } },
-        "privacySignals": { "$ref": "#/$defs/stringArray" }, "humanReviewStatus": { "enum": ["verified", "needs_escalation"] },
+        "privacySignals": { "$ref": "#/$defs/stringArray" }, "uncertainties": { "$ref": "#/$defs/stringArray" }, "humanReviewStatus": { "enum": ["verified", "needs_escalation"] },
         "reviewer": { "type": "string", "minLength": 1 }, "primaryReviewedAt": { "type": "string", "format": "date-time" }, "reviewedAt": { "type": "string", "format": "date-time" },
         "annotationMethod": { "enum": ["full_resolution_original_reviewed", "full_loop_original_reviewed"] },
         "evidenceRefs": { "$ref": "#/$defs/stringArray" }, "reviewNotes": { "type": "string" },
+        "staticTileCoverage": { "$ref": "#/$defs/staticTileCoverage" },
+        "secondarySemanticVerdict": { "$ref": "#/$defs/secondarySemanticVerdict" },
         "genericSourceProduct": { "const": true }, "genericSourceProductReason": { "type": "string", "minLength": 1 },
         "gifReview": { "$ref": "#/$defs/gifReview" }, "decisionHash": { "$ref": "#/$defs/sha256" }
-      }
+      },
+      "allOf": [{
+        "if": { "properties": { "humanReviewStatus": { "const": "verified" } }, "required": ["humanReviewStatus"] },
+        "then": { "properties": { "uncertainties": { "type": "array", "maxItems": 0 } } }
+      }]
     }
   }
 }

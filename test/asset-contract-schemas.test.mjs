@@ -30,6 +30,7 @@ test('content review input keeps visible OCR context and inference separate', as
         sourceObjectSha256: hash, evidenceRef: 'Z:/raw/상품/001.jpg',
       }], privacySignals: [], uncertainties: [],
       reviewEvidence: { method: 'full_resolution_original_opened', originalPath: 'Z:/raw/상품/001.jpg', reviewer: 'reviewer', reviewedAt: '2026-09-07T01:00:00.000Z' },
+      staticTileCoverage: staticTileCoveragePointer(hash), secondarySemanticVerdict: secondarySemanticPointer(hash),
     }],
   };
   assert.equal(validateAgainstSchema(input, schema).valid, true);
@@ -70,6 +71,7 @@ test('content review input rejects non-pixel claim provenance', async () => {
       claimEvidence: [{ signal: 'price_claim', topic: 'price', provenance: 'source_context', visibleTextIndices: [0], sourceObjectSha256: hash, evidenceRef: 'Z:/raw/상품/001.gif' }],
       privacySignals: [], uncertainties: [],
       reviewEvidence: { method: 'full_loop_original_opened', originalPath: 'Z:/raw/상품/001.gif', reviewer: 'reviewer', reviewedAt: '2026-09-07T01:00:00.000Z' },
+      secondarySemanticVerdict: secondarySemanticPointer(hash),
       gifReview: {
         decodedFrameCount: 2, decodedDurationMs: 200, decodedLoopCount: 0, sampledFrameCount: 1,
         sampledFrameIndices: [0], loopBehavior: 'loop', storyboardEvidence: [],
@@ -97,7 +99,7 @@ test('content review input and sealed shard require GIF evidence for GIF media k
   const shardSchema = await readSchema('asset-content-review-shard.schema.json');
   const raw = validGifReviewInput().entries[0];
   const shard = {
-    schema: 'munjanggun.assetContentReviewShard.v3', version: '3.0', authorityContractVersion: 'content-evidence-v3',
+    schema: 'munjanggun.assetContentReviewShard.v4', version: '4.0', authorityContractVersion: 'content-evidence-v4',
     intakeId: input.intakeId, shardId: 'gif', mediaKind: 'gif', reviewedAt: input.reviewedAt, reviewer: input.reviewer,
     rawReviewSha256: 'd'.repeat(64),
     entries: [{
@@ -106,9 +108,9 @@ test('content review input and sealed shard require GIF evidence for GIF media k
       searchTags: raw.searchTags, crossProductSourceIds: [], textPresence: raw.textPresence, visibleText: raw.visibleText,
       visibleTextObservations: raw.visibleTextObservations, ocrText: raw.ocrText,
       sourceContext: raw.sourceContext, inferredText: raw.inferredText, claimSignals: raw.claimSignals,
-      claimEvidence: raw.claimEvidence, privacySignals: [], humanReviewStatus: 'verified', reviewer: input.reviewer,
+      claimEvidence: raw.claimEvidence, privacySignals: [], uncertainties: [], humanReviewStatus: 'verified', reviewer: input.reviewer,
       primaryReviewedAt: input.reviewedAt, reviewedAt: input.reviewedAt, annotationMethod: 'full_loop_original_reviewed', evidenceRefs: [raw.reviewEvidence.originalPath],
-      reviewNotes: '', decisionHash: 'c'.repeat(64),
+      reviewNotes: '', secondarySemanticVerdict: raw.secondarySemanticVerdict, decisionHash: 'c'.repeat(64),
     }],
   };
   assert.equal(validateAgainstSchema(shard, shardSchema).valid, false);
@@ -289,6 +291,7 @@ function validGifReviewInput() {
       }],
       privacySignals: [], uncertainties: [],
       reviewEvidence: { method: 'full_loop_original_opened', originalPath: 'Z:/raw/상품/001.gif', reviewer: 'reviewer', reviewedAt: '2026-09-07T01:00:00.000Z' },
+      secondarySemanticVerdict: secondarySemanticPointer(hash),
       gifReview: {
         decodedFrameCount: 2, decodedDurationMs: 200, decodedLoopCount: 0, sampledFrameCount: 1,
         sampledFrameIndices: [0], loopBehavior: 'loop', storyboardEvidence: [],
@@ -299,6 +302,18 @@ function validGifReviewInput() {
         },
       },
     }],
+  };
+}
+
+function staticTileCoveragePointer(hash) {
+  return { manifestRef: 'Z:/evidence/static-tiles.json', manifestSha256: hash, coverageDigest: hash };
+}
+
+function secondarySemanticPointer(hash) {
+  return {
+    status: 'confirmed_match', method: 'independent_full_content_review', reviewerPrincipalId: 'reviewer-2',
+    reviewedAt: '2026-09-07T01:00:00.000Z', primaryDecisionDigest: hash,
+    evidenceRef: 'Z:/evidence/secondary-semantic.json', evidenceSha256: hash,
   };
 }
 

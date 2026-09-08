@@ -10,19 +10,44 @@ export const STATIC_PNG_ENCODER_VERSION = 'pngjs@7.0.0+munjanggun-canonical-png-
 export function decodeStaticRegionPixels(bytes, region) {
   const source = decodeStaticImagePixels(bytes);
   const bounds = normalizedBounds(region, source.width, source.height);
+  return extractStaticPixelRegion(source, { left: bounds.x, top: bounds.y, width: bounds.width, height: bounds.height });
+}
+
+export function decodeStaticPixelRegion(bytes, pixelRegion) {
+  return extractStaticPixelRegion(decodeStaticImagePixels(bytes), pixelRegion);
+}
+
+export function staticImagePixelFact(bytes) {
+  const source = decodeStaticImagePixels(bytes);
+  return {
+    width: source.width,
+    height: source.height,
+    pixelSha256: staticPixelDigest(source.width, source.height, source.data),
+  };
+}
+
+export function staticPixelDigest(width, height, rgba) {
+  return createHash('sha256').update(`${width}x${height}\0`).update(rgba).digest('hex');
+}
+
+export function extractStaticPixelRegion(source, pixelRegion) {
+  const bounds = normalizePixelRegion(pixelRegion, source.width, source.height);
   const rgba = new Uint8Array(bounds.width * bounds.height * 4);
   for (let row = 0; row < bounds.height; row += 1) {
-    const sourceStart = ((bounds.y + row) * source.width + bounds.x) * 4;
+    const sourceStart = ((bounds.top + row) * source.width + bounds.left) * 4;
     const targetStart = row * bounds.width * 4;
     rgba.set(source.data.subarray(sourceStart, sourceStart + bounds.width * 4), targetStart);
   }
   return {
-    ...bounds,
+    x: bounds.left,
+    y: bounds.top,
+    width: bounds.width,
+    height: bounds.height,
     sourceWidth: source.width,
     sourceHeight: source.height,
-    pixelRegion: { left: bounds.x, top: bounds.y, width: bounds.width, height: bounds.height },
+    pixelRegion: bounds,
     data: rgba,
-    pixelSha256: pixelDigest(bounds.width, bounds.height, rgba),
+    pixelSha256: staticPixelDigest(bounds.width, bounds.height, rgba),
     decoderVersion: STATIC_PIXEL_DECODER_VERSION,
   };
 }
@@ -105,7 +130,7 @@ export function readCropPngPixels(bytes) {
   try {
     const decoded = PNG.sync.read(Buffer.from(bytes));
     const data = new Uint8Array(decoded.data);
-    return { width: decoded.width, height: decoded.height, data, pixelSha256: pixelDigest(decoded.width, decoded.height, data) };
+    return { width: decoded.width, height: decoded.height, data, pixelSha256: staticPixelDigest(decoded.width, decoded.height, data) };
   } catch (error) {
     throw new Error(`Static text crop must be a valid PNG: ${error.message}`);
   }
@@ -133,6 +158,15 @@ function normalizedBounds(region, imageWidth, imageHeight) {
   return { x: Math.min(imageWidth - 1, x), y: Math.min(imageHeight - 1, y), width, height };
 }
 
-function pixelDigest(width, height, rgba) {
-  return createHash('sha256').update(`${width}x${height}\0`).update(rgba).digest('hex');
+function normalizePixelRegion(region, imageWidth, imageHeight) {
+  const left = Number(region?.left);
+  const top = Number(region?.top);
+  const width = Number(region?.width);
+  const height = Number(region?.height);
+  if (![left, top, width, height].every(Number.isInteger)
+    || left < 0 || top < 0 || width < 1 || height < 1
+    || left + width > imageWidth || top + height > imageHeight) {
+    throw new Error('Static pixel region is outside the decoded source image');
+  }
+  return { left, top, width, height };
 }

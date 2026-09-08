@@ -86,7 +86,7 @@ GIF 13개는 원본 982프레임·40,610ms를 도구로 디코딩했으며 Pillo
 - 13개 모두 `sampled_only_needs_escalation`
 - 1~7번의 잘못 생성된 표본 PNG 픽셀 13건은 같은 디코더의 canonical RGBA PNG로 다시 만들고 최종 byte/pixel 불일치 0을 확인
 
-위 결과는 내용 검색용 비공개 후보일 뿐이다. 1차 판독 원문 서명, 민감 문구의 독립 2차 서명, GIF 전체 재생 증거를 포함한 `content-evidence-v3` authority로 봉인되지 않았으므로 공용 검색·handoff·외부 추출 차단을 유지한다.
+위 결과는 내용 검색용 비공개 후보일 뿐이다. 1차 판독 원문 서명, 모든 자산의 독립 2차 의미 판정, 정지 이미지 native-resolution 전체 타일 커버리지, 민감 문구의 독립 2차 서명, GIF 전체 재생 증거를 포함한 `content-evidence-v4` authority로 봉인되지 않았으므로 공용 검색·handoff·외부 추출 차단을 유지한다.
 
 ## 완료 기준
 

@@ -4,11 +4,21 @@ import { basename, dirname, isAbsolute, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { inspectMedia } from './media-metadata.mjs';
 import { decodeGifFramePixels, GIF_PIXEL_DECODER_VERSION, readPngPixelFact } from './gif-frame-pixels.mjs';
-import { decodeStaticRegionPixels, encodeRgbaPng, readCropPngPixels, STATIC_PIXEL_DECODER_VERSION, STATIC_PNG_ENCODER_VERSION } from './static-image-region-pixels.mjs';
+import { assertGifPlaybackWorkbenchReceipt } from './gif-playback-workbench.mjs';
+import {
+  decodeStaticImagePixels,
+  decodeStaticRegionPixels,
+  encodeRgbaPng,
+  extractStaticPixelRegion,
+  readCropPngPixels,
+  staticPixelDigest,
+  STATIC_PIXEL_DECODER_VERSION,
+  STATIC_PNG_ENCODER_VERSION,
+} from './static-image-region-pixels.mjs';
 import { normalizeReviewerPrincipal, parseContentReviewerTrust, verifyTrustedContentReviewerSignature } from './asset-content-reviewer-trust.mjs';
 import { formatSchemaErrors, validateAgainstSchema } from './schema-validation.mjs';
 
-export const CONTENT_AUTHORITY_CONTRACT_VERSION = 'content-evidence-v3';
+export const CONTENT_AUTHORITY_CONTRACT_VERSION = 'content-evidence-v4';
 
 const PRICE_TEXT = /(?:[₩￦]\s*[\d,.]+|[\d,.]+\s*(?:원|만원|천원)|가격|정상가|할인가|할인율|월\s*납입)/iu;
 const PRICE_SIGNAL = /(?:price|pricing|discount|가격|금액|할인)/iu;
@@ -79,8 +89,10 @@ export async function buildVerifiedContentAuthority({
   for (const raw of rawReviews) {
     const document = JSON.parse(raw.bytes.toString('utf8'));
     assertSchema(document, inputSchema, `raw review input ${raw.path}`);
-    verifyTrustedContentReviewerSignature(document, document.reviewer, reviewerTrust, `Primary review ${raw.path}`);
-    const shard = await normalizeReviewShard(document, raw.path, raw.bytes, catalog, baselineBySha, resolve(rawRoot), productIdentity, sealedAt, reviewerTrust);
+    const primarySigner = verifyTrustedContentReviewerSignature(document, document.reviewer, reviewerTrust, `Primary review ${raw.path}`);
+    const shard = await normalizeReviewShard(
+      document, raw.path, raw.bytes, catalog, baselineBySha, resolve(rawRoot), productIdentity, sealedAt, reviewerTrust, primarySigner,
+    );
     assertSchema(shard, reviewSchema, `normalized review shard ${shard.shardId}`);
     for (const entry of shard.entries) {
       if (reviewedBySha.has(entry.sourceObjectSha256)) throw new Error(`Duplicate review SHA: ${entry.sourceObjectSha256}`);
@@ -124,8 +136,8 @@ export async function buildVerifiedContentAuthority({
       }
     }
     const overlay = {
-      schema: 'munjanggun.assetContentOverlay.v2',
-      version: '2.0',
+      schema: 'munjanggun.assetContentOverlay.v3',
+      version: '3.0',
       authorityContractVersion: CONTENT_AUTHORITY_CONTRACT_VERSION,
       intakeId: catalog.intakeId,
       generatedAt: sealedAt,
@@ -158,8 +170,8 @@ export async function buildVerifiedContentAuthority({
     ].sort().join('\n') + '\n', 'utf8'));
     const gifEntries = overlay.entries.filter((entry) => baselineBySha.get(entry.sha256).mediaType === 'image/gif');
     const receipt = {
-      schema: 'munjanggun.assetContentRevalidationReceipt.v2',
-      version: '2.0',
+      schema: 'munjanggun.assetContentRevalidationReceipt.v3',
+      version: '3.0',
       authorityContractVersion: CONTENT_AUTHORITY_CONTRACT_VERSION,
       intakeId: catalog.intakeId,
       sealedAt,
@@ -187,6 +199,8 @@ export async function buildVerifiedContentAuthority({
       sensitiveClaimEvidenceAssetCount: overlay.entries.filter((entry) => entry.claimEvidence.some((item) => item.topic !== 'other')).length,
       priceClaimAssetCount: overlay.entries.filter((entry) => entry.claimEvidence.some((item) => item.topic === 'price')).length,
       privacySignalAssetCount: overlay.entries.filter((entry) => entry.privacySignals.length > 0).length,
+      staticTileCoverageCount: overlay.entries.filter((entry) => entry.staticTileCoverage).length,
+      secondarySemanticVerdictCount: overlay.entries.filter((entry) => entry.secondarySemanticVerdict).length,
       reviewFiles: receiptReviewFiles,
       treeHash,
     };
@@ -242,11 +256,61 @@ export function computeContentDecisionHash(entry) {
     evidenceRefs: uniqueStrings(entry.evidenceRefs),
     reviewNotes: entry.reviewNotes,
     gifReview: entry.gifReview ?? null,
+    staticTileCoverage: entry.staticTileCoverage ?? null,
+    secondarySemanticVerdict: entry.secondarySemanticVerdict,
   };
   return digest(Buffer.from(canonicalJson(decision), 'utf8'));
 }
 
-export async function normalizeReviewShard(raw, rawPath, rawBytes, catalog, baselineBySha, rawRoot, productIdentity, sealedAt, reviewerTrust) {
+export function computePrimarySemanticDecisionDigest(entry) {
+  const decision = {
+    sourceObjectSha256: String(entry.sourceObjectSha256 ?? entry.sha256 ?? '').toLowerCase(),
+    sourceRefs: normalizeSourceRefs(entry.sourceRefs),
+    observedSummary: String(entry.semanticSummary ?? entry.observedSummary ?? '').trim(),
+    contentType: String(entry.assetType ?? entry.contentType ?? '').trim(),
+    useCases: uniqueStrings(entry.useCases),
+    searchTags: normalizeSearchTags(entry.searchTags),
+    crossProductSourceIds: uniqueStrings(entry.crossProductSourceIds),
+    genericSourceProduct: entry.genericSourceProduct === true,
+    genericSourceProductReason: String(entry.genericSourceProductReason ?? '').trim(),
+    textPresence: String(entry.textPresence ?? '').trim(),
+    visibleText: orderedUniqueStrings(entry.visibleText),
+    visibleTextObservationDigests: (entry.visibleTextObservations ?? []).map(computeVisibleTextObservationDigest),
+    ocrText: String(entry.ocrText ?? '').trim(),
+    sourceContext: uniqueStrings(entry.sourceContext),
+    inferredText: uniqueStrings(entry.inferredText),
+    claimSignals: uniqueStrings(entry.claimSignals),
+    claimEvidence: normalizeClaimEvidence(entry.claimEvidence),
+    privacySignals: uniqueStrings(entry.privacySignals),
+    uncertainties: uniqueStrings(entry.uncertainties),
+    gifLoopBehavior: String(entry.gifReview?.loopBehavior ?? '').trim(),
+  };
+  return digest(Buffer.from(canonicalJson(decision), 'utf8'));
+}
+
+export function computeStaticTileCoverageDigest(manifest) {
+  const decision = {
+    sourceObjectSha256: String(manifest.sourceObjectSha256 ?? '').toLowerCase(),
+    sourceWidth: Number(manifest.sourceWidth),
+    sourceHeight: Number(manifest.sourceHeight),
+    sourcePixelSha256: String(manifest.sourcePixelSha256 ?? '').toLowerCase(),
+    decoderVersion: String(manifest.decoderVersion ?? ''),
+    encoderVersion: String(manifest.encoderVersion ?? ''),
+    coverageMode: String(manifest.coverageMode ?? ''),
+    tiles: (manifest.tiles ?? []).map((tile) => ({
+      index: Number(tile.index),
+      sha256: String(tile.sha256 ?? '').toLowerCase(),
+      pixelSha256: String(tile.pixelSha256 ?? '').toLowerCase(),
+      width: Number(tile.width),
+      height: Number(tile.height),
+      pixelRegion: tile.pixelRegion,
+      sourceObjectSha256: String(tile.sourceObjectSha256 ?? '').toLowerCase(),
+    })),
+  };
+  return digest(Buffer.from(canonicalJson(decision), 'utf8'));
+}
+
+export async function normalizeReviewShard(raw, rawPath, rawBytes, catalog, baselineBySha, rawRoot, productIdentity, sealedAt, reviewerTrust, primarySigner = null) {
   if (raw?.intakeId !== catalog.intakeId || !Array.isArray(raw?.entries)) {
     throw new Error(`Review file does not match catalog intake or has no entries: ${rawPath}`);
   }
@@ -263,7 +327,7 @@ export async function normalizeReviewShard(raw, rawPath, rawBytes, catalog, base
     }
     const baseline = baselineBySha.get(sourceObjectSha256);
     const entry = await normalizeReviewEntry(source, baseline, {
-      reviewer, reviewedAt, mediaKind, rawRoot, evidenceRoot: dirname(rawRoot), sealedAt, reviewerTrust,
+      reviewer, reviewedAt, mediaKind, rawRoot, evidenceRoot: dirname(rawRoot), sealedAt, reviewerTrust, primarySigner,
     });
     assertDateOrder(entry.reviewedAt, reviewedAt, `Review entry ${sourceObjectSha256} reviewedAt must not be after shard reviewedAt`);
     assertProductIdentity(entry, productIdentity);
@@ -271,8 +335,8 @@ export async function normalizeReviewShard(raw, rawPath, rawBytes, catalog, base
     entries.push(entry);
   }
   return {
-    schema: 'munjanggun.assetContentReviewShard.v3',
-    version: '3.0',
+    schema: 'munjanggun.assetContentReviewShard.v4',
+    version: '4.0',
     authorityContractVersion: CONTENT_AUTHORITY_CONTRACT_VERSION,
     intakeId: catalog.intakeId,
     shardId,
@@ -426,6 +490,9 @@ async function normalizeReviewEntry(source, baseline, context) {
   const semanticSummary = String(source.semanticSummary ?? source.observedSummary ?? '').trim();
   if (!semanticSummary || !assetType) throw new Error(`Review meaning is incomplete for ${baseline.sha256}`);
   const uncertainties = uniqueStrings(source.uncertainties);
+  if (humanReviewStatus === 'verified' && uncertainties.length > 0) {
+    throw new Error(`Verified review must not retain uncertainties for ${baseline.sha256}`);
+  }
   const reviewNotes = String(source.reviewNotes ?? uncertainties.join('; ')).trim();
   const evidenceRefs = [originalPath];
   const entry = {
@@ -435,7 +502,7 @@ async function normalizeReviewEntry(source, baseline, context) {
     mediaType: baseline.mediaType,
     semanticSummary,
     assetType,
-    useCases: uniqueStrings(source.useCases?.length ? source.useCases : [...searchTags.topics, assetType]),
+    useCases: uniqueStrings(source.useCases),
     searchTags,
     crossProductSourceIds: uniqueStrings(source.crossProductSourceIds),
     textPresence,
@@ -447,6 +514,7 @@ async function normalizeReviewEntry(source, baseline, context) {
     claimSignals,
     claimEvidence: normalizeClaimEvidence(source.claimEvidence),
     privacySignals: uniqueStrings(source.privacySignals),
+    uncertainties,
     humanReviewStatus,
     reviewer: String(source.reviewEvidence?.reviewer ?? context.reviewer).trim(),
     primaryReviewedAt: normalizeDate(source.reviewEvidence?.reviewedAt),
@@ -462,7 +530,9 @@ async function normalizeReviewEntry(source, baseline, context) {
     entry.genericSourceProduct = true;
     entry.genericSourceProductReason = String(source.genericSourceProductReason ?? '').trim();
   }
+  assertDateOrder(entry.primaryReviewedAt, entry.reviewedAt, `Primary review ${baseline.sha256} must not be after entry reviewedAt`);
   if (context.mediaKind === 'gif') {
+    if (source.staticTileCoverage) throw new Error(`GIF review must not contain static tile coverage for ${baseline.sha256}`);
     entry.gifReview = await normalizeGifReview(source, baseline, originalPath, context.evidenceRoot, entry.reviewer);
     entry.evidenceRefs = uniqueStrings([
       originalPath,
@@ -479,15 +549,162 @@ async function normalizeReviewEntry(source, baseline, context) {
   } else if (source.gifReview) {
     throw new Error(`Static review must not contain GIF review evidence for ${baseline.sha256}`);
   } else {
+    entry.staticTileCoverage = await normalizeStaticTileCoverage(
+      source.staticTileCoverage, baseline, originalPath, context.evidenceRoot,
+    );
     entry.evidenceRefs = uniqueStrings([
       originalPath,
+      entry.staticTileCoverage.manifestRef,
       ...entry.visibleTextObservations.map((item) => item.cropEvidence?.path).filter(Boolean),
       ...entry.visibleTextObservations.map((item) => item.secondReview?.evidenceRef).filter(Boolean),
     ]);
   }
-  assertDateOrder(entry.primaryReviewedAt, entry.reviewedAt, `Primary review ${baseline.sha256} must not be after entry reviewedAt`);
-  await assertContentEntryEvidence(entry, context.mediaKind, { evidenceRoots: [context.evidenceRoot], reviewerTrust: context.reviewerTrust });
+  const primaryDecisionDigest = computePrimarySemanticDecisionDigest(entry);
+  entry.secondarySemanticVerdict = await normalizeSecondarySemanticVerdict(
+    source.secondarySemanticVerdict, entry, primaryDecisionDigest, context,
+  );
+  entry.evidenceRefs = uniqueStrings([...entry.evidenceRefs, entry.secondarySemanticVerdict.evidenceRef]);
+  await assertContentEntryEvidence(entry, context.mediaKind, {
+    evidenceRoots: [context.evidenceRoot], reviewerTrust: context.reviewerTrust, primarySigner: context.primarySigner,
+  });
   return entry;
+}
+
+async function normalizeStaticTileCoverage(pointer, baseline, originalPath, evidenceRoot) {
+  if (!pointer) throw new Error(`Static tile coverage is missing for ${baseline.sha256}`);
+  const normalized = {
+    manifestRef: String(pointer.manifestRef ?? '').trim(),
+    manifestSha256: String(pointer.manifestSha256 ?? '').toLowerCase(),
+    coverageDigest: String(pointer.coverageDigest ?? '').toLowerCase(),
+  };
+  await verifyStaticTileCoverage(normalized, baseline.sha256, originalPath, [evidenceRoot]);
+  return normalized;
+}
+
+async function verifyStaticTileCoverage(pointer, sourceSha256, originalPath, evidenceRoots) {
+  if (!pointer) throw new Error(`Static tile coverage is missing for ${sourceSha256}`);
+  const manifestPath = await verifyEvidenceFile(
+    pointer.manifestRef, pointer.manifestSha256, evidenceRoots, `Static tile coverage manifest ${sourceSha256}`,
+  );
+  const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+  const schema = await readJson(new URL('../../schemas/static-tile-coverage-manifest.schema.json', import.meta.url));
+  assertSchema(manifest, schema, `static tile coverage manifest ${sourceSha256}`);
+  if (manifest.sourceObjectSha256 !== sourceSha256 || manifest.tileCount !== manifest.tiles.length
+    || manifest.coverageDigest !== pointer.coverageDigest
+    || computeStaticTileCoverageDigest(manifest) !== manifest.coverageDigest) {
+    throw new Error(`Static tile coverage binding mismatch for ${sourceSha256}`);
+  }
+  const sourceBytes = await readFile(originalPath);
+  if (digest(sourceBytes) !== sourceSha256) throw new Error(`Static tile coverage original SHA-256 mismatch for ${sourceSha256}`);
+  const decoded = decodeStaticImagePixels(sourceBytes);
+  const sourcePixelSha256 = staticPixelDigest(decoded.width, decoded.height, decoded.data);
+  if (manifest.sourceWidth !== decoded.width || manifest.sourceHeight !== decoded.height
+    || manifest.sourcePixelSha256 !== sourcePixelSha256
+    || manifest.decoderVersion !== STATIC_PIXEL_DECODER_VERSION
+    || manifest.encoderVersion !== STATIC_PNG_ENCODER_VERSION) {
+    throw new Error(`Static tile coverage source pixels mismatch for ${sourceSha256}`);
+  }
+
+  let coveredArea = 0;
+  const regions = [];
+  for (let index = 0; index < manifest.tiles.length; index += 1) {
+    const tile = manifest.tiles[index];
+    if (tile.index !== index || tile.sourceObjectSha256 !== sourceSha256) {
+      throw new Error(`Static tile coverage tile binding mismatch for ${sourceSha256}`);
+    }
+    const expected = extractStaticPixelRegion(decoded, tile.pixelRegion);
+    const tilePath = await verifyEvidenceFile(tile.path, tile.sha256, evidenceRoots, `Static coverage tile ${sourceSha256}#${index}`);
+    const tileBytes = await readFile(tilePath);
+    const actual = readCropPngPixels(tileBytes);
+    if (tile.width !== expected.width || tile.height !== expected.height
+      || tile.pixelSha256 !== expected.pixelSha256
+      || actual.width !== expected.width || actual.height !== expected.height
+      || actual.pixelSha256 !== expected.pixelSha256
+      || !tileBytes.equals(encodeRgbaPng(expected))) {
+      throw new Error(`Static coverage tile pixels do not match source region for ${sourceSha256}#${index}`);
+    }
+    const region = expected.pixelRegion;
+    for (const prior of regions) {
+      if (regionsOverlap(prior, region)) throw new Error(`Static tile coverage overlaps for ${sourceSha256}`);
+    }
+    regions.push(region);
+    coveredArea += region.width * region.height;
+  }
+  if (coveredArea !== decoded.width * decoded.height) {
+    throw new Error(`Static tile coverage does not cover every native-resolution pixel for ${sourceSha256}`);
+  }
+  return true;
+}
+
+function regionsOverlap(left, right) {
+  return left.left < right.left + right.width && right.left < left.left + left.width
+    && left.top < right.top + right.height && right.top < left.top + left.height;
+}
+
+async function normalizeSecondarySemanticVerdict(pointer, entry, primaryDecisionDigest, context) {
+  if (!pointer) throw new Error(`Secondary semantic verdict is missing for ${entry.sourceObjectSha256}`);
+  const normalized = {
+    status: String(pointer.status ?? '').trim(),
+    method: String(pointer.method ?? '').trim(),
+    reviewerPrincipalId: String(pointer.reviewerPrincipalId ?? '').trim(),
+    reviewedAt: normalizeDate(pointer.reviewedAt),
+    primaryDecisionDigest: String(pointer.primaryDecisionDigest ?? '').toLowerCase(),
+    evidenceRef: String(pointer.evidenceRef ?? '').trim(),
+    evidenceSha256: String(pointer.evidenceSha256 ?? '').toLowerCase(),
+  };
+  if (normalized.primaryDecisionDigest !== primaryDecisionDigest) {
+    throw new Error(`Secondary semantic verdict primary decision digest mismatch for ${entry.sourceObjectSha256}`);
+  }
+  await verifySecondarySemanticVerdict(normalized, entry, {
+    evidenceRoots: [context.evidenceRoot], reviewerTrust: context.reviewerTrust, primarySigner: context.primarySigner,
+  });
+  return normalized;
+}
+
+async function verifySecondarySemanticVerdict(pointer, entry, { evidenceRoots, reviewerTrust, primarySigner = null }) {
+  if (!pointer) throw new Error(`Secondary semantic verdict is missing for ${entry.sourceObjectSha256}`);
+  const expectedDigest = computePrimarySemanticDecisionDigest(entry);
+  if (pointer.status !== 'confirmed_match' || pointer.method !== 'independent_full_content_review'
+    || pointer.primaryDecisionDigest !== expectedDigest
+    || normalizeReviewerPrincipal(pointer.reviewerPrincipalId) === normalizeReviewerPrincipal(entry.reviewer)) {
+    throw new Error(`Secondary semantic verdict binding mismatch for ${entry.sourceObjectSha256}`);
+  }
+  assertNotFuture(pointer.reviewedAt, `Secondary semantic verdict ${entry.sourceObjectSha256}`);
+  assertDateOrder(entry.primaryReviewedAt, pointer.reviewedAt, `Secondary semantic verdict ${entry.sourceObjectSha256} must not be before primary review`);
+  assertDateOrder(pointer.reviewedAt, entry.reviewedAt, `Secondary semantic verdict ${entry.sourceObjectSha256} must not be after entry reviewedAt`);
+  const path = await verifyEvidenceFile(pointer.evidenceRef, pointer.evidenceSha256, evidenceRoots, `Secondary semantic verdict ${entry.sourceObjectSha256}`);
+  const receipt = JSON.parse(await readFile(path, 'utf8'));
+  const schema = await readJson(new URL('../../schemas/asset-content-secondary-semantic-verdict.schema.json', import.meta.url));
+  assertSchema(receipt, schema, `secondary semantic verdict receipt ${entry.sourceObjectSha256}`);
+  if (!reviewerTrust) throw new Error(`Secondary semantic verdict trust is unavailable for ${entry.sourceObjectSha256}`);
+  const secondarySigner = verifyTrustedContentReviewerSignature(receipt, pointer.reviewerPrincipalId, reviewerTrust, `Secondary semantic verdict ${entry.sourceObjectSha256}`);
+  if (primarySigner && (secondarySigner.fingerprint === primarySigner.fingerprint
+    || secondarySigner.principalId === primarySigner.principalId)) {
+    throw new Error(`Secondary semantic verdict must use a distinct reviewer principal and key for ${entry.sourceObjectSha256}`);
+  }
+  const expected = {
+    sourceObjectSha256: entry.sourceObjectSha256,
+    primaryDecisionDigest: expectedDigest,
+    observedSummary: entry.semanticSummary,
+    contentType: entry.assetType,
+    useCases: uniqueStrings(entry.useCases),
+    searchTags: normalizeSearchTags(entry.searchTags),
+    textPresence: entry.textPresence,
+    visibleText: orderedUniqueStrings(entry.visibleText),
+    privacySignals: uniqueStrings(entry.privacySignals),
+    uncertainties: uniqueStrings(entry.uncertainties),
+  };
+  for (const [key, value] of Object.entries(expected)) {
+    if (canonicalJson(receipt[key]) !== canonicalJson(value)) {
+      throw new Error(`Secondary semantic verdict receipt ${key} mismatch for ${entry.sourceObjectSha256}`);
+    }
+  }
+  if (receipt.reviewerPrincipalId !== pointer.reviewerPrincipalId
+    || normalizeDate(receipt.reviewedAt) !== pointer.reviewedAt
+    || receipt.status !== pointer.status || receipt.method !== pointer.method) {
+    throw new Error(`Secondary semantic verdict receipt pointer mismatch for ${entry.sourceObjectSha256}`);
+  }
+  return true;
 }
 
 async function normalizeGifReview(source, baseline, originalPath, evidenceRoot, reviewer) {
@@ -566,14 +783,23 @@ export async function assertGifReviewEvidence(entry, { evidenceRoots = [] } = {}
   return true;
 }
 
-export async function assertContentEntryEvidence(entry, mediaKind, { evidenceRoots = [], reviewerTrust = null } = {}) {
+export async function assertContentEntryEvidence(entry, mediaKind, { evidenceRoots = [], reviewerTrust = null, primarySigner = null } = {}) {
   if (mediaKind === 'gif' && !entry?.gifReview) {
     throw new Error(`GIF review evidence is missing for ${entry?.sourceObjectSha256 ?? 'unknown SHA'}`);
   }
   if (mediaKind !== 'gif' && entry?.gifReview) {
     throw new Error(`Static review must not contain GIF review evidence for ${entry?.sourceObjectSha256 ?? 'unknown SHA'}`);
   }
+  if (entry?.humanReviewStatus === 'verified' && uniqueStrings(entry.uncertainties).length > 0) {
+    throw new Error(`Verified review must not retain uncertainties for ${entry.sourceObjectSha256}`);
+  }
   assertKnownPerObjectRegressions(entry);
+  if (mediaKind === 'gif') {
+    if (entry?.staticTileCoverage) throw new Error(`GIF review must not contain static tile coverage for ${entry.sourceObjectSha256}`);
+  } else {
+    await verifyStaticTileCoverage(entry?.staticTileCoverage, entry.sourceObjectSha256, entry.originalPath, evidenceRoots);
+  }
+  await verifySecondarySemanticVerdict(entry?.secondarySemanticVerdict, entry, { evidenceRoots, reviewerTrust, primarySigner });
   const visibleText = Array.isArray(entry.visibleText) ? entry.visibleText : [];
   await verifyVisibleTextObservations(entry, mediaKind, evidenceRoots, reviewerTrust);
   const claimSignals = uniqueStrings(entry.claimSignals);
@@ -964,6 +1190,11 @@ async function assertPlaybackObservationReceipt(observation, sourceSha256, revie
 async function verifyPlaybackObservationReceipt(observation, sourceSha256, reviewer, evidenceRoots, decoded) {
   const path = await verifyEvidenceFile(observation.evidenceRef, observation.evidenceSha256, evidenceRoots, `GIF playback receipt ${sourceSha256}`);
   const receipt = JSON.parse(await readFile(path, 'utf8'));
+  if (observation.method === 'continuous_original_playback') {
+    assertGifPlaybackWorkbenchReceipt(receipt, {
+      sha256: sourceSha256, decodedFrameCount: decoded.frameCount, decodedDurationMs: decoded.durationMs,
+    });
+  }
   if (receipt.schema !== 'munjanggun.gifPlaybackObservation.v1' || receipt.observed !== true
     || receipt.sourceObjectSha256 !== sourceSha256
     || receipt.method !== observation.method || receipt.observedFromMs !== observation.observedFromMs
@@ -1048,6 +1279,7 @@ function toOverlayEntry(entry, reviewEvidenceRefs) {
     claimSignals: entry.claimSignals,
     claimEvidence: entry.claimEvidence,
     privacySignals: entry.privacySignals,
+    uncertainties: entry.uncertainties,
     humanReviewStatus: 'verified',
     reviewer: entry.reviewer,
     primaryReviewedAt: entry.primaryReviewedAt,
@@ -1056,6 +1288,8 @@ function toOverlayEntry(entry, reviewEvidenceRefs) {
     reviewEvidenceRefs,
     decisionHash: entry.decisionHash,
     gifMetadata: entry.gifReview ?? null,
+    ...(entry.staticTileCoverage ? { staticTileCoverage: entry.staticTileCoverage } : {}),
+    secondarySemanticVerdict: entry.secondarySemanticVerdict,
   };
 }
 

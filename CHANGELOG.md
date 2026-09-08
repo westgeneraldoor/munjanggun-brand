@@ -1,5 +1,14 @@
 # CHANGELOG - 문장군 중앙 브랜드 문서
 
+## v5.11 - 2026-09-08
+
+- 승격 전 내용 authority를 `content-evidence-v4`로 강화해 `verified` 상태의 불확실 항목을 금지
+- 모든 정지 이미지에 원본 전체 픽셀을 정확히 한 번 덮는 native-resolution 타일 manifest를 요구하고 생성·소비 단계에서 원본/타일 SHA·크기·픽셀 digest·무겹침·전체 커버리지를 재검증
+- 모든 정지 이미지와 GIF에 별도 principal·별도 키 fingerprint의 서명된 2차 의미 판정을 요구하고 1차 의미 결정 전체 및 digest에 결속
+- GIF workbench 연속 재생 영수증의 이벤트 digest·집계·시간 순서·가시성·포커스·중단 0건을 공용 authority 생성기와 소비자에서도 재검증
+- 두 intake의 모든 실제 경로를 다시 해시해 고유 SHA 단위 검토 대기열을 만들고, 정지 이미지 native-resolution 타일 증거 생성, 원본 GIF 한 주기 관찰, 검토자별 Ed25519 키·trust·서명을 수행하는 운영 CLI를 추가
+- 이번 변경은 검토 기반과 계약만 보완했으며 private 자산, 운영 품질 정책, 승격 상태는 변경하지 않음. 실제 이미지·GIF 내용 검토 완료를 뜻하지 않음
+
 ## v5.10 - 2026-09-07
 
 - 검토자 공개키 fingerprint를 PEM 문자열 SHA가 아니라 파싱된 Ed25519 canonical SPKI DER SHA-256으로 계산해 LF·CRLF·공백 등 표기만 다른 동일 키의 다중 principal 등록을 거부

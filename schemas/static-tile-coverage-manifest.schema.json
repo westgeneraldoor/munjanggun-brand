@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/westgeneraldoor/munjanggun-brand/schemas/static-tile-coverage-manifest.schema.json",
+  "title": "Munjanggun Native-resolution Static Tile Coverage Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "version", "sourceObjectSha256", "sourceWidth", "sourceHeight", "sourcePixelSha256",
+    "decoderVersion", "encoderVersion", "coverageMode", "tileCount", "tiles", "coverageDigest"
+  ],
+  "properties": {
+    "schema": { "const": "munjanggun.staticTileCoverage.v1" },
+    "version": { "const": "1.0" },
+    "sourceObjectSha256": { "$ref": "#/$defs/sha256" },
+    "sourceWidth": { "type": "integer", "minimum": 1 },
+    "sourceHeight": { "type": "integer", "minimum": 1 },
+    "sourcePixelSha256": { "$ref": "#/$defs/sha256" },
+    "decoderVersion": { "const": "pngjs@7.0.0+jpeg-js@0.4.4+munjanggun-crop-v1" },
+    "encoderVersion": { "const": "pngjs@7.0.0+munjanggun-canonical-png-v1" },
+    "coverageMode": { "const": "native_resolution_non_overlapping_full_partition" },
+    "tileCount": { "type": "integer", "minimum": 1 },
+    "tiles": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/tile" }
+    },
+    "coverageDigest": { "$ref": "#/$defs/sha256" }
+  },
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "pixelRegion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["left", "top", "width", "height"],
+      "properties": {
+        "left": { "type": "integer", "minimum": 0 },
+        "top": { "type": "integer", "minimum": 0 },
+        "width": { "type": "integer", "minimum": 1 },
+        "height": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "tile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "index", "path", "sha256", "pixelSha256", "width", "height", "pixelRegion", "sourceObjectSha256"
+      ],
+      "properties": {
+        "index": { "type": "integer", "minimum": 0 },
+        "path": { "type": "string", "minLength": 1 },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "pixelSha256": { "$ref": "#/$defs/sha256" },
+        "width": { "type": "integer", "minimum": 1 },
+        "height": { "type": "integer", "minimum": 1 },
+        "pixelRegion": { "$ref": "#/$defs/pixelRegion" },
+        "sourceObjectSha256": { "$ref": "#/$defs/sha256" }
+      }
+    }
+  }
+}
