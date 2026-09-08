@@ -18,6 +18,7 @@ import { fileURLToPath } from 'node:url';
 import {
   contentReviewerKeyFingerprint,
   normalizeReviewerPrincipal,
+  parseContentReviewerTrust,
 } from './asset-content-reviewer-trust.mjs';
 import { stableJson } from './asset-owner-trust.mjs';
 import { formatSchemaErrors, validateAgainstSchema } from './schema-validation.mjs';
@@ -155,19 +156,23 @@ export async function signContentReviewDocument({
   inputPath,
   privateKeyPath,
   keyId,
+  reviewerTrustPath,
   outputPath,
   repoRoot = DEFAULT_REPO_ROOT,
 } = {}) {
   const input = resolveRequiredAbsolute(inputPath, 'Signing input');
   const privateKeyFile = requirePrivateAbsolutePath(privateKeyPath, repoRoot, 'Reviewer private key');
+  const reviewerTrustFile = requirePrivateAbsolutePath(reviewerTrustPath, repoRoot, 'Reviewer trust');
   const destination = requirePrivateAbsolutePath(outputPath, repoRoot, 'Signed review output');
   const normalizedKeyId = requireKeyId(keyId);
   await Promise.all([
     assertRegularFile(input, 'Signing input'),
     assertRegularFile(privateKeyFile, 'Reviewer private key'),
+    assertRegularFile(reviewerTrustFile, 'Reviewer trust'),
     assertMissing(destination, 'Signed review output'),
   ]);
   await assertPathHasNoSymlink(dirname(privateKeyFile), 'Reviewer private key parent');
+  await assertPathHasNoSymlink(dirname(reviewerTrustFile), 'Reviewer trust parent');
   await mkdir(dirname(destination), { recursive: true });
   await assertPathHasNoSymlink(dirname(destination), 'Signed review output parent');
 
@@ -175,13 +180,32 @@ export async function signContentReviewDocument({
   if (!document || typeof document !== 'object' || Array.isArray(document)) {
     throw new Error('Signing input must be a JSON object');
   }
-  const payload = { ...document };
-  delete payload.signature;
-  const schemaPath = schemaForDocument(payload);
+  if (Object.hasOwn(document, 'signature')) {
+    throw new Error('Signing input already has a signature');
+  }
+  const documentContract = contractForDocument(document);
+  const declaredPrincipal = normalizeReviewerPrincipal(document[documentContract.principalField]);
+  if (!declaredPrincipal) {
+    throw new Error(`Signing input ${documentContract.principalField} is required`);
+  }
+  const reviewerTrust = parseContentReviewerTrust(await readFile(reviewerTrustFile));
   const privateKey = createPrivateKey(await readFile(privateKeyFile, 'utf8'));
   if (privateKey.asymmetricKeyType !== 'ed25519') {
     throw new Error('Reviewer private key must be Ed25519');
   }
+  const privateKeyFingerprint = contentReviewerKeyFingerprint(
+    createPublicKey(privateKey).export({ type: 'spki', format: 'pem' }),
+  );
+  const trustedKey = reviewerTrust.keys.find((item) => item.keyId === normalizedKeyId
+    && item.status === 'active'
+    && item.principalId === declaredPrincipal);
+  if (!trustedKey) {
+    throw new Error('Reviewer signing key is not active and trusted for the declared principal');
+  }
+  if (trustedKey.fingerprint !== privateKeyFingerprint) {
+    throw new Error('Reviewer private key fingerprint does not match the trusted key');
+  }
+  const payload = { ...document };
   const signed = {
     ...payload,
     signature: {
@@ -190,12 +214,10 @@ export async function signContentReviewDocument({
       valueBase64: sign(null, Buffer.from(stableJson(payload), 'utf8'), privateKey).toString('base64'),
     },
   };
-  if (schemaPath) {
-    const schema = JSON.parse(await readFile(schemaPath, 'utf8'));
-    const validation = validateAgainstSchema(signed, schema);
-    if (!validation.valid) {
-      throw new Error(`Signed review document schema failed:\n${formatSchemaErrors(validation.errors).join('\n')}`);
-    }
+  const schema = JSON.parse(await readFile(documentContract.schemaPath, 'utf8'));
+  const validation = validateAgainstSchema(signed, schema);
+  if (!validation.valid) {
+    throw new Error(`Signed review document schema failed:\n${formatSchemaErrors(validation.errors).join('\n')}`);
   }
   const bytes = jsonBytes(signed);
   await writeFile(destination, bytes, { flag: 'wx', mode: 0o600 });
@@ -203,21 +225,44 @@ export async function signContentReviewDocument({
     outputPath: destination,
     schema: signed.schema,
     keyId: normalizedKeyId,
+    principalId: declaredPrincipal,
+    fingerprint: privateKeyFingerprint,
     sha256: digest(bytes),
   };
 }
 
-function schemaForDocument(document) {
+function contractForDocument(document) {
   if (document?.schema === 'munjanggun.assetContentReviewInput.v1' && document.version === '1.0') {
-    return fileURLToPath(new URL('../../schemas/asset-content-review-input.schema.json', import.meta.url));
+    return {
+      schemaPath: fileURLToPath(new URL('../../schemas/asset-content-review-input.schema.json', import.meta.url)),
+      principalField: 'reviewer',
+    };
   }
   if (document?.schema === 'munjanggun.visibleTextSecondReview.v1' && document.version === '1.0') {
-    return fileURLToPath(new URL('../../schemas/visible-text-second-review-receipt.schema.json', import.meta.url));
+    return {
+      schemaPath: fileURLToPath(new URL('../../schemas/visible-text-second-review-receipt.schema.json', import.meta.url)),
+      principalField: 'reviewerPrincipalId',
+    };
   }
   if (document?.schema === 'munjanggun.assetContentSecondarySemanticVerdict.v1' && document.version === '1.0') {
-    return fileURLToPath(new URL('../../schemas/asset-content-secondary-semantic-verdict.schema.json', import.meta.url));
+    return {
+      schemaPath: fileURLToPath(new URL('../../schemas/asset-content-secondary-semantic-verdict.schema.json', import.meta.url)),
+      principalField: 'reviewerPrincipalId',
+    };
   }
-  return null;
+  if (document?.schema === 'munjanggun.assetContentReviewRawBatchAttestation.v1' && document.version === '1.0') {
+    return {
+      schemaPath: fileURLToPath(new URL('../../schemas/asset-content-raw-review-attestation.schema.json', import.meta.url)),
+      principalField: 'reviewerPrincipalId',
+    };
+  }
+  if (document?.schema === 'munjanggun.assetContentReviewAdjudication.v1' && document.version === '1.0') {
+    return {
+      schemaPath: fileURLToPath(new URL('../../schemas/asset-content-review-adjudication.schema.json', import.meta.url)),
+      principalField: 'adjudicatorPrincipalId',
+    };
+  }
+  throw new Error(`Unsupported content review document schema/version: ${String(document?.schema ?? '<missing>')}@${String(document?.version ?? '<missing>')}`);
 }
 
 function canonicalPublicKeyPem(value) {

@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/westgeneraldoor/munjanggun-brand/schemas/asset-content-review-pair-index.schema.json",
+  "title": "Munjanggun Raw Review Pair Index",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "version", "createdAt", "authorityStatus", "comparisonStatus", "pairs"],
+  "properties": {
+    "schema": { "const": "munjanggun.assetContentReviewPairIndex.v1" },
+    "version": { "const": "1.0" },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "authorityStatus": { "const": "non_authority" },
+    "comparisonStatus": { "enum": ["pending", "compared", "adjudicated"] },
+    "pairs": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/pair" }
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "pair": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "queueIndex",
+        "sha256",
+        "primaryTranscriptSha256",
+        "primaryReviewer",
+        "secondaryTranscriptSha256",
+        "secondaryReviewer",
+        "status"
+      ],
+      "properties": {
+        "queueIndex": { "type": "integer", "minimum": 0 },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "primaryTranscriptSha256": { "$ref": "#/$defs/sha256" },
+        "primaryReviewer": { "type": "string", "minLength": 1 },
+        "secondaryTranscriptSha256": { "$ref": "#/$defs/sha256" },
+        "secondaryReviewer": { "type": "string", "minLength": 1 },
+        "status": {
+          "enum": [
+            "paired_pending_comparison",
+            "comparison_complete",
+            "conflict_requires_adjudication",
+            "adjudicated"
+          ]
+        }
+      }
+    }
+  }
+}

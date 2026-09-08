@@ -78,7 +78,7 @@ test('reviewer trust CLI canonicalizes public keys and rejects duplicate princip
   }
 });
 
-test('signing CLI replaces an existing signature and signs known and extended review documents with stable JSON', async (t) => {
+test('signing CLI signs only registered review documents with a trusted matching key and stable JSON', async (t) => {
   const fixture = await makeFixture(t);
   const key = await createKey(fixture, fixture.primaryDir, 'reviewer alpha', 'reviewer-alpha');
   const trustPath = resolve(fixture.privateRoot, 'reviewer-trust.json');
@@ -92,13 +92,8 @@ test('signing CLI replaces an existing signature and signs known and extended re
     ['second-review', secondReviewDocument(), 'reviewer alpha'],
     ['primary-review', primaryReviewDocument(), 'reviewer alpha'],
     ['secondary-semantic-verdict', secondarySemanticVerdictDocument(), 'reviewer alpha'],
-    ['future-review-receipt', {
-      schema: 'munjanggun.futureReviewReceipt.v1',
-      version: '1.0',
-      reviewerPrincipalId: 'reviewer alpha',
-      decision: { status: 'confirmed', objectSha256: 'f'.repeat(64) },
-      signature: { algorithm: 'Ed25519', keyId: 'old-key', valueBase64: 'invalid-old-signature' },
-    }, 'reviewer alpha'],
+    ['raw-batch-attestation', rawBatchAttestationDocument(), 'reviewer alpha'],
+    ['review-adjudication', reviewAdjudicationDocument(), 'reviewer alpha'],
   ];
   const signatures = new Map();
   for (const [name, document, principal] of documents) {
@@ -110,11 +105,11 @@ test('signing CLI replaces an existing signature and signs known and extended re
       '--input', inputPath,
       '--private-key', key.privateKeyPath,
       '--key-id', 'reviewer-alpha',
+      '--reviewer-trust', trustPath,
       '--output', outputPath,
     ], { emit: (value) => emitted.push(value), repoRoot: fixture.repoRoot });
     const signed = await readJson(outputPath);
     assert.equal(signed.signature.algorithm, 'Ed25519');
-    assert.notEqual(signed.signature.valueBase64, 'invalid-old-signature');
     signatures.set(name, signed.signature.valueBase64);
     assert.equal(verifyTrustedContentReviewerSignature(signed, principal, trust, name).keyId, 'reviewer-alpha');
     assert.equal(result.sha256, digest(await readFile(outputPath)));
@@ -123,6 +118,7 @@ test('signing CLI replaces an existing signature and signs known and extended re
       '--input', inputPath,
       '--private-key', key.privateKeyPath,
       '--key-id', 'reviewer-alpha',
+      '--reviewer-trust', trustPath,
       '--output', outputPath,
     ], { emit: () => {}, repoRoot: fixture.repoRoot }), /already exists/u);
   }
@@ -134,9 +130,114 @@ test('signing CLI replaces an existing signature and signs known and extended re
     '--input', reorderedInputPath,
     '--private-key', key.privateKeyPath,
     '--key-id', 'reviewer-alpha',
+    '--reviewer-trust', trustPath,
     '--output', reorderedOutputPath,
   ], { emit: () => {}, repoRoot: fixture.repoRoot });
   assert.equal((await readJson(reorderedOutputPath)).signature.valueBase64, signatures.get('second-review'));
+});
+
+test('signing CLI rejects unsupported schema versions and existing signatures', async (t) => {
+  const fixture = await makeFixture(t);
+  const key = await createKey(fixture, fixture.primaryDir, 'reviewer alpha', 'reviewer-alpha');
+  const trustPath = resolve(fixture.privateRoot, 'reviewer-trust.json');
+  await runBuildContentReviewerTrust([
+    '--entry', key.metadataPath,
+    '--output', trustPath,
+  ], { emit: () => {}, repoRoot: fixture.repoRoot });
+
+  const unsupportedPath = resolve(fixture.privateRoot, 'unsupported.json');
+  await writeJson(unsupportedPath, {
+    schema: 'munjanggun.futureReviewReceipt.v1',
+    version: '1.0',
+    reviewerPrincipalId: 'reviewer alpha',
+  });
+  await assert.rejects(runSignContentReviewDocument([
+    '--input', unsupportedPath,
+    '--private-key', key.privateKeyPath,
+    '--key-id', 'reviewer-alpha',
+    '--reviewer-trust', trustPath,
+    '--output', resolve(fixture.privateRoot, 'unsupported-signed.json'),
+  ], { emit: () => {}, repoRoot: fixture.repoRoot }), /Unsupported content review document schema\/version/u);
+
+  const unsupportedVersionPath = resolve(fixture.privateRoot, 'unsupported-version.json');
+  await writeJson(unsupportedVersionPath, { ...rawBatchAttestationDocument(), version: '2.0' });
+  await assert.rejects(runSignContentReviewDocument([
+    '--input', unsupportedVersionPath,
+    '--private-key', key.privateKeyPath,
+    '--key-id', 'reviewer-alpha',
+    '--reviewer-trust', trustPath,
+    '--output', resolve(fixture.privateRoot, 'unsupported-version-signed.json'),
+  ], { emit: () => {}, repoRoot: fixture.repoRoot }), /Unsupported content review document schema\/version/u);
+
+  const signedInputPath = resolve(fixture.privateRoot, 'already-signed.json');
+  await writeJson(signedInputPath, {
+    ...secondReviewDocument(),
+    signature: { algorithm: 'Ed25519', keyId: 'old-key', valueBase64: 'invalid-old-signature' },
+  });
+  await assert.rejects(runSignContentReviewDocument([
+    '--input', signedInputPath,
+    '--private-key', key.privateKeyPath,
+    '--key-id', 'reviewer-alpha',
+    '--reviewer-trust', trustPath,
+    '--output', resolve(fixture.privateRoot, 're-signed.json'),
+  ], { emit: () => {}, repoRoot: fixture.repoRoot }), /already has a signature/u);
+});
+
+test('signing CLI binds declared principal, keyId, private key fingerprint, and active trust status', async (t) => {
+  const fixture = await makeFixture(t);
+  const primary = await createKey(fixture, fixture.primaryDir, 'reviewer alpha', 'reviewer-alpha');
+  const second = await createKey(fixture, fixture.secondDir, 'reviewer beta', 'reviewer-beta');
+  const trustPath = resolve(fixture.privateRoot, 'reviewer-trust.json');
+  await runBuildContentReviewerTrust([
+    '--entry', primary.metadataPath,
+    '--entry', second.metadataPath,
+    '--output', trustPath,
+  ], { emit: () => {}, repoRoot: fixture.repoRoot });
+
+  const betaDocuments = [
+    ['primary-review', { ...primaryReviewDocument(), reviewer: 'reviewer beta' }],
+    ['second-review', { ...secondReviewDocument(), reviewerPrincipalId: 'reviewer beta' }],
+    ['secondary-verdict', { ...secondarySemanticVerdictDocument(), reviewerPrincipalId: 'reviewer beta' }],
+    ['raw-attestation', { ...rawBatchAttestationDocument(), reviewerPrincipalId: 'reviewer beta' }],
+    ['adjudication', { ...reviewAdjudicationDocument(), adjudicatorPrincipalId: 'reviewer beta' }],
+  ];
+  for (const [name, document] of betaDocuments) {
+    const betaDocumentPath = resolve(fixture.privateRoot, `beta-${name}.json`);
+    await writeJson(betaDocumentPath, document);
+    await assert.rejects(runSignContentReviewDocument([
+      '--input', betaDocumentPath,
+      '--private-key', primary.privateKeyPath,
+      '--key-id', 'reviewer-alpha',
+      '--reviewer-trust', trustPath,
+      '--output', resolve(fixture.privateRoot, `wrong-principal-${name}.json`),
+    ], { emit: () => {}, repoRoot: fixture.repoRoot }), /not active and trusted for the declared principal/u);
+  }
+
+  const alphaDocumentPath = resolve(fixture.privateRoot, 'alpha-review.json');
+  await writeJson(alphaDocumentPath, secondReviewDocument());
+  await assert.rejects(runSignContentReviewDocument([
+    '--input', alphaDocumentPath,
+    '--private-key', second.privateKeyPath,
+    '--key-id', 'reviewer-alpha',
+    '--reviewer-trust', trustPath,
+    '--output', resolve(fixture.privateRoot, 'wrong-private-key.json'),
+  ], { emit: () => {}, repoRoot: fixture.repoRoot }), /private key fingerprint does not match/u);
+
+  const revokedMetadata = { ...await readJson(primary.metadataPath), status: 'revoked' };
+  const revokedEntryPath = resolve(fixture.privateRoot, 'revoked-reviewer.json');
+  const revokedTrustPath = resolve(fixture.privateRoot, 'revoked-trust.json');
+  await writeJson(revokedEntryPath, revokedMetadata);
+  await runBuildContentReviewerTrust([
+    '--entry', revokedEntryPath,
+    '--output', revokedTrustPath,
+  ], { emit: () => {}, repoRoot: fixture.repoRoot });
+  await assert.rejects(runSignContentReviewDocument([
+    '--input', alphaDocumentPath,
+    '--private-key', primary.privateKeyPath,
+    '--key-id', 'reviewer-alpha',
+    '--reviewer-trust', revokedTrustPath,
+    '--output', resolve(fixture.privateRoot, 'revoked-signed.json'),
+  ], { emit: () => {}, repoRoot: fixture.repoRoot }), /not active and trusted for the declared principal/u);
 });
 
 test('key and signing outputs are rejected inside the public repository and non-Ed25519 keys cannot sign', async (t) => {
@@ -150,6 +251,27 @@ test('key and signing outputs are rejected inside the public repository and non-
   const inputPath = resolve(fixture.privateRoot, 'second-review.json');
   const outputPath = resolve(fixture.privateRoot, 'signed.json');
   await writeJson(inputPath, secondReviewDocument());
+  const key = await createKey(fixture, fixture.primaryDir, 'reviewer alpha', 'reviewer-alpha');
+  const trustPath = resolve(fixture.privateRoot, 'reviewer-trust.json');
+  await runBuildContentReviewerTrust([
+    '--entry', key.metadataPath,
+    '--output', trustPath,
+  ], { emit: () => {}, repoRoot: fixture.repoRoot });
+  await assert.rejects(runSignContentReviewDocument([
+    '--input', inputPath,
+    '--private-key', key.privateKeyPath,
+    '--key-id', 'reviewer-alpha',
+    '--reviewer-trust', trustPath,
+    '--output', resolve(fixture.repoRoot, 'signed-review.json'),
+  ], { emit: () => {}, repoRoot: fixture.repoRoot }), /outside the public repository/u);
+
+  await assert.rejects(runSignContentReviewDocument([
+    '--input', inputPath,
+    '--private-key', key.privateKeyPath,
+    '--key-id', 'reviewer-alpha',
+    '--output', outputPath,
+  ], { emit: () => {}, repoRoot: fixture.repoRoot }), /--reviewer-trust/u);
+
   const { privateKey } = generateKeyPairSync('rsa', { modulusLength: 2048 });
   const rsaPath = resolve(fixture.privateRoot, 'rsa-private.pem');
   await writeFile(rsaPath, privateKey.export({ type: 'pkcs8', format: 'pem' }), { flag: 'wx' });
@@ -157,6 +279,7 @@ test('key and signing outputs are rejected inside the public repository and non-
     '--input', inputPath,
     '--private-key', rsaPath,
     '--key-id', 'reviewer-alpha',
+    '--reviewer-trust', trustPath,
     '--output', outputPath,
   ], { emit: () => {}, repoRoot: fixture.repoRoot }), /must be Ed25519/u);
 });
@@ -197,7 +320,6 @@ function secondReviewDocument() {
     observationDigest: 'c'.repeat(64),
     reviewerPrincipalId: 'reviewer alpha',
     reviewedAt: '2026-09-08T01:00:00.000Z',
-    signature: { algorithm: 'Ed25519', keyId: 'old-key', valueBase64: 'invalid-old-signature' },
   };
 }
 
@@ -249,7 +371,6 @@ function primaryReviewDocument() {
         evidenceSha256: 'e'.repeat(64),
       },
     }],
-    signature: { algorithm: 'Ed25519', keyId: 'old-key', valueBase64: 'invalid-old-signature' },
   };
 }
 
@@ -271,7 +392,75 @@ function secondarySemanticVerdictDocument() {
     uncertainties: [],
     reviewerPrincipalId: 'reviewer alpha',
     reviewedAt: '2026-09-08T01:00:00.000Z',
-    signature: { algorithm: 'Ed25519', keyId: 'old-key', valueBase64: 'invalid-old-signature' },
+  };
+}
+
+function rawBatchAttestationDocument() {
+  return {
+    schema: 'munjanggun.assetContentReviewRawBatchAttestation.v1',
+    version: '1.0',
+    authorityStatus: 'non_authority',
+    attestationStatus: 'reviewer_attested_exact_bytes',
+    rawTranscriptPath: 'Z:\\private\\raw-review-ledger-v1\\STATIC-FRESH-PRIMARY-0000-0003.raw.json',
+    rawTranscriptSha256: 'a'.repeat(64),
+    rawTranscriptByteSize: 1234,
+    transcriptId: 'STATIC-FRESH-PRIMARY-0000-0003',
+    reviewRole: 'fresh_primary',
+    reviewerPrincipalId: 'reviewer alpha',
+    queueRef: 'Z:\\private\\review-queue.json',
+    queueSha256: 'b'.repeat(64),
+    entrySetSha256: 'c'.repeat(64),
+    queueIndices: [0, 1, 2, 3],
+    attestedAt: '2026-09-08T01:00:00.000Z',
+  };
+}
+
+function reviewAdjudicationDocument() {
+  return {
+    schema: 'munjanggun.assetContentReviewAdjudication.v1',
+    version: '1.0',
+    authorityStatus: 'non_authority',
+    adjudicationId: 'ADJ-STATIC-0005',
+    pairIndexRef: 'Z:\\private\\raw-review-ledger-v1\\STATIC-FRESH-PAIRS-0000-0011.json',
+    pairIndexSha256: 'a'.repeat(64),
+    queueRef: 'Z:\\private\\review-queue.json',
+    queueSha256: 'b'.repeat(64),
+    entrySetSha256: 'c'.repeat(64),
+    queueIndex: 5,
+    sourceObjectSha256: 'd'.repeat(64),
+    primaryTranscriptSha256: 'e'.repeat(64),
+    secondaryTranscriptSha256: 'f'.repeat(64),
+    amendsTranscriptSha256: ['e'.repeat(64), 'f'.repeat(64)],
+    result: 'resolved',
+    decisions: [{
+      field: '/visibleText/0',
+      classification: 'semantic_conflict',
+      resolution: 'accept_secondary',
+      primaryValue: '눈을 높혀고',
+      secondaryValue: '눈을 넓히고',
+      adjudicatedValue: '눈을 넓히고',
+      rationale: '원본 픽셀에서 글자를 다시 확인함',
+      evidenceRefs: [{ path: 'Z:\\private\\evidence\\queue-0005.png', sha256: '1'.repeat(64) }],
+    }],
+    unresolvedUncertainties: [],
+    canonicalObservation: {
+      observationMethod: 'view_image_original',
+      openResult: 'opened_successfully',
+      rawObservationText: '원본에서 눈을 넓히고 문구가 보인다.',
+      observedSummary: '혜택과 가격 조건을 안내하는 홍보 이미지',
+      contentType: 'promotional_claim_graphic',
+      textPresence: 'observed',
+      visibleText: ['눈을 넓히고'],
+      visibleTextLocations: [{ text: '눈을 넓히고', region: '중앙 본문', certainty: 'certain' }],
+      practicalUses: ['원문 비교 교정 기록'],
+      signals: {
+        price: 'observed', event: 'observed', afterService: 'none_observed', spec: 'none_observed',
+        review: 'none_observed', schedule: 'none_observed', people: 'observed', privacy: 'none_observed',
+      },
+      privacySignals: [],
+    },
+    adjudicatorPrincipalId: 'reviewer alpha',
+    adjudicatedAt: '2026-09-08T02:00:00.000Z',
   };
 }
 

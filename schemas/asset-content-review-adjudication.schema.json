@@ -1,0 +1,236 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/westgeneraldoor/munjanggun-brand/schemas/asset-content-review-adjudication.schema.json",
+  "title": "Munjanggun Signed Non-authority Raw Review Adjudication",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "version",
+    "authorityStatus",
+    "adjudicationId",
+    "pairIndexRef",
+    "pairIndexSha256",
+    "queueRef",
+    "queueSha256",
+    "entrySetSha256",
+    "queueIndex",
+    "sourceObjectSha256",
+    "primaryTranscriptSha256",
+    "secondaryTranscriptSha256",
+    "amendsTranscriptSha256",
+    "result",
+    "decisions",
+    "unresolvedUncertainties",
+    "adjudicatorPrincipalId",
+    "adjudicatedAt",
+    "signature"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": { "result": { "const": "resolved" } },
+        "required": ["result"]
+      },
+      "then": {
+        "required": ["canonicalObservation"],
+        "properties": {
+          "canonicalObservation": { "$ref": "#/$defs/canonicalObservation" },
+          "unresolvedUncertainties": { "type": "array", "maxItems": 0 },
+          "decisions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "not": {
+                "type": "object",
+                "properties": { "resolution": { "const": "unresolved" } },
+                "required": ["resolution"]
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "properties": {
+    "schema": { "const": "munjanggun.assetContentReviewAdjudication.v1" },
+    "version": { "const": "1.0" },
+    "authorityStatus": { "const": "non_authority" },
+    "adjudicationId": { "type": "string", "minLength": 1 },
+    "pairIndexRef": { "type": "string", "minLength": 1 },
+    "pairIndexSha256": { "$ref": "#/$defs/sha256" },
+    "queueRef": { "type": "string", "minLength": 1 },
+    "queueSha256": { "$ref": "#/$defs/sha256" },
+    "entrySetSha256": { "$ref": "#/$defs/sha256" },
+    "queueIndex": { "type": "integer", "minimum": 0 },
+    "sourceObjectSha256": { "$ref": "#/$defs/sha256" },
+    "primaryTranscriptSha256": { "$ref": "#/$defs/sha256" },
+    "secondaryTranscriptSha256": { "$ref": "#/$defs/sha256" },
+    "amendsTranscriptSha256": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/sha256" }
+    },
+    "result": { "enum": ["resolved", "unresolved"] },
+    "decisions": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/decision" }
+    },
+    "unresolvedUncertainties": { "$ref": "#/$defs/stringArray" },
+    "canonicalObservation": { "$ref": "#/$defs/canonicalObservation" },
+    "adjudicatorPrincipalId": { "type": "string", "minLength": 1 },
+    "adjudicatedAt": { "type": "string", "format": "date-time" },
+    "signature": { "$ref": "#/$defs/signature" }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "stringArray": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "signature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["algorithm", "keyId", "valueBase64"],
+      "properties": {
+        "algorithm": { "const": "Ed25519" },
+        "keyId": { "type": "string", "minLength": 1 },
+        "valueBase64": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9+/]+={0,2}$"
+        }
+      }
+    },
+    "evidenceRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "field",
+        "classification",
+        "resolution",
+        "primaryValue",
+        "secondaryValue",
+        "rationale",
+        "evidenceRefs"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "resolution": {
+                "enum": ["accept_primary", "accept_secondary", "new_original_observation"]
+              }
+            },
+            "required": ["resolution"]
+          },
+          "then": {
+            "required": ["adjudicatedValue"],
+            "properties": { "adjudicatedValue": {} }
+          }
+        }
+      ],
+      "properties": {
+        "field": { "type": "string", "pattern": "^/", "minLength": 2 },
+        "classification": {
+          "enum": ["status_alias_equivalent", "format_difference", "semantic_conflict", "uncertainty_disposition"]
+        },
+        "resolution": {
+          "enum": ["accept_primary", "accept_secondary", "new_original_observation", "unresolved"]
+        },
+        "primaryValue": {},
+        "secondaryValue": {},
+        "adjudicatedValue": {},
+        "rationale": { "type": "string", "minLength": 1 },
+        "evidenceRefs": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/evidenceRef" },
+          "uniqueItems": true
+        }
+      }
+    },
+    "signalState": {
+      "enum": ["observed", "none_observed", "uncertain"]
+    },
+    "signals": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["price", "event", "afterService", "spec", "review", "schedule", "people", "privacy"],
+      "properties": {
+        "price": { "$ref": "#/$defs/signalState" },
+        "event": { "$ref": "#/$defs/signalState" },
+        "afterService": { "$ref": "#/$defs/signalState" },
+        "spec": { "$ref": "#/$defs/signalState" },
+        "review": { "$ref": "#/$defs/signalState" },
+        "schedule": { "$ref": "#/$defs/signalState" },
+        "people": { "$ref": "#/$defs/signalState" },
+        "privacy": { "$ref": "#/$defs/signalState" }
+      }
+    },
+    "visibleTextLocation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["text", "region", "certainty"],
+      "properties": {
+        "text": { "type": "string", "minLength": 1 },
+        "region": { "type": "string", "minLength": 1 },
+        "certainty": { "enum": ["certain", "probable", "uncertain"] }
+      }
+    },
+    "canonicalObservation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "observationMethod",
+        "openResult",
+        "rawObservationText",
+        "observedSummary",
+        "contentType",
+        "textPresence",
+        "visibleText",
+        "visibleTextLocations",
+        "practicalUses",
+        "signals",
+        "privacySignals"
+      ],
+      "properties": {
+        "observationMethod": { "const": "view_image_original" },
+        "openResult": { "const": "opened_successfully" },
+        "rawObservationText": { "type": "string", "minLength": 1 },
+        "observedSummary": { "type": "string", "minLength": 1 },
+        "contentType": { "type": "string", "minLength": 1 },
+        "textPresence": { "enum": ["observed", "none_observed", "uncertain"] },
+        "visibleText": { "$ref": "#/$defs/stringArray" },
+        "visibleTextLocations": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/visibleTextLocation" },
+          "uniqueItems": true
+        },
+        "practicalUses": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "signals": { "$ref": "#/$defs/signals" },
+        "privacySignals": { "$ref": "#/$defs/stringArray" }
+      }
+    }
+  }
+}
