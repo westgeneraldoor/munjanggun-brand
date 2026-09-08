@@ -51,6 +51,43 @@ test('continuous visible playback writes a hash-bound receipt and never overwrit
   assert.equal(JSON.parse(await readFile(result.paths[0], 'utf8')).sourceObjectSha256, fixture.sha256);
 });
 
+test('finalization snapshots events and rejects late heartbeats while the receipt is being written', async (t) => {
+  const fixture = await makeFixture();
+  let clock = Date.parse('2026-09-08T01:20:00.000Z');
+  let enterWrite;
+  let releaseWrite;
+  const writeEntered = new Promise((accept) => { enterWrite = accept; });
+  const writeReleased = new Promise((accept) => { releaseWrite = accept; });
+  const workbench = await createGifPlaybackWorkbench({
+    queuePath: fixture.queuePath,
+    evidenceRoot: fixture.evidenceRoot,
+    reviewer: 'reviewer-race',
+    now: () => clock,
+    beforeReceiptWrite: async () => {
+      enterWrite();
+      await writeReleased;
+    },
+  });
+  t.after(() => workbench.close());
+  const session = await post(workbench.url, '/api/sessions', { sha256: fixture.sha256 });
+  await post(workbench.url, `/api/sessions/${session.token}/events`, event('playback_started', 0));
+  clock += 220;
+  await post(workbench.url, `/api/sessions/${session.token}/events`, event('heartbeat', 220));
+  const decisionPromise = postResponse(workbench.url, `/api/sessions/${session.token}/decision`, {
+    decision: 'complete', note: '영수증 쓰기 중 이벤트 경합 검증', ...observation(220),
+  });
+  await writeEntered;
+  const lateEvent = await postResponse(workbench.url, `/api/sessions/${session.token}/events`, event('heartbeat', 221));
+  assert.equal(lateEvent.status, 409);
+  assert.match(lateEvent.body.error, /finalizing/u);
+  releaseWrite();
+  const result = await decisionPromise;
+  assert.equal(result.status, 201);
+  const receipt = JSON.parse(await readFile(result.body.paths[0], 'utf8'));
+  assert.equal(receipt.eventLog.length, 2);
+  assert.equal(assertGifPlaybackWorkbenchReceipt(receipt, { sha256: fixture.sha256 }), true);
+});
+
 test('receipt replay rejects sparse, reversed, or cross-page event histories even when their digest and counts are consistent', () => {
   const valid = playbackReceiptFixture();
   assert.equal(assertGifPlaybackWorkbenchReceipt(valid, { sha256: valid.sourceObjectSha256 }), true);
@@ -179,6 +216,7 @@ test('UI explicitly distinguishes sampled frames from full continuous playback',
   assert.match(html, /표본 프레임.*전체 재생 완료로 판정하지/u);
   assert.match(html, /visibilitychange/u);
   assert.match(html, /beforeunload/u);
+  assert.match(html, /clearInterval\(timer\);timer=null;await eventChain/u);
   const embeddedScript = html.match(/<script>([\s\S]*)<\/script>/u)?.[1];
   assert.ok(embeddedScript, 'workbench page must include its browser script');
   assert.doesNotThrow(() => new Script(embeddedScript), 'workbench browser script must parse');
