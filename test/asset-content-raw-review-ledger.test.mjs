@@ -83,6 +83,49 @@ test('pilot-complete explicitly rejects the unsigned integrity-only fixture', as
   }), /requires the raw review attestation directory/u);
 });
 
+test('attested-integrity verifies every batch signature without requiring adjudications', async (t) => {
+  const fixture = await makeFixture(t);
+  const signing = await createTrust(fixture);
+  await createSignedPilotEvidence(fixture, signing, { adjudicationCount: 0 });
+  const result = await validateAssetContentRawReviewLedger({
+    ledgerIndexPath: fixture.ledgerPath,
+    mode: 'attested-integrity',
+    now: NOW,
+  });
+  assert.equal(result.pilotStatus, 'attested_non_authority');
+  assert.equal(result.attestedBatchCount, 2);
+  assert.equal(result.adjudicatedPairCount, 0);
+  assert.equal(result.libraryStatus, 'blocked');
+  assert.equal(result.promotionEligible, false);
+});
+
+test('attested-integrity rejects an incomplete batch-attestation set', async (t) => {
+  const fixture = await makeFixture(t);
+  const signing = await createTrust(fixture);
+  await createSignedPilotEvidence(fixture, signing, { adjudicationCount: 0 });
+  const attestation = resolve(fixture.ledgerRoot, 'attestations', `${fixture.primaryBatch.value.transcriptId}.attestation.json`);
+  await rm(attestation);
+  await assert.rejects(validateAssetContentRawReviewLedger({
+    ledgerIndexPath: fixture.ledgerPath,
+    mode: 'attested-integrity',
+    now: NOW,
+  }), /Attested validation requires a verified raw review attestation/u);
+});
+
+test('attested-integrity rejects a declared attestation count that does not match verified evidence', async (t) => {
+  const fixture = await makeFixture(t);
+  const signing = await createTrust(fixture);
+  await createSignedPilotEvidence(fixture, signing, { adjudicationCount: 0 });
+  const ledger = JSON.parse(await readFile(fixture.ledgerPath, 'utf8'));
+  ledger.freshReview.attestedBatchCount = 1;
+  await writeFile(fixture.ledgerPath, `${JSON.stringify(ledger, null, 2)}\n`);
+  await assert.rejects(validateAssetContentRawReviewLedger({
+    ledgerIndexPath: fixture.ledgerPath,
+    mode: 'attested-integrity',
+    now: NOW,
+  }), /attested-count binding mismatch/u);
+});
+
 test('pilot-complete verifies every exact-byte attestation and signed resolved adjudication', async (t) => {
   const fixture = await makeFixture(t);
   const signing = await createTrust(fixture);
@@ -413,6 +456,7 @@ async function makeFixture(t, {
       primaryCapturedCount: 2,
       secondaryCapturedCount: 2,
       pairedCount: 2,
+      attestedBatchCount: 0,
       adjudicatedCount: 2,
       batches: [
         batchPointer(primaryBatch, primaryValue),
@@ -522,6 +566,10 @@ async function createSignedPilotEvidence(fixture, signing, { adjudicationCount =
       repoRoot: fixture.repoRoot,
     });
   }
+
+  const ledger = JSON.parse(await readFile(fixture.ledgerPath, 'utf8'));
+  ledger.freshReview.attestedBatchCount = batches.length;
+  await writeFile(fixture.ledgerPath, `${JSON.stringify(ledger, null, 2)}\n`);
 
   for (let queueIndex = 0; queueIndex < adjudicationCount; queueIndex += 1) {
     const pair = fixture.pairIndex.pairs[queueIndex];

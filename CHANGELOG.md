@@ -1,5 +1,15 @@
 # CHANGELOG - 문장군 중앙 브랜드 문서
 
+## v5.15 - 2026-09-09
+
+- `assets:validate-raw-review-ledger`에 원본·pair 무결성과 모든 raw batch 작성자 서명을 검증하되 v2 교정은 요구하지 않는 `attested-integrity` 모드 추가
+- 실제 확인된 서명 수와 원장의 `attestedBatchCount`를 결속해 잘못된 완료 숫자를 거절
+- 중간 결과를 `attested_non_authority`로 명시해 integrity-only와 교정 완료 상태를 구분
+- 이후 검토 구간은 기존 0~11 pair·교정 서명을 다시 만들지 않는 별도 불변 세그먼트로 보존하도록 운영 절차 추가
+- 비공개 Z 원장에 12~23번 1차 12건·독립 2차 12건·pair 12건·작성자 서명 5개를 별도 세그먼트로 보존하고 원본 SHA·시간 순서·서명을 검증; 교정본은 0건이며 비교 대기
+- attestation 누락 시 중간 게이트가 실패하고, 교정본 없이도 정상 서명 세트는 통과하는 회귀 검사 추가
+- 이 변경은 정지 이미지 의미 교정 수량이나 공용 자료실 사용 상태를 승급하지 않음
+
 ## v5.14 - 2026-09-08
 
 - 첫 12개 교정본을 `assetContentReviewAdjudication.v2` 전체 재구성 계약으로 전환

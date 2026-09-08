@@ -1,6 +1,6 @@
 # 시각 자산 재검토 작업대
 
-> 상태: 첫 12개 절차 검증 완료, 나머지 397개와 GIF 2차 검토 미완료, 공용 검색·추천·handoff·외부 추출 차단 유지
+> 상태: 첫 12개 교정 절차 검증 완료, 다음 12개(12~23)는 독립 원문·작성자 서명 확보 후 비교 대기, 나머지 385개와 GIF 2차 검토 미완료, 공용 검색·추천·handoff·외부 추출 차단 유지
 
 이 문서는 2026-09-04 묶음과 2026-09-07 쇼핑스토리 묶음을 원본 SHA 기준으로 함께 검토하는 운영 입구다. 대기열과 검토 증거는 비공개 Z 보관소에만 두며, 공개 Git에는 이미지·GIF·개인키·검토 결과를 넣지 않는다.
 
@@ -34,6 +34,16 @@
 - 배열은 `visibleText`, `visibleTextLocations`, `practicalUses`, `privacySignals` 전체를 하나의 결정 단위로 다루며 배열 인덱스 단위 결정은 허용하지 않는다.
 
 `complete_non_authority`와 교정본의 `resolved`는 이 12개 pair의 비교 절차가 닫혔다는 뜻이다. 원문에 남은 제품 사양·claim 사실성·촬영/렌더 여부 등의 한계까지 증명하거나, 409개 전체의 content authority를 승인하는 상태가 아니다.
+
+## 다음 구간의 불변 세그먼트
+
+- 다음 검토 구간은 기존 pair index와 v2 교정본을 다시 서명하지 않도록 `raw-review-ledger-v1/segments/<구간>/`에 별도 원장으로 만든다.
+- 각 세그먼트는 같은 전체 review queue와 entry-set SHA를 참조하되 자기 구간의 primary·secondary·pair만 포함한다.
+- 2차 검토는 해당 1차 배치 완료 뒤 새로 시작하며, 동시에 미리 본 결과를 나중 시각으로 기록하지 않는다.
+- `attested-integrity`는 원본 SHA·두 원문·pair·신뢰키·모든 raw batch 서명을 확인하지만 v2 교정을 요구하지 않는다.
+- `attested_non_authority`는 서명된 원문 확보 상태일 뿐 의미 비교·교정·승격 완료가 아니다. 공용 자료실 차단은 유지한다.
+- 12~23번 세그먼트는 1차 12건·2차 12건·pair 12건과 raw batch 작성자 서명 5개를 `attested_non_authority`로 검증했다. 교정본은 0건이며 12건 모두 비교 대기다.
+- 검증기는 실제 확인한 서명 수와 원장의 `attestedBatchCount`도 일치시켜 숫자만 잘못 적은 원장을 거절한다.
 
 ```powershell
 npm run assets:validate-raw-review-ledger -- `
