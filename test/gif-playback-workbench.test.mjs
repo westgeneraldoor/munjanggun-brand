@@ -4,6 +4,7 @@ import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import test from 'node:test';
+import { Script } from 'node:vm';
 import {
   assertGifPlaybackWorkbenchReceipt, createGifPlaybackWorkbench, loadVerifiedGifPlaybackQueue, writeJsonExclusiveAtomic,
 } from '../scripts/lib/gif-playback-workbench.mjs';
@@ -178,6 +179,9 @@ test('UI explicitly distinguishes sampled frames from full continuous playback',
   assert.match(html, /표본 프레임.*전체 재생 완료로 판정하지/u);
   assert.match(html, /visibilitychange/u);
   assert.match(html, /beforeunload/u);
+  const embeddedScript = html.match(/<script>([\s\S]*)<\/script>/u)?.[1];
+  assert.ok(embeddedScript, 'workbench page must include its browser script');
+  assert.doesNotThrow(() => new Script(embeddedScript), 'workbench browser script must parse');
   const media = await fetch(`${workbench.url}media/${fixture.sha256}.gif?run=unique`);
   assert.equal(media.headers.get('cache-control'), 'no-store, no-cache, must-revalidate, max-age=0');
   assert.deepEqual(Buffer.from(await media.arrayBuffer()), GIF);

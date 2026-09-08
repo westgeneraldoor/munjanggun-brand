@@ -492,7 +492,7 @@ let queue=[],active=null,timer=null,pageId=crypto.randomUUID(),eventChain=Promis
 const q=(id)=>document.getElementById(id), post=(url,body)=>fetch(url,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)}).then(async r=>{const j=await r.json();if(!r.ok)throw Error(j.error);return j});
 const observation=()=>({clientElapsedMs:active?performance.now()-active.clientStart:0,visible:!document.hidden,focused:document.hasFocus(),pageId});
 function event(type){if(!active)return Promise.resolve();const token=active.token,body={type,...observation()};eventChain=eventChain.then(()=>post('/api/sessions/'+token+'/events',body)).then(render).catch(e=>{q('status').textContent=e.message});return eventChain}
-function render(s){q('status').textContent='elapsed '+Math.floor(s.wallElapsedMs)+' / '+s.decodedDurationMs+'ms\n'+(s.invalidReasons.length?'무효 사유: '+s.invalidReasons.join(', '):'창을 유지하고 한 주기를 계속 관찰하세요.')}
+function render(s){q('status').textContent='elapsed '+Math.floor(s.wallElapsedMs)+' / '+s.decodedDurationMs+'ms\\n'+(s.invalidReasons.length?'무효 사유: '+s.invalidReasons.join(', '):'창을 유지하고 한 주기를 계속 관찰하세요.')}
 fetch('/api/queue').then(r=>r.json()).then(data=>{queue=data.entries;queue.forEach(e=>q('items').add(new Option(e.label,e.sha256)));showFacts()});
 const interruptedToken=localStorage.getItem('gifWorkbenchActive');if(interruptedToken){localStorage.removeItem('gifWorkbenchActive');fetch('/api/sessions/'+interruptedToken+'/events',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({type:'reload',clientElapsedMs:0,visible:!document.hidden,focused:document.hasFocus(),pageId})}).catch(()=>{})}
 q('items').onchange=showFacts;function showFacts(){const e=queue.find(x=>x.sha256===q('items').value);if(e)q('facts').textContent=e.decodedFrameCount+' frames / '+e.decodedDurationMs+'ms'}
@@ -501,7 +501,7 @@ q('media').onload=()=>{if(active){active.clientStart=performance.now();event('pl
 q('media').onerror=()=>event('media_error');
 document.addEventListener('visibilitychange',()=>event(document.hidden?'visibility_hidden':'visibility_visible'));window.addEventListener('blur',()=>event('blur'));
 window.addEventListener('beforeunload',()=>{if(active)navigator.sendBeacon('/api/sessions/'+active.token+'/events',new Blob([JSON.stringify({type:'reload',...observation()})],{type:'application/json'}))});
-async function decide(decision){try{await eventChain;const result=await post('/api/sessions/'+active.token+'/decision',{decision,note:q('note').value,...observation()});clearInterval(timer);timer=null;active=null;localStorage.removeItem('gifWorkbenchActive');q('media').removeAttribute('src');q('complete').disabled=true;q('escalate').disabled=true;q('status').textContent=decision+' 기록 완료\n'+result.paths.join('\n')}catch(e){q('status').textContent=e.message}}
+async function decide(decision){try{await eventChain;const result=await post('/api/sessions/'+active.token+'/decision',{decision,note:q('note').value,...observation()});clearInterval(timer);timer=null;active=null;localStorage.removeItem('gifWorkbenchActive');q('media').removeAttribute('src');q('complete').disabled=true;q('escalate').disabled=true;q('status').textContent=decision+' 기록 완료\\n'+result.paths.join('\\n')}catch(e){q('status').textContent=e.message}}
 q('complete').onclick=()=>decide('complete');q('escalate').onclick=()=>decide('needs_escalation');
 </script></body></html>`;
 }
