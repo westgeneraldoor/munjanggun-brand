@@ -4,10 +4,16 @@ import { createHash, generateKeyPairSync, sign } from 'node:crypto';
 import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
-import { assertContentEntryEvidence, buildVerifiedContentAuthority, computeContentDecisionHash, computeVisibleTextObservationDigest } from '../scripts/lib/asset-content-revalidation.mjs';
+import {
+  assertContentEntryEvidence, buildVerifiedContentAuthority, computeContentDecisionHash,
+  computePrimarySemanticDecisionDigest, computeStaticTileCoverageDigest, computeVisibleTextObservationDigest,
+} from '../scripts/lib/asset-content-revalidation.mjs';
 import { assertCatalogContentUsable } from '../scripts/lib/asset-content-quality.mjs';
 import { decodeGifFramePixels, GIF_PIXEL_DECODER_VERSION } from '../scripts/lib/gif-frame-pixels.mjs';
-import { applyExifOrientation, decodeStaticRegionPixels, encodeRgbaPng, STATIC_PIXEL_DECODER_VERSION, STATIC_PNG_ENCODER_VERSION } from '../scripts/lib/static-image-region-pixels.mjs';
+import {
+  applyExifOrientation, decodeStaticImagePixels, decodeStaticPixelRegion, decodeStaticRegionPixels, encodeRgbaPng,
+  staticPixelDigest, STATIC_PIXEL_DECODER_VERSION, STATIC_PNG_ENCODER_VERSION,
+} from '../scripts/lib/static-image-region-pixels.mjs';
 import { stableJson } from '../scripts/lib/asset-owner-trust.mjs';
 import { contentReviewerKeyFingerprint } from '../scripts/lib/asset-content-reviewer-trust.mjs';
 
@@ -20,6 +26,98 @@ test('static pixel decoder applies EXIF orientation before normalized cropping',
 
 test('canonical static crop PNG bytes are stable across Windows and Ubuntu runners', () => {
   assert.equal(digest(staticPngFixture()), 'b8471af02966b8308108e2083364916e1a99ee09fcc18e97050537e57ef46416');
+});
+
+test('verified input rejects any unresolved uncertainty', async () => {
+  const fixture = await makeFixture();
+  await mutateReview(fixture, (entry) => { entry.uncertainties = ['텍스트 판독 불확실']; });
+  await assert.rejects(buildVerifiedContentAuthority(fixture.options), /schema failed|must NOT have more than 0 items/u);
+});
+
+test('static authority rejects missing native-resolution tile coverage', async () => {
+  const fixture = await makeFixture();
+  await mutateReview(fixture, (entry) => { delete entry.staticTileCoverage; });
+  await assert.rejects(buildVerifiedContentAuthority(fixture.options), /staticTileCoverage|Static tile coverage is missing/u);
+});
+
+test('static authority rejects a gap in native-resolution tile coverage', async () => {
+  const fixture = await makeFixture();
+  const original = await readFile(fixture.options.rawRoot + '/제품/001.png');
+  const topRow = decodeStaticPixelRegion(original, { left: 0, top: 0, width: 2, height: 1 });
+  const tileBytes = encodeRgbaPng(topRow);
+  await writeFile(fixture.staticTilePath, tileBytes);
+  const manifest = JSON.parse(await readFile(fixture.staticTileManifestPath, 'utf8'));
+  manifest.tiles[0] = {
+    ...manifest.tiles[0], sha256: digest(tileBytes), pixelSha256: topRow.pixelSha256,
+    width: 2, height: 1, pixelRegion: topRow.pixelRegion,
+  };
+  manifest.coverageDigest = computeStaticTileCoverageDigest(manifest);
+  const manifestBytes = bytes(manifest);
+  await writeFile(fixture.staticTileManifestPath, manifestBytes);
+  await mutateReview(fixture, (entry) => {
+    entry.staticTileCoverage.manifestSha256 = digest(manifestBytes);
+    entry.staticTileCoverage.coverageDigest = manifest.coverageDigest;
+  });
+  await assert.rejects(buildVerifiedContentAuthority(fixture.options), /does not cover every native-resolution pixel/u);
+});
+
+test('secondary semantic verdict must use another reviewer principal and key', async () => {
+  const fixture = await makeFixture();
+  const review = JSON.parse(await readFile(fixture.options.reviewFiles[0], 'utf8'));
+  const receipt = JSON.parse(await readFile(fixture.secondarySemanticVerdictPath, 'utf8'));
+  receipt.reviewerPrincipalId = 'fixture reviewer';
+  delete receipt.signature;
+  receipt.signature = signReviewDocument(receipt, 'fixture-primary-reviewer', fixture.primaryPrivateKey);
+  const receiptBytes = bytes(receipt);
+  await writeFile(fixture.secondarySemanticVerdictPath, receiptBytes);
+  review.entries[0].secondarySemanticVerdict.reviewerPrincipalId = receipt.reviewerPrincipalId;
+  review.entries[0].secondarySemanticVerdict.evidenceSha256 = digest(receiptBytes);
+  delete review.signature;
+  review.signature = signReviewDocument(review, 'fixture-primary-reviewer', fixture.primaryPrivateKey);
+  await writeFile(fixture.options.reviewFiles[0], bytes(review));
+  await assert.rejects(buildVerifiedContentAuthority(fixture.options), /Secondary semantic verdict binding mismatch|distinct reviewer principal and key/u);
+});
+
+test('secondary semantic verdict rejects a signed semantic mismatch', async () => {
+  const fixture = await makeFixture();
+  const review = JSON.parse(await readFile(fixture.options.reviewFiles[0], 'utf8'));
+  const receipt = JSON.parse(await readFile(fixture.secondarySemanticVerdictPath, 'utf8'));
+  receipt.observedSummary = '서명은 유효하지만 다른 설명';
+  delete receipt.signature;
+  receipt.signature = signReviewDocument(receipt, 'fixture-second-reviewer', fixture.secondPrivateKey);
+  const receiptBytes = bytes(receipt);
+  await writeFile(fixture.secondarySemanticVerdictPath, receiptBytes);
+  review.entries[0].secondarySemanticVerdict.evidenceSha256 = digest(receiptBytes);
+  delete review.signature;
+  review.signature = signReviewDocument(review, 'fixture-primary-reviewer', fixture.primaryPrivateKey);
+  await writeFile(fixture.options.reviewFiles[0], bytes(review));
+  await assert.rejects(buildVerifiedContentAuthority(fixture.options), /receipt observedSummary mismatch/u);
+});
+
+test('secondary semantic verdict digest rejects later claim, OCR, source-context, and inference changes', async () => {
+  const fixture = await makeFixture({ visibleText: ['제품 가격 600,000원'], claimSignals: ['price_or_discount_claim'] });
+  const review = JSON.parse(await readFile(fixture.options.reviewFiles[0], 'utf8'));
+  delete review.signature;
+  const entry = review.entries[0];
+  entry.claimSignals.push('discount_claim');
+  entry.claimEvidence.push({ ...entry.claimEvidence[0], signal: 'discount_claim' });
+  entry.ocrText = '제품 가격 600,000원';
+  entry.sourceContext.push('추가 출처 맥락');
+  entry.inferredText.push('가격 혜택 추론');
+  review.signature = signReviewDocument(review, 'fixture-primary-reviewer', fixture.primaryPrivateKey);
+  await writeFile(fixture.options.reviewFiles[0], bytes(review));
+
+  await assert.rejects(buildVerifiedContentAuthority(fixture.options), /primary decision digest mismatch/u);
+});
+
+test('authority builder revalidates GIF workbench event provenance', async () => {
+  const fixture = await makeFixture({ mediaKind: 'gif' });
+  const receipt = JSON.parse(await readFile(fixture.playbackReceiptPath, 'utf8'));
+  receipt.eventDigest = '0'.repeat(64);
+  const changed = bytes(receipt);
+  await writeFile(fixture.playbackReceiptPath, changed);
+  await mutateReview(fixture, (entry) => { entry.gifReview.fullPlaybackObservation.evidenceSha256 = digest(changed); });
+  await assert.rejects(buildVerifiedContentAuthority(fixture.options), /workbench event digest is invalid/u);
 });
 
 test('builder seals a per-object original review and verified quality authority replays it', async () => {
@@ -527,7 +625,7 @@ test('sealed quality authority rejects an actual GIF reclassified as static afte
   await assert.rejects(assertCatalogContentUsable({ intakeId: fixture.catalog.intakeId, catalogSha256: fixture.catalogSha256 }, {
     policy,
     trustedRoots: [fixture.root],
-  }), /Content review shard receipt binding is invalid|Content review entry does not match base catalog/u);
+  }), /Content overlay schema failed|Content review shard receipt binding is invalid|Content review entry does not match base catalog/u);
 });
 
 test('sealed quality authority rejects overlay content injected after review sealing', async () => {
@@ -612,11 +710,21 @@ async function makeFixture({
   const sampleEvidencePath = resolve(root, 'evidence', 'sample-0.bin');
   const sampleEvidenceBytes = pixelPngFixture();
   const sampleEvidenceSha256 = digest(sampleEvidenceBytes);
+  const playbackEvents = [{
+    sequence: 1, type: 'playback_started', serverAt: '2026-09-07T04:59:59.800Z',
+    visible: true, focused: true, elapsedSincePlaybackMs: 0, clientElapsedMs: 0, pageId: 'fixture-page',
+  }, {
+    sequence: 2, type: 'heartbeat', serverAt: '2026-09-07T05:00:00.000Z',
+    visible: true, focused: true, elapsedSincePlaybackMs: 200, clientElapsedMs: 200, pageId: 'fixture-page',
+  }];
   const playbackReceipt = mediaKind === 'gif' ? {
-    schema: 'munjanggun.gifPlaybackObservation.v1', observed: true, sourceObjectSha256: sha256,
-    method: 'continuous_original_playback', observedFromMs: 0, observedToMs: 200,
-    decodedFrameCount: 2, decodedDurationMs: 200,
-    reviewedAt: '2026-09-07T05:00:00.000Z', reviewer: 'fixture reviewer',
+    schema: 'munjanggun.gifPlaybackObservation.v1', version: '1.0', workbenchVersion: 'gif-playback-workbench-v1',
+    observed: true, sourceObjectSha256: sha256, method: 'continuous_original_playback', observedFromMs: 0, observedToMs: 200,
+    decodedFrameCount: 2, decodedDurationMs: 200, startedAt: '2026-09-07T04:59:59.800Z',
+    reviewedAt: '2026-09-07T05:00:00.000Z', reviewer: 'fixture reviewer', note: 'fixture uninterrupted playback',
+    playbackRate: 1, wallElapsedMs: 200, clientElapsedMs: 200, cachePolicy: 'cache_busted_no_store', heartbeatGapLimitMs: 1000,
+    eventCounts: { playback_started: 1, heartbeat: 1, visibility_hidden: 0, visibility_visible: 0, blur: 0, seek: 0, reload: 0, media_error: 0 },
+    eventDigest: digest(Buffer.from(stableJson(playbackEvents), 'utf8')), eventLog: playbackEvents, queueSha256: 'e'.repeat(64),
   } : null;
   if (playbackReceipt) {
     await mkdir(resolve(playbackReceiptPath, '..'), { recursive: true });
@@ -630,6 +738,34 @@ async function makeFixture({
   if (staticCropBytes) {
     await mkdir(resolve(staticCropPath, '..'), { recursive: true });
     await writeFile(staticCropPath, staticCropBytes);
+  }
+  let staticTileCoverage = null;
+  let staticTileManifestPath = null;
+  let staticTilePath = null;
+  if (mediaKind === 'static') {
+    const decodedStatic = decodeStaticImagePixels(original);
+    const tileRegion = { left: 0, top: 0, width: decodedStatic.width, height: decodedStatic.height };
+    const tileBytes = encodeRgbaPng(decodedStatic);
+    staticTilePath = resolve(root, 'evidence', 'static-tile-0.png');
+    await writeFile(staticTilePath, tileBytes);
+    const tilePixelSha256 = staticPixelDigest(decodedStatic.width, decodedStatic.height, decodedStatic.data);
+    const tileManifest = {
+      schema: 'munjanggun.staticTileCoverage.v1', version: '1.0', sourceObjectSha256: sha256,
+      sourceWidth: decodedStatic.width, sourceHeight: decodedStatic.height, sourcePixelSha256: tilePixelSha256,
+      decoderVersion: STATIC_PIXEL_DECODER_VERSION, encoderVersion: STATIC_PNG_ENCODER_VERSION,
+      coverageMode: 'native_resolution_non_overlapping_full_partition', tileCount: 1,
+      tiles: [{
+        index: 0, path: staticTilePath, sha256: digest(tileBytes), pixelSha256: tilePixelSha256,
+        width: decodedStatic.width, height: decodedStatic.height, pixelRegion: tileRegion, sourceObjectSha256: sha256,
+      }],
+    };
+    tileManifest.coverageDigest = computeStaticTileCoverageDigest(tileManifest);
+    staticTileManifestPath = resolve(root, 'evidence', 'static-tile-coverage.json');
+    const manifestBytes = bytes(tileManifest);
+    await writeFile(staticTileManifestPath, manifestBytes);
+    staticTileCoverage = {
+      manifestRef: staticTileManifestPath, manifestSha256: digest(manifestBytes), coverageDigest: tileManifest.coverageDigest,
+    };
   }
   const visibleTextObservations = visibleText.map((text, index) => ({
     text, sourceObjectSha256: sha256, provenance: mediaKind === 'gif' ? 'gif_frame_pixel' : 'static_pixel',
@@ -707,6 +843,7 @@ async function makeFixture({
         method: mediaKind === 'gif' ? 'full_loop_original_opened' : 'full_resolution_original_opened',
         originalPath, reviewer: 'fixture reviewer', reviewedAt: '2026-09-07T05:00:00.000Z',
       },
+      ...(staticTileCoverage ? { staticTileCoverage } : {}),
       ...(mediaKind === 'gif' ? {
         gifReview: {
           decodedFrameCount: 2, decodedDurationMs: 200, decodedLoopCount: 0,
@@ -725,12 +862,16 @@ async function makeFixture({
       } : {}),
     }],
   };
+  await refreshSecondarySemanticVerdict(review, {
+    root, secondPrivateKey, secondarySemanticVerdictPath: resolve(root, 'evidence', 'secondary-semantic-verdict.json'),
+  });
   review.signature = signReviewDocument(review, 'fixture-primary-reviewer', primaryPrivateKey);
   const reviewPath = resolve(root, 'review.json');
   await writeFile(reviewPath, bytes(review));
   return {
     root, catalog, catalogSha256: digest(catalogBytes), sampleEvidencePath, playbackReceiptPath, staticCropPath, secondReviewPaths,
-    reviewerTrustPath, primaryPrivateKey,
+    staticTileManifestPath, staticTilePath, reviewerTrustPath, primaryPrivateKey, secondPrivateKey,
+    secondarySemanticVerdictPath: resolve(root, 'evidence', 'secondary-semantic-verdict.json'),
     options: { catalogPath, profilePath, objectRoot, rawRoot, reviewFiles: [reviewPath], reviewerTrustPath, outputRoot, generatedAt, repoRoot: resolve(root, 'public-repo') },
   };
 }
@@ -741,7 +882,7 @@ function qualityPolicy(result) {
     records: [{
       intakeId: 'INTAKE-20260907-99', catalogSha256: result.baseCatalogSha256,
       status: 'visually_verified', reason: 'fixture verified original review', verifiedAt: '2026-09-07T06:00:00.000Z',
-      authorityContractVersion: 'content-evidence-v3',
+      authorityContractVersion: 'content-evidence-v4',
       profileSha256: result.profileSha256,
       reviewerTrustSha256: result.reviewerTrustSha256,
       overlayPath: result.overlayPath, overlaySha256: result.overlaySha256,
@@ -776,8 +917,34 @@ async function mutateReview(fixture, mutate) {
   const review = JSON.parse(await readFile(fixture.options.reviewFiles[0], 'utf8'));
   delete review.signature;
   mutate(review.entries[0], review);
+  await refreshSecondarySemanticVerdict(review, fixture);
   review.signature = signReviewDocument(review, 'fixture-primary-reviewer', fixture.primaryPrivateKey);
   await writeFile(fixture.options.reviewFiles[0], bytes(review));
+}
+
+async function refreshSecondarySemanticVerdict(review, fixture) {
+  const entry = review.entries[0];
+  const primaryDecisionDigest = computePrimarySemanticDecisionDigest(entry);
+  const receipt = {
+    schema: 'munjanggun.assetContentSecondarySemanticVerdict.v1', version: '1.0',
+    status: 'confirmed_match', method: 'independent_full_content_review',
+    sourceObjectSha256: entry.sha256, primaryDecisionDigest,
+    observedSummary: entry.observedSummary, contentType: entry.contentType,
+    useCases: [...entry.useCases].sort(),
+    searchTags: Object.fromEntries(Object.entries(entry.searchTags).map(([key, values]) => [key, [...new Set(values)].sort()])),
+    textPresence: entry.textPresence, visibleText: [...new Set(entry.visibleText)],
+    privacySignals: [...new Set(entry.privacySignals)].sort(), uncertainties: [...new Set(entry.uncertainties)].sort(),
+    reviewerPrincipalId: 'fixture independent reviewer', reviewedAt: '2026-09-07T05:00:00.000Z',
+  };
+  receipt.signature = signReviewDocument(receipt, 'fixture-second-reviewer', fixture.secondPrivateKey);
+  const receiptBytes = bytes(receipt);
+  await mkdir(resolve(fixture.secondarySemanticVerdictPath, '..'), { recursive: true });
+  await writeFile(fixture.secondarySemanticVerdictPath, receiptBytes);
+  entry.secondarySemanticVerdict = {
+    status: receipt.status, method: receipt.method, reviewerPrincipalId: receipt.reviewerPrincipalId,
+    reviewedAt: receipt.reviewedAt, primaryDecisionDigest,
+    evidenceRef: fixture.secondarySemanticVerdictPath, evidenceSha256: digest(receiptBytes),
+  };
 }
 
 function signReviewDocument(document, keyId, privateKey) {

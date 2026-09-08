@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/westgeneraldoor/munjanggun-brand/schemas/asset-content-secondary-semantic-verdict.schema.json",
+  "title": "Munjanggun Independent Secondary Semantic Verdict",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "version", "status", "method", "sourceObjectSha256", "primaryDecisionDigest",
+    "observedSummary", "contentType", "useCases", "searchTags", "textPresence", "visibleText",
+    "privacySignals", "uncertainties", "reviewerPrincipalId", "reviewedAt", "signature"
+  ],
+  "properties": {
+    "schema": { "const": "munjanggun.assetContentSecondarySemanticVerdict.v1" },
+    "version": { "const": "1.0" },
+    "status": { "const": "confirmed_match" },
+    "method": { "const": "independent_full_content_review" },
+    "sourceObjectSha256": { "$ref": "#/$defs/sha256" },
+    "primaryDecisionDigest": { "$ref": "#/$defs/sha256" },
+    "observedSummary": { "type": "string", "minLength": 1 },
+    "contentType": { "type": "string", "minLength": 1 },
+    "useCases": { "$ref": "#/$defs/stringArray" },
+    "searchTags": { "$ref": "#/$defs/searchTags" },
+    "textPresence": { "enum": ["observed", "none_observed"] },
+    "visibleText": { "$ref": "#/$defs/stringArray" },
+    "privacySignals": { "$ref": "#/$defs/stringArray" },
+    "uncertainties": { "$ref": "#/$defs/stringArray" },
+    "reviewerPrincipalId": { "type": "string", "minLength": 1 },
+    "reviewedAt": { "type": "string", "format": "date-time" },
+    "signature": { "$ref": "#/$defs/signature" }
+  },
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "stringArray": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "searchTags": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["productTypes", "scenes", "colors", "designs", "topics"],
+      "properties": {
+        "productTypes": { "$ref": "#/$defs/stringArray" },
+        "scenes": { "$ref": "#/$defs/stringArray" },
+        "colors": { "$ref": "#/$defs/stringArray" },
+        "designs": { "$ref": "#/$defs/stringArray" },
+        "topics": { "$ref": "#/$defs/stringArray" }
+      }
+    },
+    "signature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["algorithm", "keyId", "valueBase64"],
+      "properties": {
+        "algorithm": { "const": "Ed25519" },
+        "keyId": { "type": "string", "minLength": 1 },
+        "valueBase64": { "type": "string", "pattern": "^[A-Za-z0-9+/]+={0,2}$" }
+      }
+    }
+  }
+}

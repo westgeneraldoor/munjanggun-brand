@@ -9,7 +9,10 @@
     {
       "if": { "properties": { "mediaKind": { "const": "gif" } }, "required": ["mediaKind"] },
       "then": { "properties": { "entries": { "type": "array", "items": { "type": "object", "properties": { "gifReview": true }, "required": ["gifReview"] } } } },
-      "else": { "properties": { "entries": { "type": "array", "items": { "type": "object", "not": { "type": "object", "properties": { "gifReview": true }, "required": ["gifReview"] } } } } }
+      "else": { "properties": { "entries": { "type": "array", "items": { "type": "object", "allOf": [
+        { "not": { "type": "object", "properties": { "gifReview": true }, "required": ["gifReview"] } },
+        { "properties": { "staticTileCoverage": true }, "required": ["staticTileCoverage"] }
+      ] } } } }
     }
   ],
   "properties": {
@@ -103,6 +106,28 @@
         "status": { "const": "confirmed_visible" }, "method": { "const": "independent_crop_review" },
         "reviewerPrincipalId": { "type": "string", "minLength": 1 }, "reviewedAt": { "type": "string", "format": "date-time" },
         "observationDigest": { "$ref": "#/$defs/sha256" }, "evidenceRef": { "type": "string", "minLength": 1 }, "evidenceSha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "staticTileCoverage": {
+      "type": "object", "additionalProperties": false,
+      "required": ["manifestRef", "manifestSha256", "coverageDigest"],
+      "properties": {
+        "manifestRef": { "type": "string", "minLength": 1 },
+        "manifestSha256": { "$ref": "#/$defs/sha256" },
+        "coverageDigest": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "secondarySemanticVerdict": {
+      "type": "object", "additionalProperties": false,
+      "required": ["status", "method", "reviewerPrincipalId", "reviewedAt", "primaryDecisionDigest", "evidenceRef", "evidenceSha256"],
+      "properties": {
+        "status": { "const": "confirmed_match" },
+        "method": { "const": "independent_full_content_review" },
+        "reviewerPrincipalId": { "type": "string", "minLength": 1 },
+        "reviewedAt": { "type": "string", "format": "date-time" },
+        "primaryDecisionDigest": { "$ref": "#/$defs/sha256" },
+        "evidenceRef": { "type": "string", "minLength": 1 },
+        "evidenceSha256": { "$ref": "#/$defs/sha256" }
       }
     },
     "staticCropEvidence": {
@@ -216,10 +241,14 @@
     "entry": {
       "type": "object",
       "additionalProperties": false,
+      "allOf": [{
+        "if": { "properties": { "verificationStatus": { "const": "verified" } }, "required": ["verificationStatus"] },
+        "then": { "properties": { "uncertainties": { "type": "array", "maxItems": 0 } } }
+      }],
       "required": [
         "sha256", "sourceRefs", "verificationStatus", "observedSummary", "contentType", "useCases",
         "searchTags", "textPresence", "visibleText", "visibleTextObservations", "ocrText", "sourceContext", "inferredText", "claimSignals",
-        "claimEvidence", "privacySignals", "uncertainties", "reviewEvidence"
+        "claimEvidence", "privacySignals", "uncertainties", "reviewEvidence", "secondarySemanticVerdict"
       ],
       "properties": {
         "sha256": { "$ref": "#/$defs/sha256" },
@@ -243,6 +272,8 @@
         "privacySignals": { "$ref": "#/$defs/stringArray" },
         "uncertainties": { "$ref": "#/$defs/stringArray" },
         "reviewEvidence": { "$ref": "#/$defs/reviewEvidence" },
+        "staticTileCoverage": { "$ref": "#/$defs/staticTileCoverage" },
+        "secondarySemanticVerdict": { "$ref": "#/$defs/secondarySemanticVerdict" },
         "gifReview": { "$ref": "#/$defs/gifReview" }
       }
     }

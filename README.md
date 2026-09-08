@@ -1,8 +1,8 @@
 # 문장군 중앙 브랜드 문서
 
-> 버전: v5.10
-> 최종 업데이트: 2026-09-07
-> 변경 요약: 동일 Ed25519 키의 PEM 표기 차이를 서로 다른 검토자로 오인하지 않도록 canonical SPKI fingerprint를 적용하고, 공용 자산 검색·handoff 중지 상태를 사용 안내에 명시한다.
+> 버전: v5.11
+> 최종 업데이트: 2026-09-08
+> 변경 요약: 두 intake를 합친 재검토 대기열, GIF 연속 재생 workbench, 검토자 서명 도구와 `content-evidence-v4` 검증 계약을 추가한다. 실제 내용 재검토와 공용 자료실 재개는 아직 완료하지 않았다.
 
 이 저장소는 문장군의 브랜드 사실, 현장 판단, 변동 claim 근거, 공통 원료, 상품·자산 위키를 관리한다.
 
@@ -51,6 +51,7 @@ npm run report:assets
 | `CHANGELOG.md` | 변경 이력 |
 | `ASSET_INTAKE_2026-09-04.md` | 신규 10개 상품 묶음의 보존·중복·검토·승격 게이트 |
 | `ASSET_CONTENT_REVALIDATION_2026-09-07.md` | 407개 자산 내용 오분류 원인·재판독 진행·다음 봉인 기준 |
+| `ASSET_VISUAL_REVIEW_WORKBENCH.md` | 두 intake 489개 고유 자산의 재검토 대기열·서명·GIF 전체 재생 운영 절차 |
 
 ## 상품·자산 운영
 

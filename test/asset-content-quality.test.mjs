@@ -41,7 +41,7 @@ test('legacy visually verified authority without the evidence contract is reject
   }), /missing sealed authority fields/u);
 });
 
-test('older evidence contract cannot be promoted under the v3 runtime', async () => {
+test('older evidence contract cannot be promoted under the v4 runtime', async () => {
   const value = policy([{ status: 'visually_verified' }]);
   value.records[0].authorityContractVersion = 'content-evidence-v2';
   await assert.rejects(assertCatalogContentUsable({ intakeId: 'INTAKE-TEST', catalogSha256: CATALOG_SHA }, {
@@ -59,7 +59,7 @@ function policy(records) {
         overlayPath: resolve('fixture-private', 'content-overlay.json'), overlaySha256: 'c'.repeat(64),
         receiptPath: resolve('fixture-private', 'receipt.json'), receiptSha256: 'd'.repeat(64),
         profileSha256: 'e'.repeat(64), reviewerTrustSha256: 'f'.repeat(64),
-        authorityContractVersion: 'content-evidence-v3',
+        authorityContractVersion: 'content-evidence-v4',
         verifiedAt: '2026-09-07T06:00:00.000Z',
       } : {}),
     })),

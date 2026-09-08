@@ -9,12 +9,12 @@
     "entryCount", "verifiedCount", "needsEscalationCount", "staticCount", "gifCount", "decodedGifFrameCount",
     "sampledGifFrameCount", "fullPlaybackObservedGifCount", "claimSignalAssetCount", "sensitiveClaimEvidenceAssetCount",
     "visibleTextObservationCount", "verifiedCropCount", "sensitiveClaimObservationCount", "secondReviewedSensitiveObservationCount",
-    "priceClaimAssetCount", "privacySignalAssetCount", "reviewFiles", "treeHash"
+    "priceClaimAssetCount", "privacySignalAssetCount", "staticTileCoverageCount", "secondarySemanticVerdictCount", "reviewFiles", "treeHash"
   ],
   "properties": {
-    "schema": { "const": "munjanggun.assetContentRevalidationReceipt.v2" },
-    "version": { "const": "2.0" },
-    "authorityContractVersion": { "const": "content-evidence-v3" },
+    "schema": { "const": "munjanggun.assetContentRevalidationReceipt.v3" },
+    "version": { "const": "3.0" },
+    "authorityContractVersion": { "const": "content-evidence-v4" },
     "intakeId": { "type": "string", "pattern": "^INTAKE-[0-9]{8}-[0-9]{2}$" },
     "sealedAt": { "type": "string", "format": "date-time" },
     "baseCatalogPath": { "type": "string", "minLength": 1 },
@@ -31,6 +31,8 @@
     "sensitiveClaimObservationCount": { "type": "integer", "minimum": 0 }, "secondReviewedSensitiveObservationCount": { "type": "integer", "minimum": 0 },
     "sensitiveClaimEvidenceAssetCount": { "type": "integer", "minimum": 0 }, "priceClaimAssetCount": { "type": "integer", "minimum": 0 },
     "privacySignalAssetCount": { "type": "integer", "minimum": 0 },
+    "staticTileCoverageCount": { "type": "integer", "minimum": 0 },
+    "secondarySemanticVerdictCount": { "type": "integer", "minimum": 0 },
     "reviewFiles": {
       "type": "array", "minItems": 1,
       "items": {

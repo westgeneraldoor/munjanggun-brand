@@ -222,7 +222,11 @@ async function loadAndVerifyAuthority(record, { intakeId, catalogSha256, trusted
     || receipt.claimSignalAssetCount !== overlay.entries.filter((entry) => entry.claimSignals.length > 0).length
     || receipt.sensitiveClaimEvidenceAssetCount !== overlay.entries.filter((entry) => entry.claimEvidence.some((item) => item.topic !== 'other')).length
     || receipt.priceClaimAssetCount !== overlay.entries.filter((entry) => entry.claimEvidence.some((item) => item.topic === 'price')).length
-    || receipt.privacySignalAssetCount !== overlay.entries.filter((entry) => entry.privacySignals.length > 0).length) {
+    || receipt.privacySignalAssetCount !== overlay.entries.filter((entry) => entry.privacySignals.length > 0).length
+    || receipt.staticTileCoverageCount !== overlay.entries.filter((entry) => entry.staticTileCoverage).length
+    || receipt.staticTileCoverageCount !== receipt.staticCount
+    || receipt.secondarySemanticVerdictCount !== overlay.entries.filter((entry) => entry.secondarySemanticVerdict).length
+    || receipt.secondarySemanticVerdictCount !== receipt.entryCount) {
     throw new Error('Content revalidation authority binding is invalid');
   }
   const overlayBySha = new Map(overlay.entries.map((entry) => [entry.sha256, entry]));
@@ -251,7 +255,7 @@ async function loadAndVerifyAuthority(record, { intakeId, catalogSha256, trusted
     const rawReview = JSON.parse(rawBytes.toString('utf8'));
     assertSchema(shard, reviewSchema, 'Content review shard');
     assertSchema(rawReview, reviewInputSchema, 'Signed primary review input');
-    verifyTrustedContentReviewerSignature(rawReview, rawReview.reviewer, reviewerTrust, `Primary review ${rawPath}`);
+    const primarySigner = verifyTrustedContentReviewerSignature(rawReview, rawReview.reviewer, reviewerTrust, `Primary review ${rawPath}`);
     const shardReviewedAt = dateValue(shard.reviewedAt, 'Content review shard reviewedAt');
     if (shard.intakeId !== intakeId || shard.entries.length !== item.entryCount
       || shard.authorityContractVersion !== CONTENT_AUTHORITY_CONTRACT_VERSION || shardReviewedAt > sealedAt
@@ -263,7 +267,10 @@ async function loadAndVerifyAuthority(record, { intakeId, catalogSha256, trusted
     const rawShas = [...rawReview.entries].map((entry) => String(entry.sha256 ?? entry.sourceObjectSha256 ?? '').toLowerCase()).sort();
     const shardShas = [...shard.entries].map((entry) => entry.sourceObjectSha256).sort();
     if (canonicalJson(rawShas) !== canonicalJson(shardShas)) throw new Error('Primary review input does not match sealed review shard');
-    const rebuiltShard = await normalizeReviewShard(rawReview, rawPath, rawBytes, baseCatalog, baselineBySha, rawRootPath, productIdentity, receipt.sealedAt, reviewerTrust);
+    const rebuiltShard = await normalizeReviewShard(
+      rawReview, rawPath, rawBytes, baseCatalog, baselineBySha, rawRootPath,
+      productIdentity, receipt.sealedAt, reviewerTrust, primarySigner,
+    );
     if (canonicalJson(rebuiltShard) !== canonicalJson(shard)) {
       throw new Error('Sealed review shard does not match its signed primary review input');
     }
@@ -290,7 +297,7 @@ async function loadAndVerifyAuthority(record, { intakeId, catalogSha256, trusted
       if (sha256(originalBytes) !== entry.sourceObjectSha256) {
         throw new Error(`Content original evidence SHA-256 mismatch: ${entry.sourceObjectSha256}`);
       }
-      await assertContentEntryEvidence(entry, shard.mediaKind, { evidenceRoots: trustedRoots, reviewerTrust });
+      await assertContentEntryEvidence(entry, shard.mediaKind, { evidenceRoots: trustedRoots, reviewerTrust, primarySigner });
       assertProductIdentity(entry, productIdentity);
       if (entry.gifReview) {
         await assertGifReviewEvidence(entry, { evidenceRoots: trustedRoots });
@@ -398,6 +405,7 @@ function toExpectedOverlayEntry(entry, reviewEvidenceRefs) {
     claimSignals: entry.claimSignals,
     claimEvidence: entry.claimEvidence,
     privacySignals: entry.privacySignals,
+    uncertainties: entry.uncertainties,
     humanReviewStatus: 'verified',
     reviewer: entry.reviewer,
     primaryReviewedAt: entry.primaryReviewedAt,
@@ -406,6 +414,8 @@ function toExpectedOverlayEntry(entry, reviewEvidenceRefs) {
     reviewEvidenceRefs,
     decisionHash: entry.decisionHash,
     gifMetadata: entry.gifReview ?? null,
+    ...(entry.staticTileCoverage ? { staticTileCoverage: entry.staticTileCoverage } : {}),
+    secondarySemanticVerdict: entry.secondarySemanticVerdict,
   };
 }
 
