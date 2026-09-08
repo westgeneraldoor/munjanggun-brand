@@ -70,12 +70,14 @@ export async function createGifPlaybackWorkbench({
   now = () => Date.now(),
   heartbeatGapLimitMs = 2_000,
   requireZEvidenceRoots = false,
+  beforeReceiptWrite = null,
 } = {}) {
   const reviewerName = String(reviewer ?? '').trim();
   if (!reviewerName) throw new Error('Reviewer is required');
   if (host !== '127.0.0.1') throw new Error('GIF playback workbench must bind to 127.0.0.1');
   if (!Number.isInteger(port) || port < 0 || port > 65_535) throw new Error('Workbench port is invalid');
   if (!Number.isFinite(heartbeatGapLimitMs) || heartbeatGapLimitMs < 250) throw new Error('Heartbeat gap limit is invalid');
+  if (beforeReceiptWrite !== null && typeof beforeReceiptWrite !== 'function') throw new Error('Receipt write barrier is invalid');
   const verifiedQueue = await loadVerifiedGifPlaybackQueue(queuePath);
   const roots = normalizeEvidenceRoots({ evidenceRoot, evidenceRootsByIntake, requireZEvidenceRoots });
   for (const entry of verifiedQueue.entries) evidencePathsFor(entry, roots, 'complete');
@@ -83,7 +85,7 @@ export async function createGifPlaybackWorkbench({
   const sessions = new Map();
   const server = createServer(async (request, response) => {
     try {
-      await routeRequest({ request, response, verifiedQueue, entryBySha, sessions, roots, reviewerName, now, heartbeatGapLimitMs });
+      await routeRequest({ request, response, verifiedQueue, entryBySha, sessions, roots, reviewerName, now, heartbeatGapLimitMs, beforeReceiptWrite });
     } catch (error) {
       sendJson(response, error.statusCode ?? 500, { error: error.message });
     }
@@ -103,7 +105,9 @@ export async function createGifPlaybackWorkbench({
 }
 
 async function routeRequest(context) {
-  const { request, response, verifiedQueue, entryBySha, sessions, roots, reviewerName, now, heartbeatGapLimitMs } = context;
+  const {
+    request, response, verifiedQueue, entryBySha, sessions, roots, reviewerName, now, heartbeatGapLimitMs, beforeReceiptWrite,
+  } = context;
   const url = new URL(request.url, 'http://127.0.0.1');
   if (request.method === 'GET' && url.pathname === '/') {
     sendHtml(response, workbenchHtml());
@@ -151,7 +155,7 @@ async function routeRequest(context) {
     const startedAtMs = now();
     sessions.set(token, {
       token, entry, createdAtMs: startedAtMs, playbackStartedAtMs: null, reviewer: reviewerName,
-      events: [], invalidReasons: new Set(), lastClientElapsedMs: null, lastServerEventAtMs: null,
+      events: [], invalidReasons: new Set(), lastClientElapsedMs: null, lastServerEventAtMs: null, finalizing: false,
     });
     sendJson(response, 201, { token, mediaUrl: `/media/${entry.sha256}.gif?run=${randomBytes(12).toString('hex')}` });
     return;
@@ -159,6 +163,7 @@ async function routeRequest(context) {
   const eventMatch = url.pathname.match(/^\/api\/sessions\/([a-f0-9]{48})\/events$/u);
   if (request.method === 'POST' && eventMatch) {
     const session = activeSession(sessions, eventMatch[1]);
+    if (session.finalizing) throw httpError(409, 'GIF playback session is finalizing');
     const body = await readJsonBody(request);
     recordSessionEvent(session, body, now(), heartbeatGapLimitMs);
     sendJson(response, 200, sessionSummary(session, now()));
@@ -167,10 +172,19 @@ async function routeRequest(context) {
   const decisionMatch = url.pathname.match(/^\/api\/sessions\/([a-f0-9]{48})\/decision$/u);
   if (request.method === 'POST' && decisionMatch) {
     const session = activeSession(sessions, decisionMatch[1]);
-    const body = await readJsonBody(request);
-    const result = await finalizeDecision({ session, body, atMs: now(), roots, queueSha256: verifiedQueue.sha256, heartbeatGapLimitMs });
-    sessions.delete(session.token);
-    sendJson(response, 201, result);
+    if (session.finalizing) throw httpError(409, 'GIF playback session is already finalizing');
+    session.finalizing = true;
+    try {
+      const body = await readJsonBody(request);
+      const result = await finalizeDecision({
+        session, body, atMs: now(), roots, queueSha256: verifiedQueue.sha256, heartbeatGapLimitMs, beforeReceiptWrite,
+      });
+      sessions.delete(session.token);
+      sendJson(response, 201, result);
+    } catch (error) {
+      session.finalizing = false;
+      throw error;
+    }
     return;
   }
   throw httpError(404, 'Not found');
@@ -209,7 +223,7 @@ function recordSessionEvent(session, body, atMs, heartbeatGapLimitMs) {
   session.lastServerEventAtMs = atMs;
 }
 
-async function finalizeDecision({ session, body, atMs, roots, queueSha256, heartbeatGapLimitMs }) {
+async function finalizeDecision({ session, body, atMs, roots, queueSha256, heartbeatGapLimitMs, beforeReceiptWrite }) {
   const decision = String(body.decision ?? '');
   const note = String(body.note ?? '').trim();
   if (!['complete', 'needs_escalation'].includes(decision)) throw httpError(400, 'Decision must be complete or needs_escalation');
@@ -240,7 +254,7 @@ async function finalizeDecision({ session, body, atMs, roots, queueSha256, heart
   if (session.invalidReasons.size) {
     throw httpError(409, `Full playback completion rejected: ${[...session.invalidReasons].sort().join(', ')}`);
   }
-  const eventLog = session.events;
+  const eventLog = session.events.map((event) => ({ ...event }));
   const eventDigest = digest(Buffer.from(canonicalJson(eventLog), 'utf8'));
   const counts = Object.fromEntries([...ALLOWED_EVENTS].map((type) => [type, eventLog.filter((event) => event.type === type).length]));
   const receipt = {
@@ -265,6 +279,7 @@ async function finalizeDecision({ session, body, atMs, roots, queueSha256, heart
     queueSha256,
   };
   assertGifPlaybackWorkbenchReceipt(receipt, session.entry);
+  if (beforeReceiptWrite) await beforeReceiptWrite();
   await writeDocumentsExclusively(rootPaths, receipt);
   return { decision, paths: rootPaths, receiptSha256: digest(Buffer.from(`${JSON.stringify(receipt, null, 2)}\n`, 'utf8')) };
 }
@@ -501,7 +516,7 @@ q('media').onload=()=>{if(active){active.clientStart=performance.now();event('pl
 q('media').onerror=()=>event('media_error');
 document.addEventListener('visibilitychange',()=>event(document.hidden?'visibility_hidden':'visibility_visible'));window.addEventListener('blur',()=>event('blur'));
 window.addEventListener('beforeunload',()=>{if(active)navigator.sendBeacon('/api/sessions/'+active.token+'/events',new Blob([JSON.stringify({type:'reload',...observation()})],{type:'application/json'}))});
-async function decide(decision){try{await eventChain;const result=await post('/api/sessions/'+active.token+'/decision',{decision,note:q('note').value,...observation()});clearInterval(timer);timer=null;active=null;localStorage.removeItem('gifWorkbenchActive');q('media').removeAttribute('src');q('complete').disabled=true;q('escalate').disabled=true;q('status').textContent=decision+' 기록 완료\\n'+result.paths.join('\\n')}catch(e){q('status').textContent=e.message}}
+async function decide(decision){try{clearInterval(timer);timer=null;await eventChain;const result=await post('/api/sessions/'+active.token+'/decision',{decision,note:q('note').value,...observation()});active=null;localStorage.removeItem('gifWorkbenchActive');q('media').removeAttribute('src');q('complete').disabled=true;q('escalate').disabled=true;q('status').textContent=decision+' 기록 완료\\n'+result.paths.join('\\n')}catch(e){q('complete').disabled=true;q('escalate').disabled=true;q('status').textContent=e.message+' — 새 검토를 시작하세요.'}}
 q('complete').onclick=()=>decide('complete');q('escalate').onclick=()=>decide('needs_escalation');
 </script></body></html>`;
 }
