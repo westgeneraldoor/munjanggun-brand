@@ -322,6 +322,12 @@ test('builder rejects all-frame GIF review that sampled only part of the decoded
   await assert.rejects(buildVerifiedContentAuthority(fixture.options), /does not cover every decoded frame/u);
 });
 
+test('builder rejects a sampled-timeline draft as full-loop GIF authority', async () => {
+  const fixture = await makeFixture({ mediaKind: 'gif' });
+  await mutateReview(fixture, (entry) => { entry.reviewEvidence.method = 'sampled_timeline_original_opened'; });
+  await assert.rejects(buildVerifiedContentAuthority(fixture.options), /Review method is insufficient/u);
+});
+
 test('runtime evidence replay rejects a GIF entry with no GIF review evidence', async () => {
   const hash = 'a'.repeat(64);
   await assert.rejects(assertContentEntryEvidence({

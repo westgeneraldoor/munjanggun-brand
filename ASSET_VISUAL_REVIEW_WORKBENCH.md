@@ -27,6 +27,7 @@
 - GIF 교정 결정: 자산당 10개, 총 800개; 직접 원본 재대조 충돌군 13개
 - 두 intake의 같은 SHA 5개는 실물을 늘리지 않고 양쪽 출처만 보존
 - 모든 결과는 `non_authority`이고 공용 자료실·외부 발행 상태를 바꾸지 않는다.
+- 초안 v2는 GIF의 P1 기술 재생·P7 표본 의미 판독·P5 교정 이력을 분리하고, 정지 이미지 문자 상태 `observed 375 / none_observed 32 / uncertain 2`를 그대로 보존한다. 오류가 있던 v1은 삭제하지 않고 superseded 이력으로 유지한다.
 
 현재 활성 증거 사슬과 두 intake 전체 연결은 다음 두 명령으로 재검증한다.
 
@@ -35,7 +36,9 @@ npm run assets:validate-gif-adjudication-candidate -- --active-candidate "Z:\문
 npm run assets:build-content-authority-drafts -- --config config/asset-content-authority-draft-adapter.json --check-only
 ```
 
-두 번째 명령의 정상 결과는 고유 자산 489개(정지 409·GIF 80), catalog 경로 494개, 두 intake 공통 SHA 5개, 의미 판독 누락·중복 0이다. 출력 상태는 계속 `non_authority`·`needs_evidence`·`signingAllowed: false`여야 한다.
+두 번째 명령의 정상 결과는 고유 자산 489개(정지 409·GIF 80), catalog 항목 494개, 두 intake 공통 SHA 5개, 의미 판독 누락·중복 0이다. 출력 상태는 계속 `non_authority`·`needs_evidence`·`signingAllowed: false`여야 한다. 원래 경로(origin) 총합 1,221개와 catalog 항목 수는 서로 다른 지표다.
+
+현재 비공개 초안 포인터는 `Z:\문장군_브랜드_원본보관\VISUAL-REVIEW-2026-09-08\content-authority-drafts-current.json`이다. 이 포인터의 draft set·supersession·변환 무결성 참조는 각각 실제 파일 SHA와 일치해야 한다.
 
 ## 첫 12개 절차 검증
 

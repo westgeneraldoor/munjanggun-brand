@@ -143,6 +143,7 @@ export async function buildRawReviewAuthorityDrafts({
       reviewer: group.reviewer,
       entries: group.entries.sort((left, right) => left.sha256.localeCompare(right.sha256)),
     }));
+  const conversionIntegrity = summarizeDraftConversion(documents);
 
   const sharedOrigins = queue.value.entries
     .filter((entry) => new Set(entry.origins.map((origin) => origin.intakeId)).size > 1)
@@ -178,6 +179,7 @@ export async function buildRawReviewAuthorityDrafts({
       playbackReceiptPhysicalCount: gif.physicalReceiptCount,
       playbackReceiptUniqueAssetCount: gif.byIndex.size,
     },
+    conversionIntegrity,
     catalogs: loadedCatalogs.map((item) => ({
       intakeId: item.catalog.intakeId,
       path: item.path,
@@ -421,6 +423,7 @@ async function loadGifEvidence({ gifAdjudicationActiveCandidatePath, queue, gifQ
   const queueSnapshot = parseSnapshot(snapshots.queue, 'GIF adjudication queue snapshot');
   const r4Ledger = parseSnapshot(snapshots.r4Ledger, 'GIF R4 technical ledger snapshot');
   const r4Verification = parseSnapshot(snapshots.r4Verification, 'GIF R4 technical verification snapshot');
+  const p7Ledger = parseSnapshot(snapshots.p7Ledger, 'GIF P7 sampled semantic ledger snapshot');
   if (active.path !== resolve(gifAdjudicationActiveCandidatePath)
     || active.sha256 !== activeValidation.activeCandidateSha256
     || pointerVerification.path !== resolve(activeValidation.pointerVerificationPath) || pointerVerification.sha256 !== activeValidation.pointerVerificationSha256
@@ -429,6 +432,7 @@ async function loadGifEvidence({ gifAdjudicationActiveCandidatePath, queue, gifQ
     || verification.path !== resolve(activeValidation.verificationReceiptPath) || verification.sha256 !== activeValidation.verificationReceiptSha256
     || reviewerTrust.path !== resolve(activeValidation.reviewerTrustPath) || reviewerTrust.sha256 !== activeValidation.reviewerTrustSha256
     || r4Ledger.sha256 !== activeValidation.r4LedgerSha256 || r4Verification.sha256 !== activeValidation.r4VerificationSha256
+    || p7Ledger.sha256 !== activeValidation.p7LedgerSha256
     || queueSnapshot.path !== queue.path || queueSnapshot.sha256 !== queue.sha256) {
     throw new Error('GIF adjudication validator snapshot paths or byte hashes differ from its validation result');
   }
@@ -436,16 +440,20 @@ async function loadGifEvidence({ gifAdjudicationActiveCandidatePath, queue, gifQ
     || !Array.isArray(pairIndex.value.pairs) || pairIndex.value.pairs.length !== gifQueue.length) throw new Error('GIF P5 canonical coverage is invalid');
   const technicalRoot = dirname(snapshots.r4ActiveCandidate.path);
   const pairByIndex = new Map(pairIndex.value.pairs.map((item) => [item.gifProjectionIndex, item]));
+  const p7ByProjectionIndex = new Map((p7Ledger.value.records ?? []).map((item) => [item.index - 1, item]));
+  if (p7ByProjectionIndex.size !== gifQueue.length) throw new Error('GIF P7 sampled semantic coverage is invalid');
   const byIndex = new Map();
   const receiptBytesByPath = new Map();
   let physicalReceiptCount = 0;
   for (const adjudication of ledger.value.adjudications) {
     const index = adjudication.pairIndex;
     const pair = pairByIndex.get(index);
+    const p7 = p7ByProjectionIndex.get(index);
     const expected = gifQueue[index];
     if (!Number.isInteger(index) || !expected || byIndex.has(index)
       || adjudication.sourceObjectSha256 !== expected.sha256 || pair?.byteSize !== expected.byteSize
-      || resolve(adjudication.sourcePath) !== resolve(expected.primaryOriginalPath)) {
+      || resolve(adjudication.sourcePath) !== resolve(expected.primaryOriginalPath)
+      || p7?.sourceObjectSha256 !== expected.sha256) {
       throw new Error(`GIF projection binding mismatch at index ${index}`);
     }
     await verifyQueueOrigins(expected.origins, expected.sha256, expected.byteSize);
@@ -479,7 +487,7 @@ async function loadGifEvidence({ gifAdjudicationActiveCandidatePath, queue, gifQ
       physicalReceiptCount += 1;
     }
     byIndex.set(index, {
-      entry: canonicalGifAdapterEntry(adjudication, pair, ledger.value),
+      entry: canonicalGifAdapterEntry(adjudication, pair, ledger, p7, p7Ledger, selectedReceipt),
       playbackReceipt: selectedReceipt,
     });
   }
@@ -492,8 +500,12 @@ async function loadGifEvidence({ gifAdjudicationActiveCandidatePath, queue, gifQ
   return { ledger, verification, active, pointerVerification, byIndex, physicalReceiptCount };
 }
 
-function canonicalGifAdapterEntry(adjudication, pair, ledger) {
+function canonicalGifAdapterEntry(adjudication, pair, ledgerFile, p7, p7LedgerFile, selectedReceipt) {
+  const ledger = ledgerFile.value;
   const canonical = adjudication.canonicalObservation;
+  const technical = adjudication.evidenceSeparation.technicalFullPlayback;
+  const sampled = adjudication.evidenceSeparation.sampledSemanticVisualEvidence;
+  const observationMethod = p7.observationMethod;
   return {
     reviewerPrincipalId: ledger.reviewer.principalId,
     rawObservation: canonical.sceneAndTransitions,
@@ -502,9 +514,51 @@ function canonicalGifAdapterEntry(adjudication, pair, ledger) {
     screeningSignals: Object.fromEntries(Object.entries(canonical.signals).map(([key, value]) => [key, value.state === 'observed_signal'])),
     signalUncertainties: Object.entries(canonical.signals).filter(([, value]) => value.state === 'uncertain_signal').map(([key]) => key),
     uncertainties: canonical.uncertainties,
-    playbackEvidence: { completedAt: ledger.chronology.completedAt },
+    playbackEvidence: { completedAt: selectedReceipt.receipt.reviewedAt },
     decodedFrameCount: pair.decodedFrameCount,
     decodedDurationMs: pair.decodedDurationMs,
+    reviewHistory: {
+      technicalPlayback: {
+        method: selectedReceipt.receipt.method,
+        authority: technical.authority,
+        reviewer: technical.reviewerPrincipalId,
+        reviewedAt: selectedReceipt.receipt.reviewedAt,
+        observedFromMs: technical.observedFromMs,
+        observedToMs: technical.observedToMs,
+        decodedDurationMs: technical.decodedDurationMs,
+        receiptRefs: technical.receiptRefs.map((item) => ({ path: item.path, sha256: item.sha256 })),
+      },
+      sampledSemanticReview: {
+        method: observationMethod.type,
+        authority: 'sampled_semantic_non_authority',
+        reviewer: sampled.reviewerPrincipalId,
+        reviewedAt: p7LedgerFile.value.createdAt,
+        reviewedAtBasis: 'p7_ledger_created_at_no_per_asset_timestamp',
+        sourceRangeFromMs: observationMethod.sourceRangeFromMs,
+        sourceRangeToMs: observationMethod.sourceRangeToMs,
+        selectedFrameIndices: [...observationMethod.visuallyReadFrameIndices],
+        overview: { path: sampled.overview.path, sha256: sampled.overview.sha256 },
+        supplementalOriginalPixelFrames: observationMethod.supplementalOriginalPixelFrames.map((item) => ({
+          frameIndex: item.frame,
+          startMs: item.startMs,
+          path: item.path,
+          sha256: item.sha256,
+        })),
+        continuousNaturalSpeedVisualObservation: sampled.continuousNaturalSpeedVisualObservation,
+        everySourceFrameVisuallyInspected: sampled.everySourceFrameVisuallyInspected,
+      },
+      adjudication: {
+        method: 'independent_field_adjudication',
+        authority: 'signed_non_authority_candidate',
+        reviewer: ledger.reviewer.principalId,
+        reviewedAt: ledger.chronology.completedAt,
+        evidenceRef: ledgerFile.path,
+        evidenceSha256: ledgerFile.sha256,
+        pairIndex: adjudication.pairIndex,
+        fieldDecisionCount: adjudication.fieldDecisions.length,
+        directThirdPartyReview: structuredClone(adjudication.directThirdPartyReview),
+      },
+    },
   };
 }
 
@@ -536,7 +590,10 @@ function staticDraftEntry(catalogEntry, originalPath, adjudication, tile) {
   for (const [key, value] of Object.entries(canonical.signals ?? {})) {
     if (value === 'uncertain') needs.push(`canonical_signal_requires_resolution:${key}`);
   }
-  const textPresence = canonical.textPresence === 'observed' ? 'observed' : 'none_observed';
+  if (!['observed', 'none_observed', 'uncertain'].includes(canonical.textPresence)) {
+    throw new Error(`Unsupported canonical text presence: ${canonical.textPresence}`);
+  }
+  const textPresence = canonical.textPresence;
   const entry = {
     sha256: catalogEntry.sha256,
     sourceRefs: normalizeSourceRefs(catalogEntry.sourceRefs),
@@ -546,7 +603,7 @@ function staticDraftEntry(catalogEntry, originalPath, adjudication, tile) {
     useCases: uniqueStrings(canonical.practicalUses),
     searchTags: emptySearchTags(),
     textPresence,
-    visibleText: textPresence === 'observed' ? orderedUniqueStrings(canonical.visibleText) : [],
+    visibleText: textPresence === 'none_observed' ? [] : orderedUniqueStrings(canonical.visibleText),
     visibleTextObservations: [],
     ocrText: '',
     sourceContext: [],
@@ -612,11 +669,12 @@ function gifDraftEntry(catalogEntry, originalPath, raw, playbackReceipt, queueEn
     ]),
     uncertainties: uniqueStrings([...needs, ...(raw.uncertainties ?? [])]),
     reviewEvidence: {
-      method: 'full_loop_original_opened',
+      method: 'sampled_timeline_original_opened',
       originalPath,
-      reviewer: raw.reviewerPrincipalId,
-      reviewedAt: raw.playbackEvidence.completedAt,
+      reviewer: raw.reviewHistory.sampledSemanticReview.reviewer,
+      reviewedAt: raw.reviewHistory.sampledSemanticReview.reviewedAt,
     },
+    reviewHistory: raw.reviewHistory,
   };
   return {
     entry,
@@ -651,6 +709,48 @@ function summarizeEvidenceNeeds(values) {
       occurrences: occurrencesByKind[key],
       uniqueAssets: uniqueByKind.get(key).size,
     }])),
+  };
+}
+
+function summarizeDraftConversion(documents) {
+  const entries = documents.flatMap((document) => document.entries.map((entry) => ({ ...entry, mediaKind: document.mediaKind })));
+  const staticEntries = entries.filter((entry) => entry.mediaKind === 'static');
+  const gifEntries = entries.filter((entry) => entry.mediaKind === 'gif');
+  const staticUnique = [...new Map(staticEntries.map((entry) => [entry.sha256, entry])).values()];
+  const gifUnique = [...new Map(gifEntries.map((entry) => [entry.sha256, entry])).values()];
+  const staticTextPresence = { observed: 0, noneObserved: 0, uncertain: 0 };
+  for (const entry of staticUnique) {
+    if (entry.textPresence === 'observed') staticTextPresence.observed += 1;
+    else if (entry.textPresence === 'none_observed') staticTextPresence.noneObserved += 1;
+    else if (entry.textPresence === 'uncertain') staticTextPresence.uncertain += 1;
+    else throw new Error(`Static draft text presence is invalid: ${entry.sha256}`);
+  }
+  const directThirdPartyUnique = new Set();
+  for (const entry of gifEntries) {
+    const history = entry.reviewHistory;
+    if (entry.reviewEvidence.method !== 'sampled_timeline_original_opened'
+      || entry.reviewEvidence.reviewer !== history?.sampledSemanticReview?.reviewer
+      || history?.technicalPlayback?.authority !== 'technical_only_not_content_authority'
+      || history?.sampledSemanticReview?.continuousNaturalSpeedVisualObservation !== false
+      || history?.sampledSemanticReview?.everySourceFrameVisuallyInspected !== false
+      || history?.adjudication?.authority !== 'signed_non_authority_candidate'
+      || new Set([history.technicalPlayback.reviewer, history.sampledSemanticReview.reviewer, history.adjudication.reviewer]).size !== 3) {
+      throw new Error(`GIF draft review provenance was collapsed or widened: ${entry.sha256}`);
+    }
+    if (history.adjudication.directThirdPartyReview.performed) directThirdPartyUnique.add(entry.sha256);
+  }
+  return {
+    staticTextPresenceUniqueAssets: staticTextPresence,
+    gifReviewProvenance: {
+      occurrenceCount: gifEntries.length,
+      uniqueAssetCount: gifUnique.length,
+      technicalPlaybackMethod: 'continuous_original_playback',
+      sampledSemanticMethod: 'chronological_original_frame_samples',
+      adjudicationMethod: 'independent_field_adjudication',
+      continuousSemanticObservationTrueCount: 0,
+      everySourceFrameVisuallyInspectedTrueCount: 0,
+      directThirdPartyReviewUniqueAssetCount: directThirdPartyUnique.size,
+    },
   };
 }
 
