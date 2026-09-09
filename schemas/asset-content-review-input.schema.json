@@ -175,10 +175,103 @@
       "additionalProperties": false,
       "required": ["method", "originalPath", "reviewer", "reviewedAt"],
       "properties": {
-        "method": { "enum": ["full_resolution_original_opened", "full_loop_original_opened"] },
+        "method": { "enum": ["full_resolution_original_opened", "full_loop_original_opened", "sampled_timeline_original_opened"] },
         "originalPath": { "type": "string", "minLength": 1 },
         "reviewer": { "type": "string", "minLength": 1 },
         "reviewedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "reviewHistory": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["technicalPlayback", "sampledSemanticReview", "adjudication"],
+      "properties": {
+        "technicalPlayback": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["method", "authority", "reviewer", "reviewedAt", "observedFromMs", "observedToMs", "decodedDurationMs", "receiptRefs"],
+          "properties": {
+            "method": { "const": "continuous_original_playback" },
+            "authority": { "const": "technical_only_not_content_authority" },
+            "reviewer": { "type": "string", "minLength": 1 },
+            "reviewedAt": { "type": "string", "format": "date-time" },
+            "observedFromMs": { "const": 0 },
+            "observedToMs": { "type": "integer", "minimum": 0 },
+            "decodedDurationMs": { "type": "integer", "minimum": 0 },
+            "receiptRefs": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/evidenceFile" } }
+          }
+        },
+        "sampledSemanticReview": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["method", "authority", "reviewer", "reviewedAt", "reviewedAtBasis", "sourceRangeFromMs", "sourceRangeToMs", "selectedFrameIndices", "overview", "supplementalOriginalPixelFrames", "continuousNaturalSpeedVisualObservation", "everySourceFrameVisuallyInspected"],
+          "properties": {
+            "method": { "const": "chronological_original_frame_samples" },
+            "authority": { "const": "sampled_semantic_non_authority" },
+            "reviewer": { "type": "string", "minLength": 1 },
+            "reviewedAt": { "type": "string", "format": "date-time" },
+            "reviewedAtBasis": { "const": "p7_ledger_created_at_no_per_asset_timestamp" },
+            "sourceRangeFromMs": { "const": 0 },
+            "sourceRangeToMs": { "type": "integer", "minimum": 0 },
+            "selectedFrameIndices": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "integer", "minimum": 0 } },
+            "overview": { "$ref": "#/$defs/evidenceFile" },
+            "supplementalOriginalPixelFrames": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["frameIndex", "startMs", "path", "sha256"],
+                "properties": {
+                  "frameIndex": { "type": "integer", "minimum": 0 },
+                  "startMs": { "type": "integer", "minimum": 0 },
+                  "path": { "type": "string", "minLength": 1 },
+                  "sha256": { "$ref": "#/$defs/sha256" }
+                }
+              }
+            },
+            "continuousNaturalSpeedVisualObservation": { "const": false },
+            "everySourceFrameVisuallyInspected": { "const": false }
+          }
+        },
+        "adjudication": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["method", "authority", "reviewer", "reviewedAt", "evidenceRef", "evidenceSha256", "pairIndex", "fieldDecisionCount", "directThirdPartyReview"],
+          "properties": {
+            "method": { "const": "independent_field_adjudication" },
+            "authority": { "const": "signed_non_authority_candidate" },
+            "reviewer": { "type": "string", "minLength": 1 },
+            "reviewedAt": { "type": "string", "format": "date-time" },
+            "evidenceRef": { "type": "string", "minLength": 1 },
+            "evidenceSha256": { "$ref": "#/$defs/sha256" },
+            "pairIndex": { "type": "integer", "minimum": 0 },
+            "fieldDecisionCount": { "const": 10 },
+            "directThirdPartyReview": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["performed", "reason"],
+                  "properties": {
+                    "performed": { "const": false },
+                    "reason": { "type": "string", "minLength": 1 }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["performed", "reviewerPrincipalId", "evidenceOpened", "finding"],
+                  "properties": {
+                    "performed": { "const": true },
+                    "reviewerPrincipalId": { "type": "string", "minLength": 1 },
+                    "evidenceOpened": { "$ref": "#/$defs/stringArray" },
+                    "finding": { "type": "string", "minLength": 1 }
+                  }
+                }
+              ]
+            }
+          }
+        }
       }
     },
     "fullPlaybackObservation": {
@@ -261,7 +354,7 @@
         "crossProductSourceIds": { "$ref": "#/$defs/stringArray" },
         "genericSourceProduct": { "const": true },
         "genericSourceProductReason": { "type": "string", "minLength": 1 },
-        "textPresence": { "enum": ["observed", "none_observed"] },
+        "textPresence": { "enum": ["observed", "none_observed", "uncertain"] },
         "visibleText": { "$ref": "#/$defs/stringArray" },
         "visibleTextObservations": { "type": "array", "items": { "$ref": "#/$defs/visibleTextObservation" } },
         "ocrText": { "type": "string" },
@@ -272,6 +365,7 @@
         "privacySignals": { "$ref": "#/$defs/stringArray" },
         "uncertainties": { "$ref": "#/$defs/stringArray" },
         "reviewEvidence": { "$ref": "#/$defs/reviewEvidence" },
+        "reviewHistory": { "$ref": "#/$defs/reviewHistory" },
         "staticTileCoverage": { "$ref": "#/$defs/staticTileCoverage" },
         "secondarySemanticVerdict": { "$ref": "#/$defs/secondarySemanticVerdict" },
         "gifReview": { "$ref": "#/$defs/gifReview" }

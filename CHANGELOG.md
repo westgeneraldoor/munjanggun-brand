@@ -1,5 +1,13 @@
 # CHANGELOG - 문장군 중앙 브랜드 문서
 
+## v5.20 - 2026-09-09
+
+- GIF 초안 80개에서 기술 전체 재생(P1), 시간축 표본 의미 판독(P7), 제3자 교정(P5)을 하나의 `full_loop_original_opened` 사건으로 합치던 변환을 제거하고 수행자·방법·시각·증거 참조를 역할별 `reviewHistory`로 보존
+- P7 의미 판독의 `continuousNaturalSpeedVisualObservation=false`, `everySourceFrameVisuallyInspected=false`와 P5 직접 원본 재검토 13개/비수행 67개를 손실 없이 유지
+- 정지 이미지 `textPresence: uncertain` 2개가 `none_observed`로 축소되던 변환을 수정하고 원장 분포 `observed 375 / none_observed 32 / uncertain 2`를 그대로 검증
+- 오류가 있던 비공개 초안 v1은 삭제하지 않고 superseded로 보존하며, 교정된 v2·변환 검증 영수증·현재 포인터를 SHA-256으로 연결
+- 모든 초안은 계속 `non_authority`·`needs_evidence`·`signingAllowed=false`이고 공용 자료실 차단 유지
+
 ## v5.19 - 2026-09-09
 
 - 정지 이미지 409개를 6개 활성 세그먼트에서 독립 1·2차 판독과 제3자 교정으로 완료하고, 409개 exact coverage·서명·원본 SHA·전체 재구성을 `complete_non_authority`로 검증

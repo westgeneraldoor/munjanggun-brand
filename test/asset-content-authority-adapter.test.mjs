@@ -31,6 +31,17 @@ test('adapter splits exact queue origins by intake, preserves shared SHA origins
   });
   assert.equal(result.report.authorityStatus, 'non_authority');
   assert.equal(result.report.promotionReadiness, 'needs_evidence');
+  assert.deepEqual(result.report.conversionIntegrity.staticTextPresenceUniqueAssets, { observed: 1, noneObserved: 0, uncertain: 1 });
+  assert.deepEqual(result.report.conversionIntegrity.gifReviewProvenance, {
+    occurrenceCount: 4,
+    uniqueAssetCount: 3,
+    technicalPlaybackMethod: 'continuous_original_playback',
+    sampledSemanticMethod: 'chronological_original_frame_samples',
+    adjudicationMethod: 'independent_field_adjudication',
+    continuousSemanticObservationTrueCount: 0,
+    everySourceFrameVisuallyInspectedTrueCount: 0,
+    directThirdPartyReviewUniqueAssetCount: 1,
+  });
   assert.equal(result.report.sharedOrigins[0].sha256, fixture.shas.gifShared);
   assert.deepEqual(result.report.sharedOrigins[0].intakeIds, ['INTAKE-20260904-01', 'INTAKE-20260907-01']);
   assert.equal(result.documents.flatMap((document) => document.entries).length, 6);
@@ -48,11 +59,47 @@ test('adapter splits exact queue origins by intake, preserves shared SHA origins
       assert.ok(entry.uncertainties.includes('secondary_semantic_verdict_receipt_missing'));
     }
   }
+  const gifEntries = result.documents.filter((document) => document.mediaKind === 'gif').flatMap((document) => document.entries);
+  assert.equal(gifEntries.every((entry) => entry.reviewEvidence.method === 'sampled_timeline_original_opened'), true);
+  assert.equal(gifEntries.every((entry) => entry.reviewEvidence.reviewer === 'fresh_gif_p7'), true);
+  assert.equal(gifEntries.every((entry) => entry.reviewHistory.technicalPlayback.reviewer === 'fresh_gif_p1'), true);
+  assert.equal(gifEntries.every((entry) => entry.reviewHistory.sampledSemanticReview.continuousNaturalSpeedVisualObservation === false), true);
+  assert.equal(gifEntries.every((entry) => entry.reviewHistory.sampledSemanticReview.everySourceFrameVisuallyInspected === false), true);
+  assert.equal(gifEntries.every((entry) => entry.reviewHistory.adjudication.reviewer === 'fresh_gif_p5'), true);
+  assert.equal(gifEntries.filter((entry) => entry.reviewHistory.adjudication.directThirdPartyReview.performed).length, 1);
+  assert.equal(gifEntries.every((entry) => entry.reviewHistory.adjudication.fieldDecisionCount === 10), true);
+  const uncertainStatic = result.documents.filter((document) => document.mediaKind === 'static')
+    .flatMap((document) => document.entries).find((entry) => entry.textPresence === 'uncertain');
+  assert.ok(uncertainStatic);
+  assert.deepEqual(uncertainStatic.visibleText, []);
+  assert.ok(uncertainStatic.uncertainties.includes('canonical_text_presence_requires_resolution'));
   const schema = await readJson(resolve(process.cwd(), 'schemas', 'asset-content-review-input.schema.json'));
   for (const document of result.documents) {
     const falselySigned = { ...document, signature: { algorithm: 'Ed25519', keyId: 'fixture', valueBase64: 'YWJjZA==' } };
-    assert.equal(validateAgainstSchema(falselySigned, schema).valid, false);
+    const schemaResult = validateAgainstSchema(falselySigned, schema);
+    assert.equal(schemaResult.valid, false);
+    assert.equal(schemaResult.errors.some((error) => /reviewHistory|reviewEvidence|textPresence/u.test(error.instancePath ?? '')), false, JSON.stringify(schemaResult.errors));
   }
+});
+
+test('adapter rejects a GIF draft when separate technical, sampled, and adjudication reviewers collapse', async (t) => {
+  const fixture = await createFixture();
+  t.after(() => rm(fixture.root, { recursive: true, force: true }));
+  const collapsedValidator = async (options) => {
+    const result = await passingGifAdjudicationValidator(options);
+    const value = JSON.parse(result.validatedEvidence.adjudicationLedger.bytes);
+    value.adjudications[0].evidenceSeparation.sampledSemanticVisualEvidence.reviewerPrincipalId = 'fresh_gif_p5';
+    const bytes = Buffer.from(`${JSON.stringify(value, null, 2)}\n`, 'utf8');
+    const snapshot = { ...result.validatedEvidence.adjudicationLedger, bytes, sha256: sha(bytes) };
+    return { ...result, adjudicationLedgerSha256: snapshot.sha256, validatedEvidence: { ...result.validatedEvidence, adjudicationLedger: snapshot } };
+  };
+  await assert.rejects(buildRawReviewAuthorityDrafts({
+    ...fixture.options,
+    checkOnly: true,
+    validateStaticLedger: passingStaticValidator,
+    validatePlaybackReceipt: () => true,
+    validateGifAdjudicationCandidate: collapsedValidator,
+  }), /review provenance was collapsed or widened/u);
 });
 
 test('adapter rejects a static segment when a higher sibling version exists', async (t) => {
@@ -409,6 +456,13 @@ async function createFixture() {
           receiptRefs: entry.playbackEvidence.receiptRefs, observedFromMs: 0,
           observedToMs: entry.decodedDurationMs, decodedDurationMs: entry.decodedDurationMs,
         },
+        sampledSemanticVisualEvidence: {
+          reviewerPrincipalId: 'fresh_gif_p7',
+          overview: { path: resolve(p5Root, `overview-${entry.gifProjectionIndex}.jpg`), sha256: entry.sourceObjectSha256, selectedFrames: [0] },
+          supplementalOriginalPixelFrames: [],
+          continuousNaturalSpeedVisualObservation: false,
+          everySourceFrameVisuallyInspected: false,
+        },
       },
       canonicalObservation: {
         sceneAndTransitions: entry.sceneAndTransitions,
@@ -416,6 +470,10 @@ async function createFixture() {
         signals: Object.fromEntries(Object.entries(entry.screeningSignals).map(([key, value]) => [key, { state: value ? 'observed_signal' : 'not_observed' }])),
         uncertainties: entry.uncertainties,
       },
+      fieldDecisions: Array.from({ length: 10 }, (_, decisionIndex) => ({ field: `/fixture/${decisionIndex}` })),
+      directThirdPartyReview: entry.gifProjectionIndex === 0
+        ? { performed: true, reviewerPrincipalId: 'fresh_gif_p5', evidenceOpened: ['original_gif'], finding: 'fixture direct review' }
+        : { performed: false, reason: 'fixture sources agreed' },
     })),
   });
   await writeJson(p5VerificationPath, { status: 'pass' });
@@ -475,6 +533,24 @@ async function passingGifAdjudicationValidator({ activeCandidatePath }) {
   const r4Ledger = await snapshotFile(resolve(r4Root, r4Pointer.activeCandidate.path));
   const r4Verification = await snapshotFile(resolve(r4Root, r4Pointer.verification.path));
   const queue = await snapshotFile(resolve(fixtureRoot, 'review-queue.json'));
+  const p5Ledger = JSON.parse(adjudicationLedger.bytes);
+  const p7Bytes = Buffer.from(`${JSON.stringify({
+    schema: 'p7-unsigned-raw-gif-semantic-ledger-v1',
+    createdAt: '2026-09-09T01:30:00.000Z',
+    reviewerPrincipal: 'fresh_gif_p7',
+    records: p5Ledger.adjudications.map((item) => ({
+      index: item.pairIndex + 1,
+      sourceObjectSha256: item.sourceObjectSha256,
+      observationMethod: {
+        type: 'chronological_original_frame_samples',
+        sourceRangeFromMs: 0,
+        sourceRangeToMs: 100,
+        visuallyReadFrameIndices: [0],
+        supplementalOriginalPixelFrames: [],
+      },
+    })),
+  }, null, 2)}\n`, 'utf8');
+  const p7Ledger = { path: resolve(fixtureRoot, 'p7-ledger.json'), sha256: sha(p7Bytes), bytes: p7Bytes };
   return {
     status: 'pass', authorityStatus: 'signed_non_authority_candidate', libraryStatus: 'blocked',
     activeCandidatePath: active.path, activeCandidateSha256: active.sha256,
@@ -484,7 +560,8 @@ async function passingGifAdjudicationValidator({ activeCandidatePath }) {
     verificationReceiptPath: verificationReceipt.path, verificationReceiptSha256: verificationReceipt.sha256,
     reviewerTrustPath: active.path, reviewerTrustSha256: active.sha256,
     r4LedgerSha256: r4Ledger.sha256, r4VerificationSha256: r4Verification.sha256,
-    validatedEvidence: { activeCandidate: active, pointerVerification, pairIndex, adjudicationLedger, verificationReceipt, reviewerTrust: active, queue, r4ActiveCandidate, r4Ledger, r4Verification },
+    p7LedgerSha256: p7Ledger.sha256,
+    validatedEvidence: { activeCandidate: active, pointerVerification, pairIndex, adjudicationLedger, verificationReceipt, reviewerTrust: active, queue, r4ActiveCandidate, r4Ledger, r4Verification, p7Ledger },
   };
 }
 
@@ -516,13 +593,14 @@ function queueEntry(file, reviewMediaKind, origins) {
 }
 
 function adjudication(queueIndex, entry, queueRef, queueSha256) {
+  const uncertainText = queueIndex === 1;
   return {
     schema: 'munjanggun.assetContentReviewAdjudication.v2', version: '2.0', authorityStatus: 'non_authority', result: 'resolved',
     queueIndex, sourceObjectSha256: entry.sha256, queueRef, queueSha256, unresolvedUncertainties: [],
     canonicalObservation: {
       observationMethod: 'view_image_original', openResult: 'opened_successfully', rawObservationText: `static ${queueIndex}`,
-      observedSummary: `static summary ${queueIndex}`, contentType: 'fixture_static', textPresence: 'observed',
-      visibleText: [`STATIC ${queueIndex}`], visibleTextLocations: [{ text: `STATIC ${queueIndex}`, region: 'fixture', certainty: 'certain' }],
+      observedSummary: `static summary ${queueIndex}`, contentType: 'fixture_static', textPresence: uncertainText ? 'uncertain' : 'observed',
+      visibleText: uncertainText ? [] : [`STATIC ${queueIndex}`], visibleTextLocations: uncertainText ? [] : [{ text: `STATIC ${queueIndex}`, region: 'fixture', certainty: 'certain' }],
       practicalUses: ['fixture'],
       signals: { price: queueIndex === 0 ? 'observed' : 'none_observed', event: 'none_observed', afterService: 'none_observed', spec: 'none_observed', review: 'none_observed', schedule: 'none_observed', people: 'none_observed', privacy: 'none_observed' },
       privacySignals: [],
@@ -535,6 +613,7 @@ function adjudication(queueIndex, entry, queueRef, queueSha256) {
 function playbackReceipt(entry, queueSha256) {
   return {
     schema: 'munjanggun.gifPlaybackObservation.v1', version: '1.0', observed: true, sourceObjectSha256: entry.sha256,
+    method: 'continuous_original_playback',
     reviewer: 'fresh_gif_p1', queueSha256, decodedFrameCount: 1, decodedDurationMs: 100, decodedLoopCount: 0,
     reviewedAt: '2026-09-09T00:30:00.000Z',
   };
