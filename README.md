@@ -1,8 +1,8 @@
 # 문장군 중앙 브랜드 문서
 
-> 버전: v5.15
+> 버전: v5.16
 > 최종 업데이트: 2026-09-09
-> 변경 요약: 첫 12개 교정 검증을 v2 전체 재구성 계약으로 강화하고, 다음 검토 구간을 과거 서명과 분리하는 불변 세그먼트 및 `attested-integrity` 중간 게이트를 추가했다. 나머지 정지 이미지와 GIF 2차 검토, 공용 자료실 재개는 아직 완료하지 않았다.
+> 변경 요약: 정지 이미지 12~23번의 독립 원문과 v2 교정본을 별도 불변 세그먼트로 완주해 총 24개를 교정 완료했다. 나머지 385개와 GIF 2차 검토, 공용 자료실 재개는 아직 완료하지 않았다.
 
 이 저장소는 문장군의 브랜드 사실, 현장 판단, 변동 claim 근거, 공통 원료, 상품·자산 위키를 관리한다.
 
@@ -69,10 +69,11 @@ npm run report:assets
 npm run assets:validate-raw-review-ledger -- --ledger "Z:\문장군_브랜드_원본보관\VISUAL-REVIEW-2026-09-08\raw-review-ledger-v1\LEDGER_INDEX.json" --mode pilot-complete --reviewer-trust "Z:\문장군_브랜드_원본보관\VISUAL-REVIEW-2026-09-08\raw-review-ledger-v1\reviewer-trust.json"
 ```
 
-다음 정지 이미지 구간은 기존 0~11 원장의 pair·교정 서명을 다시 만들지 않고 `raw-review-ledger-v1/segments/<구간>/`에 별도 불변 세그먼트로 보존한다. 교정 전에는 `attested-integrity`로 원본·두 원문·pair뿐 아니라 모든 raw batch의 작성자 서명과 선언된 서명 수까지 검증한다. 현재 12~23번은 1차 12건·2차 12건·pair 12건·서명 5개가 `attested_non_authority`로 확인됐고 교정본은 0건이다. 이는 내용 교정 완료나 자료실 사용 승인이 아니다.
+다음 정지 이미지 구간은 기존 0~11 원장의 pair·교정 서명을 다시 만들지 않고 `raw-review-ledger-v1/segments/<구간>/`에 별도 불변 세그먼트로 보존한다. 교정 전에는 `attested-integrity`로 원본·두 원문·pair뿐 아니라 모든 raw batch의 작성자 서명과 선언된 서명 수까지 검증한다. 12~23번은 이 중간 게이트를 거친 뒤 v2 교정본 12개·원자 결정 69개를 별도 교정자 키로 서명했고, 전체 재구성 검증이 `complete_non_authority`로 통과했다. 13번 가격카드의 행사 신호와 17번 시공순서 안내의 사양 신호는 `none_observed`로 교정했으며, 19번 작은 문구는 `핸드커버댐핑` probable로 보존했다. 20번은 사람 얼굴 일부와 식별 가능성 불확실 관찰을 그대로 유지하므로 외부 사용 판단은 계속 차단 대상이다. 이 상태도 자료실 사용 승인이나 409개 전체 완료가 아니다.
 
 ```powershell
 npm run assets:validate-raw-review-ledger -- --ledger <segment-ledger-index.json> --mode attested-integrity --reviewer-trust <segment-reviewer-trust.json>
+npm run assets:validate-raw-review-ledger -- --ledger <segment-ledger-index.json> --mode pilot-complete --reviewer-trust <segment-reviewer-trust.json>
 ```
 
 다른 문장군 프로젝트는 버전 폴더를 직접 찾지 않고 아래 누적 공용 입구만 사용한다. 이 인덱스는 각 intake의 불변 pointer와 SHA를 연결하므로 새 묶음을 추가해도 이전 묶음이 검색에서 사라지지 않는다.
