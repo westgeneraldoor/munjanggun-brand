@@ -143,6 +143,27 @@ test('pilot-complete verifies every exact-byte attestation and signed resolved a
   assert.equal(result.promotionEligible, false);
 });
 
+test('pilot-complete can return the exact validated byte snapshots without a second read', async (t) => {
+  const fixture = await makeFixture(t);
+  const signing = await createTrust(fixture);
+  await createSignedPilotEvidence(fixture, signing);
+  const result = await validateAssetContentRawReviewLedger({
+    ledgerIndexPath: fixture.ledgerPath,
+    mode: 'pilot-complete',
+    now: NOW,
+    includeValidatedEvidence: true,
+  });
+  assert.equal(result.validatedEvidence.adjudications.length, 2);
+  for (const snapshot of [result.validatedEvidence.ledger, result.validatedEvidence.queue, ...result.validatedEvidence.adjudications]) {
+    assert.ok(Buffer.isBuffer(snapshot.bytes));
+    assert.equal(digest(snapshot.bytes), snapshot.sha256);
+  }
+  const first = result.validatedEvidence.adjudications[0];
+  await writeFile(first.path, '{"tampered":true}\n', 'utf8');
+  assert.equal(digest(first.bytes), first.sha256);
+  assert.notEqual(digest(await readFile(first.path)), first.sha256);
+});
+
 test('pilot-complete rejects a missing adjudication without changing integrity status', async (t) => {
   const fixture = await makeFixture(t);
   const signing = await createTrust(fixture);

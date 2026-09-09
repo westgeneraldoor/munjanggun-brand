@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://munjanggun.local/schemas/gif-adjudication-active-candidate.schema.json",
+  "title": "GIF adjudication active candidate",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "version", "createdAt", "activeCandidate", "status", "authority", "selection", "reviewer", "consumerContract", "tamperEvidence", "attestation"],
+  "properties": {
+    "schema": { "const": "munjanggun.gifAdjudicationActiveCandidate.v1" },
+    "version": { "const": "1.0" },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "activeCandidate": { "const": true },
+    "status": { "const": "signed_non_authority_candidate" },
+    "authority": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["contentAuthority", "libraryAuthority", "promotionEligible", "libraryStatus"],
+      "properties": {
+        "contentAuthority": { "const": false },
+        "libraryAuthority": { "const": false },
+        "promotionEligible": { "const": false },
+        "libraryStatus": { "const": "blocked" }
+      }
+    },
+    "selection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pairIndex", "adjudicationLedger", "verificationReceipt", "reviewerTrust"],
+      "properties": {
+        "pairIndex": { "$ref": "#/$defs/fileBinding" },
+        "adjudicationLedger": { "$ref": "#/$defs/fileBinding" },
+        "verificationReceipt": { "$ref": "#/$defs/fileBinding" },
+        "reviewerTrust": { "$ref": "#/$defs/fileBinding" }
+      }
+    },
+    "reviewer": { "$ref": "#/$defs/reviewer" },
+    "consumerContract": { "type": "string", "minLength": 1 },
+    "tamperEvidence": { "type": "string", "minLength": 1 },
+    "attestation": { "$ref": "#/$defs/attestation" }
+  },
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "fileBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "byteSize"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "byteSize": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "reviewer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["principalId", "keyId", "publicKeyFingerprint"],
+      "properties": {
+        "principalId": { "type": "string", "minLength": 1 },
+        "keyId": { "type": "string", "minLength": 1 },
+        "publicKeyFingerprint": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "attestation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["algorithm", "principalId", "keyId", "publicKeyFingerprint", "signedPayloadCanonicalization", "signedPayloadSha256", "signatureBase64"],
+      "properties": {
+        "algorithm": { "const": "Ed25519" },
+        "principalId": { "type": "string", "minLength": 1 },
+        "keyId": { "type": "string", "minLength": 1 },
+        "publicKeyFingerprint": { "$ref": "#/$defs/sha256" },
+        "signedPayloadCanonicalization": { "const": "recursive_lexicographic_json_keys_utf8" },
+        "signedPayloadSha256": { "$ref": "#/$defs/sha256" },
+        "signatureBase64": { "type": "string", "minLength": 80 }
+      }
+    }
+  }
+}

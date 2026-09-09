@@ -51,10 +51,11 @@ export async function validateAssetContentRawReviewLedger({
   attestationRoot = null,
   adjudicationRoot = null,
   now = Date.now(),
+  includeValidatedEvidence = false,
 } = {}) {
   if (!MODES.has(mode)) throw new Error(`Raw review validation mode is invalid: ${mode}`);
   const context = await validateIntegrity({ ledgerIndexPath, now });
-  if (mode === 'integrity') return summary(context, mode, 0, 0);
+  if (mode === 'integrity') return withValidatedEvidence(summary(context, mode, 0, 0), context, null, includeValidatedEvidence);
 
   const ledgerRoot = dirname(context.ledger.path);
   const trustPath = resolve(reviewerTrustPath ?? resolve(ledgerRoot, '..', 'reviewer-trust.json'));
@@ -66,12 +67,34 @@ export async function validateAssetContentRawReviewLedger({
   if (context.ledger.value.freshReview.attestedBatchCount !== attestations.size) {
     throw new Error('Raw review attested-count binding mismatch');
   }
-  if (mode === 'attested-integrity') return summary(context, mode, attestations.size, 0);
+  if (mode === 'attested-integrity') return withValidatedEvidence(summary(context, mode, attestations.size, 0), context, null, includeValidatedEvidence);
   const adjudications = await validateAdjudications(context, reviewerTrust, attestations, adjudicationsPath, now);
   if (context.ledger.value.freshReview.adjudicatedCount !== adjudications.size) {
     throw new Error('Raw review adjudicated-count binding mismatch');
   }
-  return summary(context, mode, attestations.size, adjudications.size);
+  return withValidatedEvidence(summary(context, mode, attestations.size, adjudications.size), context, adjudications, includeValidatedEvidence);
+}
+
+function withValidatedEvidence(result, context, adjudications, include) {
+  if (!include) return result;
+  return {
+    ...result,
+    validatedEvidence: {
+      ledger: snapshotDocument(context.ledger),
+      queue: snapshotDocument(context.queue),
+      adjudications: adjudications
+        ? [...adjudications.values()].sort((left, right) => left.value.queueIndex - right.value.queueIndex).map(snapshotDocument)
+        : [],
+    },
+  };
+}
+
+function snapshotDocument(file) {
+  return {
+    path: file.path,
+    sha256: file.sha256,
+    bytes: Buffer.from(file.bytes),
+  };
 }
 
 async function validateIntegrity({ ledgerIndexPath, now }) {

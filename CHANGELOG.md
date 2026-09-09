@@ -1,5 +1,22 @@
 # CHANGELOG - 문장군 중앙 브랜드 문서
 
+## v5.19 - 2026-09-09
+
+- 정지 이미지 409개를 6개 활성 세그먼트에서 독립 1·2차 판독과 제3자 교정으로 완료하고, 409개 exact coverage·서명·원본 SHA·전체 재구성을 `complete_non_authority`로 검증
+- GIF 80개의 전체 시간 재생 기술 영수증 85개와 독립 시간축 표본 의미 판독 2종을 source SHA로 pair하고, 제3자 교정 80개·필드 결정 800개·관찰 충돌 미해결 0으로 봉인
+- GIF 자동 신호 분류의 오탐·누락이 있던 v1~R4는 교정 사슬에 보존하고, P5 signed non-authority 후보에서 가격 22·행사 10·A/S 1·인물 6·privacy 확정 3/불확실 2·절대/내구 9로 원본 재판정
+- 기술 전체 재생과 시간축 표본 판독을 별도 증거로 유지하고, 모든 7,033프레임의 연속 육안 판독이나 저장장치 수준 불변성을 주장하지 않음
+- 판독 완료는 가격·행사·성능 최신성, 촬영 동의, 외부 발행 승인이 아니므로 content authority와 공용 자료실 차단을 유지
+
+## v5.18 - 2026-09-09
+
+- 6개 활성 정지 이미지 원장과 활성 GIF 의미 검토 포인터를 두 intake의 unsigned content-review 초안으로 변환하는 fail-closed adapter 추가
+- 정지 이미지 validator가 검증에 사용한 exact path·SHA-256·bytes snapshot을 선택적으로 반환하고 adapter가 재열거·재읽기 없이 그 바이트만 소비하도록 강화
+- GIF 활성 포인터·원장·verification의 검증 바이트 snapshot 결속, 상대 경로 중간 junction 차단, 활성 tail rejection receipt 차단을 추가
+- private draft output의 모든 기존 부모 junction/reparse point를 거절하고 생성 전후 realpath를 재검증하며, exclusive rename 경쟁에서 타 작성자가 먼저 만든 destination은 절대 정리하지 않음. partial 정리도 실행 고유 marker뿐 아니라 최초 생성 직후의 dev/ino 파일 identity가 같을 때만 허용
+- 현재 입력은 489개 고유 자산(정지 409·GIF 80), catalog occurrence 494개(두 intake 간 중복 5)를 정확히 덮지만 v4 픽셀·crop·민감 claim 2차·secondary verdict가 없어 계속 `needs_evidence`·`non_authority`로 차단
+- GIF 의미 입력을 R4 단독 후보에서 P5 서명 교정 active pointer로 전환하고, pointer verification·pair 80개·서명 교정 80개/원자 결정 800개·서명 verification·reviewer trust와 R4/P7 exact input chain을 재검증한 canonical 관찰만 unsigned 초안에 반영
+
 ## v5.17 - 2026-09-09
 
 - 정지 이미지 19번의 작은 문구를 사장 확인에 따라 `핸드커버래핑`으로 정정하고 owner correction receipt와 새 교정 서명을 연결
