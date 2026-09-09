@@ -1,6 +1,6 @@
 # 시각 자산 재검토 작업대
 
-> 상태: 첫 24개(0~23) 독립 판독·교정 절차 검증 완료, 나머지 385개와 GIF 2차 검토 미완료, 공용 검색·추천·handoff·외부 추출 차단 유지
+> 상태: 정지 이미지 409개와 GIF 80개 독립 판독·비교·교정 완료(non-authority), content-evidence 증거 보강 전까지 공용 검색·추천·handoff·외부 추출 차단 유지
 
 이 문서는 2026-09-04 묶음과 2026-09-07 쇼핑스토리 묶음을 원본 SHA 기준으로 함께 검토하는 운영 입구다. 대기열과 검토 증거는 비공개 Z 보관소에만 두며, 공개 Git에는 이미지·GIF·개인키·검토 결과를 넣지 않는다.
 
@@ -18,7 +18,24 @@
 
 비공개 대기열은 `Z:\문장군_브랜드_원본보관\VISUAL-REVIEW-2026-09-08\review-queue.json`에 생성했다. 파일 SHA-256은 `884e922883efd6f2fd400c3e18fa4709068cafbd1521c1a94694c9be78497390`, 대기열 내부 entry 집합 SHA-256은 `6fd0f3e00125e98c923d121407782183e8097b020b86ab11f81398cc6274d906`이다.
 
-이 숫자는 원본 경로·크기·SHA와 GIF 디코딩 메타데이터를 확인한 결과다. 이미지 설명의 정확성이나 GIF 전체 재생 관찰 완료를 뜻하지 않는다.
+원본 경로·크기·SHA와 GIF 디코딩 메타데이터뿐 아니라 정지 이미지 409개 및 GIF 80개의 독립 판독·비교·교정 원장을 확보했다. GIF의 기술적 전체 시간 재생과 시간축 표본 의미 판독은 별도 증거로 보존하며, 표본 판독을 모든 7,033프레임의 연속 육안 확인으로 과장하지 않는다.
+
+## 전체 검토 완료 현황
+
+- 정지 이미지 409개: 1차 409, 2차 409, pair 409, 제3자 교정 409, 관찰 충돌 미해결 0
+- GIF 80개: 기술 재생 영수증 85개, 고유 SHA 80개, 독립 시간축 의미 판독 2종, pair 80, 제3자 교정 80
+- GIF 교정 결정: 자산당 10개, 총 800개; 직접 원본 재대조 충돌군 13개
+- 두 intake의 같은 SHA 5개는 실물을 늘리지 않고 양쪽 출처만 보존
+- 모든 결과는 `non_authority`이고 공용 자료실·외부 발행 상태를 바꾸지 않는다.
+
+현재 활성 증거 사슬과 두 intake 전체 연결은 다음 두 명령으로 재검증한다.
+
+```powershell
+npm run assets:validate-gif-adjudication-candidate -- --active-candidate "Z:\문장군_브랜드_원본보관\VISUAL-REVIEW-2026-09-08\gif-adjudication-p5-v1\gif-adjudication-active-candidate-v1.json"
+npm run assets:build-content-authority-drafts -- --config config/asset-content-authority-draft-adapter.json --check-only
+```
+
+두 번째 명령의 정상 결과는 고유 자산 489개(정지 409·GIF 80), catalog 경로 494개, 두 intake 공통 SHA 5개, 의미 판독 누락·중복 0이다. 출력 상태는 계속 `non_authority`·`needs_evidence`·`signingAllowed: false`여야 한다.
 
 ## 첫 12개 절차 검증
 
