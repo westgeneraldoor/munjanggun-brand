@@ -62,7 +62,7 @@ export async function buildAssetEvidenceReviewPackage({ worksetPath, analysisPat
     const weakOrMissing = (pixel.textMatches ?? []).filter((item) => !['exact', 'strong'].includes(item.status));
     const sourceUncertainties = (draft.uncertainties ?? []).filter((value) => !isMechanicalMissingNeed(value));
     const gates = {
-      pixelRegions: record.textPresence === 'none_observed' || weakOrMissing.length === 0 ? 'machine_ready_non_authority' : 'direct_review_required',
+      pixelRegions: classifyPixelEvidenceGate(record, pixel),
       searchTags: 'machine_proposed_non_authority',
       semanticAuthority: 'existing_signed_adjudication_requires_projection_validation',
       sensitiveClaims: draft.claimSignals?.length ? 'independent_evidence_binding_required' : 'not_applicable',
@@ -165,6 +165,14 @@ export function proposeSearchTags(entry) {
   return Object.fromEntries(TAG_KEYS.map((key) => [key, [...new Set(tags[key])].sort((a, b) => a.localeCompare(b, 'ko-KR'))]));
 }
 
+export function classifyPixelEvidenceGate(record, pixel) {
+  if (record?.textPresence === 'uncertain') return 'direct_review_required';
+  if (record?.textPresence === 'observed' && (record.visibleText?.length ?? 0) === 0) return 'direct_review_required';
+  return ['fully_machine_matched', 'no_text'].includes(pixel?.matchStatus)
+    ? 'machine_ready_non_authority'
+    : 'direct_review_required';
+}
+
 function containsControlledTerm(corpus, term) {
   if (/^[A-Za-z0-9]+$/u.test(term)) return new RegExp(`(?:^|[^A-Za-z0-9])${escapeRegExp(term)}(?:$|[^A-Za-z0-9])`, 'iu').test(corpus);
   return corpus.includes(term);
@@ -207,7 +215,7 @@ function compareQueuePriority(left, right) {
 }
 
 function countStatuses(values) {
-  const result = { exact: 0, strong: 0, weak: 0, unmatched: 0 };
+  const result = { exact: 0, strong: 0, weak: 0, critical_mismatch: 0, unmatched: 0 };
   for (const value of values) result[value.status] = (result[value.status] ?? 0) + 1;
   return result;
 }
@@ -233,8 +241,18 @@ function uniqueSourceRefs(values) {
 }
 
 function renderDashboard(report, queue) {
-  const rows = queue.map((entry) => `<article><div class="media"><img loading="lazy" src="${html(fileUrl(entry.originalPath))}" alt=""></div><div><code>${html(entry.sourceObjectSha256.slice(0, 12))}</code><h2>${html(entry.observedSummary)}</h2><p>${html(entry.sourceRefs.map((item) => item.sourceRelativePath).join(' · '))}</p><p><b>태그 제안</b> ${html(Object.values(entry.proposedSearchTags).flat().join(', ') || '없음')}</p><p><b>재확인 문구</b> ${html(entry.textReviewQueue.map((item) => `${item.text} [${item.status}]`).join(' / ') || '없음')}</p><p><b>Claim</b> ${html(entry.claimSignals.join(', ') || '없음')} · <b>Privacy</b> ${html(entry.privacySignals.join(', ') || '없음')}</p><p class="block">${html(entry.blockingReasons.join(' · '))}</p></div></article>`).join('\n');
-  return `<!doctype html><html lang="ko"><meta charset="utf-8"><title>문장군 자산 직접 검토 큐</title><style>body{font-family:system-ui,sans-serif;margin:24px;background:#f5f5f2;color:#171717}header{position:sticky;top:0;background:#f5f5f2;padding:12px 0;border-bottom:2px solid #111;z-index:2}article{display:grid;grid-template-columns:280px 1fr;gap:20px;background:white;margin:16px 0;padding:16px;border:1px solid #ddd}.media{height:240px;display:flex;align-items:center;justify-content:center;background:#eee}.media img{max-width:100%;max-height:100%}h2{font-size:18px;margin:8px 0}p{margin:6px 0}.block{color:#9b1c1c;font-weight:700}code{font-size:12px}@media(max-width:700px){article{grid-template-columns:1fr}}</style><header><h1>문장군 자산 직접 검토 큐</h1><p>총 ${report.coverage.uniqueAssetCount}개 · 직접 확인 큐 ${report.coverage.queuedAssetCount}개 · 승격 0개(차단 유지)</p></header>${rows}</html>`;
+  const rows = queue.map((entry) => {
+    const textQueue = entry.textReviewQueue.length
+      ? `<ol>${entry.textReviewQueue.map((item) => `<li><b>목표</b> ${html(item.text)}<br><b>OCR</b> ${html(item.recognizedText || '인식 없음')}<br><b>판정</b> ${html(item.status)} · score ${html(item.score)} · frame ${html(item.frameIndex ?? '정지 이미지')}<br><b>영역</b> <code>${html(formatRegion(item.region))}</code></li>`).join('')}</ol>`
+      : '없음';
+    return `<article><div class="media"><img loading="lazy" src="${html(fileUrl(entry.originalPath))}" alt=""></div><div><code>${html(entry.sourceObjectSha256.slice(0, 12))}</code><h2>${html(entry.observedSummary)}</h2><p>${html(entry.sourceRefs.map((item) => item.sourceRelativePath).join(' · '))}</p><p><b>태그 제안</b> ${html(Object.values(entry.proposedSearchTags).flat().join(', ') || '없음')}</p><div><b>재확인 문구</b>${textQueue}</div><p><b>Claim</b> ${html(entry.claimSignals.join(', ') || '없음')} · <b>Privacy</b> ${html(entry.privacySignals.join(', ') || '없음')}</p><p class="block">${html(entry.blockingReasons.join(' · '))}</p></div></article>`;
+  }).join('\n');
+  return `<!doctype html><html lang="ko"><meta charset="utf-8"><title>문장군 자산 직접 검토 큐</title><style>body{font-family:system-ui,sans-serif;margin:24px;background:#f5f5f2;color:#171717}header{position:sticky;top:0;background:#f5f5f2;padding:12px 0;border-bottom:2px solid #111;z-index:2}article{display:grid;grid-template-columns:280px 1fr;gap:20px;background:white;margin:16px 0;padding:16px;border:1px solid #ddd}.media{height:240px;display:flex;align-items:center;justify-content:center;background:#eee}.media img{max-width:100%;max-height:100%}h2{font-size:18px;margin:8px 0}p{margin:6px 0}ol{margin:8px 0;padding-left:24px}li{margin:8px 0;padding:8px;background:#fff7ed;border-left:3px solid #c2410c}.block{color:#9b1c1c;font-weight:700}code{font-size:12px}@media(max-width:700px){article{grid-template-columns:1fr}}</style><header><h1>문장군 자산 직접 검토 큐</h1><p>총 ${report.coverage.uniqueAssetCount}개 · 직접 확인 큐 ${report.coverage.queuedAssetCount}개 · 승격 0개(차단 유지)</p></header>${rows}</html>`;
+}
+
+function formatRegion(region) {
+  if (!region) return '없음';
+  return `x=${region.x}, y=${region.y}, width=${region.width}, height=${region.height}`;
 }
 
 function fileUrl(path) {

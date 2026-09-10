@@ -31,6 +31,7 @@ export async function validateAssetEvidenceReviewPackage({ reportPath } = {}) {
   if (unique.size !== entries.length || entries.some((entry) => !/^[a-f0-9]{64}$/u.test(entry.sourceObjectSha256 ?? ''))) {
     throw new Error('Package entries contain invalid or duplicate SHA-256 values');
   }
+  for (const entry of entries) assertPackageEntryPixelGate(entry);
   const expectedQueue = entries.filter((entry) => entry.textReviewQueue.length || entry.sourceUncertainties.length || entry.claimSignals.length || entry.privacySignals.length);
   const queueSet = new Set(queue.map((entry) => entry.sourceObjectSha256));
   if (queueSet.size !== queue.length || expectedQueue.length !== queue.length || expectedQueue.some((entry) => !queueSet.has(entry.sourceObjectSha256))) {
@@ -57,6 +58,28 @@ export async function validateAssetEvidenceReviewPackage({ reportPath } = {}) {
     if (digest(bytes) !== source.sha256) throw new Error('Package source SHA-256 mismatch');
   }
   return { result: 'passed', reportPath: reportFile, reportSha256: digest(reportBytes), ...actual };
+}
+
+export function assertPackageEntryPixelGate(entry) {
+  const queue = entry?.textReviewQueue ?? [];
+  const summary = entry?.pixelMatchSummary ?? {};
+  const reviewStatusCount = (summary.weak ?? 0) + (summary.critical_mismatch ?? 0) + (summary.unmatched ?? 0);
+  if (queue.some((item) => !['weak', 'critical_mismatch', 'unmatched'].includes(item.status))) {
+    throw new Error(`Package text review queue contains a passing status: ${entry?.sourceObjectSha256 ?? 'unknown'}`);
+  }
+  if (queue.length !== reviewStatusCount) {
+    throw new Error(`Package text review queue count mismatch: ${entry?.sourceObjectSha256 ?? 'unknown'}`);
+  }
+  const mustReview = entry?.textPresence === 'uncertain'
+    || (entry?.textPresence === 'observed' && (entry.visibleText?.length ?? 0) === 0)
+    || reviewStatusCount > 0;
+  const expected = mustReview ? 'direct_review_required' : 'machine_ready_non_authority';
+  if (entry?.gates?.pixelRegions !== expected) {
+    throw new Error(`Package pixel gate contradicts text evidence: ${entry?.sourceObjectSha256 ?? 'unknown'}`);
+  }
+  if (entry?.textPresence === 'none_observed' && (entry.visibleText?.length ?? 0) !== 0) {
+    throw new Error(`Package no-text entry contains visible text: ${entry?.sourceObjectSha256 ?? 'unknown'}`);
+  }
 }
 
 function requireAbsolute(value, label) {
