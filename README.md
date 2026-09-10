@@ -1,8 +1,8 @@
 # 문장군 중앙 브랜드 문서
 
-> 버전: v5.20
-> 최종 업데이트: 2026-09-09
-> 변경 요약: non-authority 초안 변환에서 GIF 기술 재생·표본 의미 판독·제3자 교정 이력을 각각 보존하고, 정지 이미지의 `uncertain` 문자 상태를 손실 없이 유지하도록 교정했다. v1 초안은 superseded로 보존하고 v2를 현재 비권위 초안으로 연결했다.
+> 버전: v5.26
+> 최종 업데이트: 2026-09-10
+> 변경 요약: 489개 1차 검토 자산을 내부 검색·미리보기·메타데이터 전달에 개방하고, 외부 게시와 공개 Git은 선택 자산별 확인 전까지 계속 차단하도록 운영 경로를 분리했다.
 
 이 저장소는 문장군의 브랜드 사실, 현장 판단, 변동 claim 근거, 공통 원료, 상품·자산 위키를 관리한다.
 
@@ -61,7 +61,7 @@ npm run report:assets
 
 대량 intake는 원본 복구본, 논리 경로, 단일 object, 발행 상태를 분리한다. 검색은 상태를 바꾸지 않는다. 외부용 추출은 봉인 검토 증거와 권리·개인정보·claim·발행 게이트를 모두 통과해야 하며, 결과 자산과 추출 영수증을 한 묶음으로 만든다.
 
-> **내용 정확성 사용 중지:** 독립 감찰에서 `verified-v4`에도 이미지에 없는 문구, 경로 문자열에 따른 A/S·가격 오분류, GIF 표본 판독 범위 과장, 검토·봉인 시간 역전이 확인됐다. 따라서 현재 `INTAKE-20260904-01`의 내용 authority는 없으며 공용 검색·추천·handoff·외부 추출은 `config/asset-content-quality.json`에서 차단된다. 원본·object·사용권 기록은 유지하되 새 재검증 결과가 별도 봉인되기 전에는 기존 catalog나 v1~v4 overlay의 의미 필드를 사용하지 않는다. 상세 기록은 `ASSET_CONTENT_REVALIDATION_2026-09-07.md`를 따른다.
+> **운영 경로 분리:** 철회된 `verified-v4`와 기존 발행용 `assets:library:index`, `assets:search`, `assets:pick-for-blog`, `assets:extract-content`는 계속 차단한다. 대신 489개 원본과 1차 판독·픽셀 근거·서명을 다시 검증하는 `assets:library:internal`만 내부 검색·미리보기·메타데이터 handoff에 사용한다. 이 내부 결과는 `non_authority`이며, 실제 게시에는 선택한 자산만 원본 문구·최신 claim·개인정보를 다시 확인해야 한다.
 
 정지 이미지 409개는 6개 활성 원장에서 독립 1·2차 판독과 제3자 교정을 마쳤고 모두 `complete_non_authority`로 검증됐다. GIF 80개도 전체 시간 재생 기술 영수증, 서로 독립된 시간축 표본 판독 2종, 제3자 비교·교정을 연결해 관찰 충돌 미해결 0으로 닫았다. GIF 최종 교정은 자산당 10개 필드, 총 800개 결정을 원본 SHA에 묶는다. 다만 `resolved`는 보이는 내용의 판독 충돌이 정리됐다는 뜻이지 가격·행사·성능의 최신성, 촬영 동의, 외부 발행 또는 공용 자료실 승격을 뜻하지 않는다.
 
@@ -80,18 +80,21 @@ npm run assets:validate-raw-review-ledger -- --ledger <segment-ledger-index.json
 npm run assets:validate-raw-review-ledger -- --ledger <segment-ledger-index.json> --mode pilot-complete --reviewer-trust <segment-reviewer-trust.json>
 ```
 
-다른 문장군 프로젝트는 버전 폴더를 직접 찾지 않고 아래 누적 공용 입구만 사용한다. 이 인덱스는 각 intake의 불변 pointer와 SHA를 연결하므로 새 묶음을 추가해도 이전 묶음이 검색에서 사라지지 않는다.
+다른 문장군 프로젝트는 버전 폴더나 Z 경로를 직접 찾지 않고 내부 자료실 설정 하나만 사용한다.
 
 ```text
-C:\Users\hjh\안티그래비티\문장군_브랜드\config\asset-library-index.json
+C:\Users\hjh\안티그래비티\문장군_브랜드\config\asset-internal-library.json
 ```
 
 ```bash
-npm run assets:library:index -- --index "C:\Users\hjh\안티그래비티\문장군_브랜드\config\asset-library-index.json" --query "3연동ㄱ자"
-npm run assets:library:index -- --index "C:\Users\hjh\안티그래비티\문장군_브랜드\config\asset-library-index.json" --query "3연동ㄱ자" --select-sha256 <SHA-256> --consumer munjanggun-blog --output-name <작업명>
+npm run assets:library:internal -- --query "3연동ㄱ자"
+npm run assets:library:internal -- --query "3연동ㄱ자" --select-sha256 <SHA-256> --consumer munjanggun-blog --output-name <작업명>
+npm run assets:library:internal -- --query "3연동ㄱ자" --select-sha256 <SHA-256> --consumer munjanggun-crm --output-name <작업명>
 ```
 
-두 번째 명령은 봉인된 시각 재검증 overlay를 검증한 뒤 실행된다. 실제 이미지 복사 없이 `asset-handoff.json`과 미리보기 HTML만 등록된 프로젝트의 비공개·Git 제외 영역에 만든다. 기존 단일 최신 묶음용 `assets:library -- --pointer ...`도 같은 내용 정확성 게이트를 거치므로 base catalog의 낡은 설명으로 우회할 수 없다.
+명령은 활성 1차 검토 pointer와 후보·픽셀 근거·검토자 서명·489개 원본 SHA를 확인한 뒤 실행된다. 실제 이미지 복사 없이 `asset-handoff.json`과 미리보기 HTML만 등록 프로젝트의 비공개·Git 제외 영역에 만든다. 결과의 내부 열람 상태는 `usable`, 외부 발행은 `blocked_selected_asset_review_required`, 공개 Git은 `blocked`로 고정된다.
+
+기존 `assets:library:index`, `assets:library`, `assets:search`, `assets:pick-for-blog`, `assets:extract-content`는 완전한 발행 authority를 요구하는 별도 경로다. 내부 자료실 개방을 이유로 이 차단을 완화하거나 우회하지 않는다.
 
 ```bash
 npm run assets:search -- --catalog <reviewed-content-catalog.json> --query "검색어"

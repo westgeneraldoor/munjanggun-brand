@@ -1,5 +1,13 @@
 # CHANGELOG - 문장군 중앙 브랜드 문서
 
+## v5.26 - 2026-09-10
+
+- 489개 전체를 다시 독립 검토해야만 검색할 수 있던 운영 조건을 종료하고, 서명된 1차 후보·픽셀 근거·원본 SHA를 매 실행마다 검증하는 `assets:library:internal` 추가
+- 내부 검색·미리보기·블로그/CRM 메타데이터 handoff는 허용하되 결과를 `non_authority`로 명시하고, 외부 게시는 선택 자산별 원본 문구·최신 claim·개인정보 확인 전까지 차단
+- handoff는 등록된 Git 제외 비공개 루트에 JSON과 HTML만 생성하고 원본 바이너리를 복사하지 않으며 공개 Git 저장을 계속 금지
+- 기존 `assets:library:index`, `assets:search`, `assets:pick-for-blog`, `assets:extract-content`의 발행 authority 차단은 완화하지 않고 별도 경로로 유지
+- 남은 독립 2차·claim·privacy·GIF 전체 프레임 큐는 내부 개방 조건이 아니라 필요 시 사용하는 감찰 대기 자료로 보존
+
 ## v5.25 - 2026-09-10
 
 - 직접 검토 로그의 마지막 구조 보류 6건과 문자 불확실 2건을 원본 해상도·GIF 지정 프레임으로 재확인해 `PREMIUM WOOD`, 경고 `!`, `Sweet dreams`, 발렌 색상명, `따라 할 수 없는 퀄리티!`, 제3자 포장 라벨을 정확히 연결하고 문구 없는 설치 사진 1건은 `none_observed`로 교정
