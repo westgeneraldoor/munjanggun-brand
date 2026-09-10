@@ -118,12 +118,14 @@ function bestTextMatch(text, candidates) {
 export function classifyTextMatch(targetText, candidateText) {
   const target = normalizeText(targetText);
   const candidate = normalizeText(candidateText);
-  const score = matchScore(target, candidate);
   const targetCritical = criticalTokens(targetText);
   const candidateCritical = criticalTokens(candidateText);
-  const criticalCompatible = targetCritical.length === 0 || sameStringSet(targetCritical, candidateCritical);
+  const criticalCompatible = targetCritical.length === 0 || sameOrderedTokens(targetCritical, candidateCritical);
   const criticalMismatch = !criticalCompatible;
-  const status = target && candidate && target === candidate
+  const exactEquivalent = criticalCompatible && (target === candidate
+    || (targetCritical.length > 0 && normalizeNonCriticalText(targetText) === normalizeNonCriticalText(candidateText)));
+  const score = exactEquivalent ? 1 : matchScore(target, candidate);
+  const status = target && candidate && exactEquivalent
     ? 'exact'
     : criticalMismatch
       ? 'critical_mismatch'
@@ -150,14 +152,67 @@ function isBetterCandidate(candidate, prior) {
   return candidate.score > prior.score;
 }
 
-function sameStringSet(left, right) {
-  return left.length === right.length && left.every((value) => right.includes(value));
+function sameOrderedTokens(left, right) {
+  return left.length === right.length && left.every((value, index) => value === right[index]);
 }
 
 function criticalTokens(value) {
   const normalized = String(value ?? '').normalize('NFKC').toLocaleLowerCase('ko-KR');
-  const tokens = normalized.match(/(?:\d[\d,.]*(?:원|mm|cm|km|kg|g|m|%|회|년|개월|월|일|개|종|가지)?)|(?:[a-z]+[-_.]?\d+[a-z0-9-_.]*)/giu) ?? [];
-  return [...new Set(tokens.map((token) => token.replace(/[,.]/gu, '').replace(/[-_.]/gu, '')))];
+  const tokens = [];
+  for (const match of normalized.matchAll(quantityPattern())) {
+    const prefixWon = Boolean(match[1]);
+    const number = normalizeDecimal(match[2]);
+    const unit = prefixWon ? '원' : normalizeUnit(match[3] ?? '');
+    tokens.push(normalizeQuantity(number, unit));
+  }
+  const modelPattern = /(?=[a-z0-9._-]*[a-z])(?=[a-z0-9._-]*\d)[a-z][a-z0-9._-]*/giu;
+  for (const match of normalized.matchAll(modelPattern)) {
+    tokens.push(`model:${match[0].replace(/[-_.]/gu, '')}`);
+  }
+  return tokens;
+}
+
+function normalizeNonCriticalText(value) {
+  return normalizeText(String(value ?? '').normalize('NFKC').toLocaleLowerCase('ko-KR').replace(quantityPattern(), ''));
+}
+
+function quantityPattern() {
+  return /(₩\s*)?([+-]?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?)(?:\s*(억원|만원|천원|개월|가지|mm|cm|km|kg|ml|m²|m2|㎡|원|m|g|%|회|년|월|일|개|종))?/giu;
+}
+
+function normalizeDecimal(value) {
+  const compact = String(value).replaceAll(',', '');
+  const sign = compact.startsWith('-') ? '-' : '';
+  const unsigned = compact.replace(/^[+-]/u, '');
+  const [integerPart, fractionPart = ''] = unsigned.split('.');
+  const integer = integerPart.replace(/^0+(?=\d)/u, '') || '0';
+  const fraction = fractionPart.replace(/0+$/u, '');
+  const magnitude = fraction ? `${integer}.${fraction}` : integer;
+  return magnitude === '0' ? '0' : `${sign}${magnitude}`;
+}
+
+function normalizeUnit(value) {
+  if (value === '㎡' || value === 'm²' || value === 'm2') return 'm2';
+  return value;
+}
+
+function normalizeQuantity(number, unit) {
+  const moneyMultiplier = { 천원: 1000n, 만원: 10000n, 억원: 100000000n }[unit];
+  if (moneyMultiplier) return `${multiplyDecimal(number, moneyMultiplier)}원`;
+  return `${number}${unit}`;
+}
+
+function multiplyDecimal(value, multiplier) {
+  const sign = value.startsWith('-') ? '-' : '';
+  const unsigned = value.replace(/^-/, '');
+  const [integer, fraction = ''] = unsigned.split('.');
+  const scale = 10n ** BigInt(fraction.length);
+  const scaled = BigInt(`${integer}${fraction}`) * multiplier;
+  const whole = scaled / scale;
+  const remainder = scaled % scale;
+  if (remainder === 0n) return `${sign}${whole}`;
+  const fractional = remainder.toString().padStart(fraction.length, '0').replace(/0+$/u, '');
+  return `${sign}${whole}.${fractional}`;
 }
 
 function transformLines(input, observation) {
