@@ -1,6 +1,6 @@
 # 시각 자산 재검토 작업대
 
-> 상태: 정지 이미지 409개와 GIF 80개 독립 판독·비교·교정 완료(non-authority), content-evidence 증거 보강 전까지 공용 검색·추천·handoff·외부 추출 차단 유지
+> 상태: 정지 이미지 409개와 GIF 80개 독립 판독·비교·교정 완료(non-authority), 489개 픽셀/OCR 작업대와 직접 검토 큐 생성 완료, 최종 증거 서명 전까지 공용 검색·추천·handoff·외부 추출 차단 유지
 
 이 문서는 2026-09-04 묶음과 2026-09-07 쇼핑스토리 묶음을 원본 SHA 기준으로 함께 검토하는 운영 입구다. 대기열과 검토 증거는 비공개 Z 보관소에만 두며, 공개 Git에는 이미지·GIF·개인키·검토 결과를 넣지 않는다.
 
@@ -39,6 +39,36 @@ npm run assets:build-content-authority-drafts -- --config config/asset-content-a
 두 번째 명령의 정상 결과는 고유 자산 489개(정지 409·GIF 80), catalog 항목 494개, 두 intake 공통 SHA 5개, 의미 판독 누락·중복 0이다. 출력 상태는 계속 `non_authority`·`needs_evidence`·`signingAllowed: false`여야 한다. 원래 경로(origin) 총합 1,221개와 catalog 항목 수는 서로 다른 지표다.
 
 현재 비공개 초안 포인터는 `Z:\문장군_브랜드_원본보관\VISUAL-REVIEW-2026-09-08\content-authority-drafts-current.json`이다. 이 포인터의 draft set·supersession·변환 무결성 참조는 각각 실제 파일 SHA와 일치해야 한다.
+
+## 픽셀 근거·직접 검토 큐
+
+2026-09-10에 정지 이미지의 기존 native-resolution 타일과 GIF의 서명된 표본 프레임 인덱스를 실제 원본에서 다시 디코딩해 Windows OCR 관찰을 생성했다. GIF에서 표본 사이 전환 문구를 놓치지 않도록 오류가 남은 GIF에 중간 프레임 485개를 추가했으며, 원본 GIF나 정지 이미지를 다시 복제하지 않았다.
+
+| 항목 | 결과 |
+| --- | ---: |
+| 고유 자산 | 489 |
+| OCR 입력 | 2,149 |
+| 보이는 문구 원자 항목 | 2,819 |
+| exact | 1,500 |
+| strong | 617 |
+| weak | 313 |
+| unmatched | 389 |
+| 픽셀 위치 기계 준비 | 203자산 |
+| 직접 픽셀 확인 필요 | 286자산 |
+| 문구 재확인 항목 | 702 |
+
+현재 입구는 `Z:\문장군_브랜드_원본보관\VISUAL-REVIEW-2026-09-08\content-evidence-review-current.json`이고, 선택된 검토 패키지는 `content-evidence-review-package-v3\package-report.json`(SHA-256 `1d109720a5bf8329b50ff34aaacf7fab3d84fd97e5f9ce56d558801529044e71`)이다. 같은 폴더의 `review-dashboard.html`에서 원본 미리보기, 원래 경로, 보수적 검색 태그 제안, 약한 OCR/미일치 문구, claim·privacy 신호를 한 화면에서 확인한다.
+
+검색 태그는 원래 경로의 첫 상품 폴더가 정확히 일치할 때만 상품 종류로 쓰고, 색상·디자인은 판독 원문에 있는 통제 용어만 제안한다. A/S는 `after_sales_service`, 가격은 `price`로 교정 원장에 확정된 claim 신호가 있을 때만 제안하므로 `BASIC`·`GLASS`·`ASH`와 `원슬라이딩` 경로 부분문자 오탐을 다시 만들지 않는다.
+
+아래 결과는 모두 검토 보조용 `non_authority`다. OCR 점수, 태그 제안, 추가 GIF 프레임 생성은 검토자 서명이나 발행 승인이 아니며 `promotionEligibleCount`는 반드시 0이어야 한다.
+
+```powershell
+npm run assets:validate-evidence-review-package -- `
+  --report "Z:\문장군_브랜드_원본보관\VISUAL-REVIEW-2026-09-08\content-evidence-review-package-v3\package-report.json"
+```
+
+정상 결과는 489개(정지 409·GIF 80), 픽셀 기계 준비 203, 직접 픽셀 확인 286, 직접 검토 큐 463, 문구 재확인 702, 승격 가능 0이다. 검토자는 원문·OCR·원본 픽셀을 비교하되 OCR을 정답으로 취급하지 않는다.
 
 ## 첫 12개 절차 검증
 

@@ -51,7 +51,7 @@ npm run report:assets
 | `CHANGELOG.md` | 변경 이력 |
 | `ASSET_INTAKE_2026-09-04.md` | 신규 10개 상품 묶음의 보존·중복·검토·승격 게이트 |
 | `ASSET_CONTENT_REVALIDATION_2026-09-07.md` | 407개 자산 내용 오분류 원인·재판독 진행·다음 봉인 기준 |
-| `ASSET_VISUAL_REVIEW_WORKBENCH.md` | 두 intake 489개 고유 자산의 재검토 대기열·서명·GIF 전체 재생 운영 절차 |
+| `ASSET_VISUAL_REVIEW_WORKBENCH.md` | 두 intake 489개 고유 자산의 재검토 원장·픽셀/OCR 작업대·직접 검토 대시보드·서명 절차 |
 
 ## 상품·자산 운영
 

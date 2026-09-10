@@ -7,6 +7,14 @@ const { PNG } = pngjs;
 export const GIF_PIXEL_DECODER_VERSION = 'gifuct-js@2.1.2+munjanggun-compositor-v1';
 
 export function decodeGifFramePixels(bytes, selectedFrameIndices) {
+  return decodeGifFrames(bytes, selectedFrameIndices, false);
+}
+
+export function decodeGifFrameImages(bytes, selectedFrameIndices) {
+  return decodeGifFrames(bytes, selectedFrameIndices, true);
+}
+
+function decodeGifFrames(bytes, selectedFrameIndices, includePixels) {
   const parsed = parseGIF(bytes);
   const frames = decompressFrames(parsed, true);
   const width = parsed.lsd.width;
@@ -19,7 +27,12 @@ export function decodeGifFramePixels(bytes, selectedFrameIndices) {
     const before = frame.disposalType === 3 ? canvas.slice() : null;
     compositePatch(canvas, width, height, frame);
     if (wanted.has(frameIndex)) {
-      result.set(frameIndex, { width, height, pixelSha256: pixelDigest(width, height, canvas) });
+      result.set(frameIndex, {
+        width,
+        height,
+        pixelSha256: pixelDigest(width, height, canvas),
+        ...(includePixels ? { data: new Uint8Array(canvas) } : {}),
+      });
     }
     if (frame.disposalType === 2) clearFrameRect(canvas, width, height, frame.dims);
     else if (frame.disposalType === 3 && before) canvas = before;
