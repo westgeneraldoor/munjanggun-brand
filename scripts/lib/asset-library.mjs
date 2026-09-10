@@ -665,7 +665,7 @@ function validateConsumerPolicy(consumers) {
   }
 }
 
-async function verifyGitIgnoredConsumerDestination(approvedRoot, destination = approvedRoot) {
+export async function verifyGitIgnoredConsumerDestination(approvedRoot, destination = approvedRoot) {
   try {
     const { stdout } = await execFileAsync('git', ['-C', approvedRoot, 'rev-parse', '--show-toplevel'], { encoding: 'utf8', windowsHide: true });
     const gitRoot = stdout.trim();

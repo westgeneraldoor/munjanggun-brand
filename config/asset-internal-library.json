@@ -1,0 +1,13 @@
+{
+  "schema": "munjanggun.assetInternalLibraryConfig.v1",
+  "version": "1.0",
+  "libraryId": "MUNJANGGUN-PRIVATE-ASSETS",
+  "updatedAt": "2026-09-10T05:30:00.000Z",
+  "mode": "primary_reviewed_internal_only",
+  "activePointerPath": "Z:\\문장군_브랜드_원본보관\\VISUAL-REVIEW-2026-09-08\\content-evidence-direct-review-20260910\\PRIMARY-REVIEW-ACTIVE-v1.json",
+  "activePointerSha256": "49c88eade6a274ae872ec18921730bb5d305f6f9d26dfaef9db7fea99b139f20",
+  "reviewerTrustPath": "Z:\\문장군_브랜드_원본보관\\VISUAL-REVIEW-2026-09-08\\content-evidence-direct-review-20260910\\primary-reviewer-trust-v1.json",
+  "reviewerTrustSha256": "22dd578e50c0011697b2fe6eab434fa106b3cfa3e3e76e3ba075cfee0acd175e",
+  "externalPublicationPolicy": "selected_asset_review_required",
+  "publicGitStorage": false
+}
