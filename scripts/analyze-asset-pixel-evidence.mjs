@@ -35,6 +35,7 @@ export async function analyzeAssetPixelEvidence({ worksetPath, outputPath } = {}
       exactMatchCount: statusCounts.exact ?? 0,
       strongMatchCount: statusCounts.strong ?? 0,
       weakMatchCount: statusCounts.weak ?? 0,
+      criticalMismatchCount: statusCounts.critical_mismatch ?? 0,
       unmatchedCount: statusCounts.unmatched ?? 0,
       fullyMatchedAssetCount: assets.filter((item) => item.matchStatus === 'fully_machine_matched').length,
       reviewRequiredAssetCount: assets.filter((item) => item.matchStatus === 'review_required').length,
@@ -83,10 +84,14 @@ function bestTextMatch(text, candidates) {
       for (let length = 1; length <= Math.min(10, lines.length - start); length += 1) {
         const window = lines.slice(start, start + length);
         const recognized = window.map((line) => line.text).join(' ');
-        const score = matchScore(target, normalizeText(recognized));
-        if (!best || score > best.score) {
+        const classified = classifyTextMatch(text, recognized);
+        const score = classified.score;
+        if (!best || isBetterCandidate(classified, best)) {
           best = {
             score,
+            status: classified.status,
+            criticalCompatible: classified.criticalCompatible,
+            normalizedCandidate: classified.normalizedCandidate,
             recognizedText: recognized,
             sourcePath: candidate.input.path,
             frameIndex: candidate.input.frameIndex,
@@ -99,8 +104,60 @@ function bestTextMatch(text, candidates) {
     }
   }
   const score = best?.score ?? 0;
-  const status = score >= 0.92 ? 'exact' : score >= 0.72 ? 'strong' : score >= 0.45 ? 'weak' : 'unmatched';
-  return { text, status, score: Number(score.toFixed(4)), ...(best ?? {}) };
+  const classified = best ? classifyTextMatch(text, best.recognizedText) : { status: 'unmatched', criticalTokens: criticalTokens(text), candidateCriticalTokens: [] };
+  return {
+    text,
+    status: classified.status,
+    score: Number(score.toFixed(4)),
+    criticalTokens: classified.criticalTokens,
+    candidateCriticalTokens: classified.candidateCriticalTokens,
+    ...(best ?? {}),
+  };
+}
+
+export function classifyTextMatch(targetText, candidateText) {
+  const target = normalizeText(targetText);
+  const candidate = normalizeText(candidateText);
+  const score = matchScore(target, candidate);
+  const targetCritical = criticalTokens(targetText);
+  const candidateCritical = criticalTokens(candidateText);
+  const criticalCompatible = targetCritical.length === 0 || sameStringSet(targetCritical, candidateCritical);
+  const criticalMismatch = !criticalCompatible;
+  const status = target && candidate && target === candidate
+    ? 'exact'
+    : criticalMismatch
+      ? 'critical_mismatch'
+      : score >= 0.72
+        ? 'strong'
+        : score >= 0.45
+          ? 'weak'
+          : 'unmatched';
+  return {
+    status,
+    score,
+    normalizedTarget: target,
+    normalizedCandidate: candidate,
+    criticalTokens: targetCritical,
+    candidateCriticalTokens: candidateCritical,
+    criticalCompatible,
+  };
+}
+
+function isBetterCandidate(candidate, prior) {
+  if (candidate.criticalCompatible !== prior.criticalCompatible) return candidate.criticalCompatible;
+  if (candidate.status === 'exact' && prior.status !== 'exact') return true;
+  if (candidate.status !== 'exact' && prior.status === 'exact') return false;
+  return candidate.score > prior.score;
+}
+
+function sameStringSet(left, right) {
+  return left.length === right.length && left.every((value) => right.includes(value));
+}
+
+function criticalTokens(value) {
+  const normalized = String(value ?? '').normalize('NFKC').toLocaleLowerCase('ko-KR');
+  const tokens = normalized.match(/(?:\d[\d,.]*(?:원|mm|cm|km|kg|g|m|%|회|년|개월|월|일|개|종|가지)?)|(?:[a-z]+[-_.]?\d+[a-z0-9-_.]*)/giu) ?? [];
+  return [...new Set(tokens.map((token) => token.replace(/[,.]/gu, '').replace(/[-_.]/gu, '')))];
 }
 
 function transformLines(input, observation) {

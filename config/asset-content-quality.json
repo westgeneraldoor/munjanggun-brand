@@ -1,13 +1,13 @@
 {
   "schema": "munjanggun.assetContentQualityPolicy.v1",
   "version": "1.0",
-  "updatedAt": "2026-09-10T00:12:30.000Z",
+  "updatedAt": "2026-09-10T00:37:00.000Z",
   "records": [
     {
       "intakeId": "INTAKE-20260904-01",
       "catalogSha256": "523e2f50ba99e9181c5ebeb814b0af9345118aee01257204b4fa8671841ae61b",
       "status": "blocked_pending_visual_revalidation",
-      "reason": "verified-v4 철회 뒤 두 intake 489개를 독립 재판독·교정하고 픽셀/OCR 검토 패키지까지 생성했으나, 286개 직접 픽셀 확인과 claim·privacy·독립 증거 결속 및 최종 서명이 남아 있어 content authority 승격 전까지 차단",
+      "reason": "verified-v4 철회 뒤 두 intake 489개를 독립 재판독·교정하고 픽셀/OCR 검토 패키지까지 생성했으나, 숫자·단위·모델 불일치를 포함한 322개 직접 픽셀 확인과 claim·privacy·독립 증거 결속 및 최종 서명이 남아 있어 content authority 승격 전까지 차단",
       "detectedAt": "2026-09-07T04:05:00.000Z",
       "confirmedExamples": [
         "3연동중문/컬렉션/베이직/썸네일/004.jpg",

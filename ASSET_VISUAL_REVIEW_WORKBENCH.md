@@ -49,15 +49,18 @@ npm run assets:build-content-authority-drafts -- --config config/asset-content-a
 | 고유 자산 | 489 |
 | OCR 입력 | 2,149 |
 | 보이는 문구 원자 항목 | 2,819 |
-| exact | 1,500 |
-| strong | 617 |
-| weak | 313 |
-| unmatched | 389 |
-| 픽셀 위치 기계 준비 | 203자산 |
-| 직접 픽셀 확인 필요 | 286자산 |
-| 문구 재확인 항목 | 702 |
+| exact(정규화 문자 동일) | 1,300 |
+| strong(핵심 토큰 집합 동일·유사 문구) | 476 |
+| weak | 212 |
+| 숫자·단위·모델 핵심 불일치 | 511 |
+| unmatched | 320 |
+| 픽셀 위치 기계 준비 | 167자산 |
+| 직접 픽셀 확인 필요 | 322자산 |
+| 문구 재확인 항목 | 1,043 |
 
-현재 입구는 `Z:\문장군_브랜드_원본보관\VISUAL-REVIEW-2026-09-08\content-evidence-review-current.json`이고, 선택된 검토 패키지는 `content-evidence-review-package-v3\package-report.json`(SHA-256 `1d109720a5bf8329b50ff34aaacf7fab3d84fd97e5f9ce56d558801529044e71`)이다. 같은 폴더의 `review-dashboard.html`에서 원본 미리보기, 원래 경로, 보수적 검색 태그 제안, 약한 OCR/미일치 문구, claim·privacy 신호를 한 화면에서 확인한다.
+현재 입구는 `Z:\문장군_브랜드_원본보관\VISUAL-REVIEW-2026-09-08\content-evidence-review-current.json`이고, 선택된 검토 패키지는 `content-evidence-review-package-v6\package-report.json`(SHA-256 `7904be4bb3b38ccaac577ddb3c27472d42d64a6728b9c213d51f90a1671daf97`)이다. 같은 폴더의 `review-dashboard.html`에서 원본 미리보기, 원래 경로, 보수적 검색 태그 제안, 목표 문구와 OCR 문구·프레임·영역, claim·privacy 신호를 한 화면에서 확인한다.
+
+`exact`는 NFKC·대소문자·구두점 정규화 뒤 문자가 같은 경우만 뜻한다. 포함 관계나 일반 유사도는 exact로 부르지 않는다. 금액·치수·수량·번호·모델 식별자의 집합이 목표 문구와 OCR 영역에서 정확히 같지 않으면, 목표 숫자가 포함돼 있더라도 유사도 점수와 무관하게 `critical_mismatch`로 분리하고 직접 검토로 보낸다. `textPresence: uncertain`과 `observed`인데 문구가 빈 항목도 항상 직접 검토 대상이다.
 
 검색 태그는 원래 경로의 첫 상품 폴더가 정확히 일치할 때만 상품 종류로 쓰고, 색상·디자인은 판독 원문에 있는 통제 용어만 제안한다. A/S는 `after_sales_service`, 가격은 `price`로 교정 원장에 확정된 claim 신호가 있을 때만 제안하므로 `BASIC`·`GLASS`·`ASH`와 `원슬라이딩` 경로 부분문자 오탐을 다시 만들지 않는다.
 
@@ -65,10 +68,10 @@ npm run assets:build-content-authority-drafts -- --config config/asset-content-a
 
 ```powershell
 npm run assets:validate-evidence-review-package -- `
-  --report "Z:\문장군_브랜드_원본보관\VISUAL-REVIEW-2026-09-08\content-evidence-review-package-v3\package-report.json"
+  --report "Z:\문장군_브랜드_원본보관\VISUAL-REVIEW-2026-09-08\content-evidence-review-package-v6\package-report.json"
 ```
 
-정상 결과는 489개(정지 409·GIF 80), 픽셀 기계 준비 203, 직접 픽셀 확인 286, 직접 검토 큐 463, 문구 재확인 702, 승격 가능 0이다. 검토자는 원문·OCR·원본 픽셀을 비교하되 OCR을 정답으로 취급하지 않는다.
+정상 결과는 489개(정지 409·GIF 80), 픽셀 기계 준비 167, 직접 픽셀 확인 322, 전체 직접 검토 큐 464, 문구 재확인 1,043, 승격 가능 0이다. 검토자는 원문·OCR·원본 픽셀을 비교하되 OCR을 정답으로 취급하지 않는다. 전체 직접 검토 큐는 픽셀뿐 아니라 claim·privacy·원문 불확실성을 합친 중복 제거 자산 수다.
 
 ## 첫 12개 절차 검증
 
