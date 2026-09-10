@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { dirname, isAbsolute, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { isDeepStrictEqual } from 'node:util';
 import { parseStrictArgs, required } from './lib/strict-cli-args.mjs';
 
 export async function validateAssetEvidenceReviewPackage({ reportPath } = {}) {
@@ -31,12 +32,30 @@ export async function validateAssetEvidenceReviewPackage({ reportPath } = {}) {
   if (unique.size !== entries.length || entries.some((entry) => !/^[a-f0-9]{64}$/u.test(entry.sourceObjectSha256 ?? ''))) {
     throw new Error('Package entries contain invalid or duplicate SHA-256 values');
   }
-  for (const entry of entries) assertPackageEntryPixelGate(entry);
+  const sourceFiles = {};
+  for (const [name, source] of Object.entries(report.sources ?? {})) {
+    const path = requireAbsolute(source.path, 'Package source');
+    const bytes = await readFile(path);
+    if (digest(bytes) !== source.sha256) throw new Error('Package source SHA-256 mismatch');
+    sourceFiles[name] = { path, bytes };
+  }
+  if (!sourceFiles.analysis) throw new Error('Package analysis source is missing');
+  const analysis = JSON.parse(sourceFiles.analysis.bytes.toString('utf8'));
+  if (analysis?.schema !== 'munjanggun.assetPixelEvidenceAnalysis.v1' || !Array.isArray(analysis.assets)) {
+    throw new Error('Package analysis source contract is invalid');
+  }
+  const analysisBySha = uniqueBySha(analysis.assets, 'analysis');
+  for (const entry of entries) {
+    assertPackageEntryPixelGate(entry);
+    assertPackageEntryMatchesAnalysis(entry, analysisBySha.get(entry.sourceObjectSha256));
+  }
+  if (analysisBySha.size !== entries.length) throw new Error('Package analysis coverage does not match its entries');
   const expectedQueue = entries.filter((entry) => entry.textReviewQueue.length || entry.sourceUncertainties.length || entry.claimSignals.length || entry.privacySignals.length);
   const queueSet = new Set(queue.map((entry) => entry.sourceObjectSha256));
   if (queueSet.size !== queue.length || expectedQueue.length !== queue.length || expectedQueue.some((entry) => !queueSet.has(entry.sourceObjectSha256))) {
     throw new Error('Package direct-review queue coverage mismatch');
   }
+  assertDirectReviewQueueMatchesEntries(queue, expectedQueue);
   const actual = {
     uniqueAssetCount: entries.length,
     staticAssetCount: entries.filter((entry) => entry.mediaKind === 'static').length,
@@ -53,11 +72,31 @@ export async function validateAssetEvidenceReviewPackage({ reportPath } = {}) {
   if (actual.promotionEligibleCount !== 0 || entries.some((entry) => entry.promotionEligible !== false)) {
     throw new Error('Non-authority review package must not mark assets promotion eligible');
   }
-  for (const source of Object.values(report.sources ?? {})) {
-    const bytes = await readFile(requireAbsolute(source.path, 'Package source'));
-    if (digest(bytes) !== source.sha256) throw new Error('Package source SHA-256 mismatch');
-  }
   return { result: 'passed', reportPath: reportFile, reportSha256: digest(reportBytes), ...actual };
+}
+
+export function assertPackageEntryMatchesAnalysis(entry, analysisAsset) {
+  const sha = entry?.sourceObjectSha256 ?? 'unknown';
+  if (!analysisAsset) throw new Error(`Package analysis is missing entry SHA: ${sha}`);
+  if (entry.textPresence !== analysisAsset.textPresence) throw new Error(`Package text presence differs from analysis: ${sha}`);
+  const expectedQueue = (analysisAsset.textMatches ?? []).filter((item) => !['exact', 'strong'].includes(item.status));
+  if (!isDeepStrictEqual(entry.textReviewQueue ?? [], expectedQueue)) {
+    throw new Error(`Package text review queue differs from analysis: ${sha}`);
+  }
+  const expectedSummary = countStatuses(analysisAsset.textMatches ?? []);
+  if (!isDeepStrictEqual(entry.pixelMatchSummary ?? {}, expectedSummary)) {
+    throw new Error(`Package pixel match summary differs from analysis: ${sha}`);
+  }
+}
+
+export function assertDirectReviewQueueMatchesEntries(queue, expectedEntries) {
+  const expectedBySha = new Map(expectedEntries.map((entry) => [entry.sourceObjectSha256, entry]));
+  for (const queued of queue) {
+    const expected = expectedBySha.get(queued.sourceObjectSha256);
+    if (!expected || !isDeepStrictEqual(queued, expected)) {
+      throw new Error(`Package direct-review queue content mismatch: ${queued?.sourceObjectSha256 ?? 'unknown'}`);
+    }
+  }
 }
 
 export function assertPackageEntryPixelGate(entry) {
@@ -87,6 +126,20 @@ function requireAbsolute(value, label) {
   return resolve(value);
 }
 function digest(bytes) { return createHash('sha256').update(bytes).digest('hex'); }
+function countStatuses(values) {
+  const result = { exact: 0, strong: 0, weak: 0, critical_mismatch: 0, unmatched: 0 };
+  for (const value of values) result[value.status] = (result[value.status] ?? 0) + 1;
+  return result;
+}
+function uniqueBySha(values, label) {
+  const result = new Map();
+  for (const value of values) {
+    const sha = value?.sourceObjectSha256;
+    if (!/^[a-f0-9]{64}$/u.test(sha ?? '') || result.has(sha)) throw new Error(`Invalid or duplicate ${label} SHA: ${sha}`);
+    result.set(sha, value);
+  }
+  return result;
+}
 
 export async function runValidateAssetEvidenceReviewPackage(argv) {
   const args = parseStrictArgs(argv, { valueFlags: ['--report'] });

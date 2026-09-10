@@ -49,18 +49,20 @@ npm run assets:build-content-authority-drafts -- --config config/asset-content-a
 | 고유 자산 | 489 |
 | OCR 입력 | 2,149 |
 | 보이는 문구 원자 항목 | 2,819 |
-| exact(정규화 문자 동일) | 1,300 |
-| strong(핵심 토큰 집합 동일·유사 문구) | 476 |
+| exact(정규화 문자·수치 의미 동일) | 1,289 |
+| strong(핵심 수치 순서 동일·유사 문구) | 477 |
 | weak | 212 |
-| 숫자·단위·모델 핵심 불일치 | 511 |
-| unmatched | 320 |
+| 숫자·단위·모델 핵심 불일치 | 520 |
+| unmatched | 321 |
 | 픽셀 위치 기계 준비 | 167자산 |
 | 직접 픽셀 확인 필요 | 322자산 |
-| 문구 재확인 항목 | 1,043 |
+| 문구 재확인 항목 | 1,053 |
 
-현재 입구는 `Z:\문장군_브랜드_원본보관\VISUAL-REVIEW-2026-09-08\content-evidence-review-current.json`이고, 선택된 검토 패키지는 `content-evidence-review-package-v6\package-report.json`(SHA-256 `7904be4bb3b38ccaac577ddb3c27472d42d64a6728b9c213d51f90a1671daf97`)이다. 같은 폴더의 `review-dashboard.html`에서 원본 미리보기, 원래 경로, 보수적 검색 태그 제안, 목표 문구와 OCR 문구·프레임·영역, claim·privacy 신호를 한 화면에서 확인한다.
+현재 입구는 `Z:\문장군_브랜드_원본보관\VISUAL-REVIEW-2026-09-08\content-evidence-review-current.json`이고, 선택된 검토 패키지는 `content-evidence-review-package-v7\package-report.json`(SHA-256 `527c89f713e450c9f8cbd44557632b2c8762b58565370dcda665ee7d093f3e04`)이다. 같은 폴더의 `review-dashboard.html`에서 원본 미리보기, 원래 경로, 보수적 검색 태그 제안, 목표 문구와 OCR 문구·프레임·영역, claim·privacy 신호를 한 화면에서 확인한다.
 
-`exact`는 NFKC·대소문자·구두점 정규화 뒤 문자가 같은 경우만 뜻한다. 포함 관계나 일반 유사도는 exact로 부르지 않는다. 금액·치수·수량·번호·모델 식별자의 집합이 목표 문구와 OCR 영역에서 정확히 같지 않으면, 목표 숫자가 포함돼 있더라도 유사도 점수와 무관하게 `critical_mismatch`로 분리하고 직접 검토로 보낸다. `textPresence: uncertain`과 `observed`인데 문구가 빈 항목도 항상 직접 검토 대상이다.
+`exact`는 NFKC·대소문자·구두점 정규화뿐 아니라 소수·부호·금액 배수·단위까지 같은 경우만 뜻한다. `1.50 cm`와 `1.5cm`, `50,000원`과 `50000 원` 같은 표기 차이는 허용하지만 `1.5cm`와 `15cm`, `3.5만원`과 `35만원`, `5 mm`와 `5 cm`는 같다고 보지 않는다. 금액·치수·수량·번호·모델 식별자를 중복과 순서까지 보존해 비교하므로 폭·높이 값이 뒤바뀌거나 목표 숫자 외 다른 숫자가 OCR 영역에 함께 있어도 `critical_mismatch`로 직접 검토한다. `textPresence: uncertain`과 `observed`인데 문구가 빈 항목도 항상 직접 검토 대상이다.
+
+패키지 검증은 수량이나 SHA 목록만 비교하지 않는다. 원 분석에서 직접 확인 대상으로 도출된 각 문구의 판정·OCR 원문·프레임·정규화 영역을 entries와 별도 direct-review queue에서 완전 대조한다. 큐 파일 해시와 보고 수량을 함께 다시 써도 원 분석의 항목을 누락·대체·변경하면 거절한다.
 
 검색 태그는 원래 경로의 첫 상품 폴더가 정확히 일치할 때만 상품 종류로 쓰고, 색상·디자인은 판독 원문에 있는 통제 용어만 제안한다. A/S는 `after_sales_service`, 가격은 `price`로 교정 원장에 확정된 claim 신호가 있을 때만 제안하므로 `BASIC`·`GLASS`·`ASH`와 `원슬라이딩` 경로 부분문자 오탐을 다시 만들지 않는다.
 
@@ -68,10 +70,10 @@ npm run assets:build-content-authority-drafts -- --config config/asset-content-a
 
 ```powershell
 npm run assets:validate-evidence-review-package -- `
-  --report "Z:\문장군_브랜드_원본보관\VISUAL-REVIEW-2026-09-08\content-evidence-review-package-v6\package-report.json"
+  --report "Z:\문장군_브랜드_원본보관\VISUAL-REVIEW-2026-09-08\content-evidence-review-package-v7\package-report.json"
 ```
 
-정상 결과는 489개(정지 409·GIF 80), 픽셀 기계 준비 167, 직접 픽셀 확인 322, 전체 직접 검토 큐 464, 문구 재확인 1,043, 승격 가능 0이다. 검토자는 원문·OCR·원본 픽셀을 비교하되 OCR을 정답으로 취급하지 않는다. 전체 직접 검토 큐는 픽셀뿐 아니라 claim·privacy·원문 불확실성을 합친 중복 제거 자산 수다.
+정상 결과는 489개(정지 409·GIF 80), 픽셀 기계 준비 167, 직접 픽셀 확인 322, 전체 직접 검토 큐 464, 문구 재확인 1,053, 승격 가능 0이다. 검토자는 원문·OCR·원본 픽셀을 비교하되 OCR을 정답으로 취급하지 않는다. 전체 직접 검토 큐는 픽셀뿐 아니라 claim·privacy·원문 불확실성을 합친 중복 제거 자산 수다.
 
 ## 첫 12개 절차 검증
 
