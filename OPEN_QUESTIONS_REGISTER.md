@@ -1,7 +1,7 @@
 # OPEN_QUESTIONS_REGISTER - 문장군 확인 필요 항목
 
-> 버전: v1.7
-> 최종 업데이트: 2026-09-07
+> 버전: v1.8
+> 최종 업데이트: 2026-09-11
 > 목적: 사장 확인, 최신 캡처, 운영 정책 확인이 필요한 브랜드 항목을 중앙에서 추적한다.
 
 이 문서는 발행 가능한 브랜드 기준이 아니다. 여기에 있는 항목은 확인 전 외부 발행물에서 단정하지 않는다.
@@ -37,12 +37,14 @@
 | OQ-016 | 원슬라이딩중문 상세페이지 이벤트/가격성 claim | 신규 원슬라이딩 상세페이지 이미지 안에 이벤트, 월 납입, 가격, 스펙/옵션/혜택성 문구가 포함될 수 있음 | 2026-07-02 사용자 확정: 현재 진행 중인 공식 상세페이지/캠페인 문맥에서는 이미지 안 이벤트, 월 납입, 가격, 혜택 문구 사용 가능 | 중앙 반영 완료. 원문 조건을 빼고 상시 혜택처럼 단정하거나 다른 상품/기간으로 확대하지 않음 | ONE_SLIDING_MIDDLE_DOOR_DETAILPAGE_ASSET_INDEX_2026-07-01.md, 문장군상품/원슬라이딩중문/asset-manifest.json, EVIDENCE_REGISTER.md | `resolved` |
 | OQ-017 | 3연동 자동중문 전원/센서/유지관리 claim | 자동 기능은 설치 조건과 유지관리 오해가 생기기 쉬움 | 2026-07-01 사용자 확정: 고객에게 전원 위치/센서/모터 세부를 숙제로 만들지 않는다. 정전/고장 시 수동 사용 가능 문구는 불안 해소용으로 사용 가능 | 중앙 반영 완료. 가격/이벤트 문구는 별도 최신성 확인 | THREE_PANEL_AUTO_MIDDLE_DOOR_DETAILPAGE_ASSET_INDEX_2026-07-01.md, 문장군상품/3연동 자동중문/asset-manifest.json, EVIDENCE_REGISTER.md | `resolved` |
 | OQ-018 | 3연동 ㄱ자 중문 보강/특수 구조 claim | ㄱ자 구조는 추가 보강, 코너 고정, 추가 시간이 달라질 수 있음 | 2026-07-01 사용자 확정: 전체 시공은 전문가 무료 현장 방문으로 가능 여부, 금액, 디자인, 참고사항을 컨설팅 | 중앙 반영 완료. 구체 추가금/추가시간은 현장 조건과 함께 안내 | THREE_PANEL_LSHAPE_MIDDLE_DOOR_DETAILPAGE_ASSET_INDEX_2026-07-01.md, 문장군상품/3연동ㄱ자/asset-manifest.json, EVIDENCE_REGISTER.md | `resolved` |
-| OQ-019 | ABS도어 방문교체 패키지/시공 범위 claim | 문짝만 교체와 문짝+문틀+문선 패키지를 혼동하면 고객 오해가 큼 | 2026-07-01 사용자 확정: 패키지1 문짝교체. 패키지2 문짝+문틀+문선 케이싱마감, 손잡이, 경첩 포함. 문짝교체 기존 문짝 무상수거. 세트 철거폐기물처리비 세트당 3만원 별도 | 중앙 반영 완료. 가격/총액 오해 방지 문구 함께 사용 | ABS_DOOR_REPLACEMENT_DETAILPAGE_ASSET_INDEX_2026-07-01.md, 문장군상품/ABS도어 방문교체/asset-manifest.json, EVIDENCE_REGISTER.md | `resolved` |
+| OQ-019 | ABS도어 방문교체 패키지1·2·3/시공 범위 claim | 문짝교체·일반 문선 세트·슬림 문선 세트를 혼동하면 고객 오해가 큼 | 2026-09-11 사용자와 공식 상품번호 `8638789659` 대조로 패키지1·2·3 운영 확인. 패키지3는 ABS도어+문틀+슬림 문선 세트 | 중앙 반영 완료. 가격·A/S·철거 조건은 외부 발행 직전 재확인 | PRODUCT_WIKI_ABS_DOOR_REPLACEMENT.md, ABS_DOOR_REPLACEMENT_DETAILPAGE_ASSET_INDEX_2026-07-01.md, EVIDENCE_REGISTER.md | `resolved` |
 | OQ-020 | 스윙중문 문 열림 방향/옵션 claim | 스윙중문은 문 열림 방향과 신발장/현관문 간섭이 핵심 변수 | 2026-07-01 사용자 확정: 전체 시공은 무료 방문 실측 상담 필수. 전문가가 시공 가능 여부, 금액, 디자인, 참고사항을 컨설팅 | 중앙 반영 완료. 가격/이벤트/옵션 운영 여부는 최신 조건 확인 | SWING_MIDDLE_DOOR_DETAILPAGE_ASSET_INDEX_2026-07-01.md, 문장군상품/스윙중문/asset-manifest.json, EVIDENCE_REGISTER.md | `resolved` |
 | OQ-021 | 양개형중문/미서기 폭/구조 claim | 넓은 현관 구조는 3연동 양개, 4연동, 미서기 양개, 미서기 중문으로 분기됨 | 2026-07-01 사용자 확정: 전체 시공은 무료 방문 실측 상담 필수. 전문가가 시공 가능 여부, 금액, 디자인, 참고사항을 컨설팅 | 중앙 반영 완료. 구조별 가격/이벤트 문구는 최신 조건 확인 | WIDE_SLIDING_MIDDLE_DOOR_DETAILPAGE_ASSET_INDEX_2026-07-01.md, 문장군상품/양개형중문 미서기/asset-manifest.json, EVIDENCE_REGISTER.md | `resolved` |
 | OQ-022 | 2026-09-04 신규 10개 자산 묶음의 자체제작·재사용권 및 공개 Git 범위 | 소스 사용권과 공개 저장 권리는 별개 | 2026-09-07 사장 확인: 문장군 내부 자체제작, 비공개 보존·모든 문장군 비공개 Codex 프로젝트·블로그/SNS 재사용 승인, 사장 차원의 특수 제한 없음. 공개 Git은 보류 | 권리 결정은 Z `candidate-v2/owner-rights-v2/`에 기록 완료. 공개 Git은 별도 재결정 전 계속 차단 | ASSET_INTAKE_2026-09-04.md, SOURCE_REGISTRY.md | `deferred` |
 | OQ-023 | 신규 자산 개인정보 신호 15개 처리 | 아동·작업자 얼굴, 후기·메신저 UI, 계정 흔적은 원본 보존과 외부 발행 판단이 다르다 | 신호가 있는 자산은 외부 발행 금지. 원본은 비공개 복구본에 보존 | 자산별 `cleared`, `restricted`, `needs_redaction` 판단과 동의 증거 참조 확인 | ASSET_INTAKE_2026-09-04.md | `open` |
 | OQ-024 | 신규 자산 claim 신호 174개 최신성 | 가격·할인·이벤트·A/S·안전·성능·스펙은 상세페이지 이미지 안에 있어도 자동 승인되지 않는다 | 원본 맥락 외 재사용 금지. 57개 상향 검토 그룹 포함 | 현재 상품·기간·예외 조건 및 `EVIDENCE_REGISTER.md` 연결을 확인해 `verified`, `needs_confirmation`, `restricted`로 분리 | ASSET_INTAKE_2026-09-04.md, EVIDENCE_REGISTER.md | `open` |
+| OQ-025 | ABS도어 문틀리폼 필름시공 패키지4·5 상품 경계 | 패키지4·5를 방문교체 상품의 패키지1·2·3과 섞으면 문틀 유지·철거 범위와 가격을 잘못 안내할 수 있음 | 2026-09-11 사용자와 공식 상품번호 `13238456614` 대조로 패키지4 문틀 필름, 패키지5 문틀 리폼 운영 확인. 비공개 원본 83개 확인 | 별도 상품 위키·스토리 문맥·근거표에 반영 완료. 선택 이미지별 개인정보·변동 claim은 발행 전 재검수 | PRODUCT_WIKI_ABS_DOOR_FRAME_FILM.md, ABS_DOOR_FRAME_FILM_DETAILPAGE_ASSET_INDEX_2026-09-04.md, EVIDENCE_REGISTER.md | `resolved` |
+| OQ-026 | 패키지5 상세 이미지 3세트 가격 불일치 | `012.jpg`는 패키지5 3세트 390,000원, 2026-09-11 공식 상품 옵션과 `003.jpg`는 370,000원으로 서로 다름 | 현재 판매 조건은 공식 옵션 370,000원으로 확인. `012.jpg` 가격은 오래된 표기로 판정 | 상세페이지 원본 이미지를 현재 가격으로 교체하기 전 `012.jpg`의 가격 노출 외부 발행을 차단. 시공 범위·공정 근거로만 내부 사용 | PRODUCT_WIKI_ABS_DOOR_FRAME_FILM.md, ABS_DOOR_FRAME_FILM_DETAILPAGE_ASSET_INDEX_2026-09-04.md, EVIDENCE_REGISTER.md | `in_review` |
 
 ## 처리 규칙
 

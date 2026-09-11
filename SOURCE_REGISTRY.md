@@ -1,7 +1,7 @@
 # SOURCE_REGISTRY - 문장군 브랜드 소스 등록부
 
-> 버전: v1.7
-> 최종 업데이트: 2026-09-07
+> 버전: v1.8
+> 최종 업데이트: 2026-09-11
 > 목적: 중앙 브랜드 원본에 들어오는 상품 상세페이지, CSV, 이미지, 리뷰, 상담, 현장 자료의 출처, 사용 상태, 보존/대체/재검토 상태를 추적한다.
 
 이 문서는 자료 원본 저장소가 아니다. 어떤 자료가 언제 들어왔고, 어디에 요약/색인됐으며, 외부 발행에 쓸 수 있는지 판단하기 위한 등록부다.
@@ -53,7 +53,7 @@
 | `SRC-2026-09-04-3PANEL-AUTO-DETAILPAGE` | 3연동 자동중문 신규 상세페이지 묶음 | 비공개 intake `INTAKE-20260904-01` receipt 참조. 공개 Git 바이너리 없음 | `ASSET_INTAKE_2026-09-04.md`, manifest v2 candidate | 이미지/GIF 140경로와 상품 URL | 중간. 인물·화면 신호 재검토 | 높음. 가격·안전·A/S·이벤트 | `indexed` | `reviewed_candidate` |
 | `SRC-2026-09-04-3PANEL-LSHAPE-DETAILPAGE` | 3연동 ㄱ자 신규 상세페이지 묶음 | 비공개 intake `INTAKE-20260904-01` receipt 참조. 공개 Git 바이너리 없음 | `ASSET_INTAKE_2026-09-04.md`, manifest v2 candidate | 이미지/GIF 131경로와 상품 URL | 중간. 인물·화면 신호 재검토 | 높음. 가격·구조·이벤트 | `indexed` | `reviewed_candidate` |
 | `SRC-2026-09-04-3PANEL-DETAILPAGE` | 3연동중문 신규 상세페이지 묶음 | 비공개 intake `INTAKE-20260904-01` receipt 참조. 공개 Git 바이너리 없음 | `ASSET_INTAKE_2026-09-04.md`, manifest v2 candidate | 이미지/GIF 215경로와 상품·컬렉션 URL 4건 | 중간. 후기·화면 신호 재검토 | 높음. 가격·옵션·A/S·이벤트 | `indexed` | `reviewed_candidate` |
-| `SRC-2026-09-04-ABS-DOOR-FRAME-FILM-DETAILPAGE` | ABS도어 문틀리폼 필름시공 신규 상세페이지 묶음 | 비공개 intake `INTAKE-20260904-01` receipt 참조. 공개 Git 바이너리 없음 | `ASSET_INTAKE_2026-09-04.md`, manifest v2 candidate | 이미지/GIF 83경로와 상품 URL | 중간. 인물·화면 신호 재검토 | 높음. 가격·패키지·시공 범위 | `indexed` | `reviewed_candidate` |
+| `SRC-2026-09-04-ABS-DOOR-FRAME-FILM-DETAILPAGE` | ABS도어 문틀리폼 필름시공 상세페이지 묶음 | 비공개 intake `INTAKE-20260904-01` receipt 참조. 공개 Git 바이너리 없음 | `ASSET_INTAKE_2026-09-04.md`, `ABS_DOOR_FRAME_FILM_DETAILPAGE_ASSET_INDEX_2026-09-04.md`, `PRODUCT_WIKI_ABS_DOOR_FRAME_FILM.md` | 이미지/GIF 83경로, 상품번호 `13238456614`, 패키지4 문틀 필름·패키지5 문틀 리폼 | 중간. 인물·화면 신호 재검토 | 높음. 가격·패키지·시공 범위 | `semantic_indexed` | `reviewed_candidate` |
 | `SRC-2026-09-04-ABS-DOOR-REPLACEMENT-DETAILPAGE` | ABS도어 방문교체 신규 상세페이지 묶음 | 비공개 intake `INTAKE-20260904-01` receipt 참조. 공개 Git 바이너리 없음 | `ASSET_INTAKE_2026-09-04.md`, manifest v2 candidate | 이미지/GIF 86경로와 상품 URL | 중간. 인물·화면 신호 재검토 | 높음. 가격·패키지·시공 범위 | `indexed` | `reviewed_candidate` |
 | `SRC-2026-09-04-ABS-SLIDING-DOOR-DETAILPAGE` | ABS도어 슬라이딩도어 신규 상세페이지 묶음 | 비공개 intake `INTAKE-20260904-01` receipt 참조. 공개 Git 바이너리 없음 | `ASSET_INTAKE_2026-09-04.md`, manifest v2 candidate | 이미지/GIF 66경로와 상품 URL | 중간. 인물·화면 신호 재검토 | 높음. 가격·구성·시공 범위 | `indexed` | `reviewed_candidate` |
 | `SRC-2026-09-04-MOLDING-DETAILPAGE` | 몰딩 신규 상세페이지 묶음 | 비공개 intake `INTAKE-20260904-01` receipt 참조. 공개 Git 바이너리 없음 | `ASSET_INTAKE_2026-09-04.md`, manifest v2 candidate | 이미지/GIF 48경로와 상품 URL | 중간. 행사·인증 이미지 재검토 | 높음. 가격·철거·시공 범위 | `indexed` | `reviewed_candidate` |

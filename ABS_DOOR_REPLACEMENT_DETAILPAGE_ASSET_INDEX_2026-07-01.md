@@ -1,7 +1,7 @@
 # ABS_DOOR_REPLACEMENT_DETAILPAGE_ASSET_INDEX_2026-07-01
 
-> 버전: v1.1
-> 최종 업데이트: 2026-07-01
+> 버전: v1.2
+> 최종 업데이트: 2026-09-11
 > source_id: `SRC-2026-07-01-ABS-DOOR-REPLACEMENT-DETAILPAGE`
 > product_id: `PROD-ABS-DOOR-REPLACEMENT`
 > proof_id: `PROOF-ABS-DOOR-REPLACEMENT-DETAILPAGE-ASSETS-2026-07-01`
@@ -9,7 +9,7 @@
 
 ## 1. 소스 요약
 
-ABS도어 방문교체 상세페이지 이미지/GIF 원본 묶음이다. 총 90개 자산이며, 문짝교체와 문짝+문틀+문선 세트 범위를 구분하는 것이 핵심이다.
+ABS도어 방문교체 상세페이지 이미지/GIF 원본 묶음이다. 총 90개 자산이며, 패키지1 문짝교체, 패키지2 일반 문선 세트, 패키지3 슬림 문선 세트의 범위를 구분하는 것이 핵심이다.
 
 ## 2. 자산 구성
 
@@ -28,9 +28,12 @@ ABS도어 방문교체 상세페이지 이미지/GIF 원본 묶음이다. 총 90
 - 운영 상태 요약: `usageStatus=candidate` 90개, `privacyStatus=official_reviewed` 90개, `claimRisk=high` 18개 / `medium` 62개 / `low` 10개.
 - 개별 자산의 최종 상태, 순서, 파일 경로, 해시는 manifest를 우선한다.
 - 증거 묶음 상태는 `PROOF_ASSET_INDEX.md`의 `PROOF-ABS-DOOR-REPLACEMENT-DETAILPAGE-ASSETS-2026-07-01`을 함께 본다.
-- manifest에는 원본 상세페이지의 패키지3/4 또는 과거 패키지성 자산이 남아 있을 수 있다. 외부 발행 기준은 아래 패키지1/2와 `EVIDENCE_REGISTER.md`의 ABS 패키지 claim을 우선한다.
+- manifest에는 현재 별도 상품으로 운영하는 패키지4의 과거 자산도 함께 남아 있다. 상품번호 `8638789659`의 외부 발행 기준은 아래 패키지1·2·3과 `EVIDENCE_REGISTER.md`의 ABS 패키지 claim을 우선한다.
 - 패키지1: 문짝 교체, 손잡이, 경첩 포함. 기존 문짝 무상 수거.
-- 패키지2: 문짝, 문틀, 문선 케이싱 마감, 손잡이, 경첩 포함.
-- 세트 교체는 철거폐기물처리비 세트당 3만원 별도.
+- 패키지2: 문짝, 문틀, 일반 문선 케이싱 마감, 손잡이, 경첩 포함.
+- 패키지3: ABS도어, 문틀, 슬림 문선, 경첩, 손잡이, 시공 포함.
+- 패키지3 전용 원본 2장은 이 소스의 패키지 폴더 `001.jpg`, `002.jpg`이며 전체 상세 흐름의 `016.jpg`, `017.jpg`와 각각 동일 해시다. 내부 489개 검토본은 두 역할을 합친 2026-09-04 소스의 `009.jpg`를 사용한다.
+- 패키지4·5는 별도 상품번호 `13238456614`와 `ABS_DOOR_FRAME_FILM_DETAILPAGE_ASSET_INDEX_2026-09-04.md`를 확인한다.
+- 철거·폐기물 처리 비용과 가격·할인 조건은 외부 발행 전에 현재 상품 옵션을 확인한다.
 
 가격성 문구와 총액 오해 가능성이 있는 표현은 `EVIDENCE_REGISTER.md`를 확인한다.
