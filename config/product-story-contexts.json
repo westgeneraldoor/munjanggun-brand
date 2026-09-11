@@ -474,20 +474,20 @@
       "productId": "PROD-ABS-DOOR-REPLACEMENT",
       "productNames": ["ABS도어 방문교체", "ABS 방문교체", "ABS도어 교체"],
       "sourceIds": ["SRC-2026-07-01-ABS-DOOR-REPLACEMENT-DETAILPAGE", "SRC-2026-09-04-ABS-DOOR-REPLACEMENT-DETAILPAGE"],
-      "summary": "ABS도어 방문교체는 문짝만 바꾸는 패키지1과 문짝·문틀·문선 케이싱까지 정리하는 패키지2의 범위를 구분하는 상품군이다. 디자인·컬러·손잡이·안전 옵션보다 먼저 기존 문틀 상태와 시공 범위를 확인한다.",
-      "wholeProductRule": "전체 상품 글은 중앙 상품 위키의 확정 패키지1·2 범위를 먼저 비교하고, 디자인·컬러·하드웨어·안전·현장 조건을 이어서 설명한다.",
+      "summary": "ABS도어 방문교체는 문짝만 바꾸는 패키지1, 문짝·문틀·일반 문선 케이싱을 함께 정리하는 패키지2, 문짝·문틀·슬림 문선을 함께 시공하는 패키지3의 범위를 구분하는 상품군이다. 디자인·컬러·손잡이·안전 옵션보다 먼저 기존 문틀 상태와 원하는 문선 마감을 확인한다.",
+      "wholeProductRule": "전체 상품 글은 중앙 상품 위키의 확정 패키지1·2·3 범위를 먼저 비교하고, 디자인·컬러·하드웨어·안전·현장 조건을 이어서 설명한다.",
       "subsetRule": "문짝교체·문틀세트·특정 컬러나 디자인만 다룰 때는 전체 패키지 중 어느 범위인지 밝힌다. 문짝 가격을 문틀·문선 포함 가격처럼 표현하지 않는다.",
       "requiredOptionSetsForWholeProduct": ["packages"],
       "requiredSectionsForWholeProduct": ["product_and_package_overview", "package_details", "design_options", "color_options", "fit_and_consultation"],
-      "optionSets": [{"optionSetId":"packages","label":"확정 패키지 범위","relationship":"중앙 상품 위키 기준 패키지1은 문짝교체, 패키지2는 문짝·문틀·문선 케이싱 마감까지의 세트다.","options":[
+      "optionSets": [{"optionSetId":"packages","label":"확정 패키지 범위","relationship":"중앙 상품 위키 기준 패키지1은 문짝교체, 패키지2는 문짝·문틀·일반 문선 케이싱 세트, 패키지3은 문짝·문틀·슬림 문선 세트다.","options":[
         {"optionId":"package_1","label":"패키지1 문짝교체","aliases":["패키지1","패키지 1","문짝교체","문짝 교체"],"summary":"문짝·손잡이·경첩을 교체하고 기존 문짝을 수거하는 범위.","selectors":[{"pathPrefix":"ABS도어 방문교체/패키지/패키지1_ABS도어 교체/"},{"pathPrefix":"ABS도어 방문교체/","sequenceFrom":7,"sequenceTo":7,"directChildrenOnly":true}],"evidenceRoles":[{"roleId":"package_scope","label":"패키지 포함 범위표","required":true,"selectors":[{"pathPrefix":"ABS도어 방문교체/패키지/패키지1_ABS도어 교체/"}]}]},
-        {"optionId":"package_2","label":"패키지2 ABS도어 세트","aliases":["패키지2","패키지 2","ABS도어 세트","문틀 세트"],"summary":"문짝·문틀·문선 케이싱 마감·손잡이·경첩을 함께 정리하는 범위. 별도 비용 조건을 확인한다.","selectors":[{"pathPrefix":"ABS도어 방문교체/패키지/패키지2_ABS도어+문틀 세트 시공/"},{"pathPrefix":"ABS도어 방문교체/","sequenceFrom":8,"sequenceTo":8,"directChildrenOnly":true}],"evidenceRoles":[{"roleId":"package_scope","label":"패키지 포함 범위표","required":true,"selectors":[{"pathPrefix":"ABS도어 방문교체/패키지/패키지2_ABS도어+문틀 세트 시공/"}]}]},
-        {"optionId":"package_3_conflict","label":"패키지3 신규 소스 충돌","aliases":["패키지3","패키지 3"],"summary":"신규 자산에만 보이며 중앙 확정 패키지1·2 체계와 충돌한다. 운영 확인 전 상품 옵션으로 확정하지 않는다.","requiredForWholeProduct":false,"status":"source_conflict_not_vetted","selectors":[{"pathPrefix":"ABS도어 방문교체/패키지/패키지3_ABS도어+문틀+슬림 문선 세트 시공/"},{"pathPrefix":"ABS도어 방문교체/","sequenceFrom":9,"sequenceTo":9,"directChildrenOnly":true}]}
+        {"optionId":"package_2","label":"패키지2 ABS도어 세트","aliases":["패키지2","패키지 2","ABS도어 세트","문틀 세트"],"summary":"문짝·문틀·일반 문선 케이싱 마감·손잡이·경첩을 함께 정리하는 범위. 별도 비용 조건을 확인한다.","selectors":[{"pathPrefix":"ABS도어 방문교체/패키지/패키지2_ABS도어+문틀 세트 시공/"},{"pathPrefix":"ABS도어 방문교체/","sequenceFrom":8,"sequenceTo":8,"directChildrenOnly":true}],"evidenceRoles":[{"roleId":"package_scope","label":"패키지 포함 범위표","required":true,"selectors":[{"pathPrefix":"ABS도어 방문교체/패키지/패키지2_ABS도어+문틀 세트 시공/"}]}]},
+        {"optionId":"package_3","label":"패키지3 슬림 문선 세트","aliases":["패키지3","패키지 3","슬림문선","슬림 문선"],"summary":"ABS도어·문틀·슬림 문선·경첩·손잡이·시공을 한 세트로 구성한다. 철거·폐기물 처리와 가격은 최신 판매 조건을 확인한다.","selectors":[{"pathPrefix":"ABS도어 방문교체/패키지/패키지3_ABS도어+문틀+슬림 문선 세트 시공/"},{"pathPrefix":"ABS도어 방문교체/","sequenceFrom":9,"sequenceTo":9,"directChildrenOnly":true}],"evidenceRoles":[{"roleId":"package_scope","label":"패키지3 포함 범위·가격표","required":true,"selectors":[{"pathPrefix":"ABS도어 방문교체/패키지/패키지3_ABS도어+문틀+슬림 문선 세트 시공/","sequenceFrom":9,"sequenceTo":9}]},{"roleId":"finish_explanation","label":"슬림 문선 설명·비교 이미지","required":true,"selectors":[{"pathPrefix":"ABS도어 방문교체/패키지/패키지3_ABS도어+문틀+슬림 문선 세트 시공/","sequenceFrom":9,"sequenceTo":9}]}]}
       ]}],
       "sections": [
         {"sectionId":"product_and_package_overview","order":1,"label":"상품·패키지 범위 소개","summary":"문짝교체와 문틀 세트 범위, 가격표 링크를 보여준다. 중앙 확정 범위와 최신 가격을 분리해 확인한다.","selectors":[{"pathPrefix":"ABS도어 방문교체/","sequenceFrom":1,"sequenceTo":4,"directChildrenOnly":true}]},
         {"sectionId":"product_features","order":2,"label":"ABS도어 소재·기능","summary":"ABS도어 구조와 생활방수 등 소재 설명 구역이다.","selectors":[{"pathPrefix":"ABS도어 방문교체/","sequenceFrom":5,"sequenceTo":6,"directChildrenOnly":true}]},
-        {"sectionId":"package_details","order":3,"label":"패키지별 시공 상세","summary":"패키지1·2의 포함 범위를 비교한다. 패키지3로 표시된 신규 소스는 중앙 위키와 충돌하므로 경고 대상으로 둔다.","selectors":[{"pathPrefix":"ABS도어 방문교체/패키지/"},{"pathPrefix":"ABS도어 방문교체/","sequenceFrom":7,"sequenceTo":9,"directChildrenOnly":true}]},
+        {"sectionId":"package_details","order":3,"label":"패키지별 시공 상세","summary":"패키지1 문짝교체, 패키지2 일반 문선 케이싱 세트, 패키지3 슬림 문선 세트의 포함 범위와 마감 차이를 비교한다. 함께 보존된 패키지4 자산은 별도 상품 문맥으로 넘긴다.","selectors":[{"pathPrefix":"ABS도어 방문교체/패키지/패키지1_ABS도어 교체/"},{"pathPrefix":"ABS도어 방문교체/패키지/패키지2_ABS도어+문틀 세트 시공/"},{"pathPrefix":"ABS도어 방문교체/패키지/패키지3_ABS도어+문틀+슬림 문선 세트 시공/"},{"pathPrefix":"ABS도어 방문교체/","sequenceFrom":7,"sequenceTo":9,"directChildrenOnly":true}]},
         {"sectionId":"design_options","order":4,"label":"도어 디자인","summary":"오리지널·내추럴·프리미엄·유리 타공 등 디자인 카탈로그다.","selectors":[{"pathPrefix":"ABS도어 방문교체/디자인/"},{"pathPrefix":"ABS도어 방문교체/","sequenceFrom":10,"sequenceTo":11,"directChildrenOnly":true}]},
         {"sectionId":"color_options","order":5,"label":"도어·필름 컬러","summary":"ABS도어와 문틀·리폼 필름 색상표다. 적용 대상과 현재 운영 색상을 구분한다.","selectors":[{"pathPrefix":"ABS도어 방문교체/컬러/"},{"pathPrefix":"ABS도어 방문교체/","sequenceFrom":12,"sequenceTo":13,"directChildrenOnly":true}]},
         {"sectionId":"hardware_and_safety","order":6,"label":"손잡이·경첩·안전 옵션","summary":"손잡이 매칭, 경첩 관리와 손끼임 방지 자료다.","selectors":[{"pathPrefix":"ABS도어 방문교체/","sequenceFrom":14,"sequenceTo":23,"directChildrenOnly":true}]},
@@ -496,8 +496,37 @@
         {"sectionId":"region_faq_cta","order":9,"label":"지역·FAQ·문의","summary":"출장 지역, 방문·문틀 조건 FAQ와 문의로 마무리된다.","selectors":[{"pathPrefix":"ABS도어 방문교체/","sequenceFrom":35,"sequenceTo":41,"directChildrenOnly":true}]},
         {"sectionId":"event_and_notice","order":10,"label":"행사·공지","summary":"기간성 행사와 공지 묶음이다.","selectors":[{"pathPrefix":"ABS도어 방문교체/이벤트 및 공지/"}]}
       ],
-      "sourceWarnings": [{"paths":["ABS도어 방문교체/009.jpg","ABS도어 방문교체/패키지/패키지3_ABS도어+문틀+슬림 문선 세트 시공/009.jpg"],"reason":"신규 자산에는 패키지3가 보이지만 중앙 상품 위키의 확정 패키지는 패키지1·2이며 패키지2에 문선 케이싱 마감을 포함한다.","instruction":"중앙 사실을 임의로 패키지3 체계로 바꾸지 않는다. 실제 운영 체계와 가격을 사장 확인해 중앙 위키를 갱신하기 전 외부 발행하지 않는다."}],
-      "writingGuardrails": ["문짝교체와 문짝·문틀·문선 세트 범위를 첫 단계에서 구분한다.","문짝교체 가격을 문틀·문선 포함 가격처럼 말하지 않는다.","디자인·컬러·필름·손잡이는 적용 대상과 시공 패키지를 구분한다.","패키지3 자료는 중앙 위키 충돌이 해소되기 전 발행하지 않는다.","가격·A/S·철거폐기물처리비·시공 범위·이벤트는 최신 근거를 확인한다."]
+      "sourceWarnings": [{"paths":["ABS도어 방문교체/018.jpg","ABS도어 방문교체/019.gif","ABS도어 방문교체/패키지/패키지4_ABS도어+문틀 필름 세트 시공/001.jpg","ABS도어 방문교체/패키지/패키지4_ABS도어+문틀 필름 세트 시공/002.gif"],"reason":"패키지4 필름 세트 자산이 과거 ABS도어 방문교체 묶음에도 보존돼 있지만 현재는 별도 상품번호 13238456614의 패키지4·5 상품군에 속한다.","instruction":"패키지4를 상품번호 8638789659의 옵션으로 발행하지 않고 PROD-ABS-DOOR-FRAME-FILM 문맥으로 연결한다."}],
+      "writingGuardrails": ["문짝교체와 문짝·문틀·문선 세트 범위를 첫 단계에서 구분한다.","패키지2의 일반 문선 케이싱과 패키지3의 슬림 문선 마감을 같은 선택지처럼 뭉뚱그리지 않는다.","문짝교체 가격을 문틀·문선 포함 가격처럼 말하지 않는다.","디자인·컬러·필름·손잡이는 적용 대상과 시공 패키지를 구분한다.","패키지4·5는 별도 상품번호 13238456614의 문틀 필름·리폼 상품으로 안내한다.","가격·A/S·철거폐기물처리비·시공 범위·이벤트는 최신 근거를 확인한다."]
+    },
+    {
+      "contextId": "STORY-ABS-DOOR-FRAME-FILM-20260911",
+      "productId": "PROD-ABS-DOOR-FRAME-FILM",
+      "productNames": ["ABS도어 문틀리폼 필름시공", "ABS도어 문틀리폼", "문틀리폼 필름시공", "문틀 필름시공"],
+      "sourceIds": ["SRC-2026-09-04-ABS-DOOR-FRAME-FILM-DETAILPAGE"],
+      "summary": "ABS도어 문틀리폼 필름시공은 기존 문틀을 유지하면서 문틀·문선을 필름으로 감싸는 패키지4와, 기존 문틀은 유지하되 낡은 문선 몰딩을 제거하고 새 마감재와 평문선으로 정리하는 패키지5를 비교하는 상품군이다.",
+      "wholeProductRule": "전체 상품 글은 패키지4 문틀 필름과 패키지5 문틀 리폼의 유지 범위·철거 범위·마감 차이를 먼저 비교하고, 디자인·컬러·하드웨어·안전·현장 조건을 이어서 설명한다.",
+      "subsetRule": "패키지4 또는 패키지5만 다룰 때는 다른 패키지와 무엇이 다른지 밝히고, 상품번호 8638789659의 패키지1·2·3과 한 상품 옵션처럼 섞지 않는다.",
+      "requiredOptionSetsForWholeProduct": ["packages"],
+      "requiredSectionsForWholeProduct": ["product_and_package_overview", "package_details", "design_options", "color_options", "fit_and_consultation"],
+      "optionSets": [{"optionSetId":"packages","label":"확정 패키지 범위","relationship":"패키지4는 기존 문틀·문선에 필름을 랩핑하고, 패키지5는 문틀은 유지하되 기존 문선 몰딩을 제거해 새 자재와 평문선으로 마감한다.","options":[
+        {"optionId":"package_4","label":"패키지4 문틀 필름","aliases":["패키지4","패키지 4","필름 랩핑"],"summary":"문틀·문선 교체 없이 기존 문틀을 필름으로 감싸 도어와 톤을 맞추는 범위.","selectors":[{"pathPrefix":"ABS도어 문틀리폼 필름시공/","sequenceFrom":3,"sequenceTo":3,"directChildrenOnly":true},{"pathPrefix":"ABS도어 문틀리폼 필름시공/","sequenceFrom":9,"sequenceTo":11,"directChildrenOnly":true}],"evidenceRoles":[{"roleId":"current_price_overview","label":"현재 패키지4·5 수량별 가격 비교표","required":true,"selectors":[{"pathPrefix":"ABS도어 문틀리폼 필름시공/","sequenceFrom":3,"sequenceTo":3,"directChildrenOnly":true}]},{"roleId":"package_scope","label":"패키지4 포함 범위","required":true,"selectors":[{"pathPrefix":"ABS도어 문틀리폼 필름시공/","sequenceFrom":9,"sequenceTo":9,"directChildrenOnly":true}]},{"roleId":"finish_process","label":"필름 랩핑 변화·추천 상황","required":true,"selectors":[{"pathPrefix":"ABS도어 문틀리폼 필름시공/","sequenceFrom":10,"sequenceTo":11,"directChildrenOnly":true}]}]},
+        {"optionId":"package_5","label":"패키지5 문틀 리폼","aliases":["패키지5","패키지 5","평문선","문선 몰딩 제거"],"summary":"문틀은 유지하고 기존 문선 몰딩을 제거한 뒤 새 마감재와 평문선 몰딩으로 정리하는 범위.","selectors":[{"pathPrefix":"ABS도어 문틀리폼 필름시공/","sequenceFrom":3,"sequenceTo":3,"directChildrenOnly":true},{"pathPrefix":"ABS도어 문틀리폼 필름시공/","sequenceFrom":12,"sequenceTo":12,"directChildrenOnly":true}],"evidenceRoles":[{"roleId":"current_price_overview","label":"현재 패키지4·5 수량별 가격 비교표","required":true,"selectors":[{"pathPrefix":"ABS도어 문틀리폼 필름시공/","sequenceFrom":3,"sequenceTo":3,"directChildrenOnly":true}]},{"roleId":"package_scope","label":"패키지5 포함 범위","required":true,"selectors":[{"pathPrefix":"ABS도어 문틀리폼 필름시공/","sequenceFrom":12,"sequenceTo":12,"directChildrenOnly":true}]},{"roleId":"finish_process","label":"문틀 리폼 4단계 공정","required":true,"selectors":[{"pathPrefix":"ABS도어 문틀리폼 필름시공/","sequenceFrom":12,"sequenceTo":12,"directChildrenOnly":true}]}]}
+      ]}],
+      "sections": [
+        {"sectionId":"product_and_package_overview","order":1,"label":"상품·패키지4·5 소개","summary":"세트 상품 패키지1·2·3과 필름·리폼 상품 패키지4·5의 경계를 나누고 패키지4·5 가격을 비교한다.","selectors":[{"pathPrefix":"ABS도어 문틀리폼 필름시공/","sequenceFrom":1,"sequenceTo":4,"directChildrenOnly":true}]},
+        {"sectionId":"product_features","order":2,"label":"ABS도어 소재·필름·리폼 차이","summary":"ABS도어 소재와 생활방수, 기존 문틀 필름과 문선 리폼의 차이를 설명한다.","selectors":[{"pathPrefix":"ABS도어 문틀리폼 필름시공/","sequenceFrom":5,"sequenceTo":7,"directChildrenOnly":true}]},
+        {"sectionId":"package_details","order":3,"label":"패키지4·5 시공 상세","summary":"패키지4 필름 랩핑과 패키지5 문틀 리폼의 포함 범위·가격·공정을 설명한다.","selectors":[{"pathPrefix":"ABS도어 문틀리폼 필름시공/","sequenceFrom":8,"sequenceTo":12,"directChildrenOnly":true}]},
+        {"sectionId":"design_options","order":4,"label":"도어 디자인","summary":"오리지널·내추럴·프리미엄·유리 타공 등 디자인 카탈로그다.","selectors":[{"pathPrefix":"ABS도어 문틀리폼 필름시공/디자인/"},{"pathPrefix":"ABS도어 문틀리폼 필름시공/","sequenceFrom":13,"sequenceTo":14,"directChildrenOnly":true}]},
+        {"sectionId":"color_options","order":5,"label":"도어·필름 컬러","summary":"ABS도어와 인테리어 필름 색상표다. 도어색과 문틀 마감재 적용 범위를 구분한다.","selectors":[{"pathPrefix":"ABS도어 문틀리폼 필름시공/컬러/"},{"pathPrefix":"ABS도어 문틀리폼 필름시공/","sequenceFrom":15,"sequenceTo":16,"directChildrenOnly":true}]},
+        {"sectionId":"hardware_and_safety","order":6,"label":"손잡이·경첩·안전 옵션","summary":"손잡이, 스테인리스 하드웨어와 손 끼임 방지 자료다.","selectors":[{"pathPrefix":"ABS도어 문틀리폼 필름시공/","sequenceFrom":17,"sequenceTo":26,"directChildrenOnly":true}]},
+        {"sectionId":"fit_and_consultation","order":7,"label":"시공·A/S·현장 상담","summary":"시공과 A/S 흐름, 무료 방문실측과 현장 샘플 상담을 안내한다.","selectors":[{"pathPrefix":"ABS도어 문틀리폼 필름시공/","sequenceFrom":27,"sequenceTo":31,"directChildrenOnly":true}]},
+        {"sectionId":"related_products","order":8,"label":"연관 상품 안내","summary":"중문·슬라이딩도어·현관문 등 다른 상품 안내다. 패키지4·5와 섞지 않는다.","selectors":[{"pathPrefix":"ABS도어 문틀리폼 필름시공/","sequenceFrom":32,"sequenceTo":37,"directChildrenOnly":true}]},
+        {"sectionId":"region_faq_cta","order":9,"label":"지역·FAQ·문의","summary":"출장 지역, 방문·문틀 조건 FAQ와 문의로 마무리된다.","selectors":[{"pathPrefix":"ABS도어 문틀리폼 필름시공/","sequenceFrom":38,"sequenceTo":41,"directChildrenOnly":true}]},
+        {"sectionId":"event_and_notice","order":10,"label":"행사·공지","summary":"기간성 행사와 공지 묶음이다.","selectors":[{"pathPrefix":"ABS도어 문틀리폼 필름시공/이벤트 및 공지/"}]}
+      ],
+      "sourceWarnings": [{"paths":["ABS도어 문틀리폼 필름시공/012.jpg"],"reason":"패키지5 상세 이미지의 3세트 가격은 390,000원으로 표기돼 있으나 2026-09-11 공식 상품 옵션과 최신 비교표 003.jpg는 370,000원이다.","instruction":"012.jpg는 시공 범위·리폼 공정 근거로만 사용하고 가격이 보이는 상태로 외부 발행하지 않는다. 현재 가격은 공식 상품 옵션을 다시 확인한다."}],
+      "writingGuardrails": ["패키지4와 패키지5의 문틀 유지 범위와 문선 처리 방식을 먼저 구분한다.","패키지4에서 문틀·문선을 새것으로 교체한다고 말하지 않는다.","패키지5에서 문틀 전체를 철거·교체한다고 말하지 않는다.","패키지1·2·3은 상품번호 8638789659의 별도 상품군으로 안내한다.","패키지5 012.jpg의 3세트 390,000원 표기는 현재 상품 옵션과 충돌하므로 가격 근거로 쓰지 않는다.","가격·할인·A/S·추가금·시공 범위·이벤트는 최신 근거를 확인한다."]
     }
   ]
 }

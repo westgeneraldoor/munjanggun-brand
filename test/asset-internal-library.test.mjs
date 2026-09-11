@@ -66,7 +66,7 @@ test('subset search says it is only part of the product and preserves the other 
   }
 });
 
-test('repository story contexts resolve seven vetted products without cross-product ambiguity', async () => {
+test('repository story contexts resolve eight vetted products without cross-product ambiguity', async () => {
   const config = JSON.parse(await readFile(new URL('../config/product-story-contexts.json', import.meta.url), 'utf8'));
   const catalogs = new Map(config.detailCatalogs.map((catalog) => [catalog.detailCatalogId, catalog.details]));
   const contexts = structuredClone(config.contexts).map((context) => ({
@@ -87,8 +87,9 @@ test('repository story contexts resolve seven vetted products without cross-prod
     ['스윙중문', 'PROD-SWING-MIDDLE-DOOR'],
     ['양개형중문 미서기', 'PROD-WIDE-SLIDING-MIDDLE-DOOR'],
     ['ABS도어 방문교체', 'PROD-ABS-DOOR-REPLACEMENT'],
+    ['ABS도어 문틀리폼 필름시공', 'PROD-ABS-DOOR-FRAME-FILM'],
   ]);
-  assert.equal(contexts.length, 7);
+  assert.equal(contexts.length, 8);
   for (const [product, productId] of expected) {
     assert.equal(resolveProductStoryContext(contexts, { product }).productId, productId);
   }
@@ -97,7 +98,8 @@ test('repository story contexts resolve seven vetted products without cross-prod
   assert.equal(wideBrief.requestScope.label, '양개형중문 미서기의 일부 선택 축');
   assert.deepEqual(wideBrief.requestScope.matchedOptions.map((option) => option.label), ['4연동 중문']);
   const absBrief = buildInternalAssetBrief({ productStoryContexts: contexts }, { product: 'ABS도어 방문교체' }, []);
-  assert.match(absBrief.sourceWarnings[0].reason, /패키지3/u);
+  assert.deepEqual(absBrief.optionSets[0].options.map((option) => option.optionId), ['package_1', 'package_2', 'package_3']);
+  assert.match(absBrief.sourceWarnings[0].reason, /패키지4/u);
 
   for (const [query, productId] of [
     ['3연동중문 자동', 'PROD-3PANEL-AUTO-MIDDLE-DOOR'],
@@ -120,7 +122,32 @@ test('repository story contexts resolve seven vetted products without cross-prod
     ['3연동중문 행사', 'event_and_notice'], ['3연동중문 유리', 'glass_options'], ['3연동중문 시공', 'fit_and_consultation'],
   ]) assert.equal(buildInternalAssetBrief({ productStoryContexts: contexts }, { query }, []).requestScope.matchedSections[0].sectionId, section);
   assert.equal(buildInternalAssetBrief({ productStoryContexts: contexts }, { query: 'ABS도어 방문교체 패키지3' }, [])
-    .requestScope.matchedOptions[0].optionId, 'package_3_conflict');
+    .requestScope.matchedOptions[0].optionId, 'package_3');
+  const absSlimMoldingBrief = buildInternalAssetBrief(
+    { productStoryContexts: contexts }, { query: 'ABS도어 방문교체 슬림 문선' }, [],
+  );
+  assert.equal(absSlimMoldingBrief.requestScope.matchedOptions[0].optionId, 'package_3');
+  const absPackage3Context = contexts
+    .find((context) => context.productId === 'PROD-ABS-DOOR-REPLACEMENT')
+    .optionSets[0].options.find((option) => option.optionId === 'package_3');
+  assert.deepEqual(absPackage3Context.evidenceRoles.map((role) => role.roleId), [
+    'package_scope', 'finish_explanation',
+  ]);
+  const absFrameFilmBrief = buildInternalAssetBrief(
+    { productStoryContexts: contexts }, { query: 'ABS도어 문틀리폼 패키지4' }, [],
+  );
+  assert.equal(absFrameFilmBrief.productId, 'PROD-ABS-DOOR-FRAME-FILM');
+  assert.equal(absFrameFilmBrief.requestScope.matchedOptions[0].optionId, 'package_4');
+  assert.match(absFrameFilmBrief.sourceWarnings[0].reason, /390,000원/u);
+  assert.equal(buildInternalAssetBrief(
+    { productStoryContexts: contexts }, { query: 'ABS도어 문틀리폼 패키지5' }, [],
+  ).requestScope.matchedOptions[0].optionId, 'package_5');
+  const absPackage5Context = contexts
+    .find((context) => context.productId === 'PROD-ABS-DOOR-FRAME-FILM')
+    .optionSets[0].options.find((option) => option.optionId === 'package_5');
+  assert.deepEqual(absPackage5Context.evidenceRoles.map((role) => role.roleId), [
+    'current_price_overview', 'package_scope', 'finish_process',
+  ]);
   assert.equal(buildInternalAssetBrief({ productStoryContexts: contexts }, { product: '3연동중문', color: '우드' }, [])
     .requestScope.matchedOptions[0].optionId, 'premium_wood');
   const codeBrief = buildInternalAssetBrief({ productStoryContexts: contexts }, { query: '3연동중문 DS64' }, []);
@@ -260,6 +287,39 @@ test('detail search ranks exact catalog evidence before exact examples and label
   const conflictingBrief = buildInternalAssetBrief(library, conflictingProductTerm, conflictingResults);
   assert.equal(conflictingResults.length, 0);
   assert.equal(conflictingBrief.requestResolution.status, 'unresolved_product_term_requires_clarification');
+});
+
+test('subset search follows configured evidence-role order before section order', () => {
+  const context = {
+    contextId: 'STORY-ROLE-ORDER', productId: 'PROD-ROLE-ORDER', productNames: ['패키지상품'], sourceIds: ['SRC-ROLE-ORDER'],
+    authorityStatus: 'curated_non_authority_context', summary: 'role order', wholeProductRule: 'whole', subsetRule: 'subset',
+    requiredOptionSetsForWholeProduct: ['packages'], requiredSectionsForWholeProduct: ['overview', 'details'],
+    writingGuardrails: [], sourceWarnings: [],
+    optionSets: [{ optionSetId: 'packages', label: '패키지', relationship: '관계', options: [{
+      optionId: 'package_5', label: '패키지5', aliases: ['패키지5'], summary: '패키지5',
+      selectors: [{ pathPrefix: '패키지상품/', sequenceFrom: 3, sequenceTo: 3 }, { pathPrefix: '패키지상품/', sequenceFrom: 12, sequenceTo: 12 }],
+      evidenceRoles: [
+        { roleId: 'current_price', label: '현재 가격', required: true, selectors: [{ pathPrefix: '패키지상품/', sequenceFrom: 3, sequenceTo: 3 }] },
+        { roleId: 'scope', label: '시공 범위', required: true, selectors: [{ pathPrefix: '패키지상품/', sequenceFrom: 12, sequenceTo: 12 }] },
+      ],
+    }] }],
+    sections: [
+      { sectionId: 'overview', order: 1, label: '가격 개요', summary: '가격', selectors: [{ pathPrefix: '패키지상품/', sequenceFrom: 3, sequenceTo: 3 }] },
+      { sectionId: 'details', order: 2, label: '패키지 상세', summary: '상세', selectors: [{ pathPrefix: '패키지상품/', sequenceFrom: 12, sequenceTo: 12 }] },
+    ],
+  };
+  const record = (hashCharacter, sequence, summary) => ({
+    sourceObjectSha256: hashCharacter.repeat(64), mediaKind: 'static', originalPath: `C:/fixture-role-${sequence}.jpg`,
+    sourceRefs: [{ sourceId: 'SRC-ROLE-ORDER', sourceRelativePath: `패키지상품/${String(sequence).padStart(3, '0')}.jpg` }],
+    observedSummary: summary, contentType: 'graphic', useCases: [],
+    proposedSearchTags: { productTypes: ['패키지상품'], scenes: [], colors: [], designs: [], topics: [] },
+    acceptedObservations: [], claimSignals: [], privacySignals: [], releaseConstraints: [],
+  });
+  const library = { productStoryContexts: [context], records: [record('a', 12, '패키지5 상세'), record('b', 3, '패키지5 현재 가격')] };
+  const criteria = { query: '패키지상품 패키지5' };
+  const storyContext = resolveProductStoryContext(library.productStoryContexts, criteria);
+  const results = searchInternalAssetLibrary(library, criteria, { storyContext, limit: 20 });
+  assert.deepEqual(results.map((result) => result.storySourcePath), ['패키지상품/003.jpg', '패키지상품/012.jpg']);
 });
 
 test('spacing variants of a product alias resolve and search the same story context', () => {

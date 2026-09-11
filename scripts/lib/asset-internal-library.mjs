@@ -236,7 +236,7 @@ export async function writeInternalAssetHandoff(library, results, selectedSha256
     const matches = results.filter((entry) => entry.sha256 === hash);
     if (matches.length !== 1) throw new Error(`Selected sha256 is not uniquely present in current results: ${hash}`);
     return matches[0];
-  }).sort((left, right) => compareHandoffEntries(left, right, contentBrief?.requestScope));
+  }).sort((left, right) => compareHandoffEntries(left, right, contentBrief));
   const consumer = library.consumers.find((entry) => entry.consumerId === consumerId);
   if (!consumer) throw new Error(`Unknown registered consumer: ${consumerId ?? 'missing'}`);
   if (!outputName || outputName.includes('..') || /[\\/]/u.test(outputName)) {
@@ -516,6 +516,9 @@ function compareSearchResults(left, right, storyContext, requestScope) {
     const leftFocused = resultMatchesFocusedOption(left, focusedOptions);
     const rightFocused = resultMatchesFocusedOption(right, focusedOptions);
     if (leftFocused !== rightFocused) return leftFocused ? -1 : 1;
+    const leftRoleRank = focusedOptionEvidenceRoleRank(left, storyContext, focusedOptions);
+    const rightRoleRank = focusedOptionEvidenceRoleRank(right, storyContext, focusedOptions);
+    if (leftRoleRank !== rightRoleRank) return leftRoleRank - rightRoleRank;
   }
   const focusedSections = new Set((requestScope?.matchedSections ?? []).map((section) => section.sectionId));
   if (focusedSections.size > 0) {
@@ -607,16 +610,40 @@ function resultMatchesRequiredEvidence(entry, context, focusedOptions) {
       .some((placement) => role.selectors.some((selector) => selectorMatchesPath(selector, placement.sourcePath))))));
 }
 
-function compareHandoffEntries(left, right, requestScope = null) {
+function compareHandoffEntries(left, right, contentBrief = null) {
+  const requestScope = contentBrief?.requestScope ?? null;
   if ((requestScope?.matchedOptions ?? []).some((option) => option.detail)) {
     const leftEvidenceRank = storyEvidenceRank(left.storyEvidenceMatch);
     const rightEvidenceRank = storyEvidenceRank(right.storyEvidenceMatch);
     if (leftEvidenceRank !== rightEvidenceRank) return leftEvidenceRank - rightEvidenceRank;
   }
+  const focusedOptions = new Set((requestScope?.matchedOptions ?? [])
+    .map((option) => `${option.optionSetId}:${option.optionId}`));
+  if (focusedOptions.size > 0) {
+    const context = { optionSets: contentBrief?.optionSets ?? [] };
+    const leftRoleRank = focusedOptionEvidenceRoleRank(left, context, focusedOptions);
+    const rightRoleRank = focusedOptionEvidenceRoleRank(right, context, focusedOptions);
+    if (leftRoleRank !== rightRoleRank) return leftRoleRank - rightRoleRank;
+  }
   const leftKey = storySortKey(left, requestScope);
   const rightKey = storySortKey(right, requestScope);
   if (leftKey !== rightKey) return leftKey - rightKey;
   return left.sha256.localeCompare(right.sha256);
+}
+
+function focusedOptionEvidenceRoleRank(entry, context, focusedOptions) {
+  if (!context || focusedOptions.size === 0) return Number.MAX_SAFE_INTEGER;
+  const matchedRoleIds = new Set((entry.storyEvidenceMatch?.evidenceRoles ?? []).map((role) => role.roleId));
+  let rank = Number.MAX_SAFE_INTEGER;
+  for (const optionSet of context.optionSets ?? []) {
+    for (const option of optionSet.options ?? []) {
+      if (!focusedOptions.has(`${optionSet.optionSetId}:${option.optionId}`)) continue;
+      for (const [index, role] of (option.evidenceRoles ?? []).entries()) {
+        if (matchedRoleIds.has(role.roleId)) rank = Math.min(rank, index);
+      }
+    }
+  }
+  return rank;
 }
 
 function resultMatchesFocusedOption(entry, focusedOptions) {
