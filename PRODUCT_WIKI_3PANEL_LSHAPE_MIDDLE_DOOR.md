@@ -1,9 +1,10 @@
 # PRODUCT_WIKI_3PANEL_LSHAPE_MIDDLE_DOOR - 3연동 ㄱ자 중문 상품 위키
 
-> 버전: v1.1
-> 최종 업데이트: 2026-07-01
+> 버전: v1.2
+> 최종 업데이트: 2026-09-11
 > product_id: `PROD-3PANEL-LSHAPE-MIDDLE-DOOR`
 > source_id: `SRC-2026-07-01-3PANEL-LSHAPE-DETAILPAGE`
+> story_context: `config/product-story-contexts.json`
 > 상태: `vetted`
 > 목적: ㄱ자 구조 중문을 현장 판단 중심으로 설명한다.
 
@@ -54,3 +55,7 @@ ASSET_SEMANTIC_INDEX.md
 - 추가 보강 없이 됩니다.
 - 사진만 보면 확정 견적 가능합니다.
 - 추가금 없이 특수 구조도 가능합니다.
+
+## 7. 상품 전체 스토리
+
+원본 순서는 ㄱ자 코너 구조·네 컬렉션 → 네 컬러 그룹 → 유리 → 코너 현장 상담 → 후기·성능 → 연관 상품 → 지역·FAQ·문의 → 별도 행사·공지로 읽는다. 일반 일자형이나 자동중문이 보이는 공용 컬러 자산은 ㄱ자 적용 범위를 다시 확인한다. `config/product-story-contexts.json`에 이 경고를 포함했다.

@@ -1,7 +1,7 @@
 # PRODUCT_WIKI_INDEX - 문장군 상품 위키 입구
 
-> 버전: v1.4
-> 최종 업데이트: 2026-09-04
+> 버전: v1.5
+> 최종 업데이트: 2026-09-11
 > 목적: 문장군 상품별 위키 문서와 연결 원료, 검수 상태, 확인 필요 항목을 한 곳에서 찾는다.
 
 상품 위키는 상품 판매표가 아니다. 고객 불안, 현장 변수, 선택 기준, 디자인 라인, 연결 증거, 검수 상태, 주의 claim을 연결하는 중앙 지식 입구다.
@@ -10,13 +10,13 @@
 
 | product_id | 상품/상품군 | 위키 문서 | 상태 | 주요 연결 |
 | --- | --- | --- | --- | --- |
-| `PROD-3PANEL-MIDDLE-DOOR` | 3연동중문 | `PRODUCT_WIKI_3PANEL_MIDDLE_DOOR.md` | `vetted` | `SRC-2026-07-01-3PANEL-DETAILPAGE-V2`, `문장군상품/3연동중문/asset-manifest.json`, `THREE_PANEL_MIDDLE_DOOR_DETAILPAGE_ASSET_INDEX_2026-07-01.md`, `ASSET_SEMANTIC_INDEX.md` |
-| `PROD-ONE-SLIDING-MIDDLE-DOOR` | 원슬라이딩중문 | `PRODUCT_WIKI_ONE_SLIDING_MIDDLE_DOOR.md` | `vetted` | `SRC-2026-07-01-ONESLIDING-DETAILPAGE`, `문장군상품/원슬라이딩중문/asset-manifest.json`, `ONE_SLIDING_MIDDLE_DOOR_DETAILPAGE_ASSET_INDEX_2026-07-01.md`, `ASSET_SEMANTIC_INDEX.md` |
-| `PROD-3PANEL-AUTO-MIDDLE-DOOR` | 3연동 자동중문 | `PRODUCT_WIKI_3PANEL_AUTO_MIDDLE_DOOR.md` | `vetted` | `SRC-2026-07-01-3PANEL-AUTO-DETAILPAGE`, `문장군상품/3연동 자동중문/asset-manifest.json`, `THREE_PANEL_AUTO_MIDDLE_DOOR_DETAILPAGE_ASSET_INDEX_2026-07-01.md`, `ASSET_SEMANTIC_INDEX.md` |
-| `PROD-3PANEL-LSHAPE-MIDDLE-DOOR` | 3연동 ㄱ자 중문 | `PRODUCT_WIKI_3PANEL_LSHAPE_MIDDLE_DOOR.md` | `vetted` | `SRC-2026-07-01-3PANEL-LSHAPE-DETAILPAGE`, `문장군상품/3연동ㄱ자/asset-manifest.json`, `THREE_PANEL_LSHAPE_MIDDLE_DOOR_DETAILPAGE_ASSET_INDEX_2026-07-01.md`, `ASSET_SEMANTIC_INDEX.md` |
-| `PROD-ABS-DOOR-REPLACEMENT` | ABS도어 방문교체 | `PRODUCT_WIKI_ABS_DOOR_REPLACEMENT.md` | `vetted` | `SRC-2026-07-01-ABS-DOOR-REPLACEMENT-DETAILPAGE`, `문장군상품/ABS도어 방문교체/asset-manifest.json`, `ABS_DOOR_REPLACEMENT_DETAILPAGE_ASSET_INDEX_2026-07-01.md`, `ASSET_SEMANTIC_INDEX.md` |
-| `PROD-SWING-MIDDLE-DOOR` | 스윙중문 | `PRODUCT_WIKI_SWING_MIDDLE_DOOR.md` | `vetted` | `SRC-2026-07-01-SWING-DETAILPAGE`, `문장군상품/스윙중문/asset-manifest.json`, `SWING_MIDDLE_DOOR_DETAILPAGE_ASSET_INDEX_2026-07-01.md`, `ASSET_SEMANTIC_INDEX.md` |
-| `PROD-WIDE-SLIDING-MIDDLE-DOOR` | 양개형중문/미서기 | `PRODUCT_WIKI_WIDE_SLIDING_MIDDLE_DOOR.md` | `vetted` | `SRC-2026-07-01-WIDE-SLIDING-DETAILPAGE`, `문장군상품/양개형중문 미서기/asset-manifest.json`, `WIDE_SLIDING_MIDDLE_DOOR_DETAILPAGE_ASSET_INDEX_2026-07-01.md`, `ASSET_SEMANTIC_INDEX.md` |
+| `PROD-3PANEL-MIDDLE-DOOR` | 3연동중문 | `PRODUCT_WIKI_3PANEL_MIDDLE_DOOR.md` | `vetted` | `SRC-2026-07-01-3PANEL-DETAILPAGE-V2`, `SRC-2026-09-04-3PANEL-DETAILPAGE`, `문장군상품/3연동중문/asset-manifest.json`, `config/product-story-contexts.json`, `THREE_PANEL_MIDDLE_DOOR_DETAILPAGE_ASSET_INDEX_2026-07-01.md`, `ASSET_SEMANTIC_INDEX.md` |
+| `PROD-ONE-SLIDING-MIDDLE-DOOR` | 원슬라이딩중문 | `PRODUCT_WIKI_ONE_SLIDING_MIDDLE_DOOR.md` | `vetted` | `SRC-2026-07-01-ONESLIDING-DETAILPAGE`, `문장군상품/원슬라이딩중문/asset-manifest.json`, `config/product-story-contexts.json`, `ONE_SLIDING_MIDDLE_DOOR_DETAILPAGE_ASSET_INDEX_2026-07-01.md`, `ASSET_SEMANTIC_INDEX.md` |
+| `PROD-3PANEL-AUTO-MIDDLE-DOOR` | 3연동 자동중문 | `PRODUCT_WIKI_3PANEL_AUTO_MIDDLE_DOOR.md` | `vetted` | `SRC-2026-07-01-3PANEL-AUTO-DETAILPAGE`, `문장군상품/3연동 자동중문/asset-manifest.json`, `config/product-story-contexts.json`, `THREE_PANEL_AUTO_MIDDLE_DOOR_DETAILPAGE_ASSET_INDEX_2026-07-01.md`, `ASSET_SEMANTIC_INDEX.md` |
+| `PROD-3PANEL-LSHAPE-MIDDLE-DOOR` | 3연동 ㄱ자 중문 | `PRODUCT_WIKI_3PANEL_LSHAPE_MIDDLE_DOOR.md` | `vetted` | `SRC-2026-07-01-3PANEL-LSHAPE-DETAILPAGE`, `문장군상품/3연동ㄱ자/asset-manifest.json`, `config/product-story-contexts.json`, `THREE_PANEL_LSHAPE_MIDDLE_DOOR_DETAILPAGE_ASSET_INDEX_2026-07-01.md`, `ASSET_SEMANTIC_INDEX.md` |
+| `PROD-ABS-DOOR-REPLACEMENT` | ABS도어 방문교체 | `PRODUCT_WIKI_ABS_DOOR_REPLACEMENT.md` | `vetted` | `SRC-2026-07-01-ABS-DOOR-REPLACEMENT-DETAILPAGE`, `문장군상품/ABS도어 방문교체/asset-manifest.json`, `config/product-story-contexts.json`, `ABS_DOOR_REPLACEMENT_DETAILPAGE_ASSET_INDEX_2026-07-01.md`, `ASSET_SEMANTIC_INDEX.md` |
+| `PROD-SWING-MIDDLE-DOOR` | 스윙중문 | `PRODUCT_WIKI_SWING_MIDDLE_DOOR.md` | `vetted` | `SRC-2026-07-01-SWING-DETAILPAGE`, `문장군상품/스윙중문/asset-manifest.json`, `config/product-story-contexts.json`, `SWING_MIDDLE_DOOR_DETAILPAGE_ASSET_INDEX_2026-07-01.md`, `ASSET_SEMANTIC_INDEX.md` |
+| `PROD-WIDE-SLIDING-MIDDLE-DOOR` | 양개형중문/미서기 | `PRODUCT_WIKI_WIDE_SLIDING_MIDDLE_DOOR.md` | `vetted` | `SRC-2026-07-01-WIDE-SLIDING-DETAILPAGE`, `문장군상품/양개형중문 미서기/asset-manifest.json`, `config/product-story-contexts.json`, `WIDE_SLIDING_MIDDLE_DOOR_DETAILPAGE_ASSET_INDEX_2026-07-01.md`, `ASSET_SEMANTIC_INDEX.md` |
 | `PROD-ABS-DOOR-FRAME-FILM` | ABS도어 문틀리폼 필름시공 | 예정 | `candidate` | `SRC-2026-09-04-ABS-DOOR-FRAME-FILM-DETAILPAGE`, `ASSET_INTAKE_2026-09-04.md`; 권리·claim 승인 전 발행 금지 |
 | `PROD-ABS-SLIDING-DOOR` | ABS도어 슬라이딩도어 | 예정 | `candidate` | `SRC-2026-09-04-ABS-SLIDING-DOOR-DETAILPAGE`, `ASSET_INTAKE_2026-09-04.md`; 권리·claim 승인 전 발행 금지 |
 | `PROD-MOLDING` | 몰딩 | 예정 | `candidate` | `SRC-2026-09-04-MOLDING-DETAILPAGE`, `ASSET_INTAKE_2026-09-04.md`; 권리·claim 승인 전 발행 금지 |
@@ -37,6 +37,7 @@
 - 변동 claim과 확인 필요 항목
 - 블로그/인스타/릴스/웹앱 적용 각도
 - 금지 표현
+- 폴더·파일 순서가 이루는 전체 스토리와 일부/전체 범위 판정
 
 ## 2-1. 상품 위키 생성 최소 요건
 

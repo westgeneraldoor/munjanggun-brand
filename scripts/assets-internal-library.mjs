@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { loadInternalAssetLibrary, searchInternalAssetLibrary, writeInternalAssetHandoff } from './lib/asset-internal-library.mjs';
+import {
+  buildInternalAssetBrief, loadInternalAssetLibrary, resolveProductStoryContext,
+  searchInternalAssetLibrary, writeInternalAssetHandoff,
+} from './lib/asset-internal-library.mjs';
 import { many, one, parseStrictArgs, required } from './lib/strict-cli-args.mjs';
 
 export async function runInternalAssetLibrary(argv, {
@@ -24,17 +27,23 @@ export async function runInternalAssetLibrary(argv, {
     design: one(args, '--design'),
     topic: exclusiveAlias(args, '--topic', '--consultation-topic'),
   };
+  const storyContext = resolveProductStoryContext(library.productStoryContexts, criteria);
   const results = searchInternalAssetLibrary(library, criteria, {
     mediaType: one(args, '--media-type'),
     limit: Number(one(args, '--limit') ?? 20),
+    storyContext,
   });
+  const contentBrief = buildInternalAssetBrief(library, criteria, results);
   const selected = [...new Set(many(args, '--select-sha256'))];
   const consumer = one(args, '--consumer');
   const outputName = one(args, '--output-name');
   if (selected.length === 0 && (consumer || outputName)) throw new Error('handoff options require --select-sha256');
   if (selected.length > 0 && (!consumer || !outputName)) throw new Error('selection requires --consumer and --output-name');
+  const selectionBrief = selected.length > 0
+    ? buildInternalAssetBrief(library, criteria, results.filter((entry) => selected.includes(entry.sha256)))
+    : null;
   const handoff = selected.length > 0 ? await writeInternalAssetHandoff(library, results, selected, {
-    consumerId: required(args, '--consumer'), outputName: required(args, '--output-name'), ...handoffOptions,
+    consumerId: required(args, '--consumer'), outputName: required(args, '--output-name'), contentBrief: selectionBrief, ...handoffOptions,
   }) : null;
   const output = {
     workflow: 'primary_reviewed_internal_asset_library',
@@ -43,6 +52,7 @@ export async function runInternalAssetLibrary(argv, {
     authorityStatus: 'non_authority',
     assetCount: library.records.length,
     criteria: Object.fromEntries(Object.entries(criteria).filter(([, value]) => value)),
+    contentBrief,
     resultCount: results.length,
     results,
     handoff,

@@ -1,9 +1,10 @@
 # PRODUCT_WIKI_SWING_MIDDLE_DOOR - 스윙중문 상품 위키
 
-> 버전: v1.1
-> 최종 업데이트: 2026-07-01
+> 버전: v1.2
+> 최종 업데이트: 2026-09-11
 > product_id: `PROD-SWING-MIDDLE-DOOR`
 > source_id: `SRC-2026-07-01-SWING-DETAILPAGE`
+> story_context: `config/product-story-contexts.json`
 > 상태: `vetted`
 > 목적: 스윙중문을 문 열림 방향과 생활 동선 중심으로 설명한다.
 
@@ -51,3 +52,7 @@ ASSET_SEMANTIC_INDEX.md
 - 어느 집이든 스윙중문이 좋습니다.
 - 문 열림 방향은 나중에 정하면 됩니다.
 - 간섭 없이 무조건 설치됩니다.
+
+## 7. 상품 전체 스토리
+
+원본 순서는 개폐 방식·회전 영역 → 디자인 → 오리지널·화이트·발렌·우드 네 컬러군 → 유리 → 현장 상담 → 후기·성능 → 연관 상품 → 지역·FAQ·문의 → 별도 행사·공지로 읽는다. 디자인이나 우드보다 열림 방향과 생활 동선 간섭을 먼저 본다.

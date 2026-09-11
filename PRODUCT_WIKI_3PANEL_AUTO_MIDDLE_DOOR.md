@@ -1,9 +1,10 @@
 # PRODUCT_WIKI_3PANEL_AUTO_MIDDLE_DOOR - 3연동 자동중문 상품 위키
 
-> 버전: v1.1
-> 최종 업데이트: 2026-07-01
+> 버전: v1.2
+> 최종 업데이트: 2026-09-11
 > product_id: `PROD-3PANEL-AUTO-MIDDLE-DOOR`
 > source_id: `SRC-2026-07-01-3PANEL-AUTO-DETAILPAGE`
+> story_context: `config/product-story-contexts.json`
 > 상태: `vetted`
 > 목적: 문장군 3연동 자동중문을 고객 불안 해소 중심으로 설명한다.
 
@@ -65,3 +66,7 @@ ASSET_SEMANTIC_INDEX.md
 - A/S 범위
 
 위 항목은 `EVIDENCE_REGISTER.md` 기준을 우선한다.
+
+## 7. 상품 전체 스토리
+
+원본 순서는 자동 개폐 기능 → 3연동 구조·네 컬렉션 → 네 컬러 그룹 → 유리 → 현장 상담 → 후기·성능 → 연관 상품 → 지역·FAQ·문의 → 별도 행사·공지로 읽는다. 자동 기능만 소개하거나 우드만 고른 결과를 전체 상품 구성처럼 쓰지 않는다. `config/product-story-contexts.json`이 전체/일부 범위와 누락을 판정한다.

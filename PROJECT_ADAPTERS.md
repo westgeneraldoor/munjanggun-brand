@@ -1,7 +1,7 @@
 # PROJECT_ADAPTERS - 문장군 프로젝트별 적용 방식
 
-> 버전: v1.6
-> 최종 업데이트: 2026-09-07
+> 버전: v1.7
+> 최종 업데이트: 2026-09-11
 
 ## 책임 원칙
 
@@ -13,7 +13,7 @@
 
 중앙은 프로젝트의 로고, 색상, 폰트, UI, 레이아웃, 이미지 스타일을 관리하지 않는다. 시각 디자인은 프로젝트 우선 영역이다.
 
-`INTAKE-20260904-01`의 신규 10개 상품 묶음은 문장군 내부 자체제작 소스로 확인됐으므로 사용권 결정은 유지한다. 2026-09-07 `verified-v4` 내용 봉인은 오류가 확인되어 철회됐고, 2026-09-08 현재 새 절차는 정지 이미지 첫 12개만 `complete_non_authority`로 검증됐다. 나머지 397개와 GIF 2차 검토, 최종 내용 봉인은 완료되지 않았으므로 프로젝트는 기존 handoff나 base catalog의 설명을 사용하지 않는다. `config/asset-content-quality.json`의 공용 검색·추천·handoff·외부 추출 차단을 유지하며, 변동 claim 최신성·외부 발행 상태·공개 Git 보류도 내용 정확성과 별도로 계속 확인한다.
+`INTAKE-20260904-01`의 신규 10개 상품 묶음은 문장군 내부 자체제작 소스로 확인됐으므로 사용권 결정은 유지한다. 철회된 `verified-v4`와 과거 handoff/base catalog 설명은 사용하지 않는다. 2026-09-10 기준 489개 전체의 1차 구조 판독·픽셀 근거·서명은 내부 검색용 `non_authority`로 검증됐고 `assets:library:internal`에서 검색·미리보기·메타데이터 handoff가 가능하다. 독립 2차·선택 자산 claim/privacy 확인과 외부 발행 authority는 별개이므로 계속 차단한다. 공개 Git 바이너리 보류도 유지한다.
 
 ## 중앙에 두는 것
 
@@ -46,7 +46,7 @@
 
 1. `BRAND_CONTEXT.md`, `FIELD_JUDGMENT_RULES.md`를 읽는다.
 2. 변동 claim은 `EVIDENCE_REGISTER.md`, `OPEN_QUESTIONS_REGISTER.md`에서 확인한다.
-3. 상품 자산은 상품 위키, `SOURCE_REGISTRY.md`, `ASSET_SEMANTIC_INDEX.md`, manifest를 확인한다.
+3. 상품 자산은 상품 위키, `SOURCE_REGISTRY.md`, `ASSET_SEMANTIC_INDEX.md`, `config/product-story-contexts.json`, manifest를 확인한다. 개별 자산보다 상품 전체 스토리와 일부/전체 범위를 먼저 확인하고, `storyEvidenceMatch`의 직접 근거와 그룹 참고자료를 구분한다. `unresolvedTerms` 또는 `comparison_requires_split`이 있으면 임의로 보완하거나 한 대상으로 축소하지 않는다.
 4. 원료는 `BRAND_MATERIAL_INDEX.md`와 상태값을 확인한다.
 5. 프로젝트 특화 규칙과 시각 디자인은 프로젝트 안에 둔다.
 6. 충돌과 적용 결과를 보고한다.
@@ -63,6 +63,10 @@
 민감 정보 노출 여부:
 상품/자산 상태 확인 여부:
 사용한 source_id / asset_id / claim_id / proof_id:
+확인한 story context / requestScope / requestResolution / 누락 선택지:
+직접 세부 근거와 그룹 참고자료 구분 여부:
+비교 대상 / 미해결 조건:
+독자 질문 답변 검수 여부:
 변동 claim 근거 확인 여부:
 남은 확인 사항:
 ```

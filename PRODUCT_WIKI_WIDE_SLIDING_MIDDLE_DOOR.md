@@ -1,9 +1,10 @@
 # PRODUCT_WIKI_WIDE_SLIDING_MIDDLE_DOOR - 양개형중문/미서기 상품 위키
 
-> 버전: v1.1
-> 최종 업데이트: 2026-07-01
+> 버전: v1.2
+> 최종 업데이트: 2026-09-11
 > product_id: `PROD-WIDE-SLIDING-MIDDLE-DOOR`
 > source_id: `SRC-2026-07-01-WIDE-SLIDING-DETAILPAGE`
+> story_context: `config/product-story-contexts.json`
 > 상태: `vetted`
 > 목적: 넓은 현관 구조에서 양개형, 4연동, 미서기 계열을 일관되게 설명한다.
 
@@ -60,3 +61,7 @@ ASSET_SEMANTIC_INDEX.md
 - 넓은 현관은 무조건 양개형이 좋습니다.
 - 4연동이 항상 더 고급입니다.
 - 사진만 보면 구조를 확정할 수 있습니다.
+
+## 8. 상품 전체 스토리
+
+원본 순서는 3연동 양개·4연동·미서기 양개·미서기 중문 네 구조 → 디자인 컬렉션 → 네 컬러 그룹 → 유리 → 폭·이동 공간 상담 → 후기·성능 → 연관 상품 → 지역·FAQ·문의 → 별도 행사·공지로 읽는다. 구조·컬렉션·컬러·유리는 서로 다른 선택 축이다.
