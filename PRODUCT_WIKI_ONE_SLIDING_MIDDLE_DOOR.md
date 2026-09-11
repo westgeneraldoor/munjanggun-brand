@@ -1,9 +1,10 @@
 # PRODUCT_WIKI_ONE_SLIDING_MIDDLE_DOOR - 원슬라이딩중문 상품 위키
 
-> 버전: v1.1
-> 최종 업데이트: 2026-07-01
+> 버전: v1.2
+> 최종 업데이트: 2026-09-11
 > product_id: `PROD-ONE-SLIDING-MIDDLE-DOOR`
 > source_id: `SRC-2026-07-01-ONESLIDING-DETAILPAGE`
+> story_context: `config/product-story-contexts.json`
 > 상태: `vetted`
 > 목적: 문장군 원슬라이딩중문과 베이직/모던/클래식/아트 컬렉션을 상담, 블로그, 인스타, 디자인, 웹앱에서 일관되게 설명한다.
 
@@ -67,3 +68,7 @@ ASSET_SEMANTIC_INDEX.md
 - 사진만 보내면 바로 확정 견적 가능합니다.
 - 추가금 없이 무조건 설치됩니다.
 - 이벤트/월 납입/가격 문구를 최신 조건 확인 없이 그대로 재사용합니다.
+
+## 8. 상품 전체 스토리
+
+원본 순서는 상품 구조·네 컬렉션 → 네 컬러 그룹 → 유리 → 현장 상담 → 후기·성능 → 연관 상품 → 지역·FAQ·문의 → 별도 행사·공지로 읽는다. 우드는 오리지널·퍼스널 화이트·발렌 스페셜과 나란한 네 컬러 그룹 중 하나다. `config/product-story-contexts.json`이 이 관계와 파일 범위를 내부 검색·handoff에 전달한다.

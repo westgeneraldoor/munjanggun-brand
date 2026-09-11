@@ -1,9 +1,10 @@
 # PRODUCT_WIKI_ABS_DOOR_REPLACEMENT - ABS도어 방문교체 상품 위키
 
-> 버전: v1.1
-> 최종 업데이트: 2026-07-01
+> 버전: v1.2
+> 최종 업데이트: 2026-09-11
 > product_id: `PROD-ABS-DOOR-REPLACEMENT`
 > source_id: `SRC-2026-07-01-ABS-DOOR-REPLACEMENT-DETAILPAGE`
+> story_context: `config/product-story-contexts.json`
 > 상태: `vetted`
 > 목적: ABS도어 방문교체의 패키지 범위와 고객 오해 방지 기준을 정리한다.
 
@@ -54,3 +55,9 @@ ASSET_SEMANTIC_INDEX.md
 - 세트 철거폐기물처리비도 무조건 포함입니다.
 - 기존 문틀 상태와 상관없이 문짝만 바꾸면 됩니다.
 - 추가 비용 없이 모든 마감이 끝납니다.
+
+## 7. 상품 전체 스토리와 확인 필요 충돌
+
+원본 순서는 상품·패키지 범위 → ABS 소재·기능 → 패키지 상세 → 디자인 → 도어·필름 컬러 → 손잡이·경첩·안전 → 시공·상담 → 연관 상품 → 지역·FAQ·문의 → 별도 행사·공지로 읽는다.
+
+중앙 확정 기준은 패키지1 문짝교체와 패키지2 문짝·문틀·문선 케이싱 세트다. 2026-09-04 신규 자산에는 `패키지3_ABS도어+문틀+슬림 문선 세트 시공`이 별도로 보이므로 중앙 기준과 충돌한다. 실제 운영 체계와 가격을 사장 확인해 중앙 위키를 갱신하기 전에는 패키지3를 외부 발행하지 않는다. 이 충돌은 `config/product-story-contexts.json`의 `sourceWarnings`에도 전달한다.

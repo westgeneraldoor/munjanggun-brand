@@ -1,8 +1,8 @@
 # 문장군 중앙 브랜드 문서
 
-> 버전: v5.26
-> 최종 업데이트: 2026-09-10
-> 변경 요약: 489개 1차 검토 자산을 내부 검색·미리보기·메타데이터 전달에 개방하고, 외부 게시와 공개 Git은 선택 자산별 확인 전까지 계속 차단하도록 운영 경로를 분리했다.
+> 버전: v5.27
+> 최종 업데이트: 2026-09-11
+> 변경 요약: 7개 `vetted` 상품군의 폴더·파일 순서를 상품 전체 스토리로 연결하고, 내부 검색·handoff가 개별 자산보다 먼저 전체/일부 범위와 필수 선택지 누락을 전달한다.
 
 이 저장소는 문장군의 브랜드 사실, 현장 판단, 변동 claim 근거, 공통 원료, 상품·자산 위키를 관리한다.
 
@@ -43,6 +43,7 @@ npm run report:assets
 | `SOURCE_REGISTRY.md` | 자료 유입 소스 등록부 |
 | `PRODUCT_WIKI_INDEX.md` | 상품별 위키 입구 |
 | `ASSET_SEMANTIC_INDEX.md` | 이미지/GIF 의미와 사용 상태 |
+| `config/product-story-contexts.json` | 폴더·파일 순서를 상품 전체 스토리와 선택지 관계로 연결 |
 | `BLOG_ASSET_PICKER.md` | 블로그용 다축 자산 검색·선택·안전 추출 절차 |
 | `BRAND_MATERIAL_INDEX.md` | 공통 원료 은행 입구 |
 | `RAW_MATERIAL_INTAKE_PROTOCOL.md` | 프로젝트 자료의 중앙 승격 절차 |
@@ -87,12 +88,21 @@ C:\Users\hjh\안티그래비티\문장군_브랜드\config\asset-internal-librar
 ```
 
 ```bash
-npm run assets:library:internal -- --query "3연동ㄱ자"
+npm run assets:library:internal -- --product "3연동중문"
+npm run assets:library:internal -- --query "3연동중문 우드"
+npm run assets:library:internal -- --query "양개형중문 미서기 4연동"
+npm run assets:library:internal -- --query "ABS도어 방문교체 패키지1"
 npm run assets:library:internal -- --query "3연동ㄱ자" --select-sha256 <SHA-256> --consumer munjanggun-blog --output-name <작업명>
 npm run assets:library:internal -- --query "3연동ㄱ자" --select-sha256 <SHA-256> --consumer munjanggun-crm --output-name <작업명>
 ```
 
-명령은 활성 1차 검토 pointer와 후보·픽셀 근거·검토자 서명·489개 원본 SHA를 확인한 뒤 실행된다. 실제 이미지 복사 없이 `asset-handoff.json`과 미리보기 HTML만 등록 프로젝트의 비공개·Git 제외 영역에 만든다. 결과의 내부 열람 상태는 `usable`, 외부 발행은 `blocked_selected_asset_review_required`, 공개 Git은 `blocked`로 고정된다.
+7개 `vetted` 상품군 검색 결과에는 개별 이미지보다 먼저 `contentBrief`가 나온다. 전체 상품 요청이면 상품별 필수 구조·컬렉션·컬러·유리·패키지를 확인하도록 안내한다. `3연동중문 우드`, `양개형중문 미서기 4연동`, `ABS도어 방문교체 패키지1`처럼 일부를 요청하면 `requestScope: product_subset`으로 표시하고 전체 선택 구조 안에서 어디에 해당하는지 함께 전달한다. 세부 색상 요청의 각 결과는 `storyEvidenceMatch`에서 `exact_detail_evidence`와 `option_group_context`를 구분하며 색상표 같은 직접 근거를 참고 연출보다 먼저 정렬한다. 각 자산의 `storyPlacement`·`storySourcePath`는 현재 요청에 우선하는 원래 폴더 위치를, `narrativePlacements`는 같은 바이트가 재사용된 위치까지 포함한 모든 절·선택지 관계를 보여준다. `originalPath`는 이미지 바이트 검증용 보관 위치이므로 상품 문맥 경로로 해석하지 않는다.
+
+검색 결과의 `resultCoverage`는 현재 상위 결과에 빠진 절·선택지뿐 아니라 세부 색상표·유리 종류표·적용 예시 같은 필수 설명 근거 역할도 표시한다. `wholeProductExplanationEvidenceComplete`와 `completionAssessment.configuredEvidenceContractComplete`는 설정된 근거 역할 충족을 뜻할 뿐 실제 글이 독자의 질문에 답했다는 보증이 아니다. `completionAssessment.readerQuestionAnswerComplete`는 별도 집필 검토 전까지 거짓으로 유지하며 현장 판단에는 `FIELD_JUDGMENT_RULES.md` 확인을 요구한다. 컬렉션·컬러 사이의 원본 제한은 `applicableConstraints`로 별도 전달하며, 전체 상품 요청에는 등록된 제한을 모두 포함한다.
+
+상품 별칭은 공백 차이를 제거하되 독립된 복수 상품을 하나의 긴 이름으로 축소하지 않는다. 이 공백 동등성은 상품 문맥 판정과 검색 조건 제거에 동일하게 적용하며, 상품명만 요청한 경우 등록 스토리 출처에 연결된 자산만 반환해 결과 집합·스토리 순서도 표기 방식에 따라 달라지지 않는다. 세부 색상과 등록 코드는 상위 컬러 그룹에 연결하고, 행사·유리·시공 같은 절 주제와 구조화 필터도 `product_subset`으로 판정한다. 근거 없는 추가 조건은 자유 검색어뿐 아니라 `color`, `design`, `topic`, `scene` 어느 입력칸에 있어도 입력칸 출처와 함께 `unresolvedConditions`·`unresolvedTerms`·`requestResolution`에 남기고 같은 그룹 자료로 대체하지 않는다. 복수 상품 또는 같은 선택 축의 비교는 `comparison_requires_split`로 반환해 대상별 검색을 요구한다.
+
+명령은 활성 1차 검토 pointer와 후보·픽셀 근거·검토자 서명·489개 원본 SHA를 확인한 뒤 실행된다. 스토리 선택자는 등록 `sourceIds`와 함께 검증하고, handoff에는 스토리 설정 버전·SHA-256·출처 ID를 기록한다. 실제 이미지 복사 없이 `asset-handoff.json`과 미리보기 HTML만 등록 프로젝트의 비공개·Git 제외 영역에 만든다. 결과의 내부 열람 상태는 `usable`, 외부 발행은 `blocked_selected_asset_review_required`, 공개 Git은 `blocked`로 고정된다.
 
 기존 `assets:library:index`, `assets:library`, `assets:search`, `assets:pick-for-blog`, `assets:extract-content`는 완전한 발행 authority를 요구하는 별도 경로다. 내부 자료실 개방을 이유로 이 차단을 완화하거나 우회하지 않는다.
 

@@ -1,0 +1,503 @@
+{
+  "schema": "munjanggun.productStoryContexts.v1",
+  "version": "1.0",
+  "updatedAt": "2026-09-11",
+  "authorityStatus": "curated_non_authority_context",
+  "detailCatalogs": [
+    {"detailCatalogId":"frame_original_10","details":[{"detailId":"citrus_orange","label":"시트러스 오렌지","code":"DS43"},{"detailId":"bumblebee_yellow","label":"범블비 옐로우","code":"DS42"},{"detailId":"neutral_gray","label":"뉴트럴 그레이","code":"DS31"},{"detailId":"ash_gray","label":"애쉬 그레이","code":"DS19"},{"detailId":"olive_green","label":"올리브그린","aliases":["올리브 그린"],"code":"DS64"},{"detailId":"royal_blue","label":"로얄블루","aliases":["로얄 블루"],"code":"DS69"},{"detailId":"shaman_gray","label":"샤먼 그레이","code":"DS34"},{"detailId":"deep_black","label":"딥 블랙","code":"DS36"},{"detailId":"burgundy","label":"버건디","code":"DS45"},{"detailId":"shell_pink","label":"셸 핑크","code":"DS46"}]},
+    {"detailCatalogId":"frame_white_5","details":[{"detailId":"pure_white","label":"퓨어 화이트","code":"DS11"},{"detailId":"titanium_white","label":"티타늄 화이트","code":"DS12"},{"detailId":"antique_white","label":"앤티크 화이트","code":"DS13"},{"detailId":"pearl_white","label":"펄 화이트","code":"DP301-1"},{"detailId":"plain_linen","label":"플레인 린넨","code":"DG3505"}]},
+    {"detailCatalogId":"frame_valen_3","details":[{"detailId":"vallen_blanc","label":"발렌 블랑","code":"PX449"},{"detailId":"vallen_moody_cream","label":"발렌 무디 크림","aliases":["발렌무디 크림"],"code":"PX450"},{"detailId":"vallen_moody_mist","label":"발렌 무디 미스트","aliases":["발렌무디 미스트"],"code":"PX450-5"}]},
+    {"detailCatalogId":"frame_wood_6","details":[{"detailId":"white_oak","label":"화이트 오크","aliases":["white oak"]},{"detailId":"beige_oak","label":"베이지 오크","aliases":["beige oak"]},{"detailId":"oak","label":"오크","aliases":["oak"]},{"detailId":"antique","label":"엔티크","aliases":["antique"]},{"detailId":"acacia","label":"아카시아","aliases":["acacia"]},{"detailId":"walnut","label":"월넛","aliases":["walnut"]}]}
+  ],
+  "contexts": [
+    {
+      "contextId": "STORY-3PANEL-MIDDLE-DOOR-20260911",
+      "productId": "PROD-3PANEL-MIDDLE-DOOR",
+      "productNames": [
+        "3연동중문",
+        "3연동 중문",
+        "슬라이딩 3연동 중문"
+      ],
+      "sourceIds": [
+        "SRC-2026-07-01-3PANEL-DETAILPAGE-V2",
+        "SRC-2026-09-04-3PANEL-DETAILPAGE"
+      ],
+      "summary": "3연동중문은 하나의 문 형태만 뜻하지 않는다. 현장 적합성을 먼저 확인하고, 베이직·모던·클래식·아트 컬렉션과 오리지널·퍼스널 화이트·발렌 스페셜·프리미엄 우드 컬러 그룹, 유리 옵션을 조합해 선택하는 상품군이다.",
+      "wholeProductRule": "전체 상품을 설명할 때 검색 상위 이미지 몇 장을 전체 선택지로 간주하지 않는다. 네 컬렉션과 네 컬러 그룹, 유리 옵션, 현장 적합성·상담 흐름을 먼저 확인한 뒤 목적에 맞는 일부 자산을 고른다.",
+      "subsetRule": "특정 컬렉션·색상·유리·행사만 다룰 때는 제목이나 도입에서 3연동중문의 일부 주제임을 밝힌다. 프리미엄 우드만 사용하면서 문장군 3연동중문의 전체 컬러처럼 표현하지 않는다.",
+      "requiredOptionSetsForWholeProduct": [
+        "collections",
+        "color_groups",
+        "glass_types"
+      ],
+      "requiredSectionsForWholeProduct": [
+        "product_and_collection_overview",
+        "collection_details",
+        "color_options",
+        "glass_options",
+        "fit_and_consultation"
+      ],
+      "optionSets": [
+        {
+          "optionSetId": "collections",
+          "label": "컬렉션",
+          "relationship": "네 컬렉션은 모두 3연동중문 상품군 안의 디자인 선택지다.",
+          "options": [
+            {
+              "optionId": "basic",
+              "label": "베이직",
+              "aliases": ["베이직", "basic"],
+              "summary": "1.5cm 화이트 프레임과 풀 윈도우를 중심으로 설명하는 기준형. 원본에는 ONLY WHITE 제한이 명시돼 있으며 현재 판매 조건은 다시 확인한다.",
+              "selectors": [{ "pathPrefix": "3연동중문/컬렉션/베이직/" }]
+            },
+            {
+              "optionId": "modern",
+              "label": "모던",
+              "aliases": ["모던", "modern", "풀 윈도우", "글라스 고시", "모던 디바이드", "시그니처 간살"],
+              "summary": "3cm 프레임을 바탕으로 풀 윈도우·글라스 고시·모던 디바이드·시그니처 간살을 비교하는 정돈형.",
+              "selectors": [{ "pathPrefix": "3연동중문/컬렉션/모던/" }]
+            },
+            {
+              "optionId": "classic",
+              "label": "클래식",
+              "aliases": ["클래식", "classic", "클래식 고시", "포인트 라인"],
+              "summary": "5cm 프레임과 풀 윈도우·클래식 고시·포인트 라인으로 안정감과 무게감을 주는 라인.",
+              "selectors": [{ "pathPrefix": "3연동중문/컬렉션/클래식/" }]
+            },
+            {
+              "optionId": "art",
+              "label": "아트",
+              "aliases": ["아트", "art", "소프트 아치", "라운드 아치", "하프문 고시", "플로우 아치"],
+              "summary": "3cm 프레임과 소프트 아치·라운드 아치·하프문 고시·플로우 아치로 곡선 포인트를 주는 라인.",
+              "selectors": [{ "pathPrefix": "3연동중문/컬렉션/아트/" }]
+            }
+          ]
+        },
+        {
+          "optionSetId": "color_groups",
+          "label": "컬러 그룹",
+          "relationship": "우드는 전체 컬러가 아니라 네 그룹 중 프리미엄 우드 한 갈래다.",
+          "overviewSelectors": [
+            { "pathPrefix": "3연동중문/컬러/", "sequenceFrom": 1, "sequenceTo": 2 },
+            { "pathPrefix": "3연동중문/", "sequenceFrom": 19, "sequenceTo": 20, "directChildrenOnly": true }
+          ],
+          "options": [
+            {
+              "optionId": "original",
+              "label": "오리지널 컬러",
+              "aliases": ["오리지널", "오리지널 컬러", "original"],
+              "summary": "여러 유채색과 기본 프레임 색을 폭넓게 보여주는 기본 컬러군.",
+              "selectors": [
+                { "pathPrefix": "3연동중문/컬러/", "sequenceFrom": 3, "sequenceTo": 6 },
+                { "pathPrefix": "3연동중문/", "sequenceFrom": 21, "sequenceTo": 24, "directChildrenOnly": true }
+              ],
+              "details": [
+                {"detailId":"citrus_orange","label":"시트러스 오렌지","code":"DS43"},{"detailId":"bumblebee_yellow","label":"범블비 옐로우","code":"DS42"},{"detailId":"neutral_gray","label":"뉴트럴 그레이","code":"DS31"},{"detailId":"ash_gray","label":"애쉬 그레이","code":"DS19"},{"detailId":"olive_green","label":"올리브그린","aliases":["올리브 그린"],"code":"DS64"},{"detailId":"royal_blue","label":"로얄블루","aliases":["로얄 블루"],"code":"DS69"},{"detailId":"shaman_gray","label":"샤먼 그레이","code":"DS34"},{"detailId":"deep_black","label":"딥 블랙","code":"DS36"},{"detailId":"burgundy","label":"버건디","code":"DS45"},{"detailId":"shell_pink","label":"셸 핑크","code":"DS46"}
+              ],
+              "evidenceRoles": [
+                {"roleId":"introduction","label":"그룹 소개","required":false,"selectors":[{"pathPrefix":"3연동중문/컬러/","sequenceFrom":3,"sequenceTo":3}]},
+                {"roleId":"option_catalog","label":"세부 색상표","required":true,"selectors":[{"pathPrefix":"3연동중문/컬러/","sequenceFrom":5,"sequenceTo":5}]}
+              ]
+            },
+            {
+              "optionId": "personal_white",
+              "label": "퍼스널 화이트",
+              "aliases": ["퍼스널 화이트", "personal white", "화이트", "백색"],
+              "summary": "서로 다른 밝기와 온도의 화이트 계열을 비교하는 컬러군.",
+              "selectors": [
+                { "pathPrefix": "3연동중문/컬러/", "sequenceFrom": 7, "sequenceTo": 10 },
+                { "pathPrefix": "3연동중문/", "sequenceFrom": 25, "sequenceTo": 28, "directChildrenOnly": true }
+              ],
+              "details": [
+                {"detailId":"pure_white","label":"퓨어 화이트","code":"DS11"},{"detailId":"titanium_white","label":"티타늄 화이트","code":"DS12"},{"detailId":"antique_white","label":"앤티크 화이트","code":"DS13"},{"detailId":"pearl_white","label":"펄 화이트","code":"DP301-1"},{"detailId":"plain_linen","label":"플레인 린넨","code":"DG3505"}
+              ],
+              "evidenceRoles": [
+                {"roleId":"introduction","label":"그룹 소개","required":false,"selectors":[{"pathPrefix":"3연동중문/컬러/","sequenceFrom":7,"sequenceTo":8}]},
+                {"roleId":"option_catalog","label":"세부 색상표","required":true,"selectors":[{"pathPrefix":"3연동중문/컬러/","sequenceFrom":9,"sequenceTo":9}]}
+              ]
+            },
+            {
+              "optionId": "valen_special",
+              "label": "발렌 스페셜",
+              "aliases": ["발렌", "발렌 스페셜", "valen special", "스톤"],
+              "summary": "스톤 질감과 중립색을 중심으로 구성된 특수 마감 컬러군.",
+              "selectors": [
+                { "pathPrefix": "3연동중문/컬러/", "sequenceFrom": 11, "sequenceTo": 14 },
+                { "pathPrefix": "3연동중문/", "sequenceFrom": 29, "sequenceTo": 32, "directChildrenOnly": true }
+              ],
+              "details": [
+                {"detailId":"vallen_blanc","label":"발렌 블랑","code":"PX449"},{"detailId":"vallen_moody_cream","label":"발렌 무디 크림","aliases":["발렌무디 크림"],"code":"PX450"},{"detailId":"vallen_moody_mist","label":"발렌 무디 미스트","aliases":["발렌무디 미스트"],"code":"PX450-5"}
+              ],
+              "evidenceRoles": [
+                {"roleId":"introduction","label":"그룹 소개","required":false,"selectors":[{"pathPrefix":"3연동중문/컬러/","sequenceFrom":11,"sequenceTo":11}]},
+                {"roleId":"option_catalog","label":"세부 색상표","required":true,"selectors":[{"pathPrefix":"3연동중문/컬러/","sequenceFrom":12,"sequenceTo":12}]},
+                {"roleId":"application_examples","label":"적용 예시","required":true,"selectors":[{"pathPrefix":"3연동중문/컬러/","sequenceFrom":14,"sequenceTo":14}]}
+              ]
+            },
+            {
+              "optionId": "premium_wood",
+              "label": "프리미엄 우드",
+              "aliases": ["프리미엄 우드", "premium wood", "우드", "나뭇결"],
+              "summary": "나뭇결과 우드 색상 코드를 중심으로 구성된 컬러군. 전체 컬러군이 아니라 네 그룹 중 하나다.",
+              "selectors": [
+                { "pathPrefix": "3연동중문/컬러/", "sequenceFrom": 15, "sequenceTo": 17 },
+                { "pathPrefix": "3연동중문/", "sequenceFrom": 33, "sequenceTo": 35, "directChildrenOnly": true }
+              ],
+              "details": [
+                {"detailId":"white_oak","label":"화이트 오크","aliases":["white oak"]},{"detailId":"beige_oak","label":"베이지 오크","aliases":["beige oak"]},{"detailId":"oak","label":"오크","aliases":["oak"]},{"detailId":"antique","label":"엔티크","aliases":["antique"]},{"detailId":"acacia","label":"아카시아","aliases":["acacia"]},{"detailId":"walnut","label":"월넛","aliases":["walnut"]}
+              ],
+              "evidenceRoles": [
+                {"roleId":"option_catalog","label":"세부 색상표","required":true,"selectors":[{"pathPrefix":"3연동중문/컬러/","sequenceFrom":15,"sequenceTo":15}]},
+                {"roleId":"application_examples","label":"적용 예시","required":true,"selectors":[{"pathPrefix":"3연동중문/컬러/","sequenceFrom":17,"sequenceTo":17}]}
+              ]
+            }
+          ]
+        },
+        {
+          "optionSetId": "glass_types",
+          "label": "유리 종류",
+          "relationship": "샘플북 상담 안내만으로 유리 설명이 끝나지 않는다. 톤·무드·스타일 글라스의 실제 종류표를 구분한다.",
+          "options": [
+            {"optionId":"tone_glass","label":"톤 글라스","aliases":["톤 글라스","강화유리","투명 강화","브론즈 강화","유로그레이","다크그레이"],"summary":"투명·브론즈·유로그레이·다크그레이 강화유리 선택표.","selectors":[{"pathPrefix":"3연동중문/유리/","sequenceFrom":2,"sequenceTo":2}],"evidenceRoles":[{"roleId":"option_catalog","label":"유리 종류표","required":true,"selectors":[{"pathPrefix":"3연동중문/유리/","sequenceFrom":2,"sequenceTo":2}]}]},
+            {"optionId":"mood_glass","label":"무드 글라스","aliases":["무드 글라스","아쿠아 강화","모루 강화","아시스 강화","플루트 강화","투명 샤틴","브론즈 샤틴"],"summary":"아쿠아·모루·아시스·플루트 강화와 샤틴 계열 선택표.","selectors":[{"pathPrefix":"3연동중문/유리/","sequenceFrom":3,"sequenceTo":3}],"evidenceRoles":[{"roleId":"option_catalog","label":"유리 종류표","required":true,"selectors":[{"pathPrefix":"3연동중문/유리/","sequenceFrom":3,"sequenceTo":3}]}]},
+            {"optionId":"style_glass","label":"스타일 글라스","aliases":["스타일 글라스","망입","패브릭 강화"],"summary":"망입·패브릭 강화 선택표.","selectors":[{"pathPrefix":"3연동중문/유리/","sequenceFrom":4,"sequenceTo":4}],"evidenceRoles":[{"roleId":"option_catalog","label":"유리 종류표","required":true,"selectors":[{"pathPrefix":"3연동중문/유리/","sequenceFrom":4,"sequenceTo":4}]}]}
+          ]
+        }
+      ],
+      "sections": [
+        {
+          "sectionId": "product_and_collection_overview",
+          "order": 1,
+          "label": "상품·컬렉션 전체 소개",
+          "summary": "상품 정체성, 기본 치수·프레임 비교, 베이직·클래식·모던·아트 네 컬렉션의 입구를 순서대로 보여준다. 가격·치수 문구는 최신 근거 확인 대상이다.",
+          "selectors": [{ "pathPrefix": "3연동중문/", "sequenceFrom": 1, "sequenceTo": 18, "directChildrenOnly": true }]
+        },
+        {
+          "sectionId": "collection_details",
+          "order": 2,
+          "label": "컬렉션별 디자인 상세",
+          "summary": "베이직·모던·클래식·아트 각각의 프레임과 세부 디자인, 적용 사례를 파일 순서대로 설명한다.",
+          "selectors": [
+            { "pathPrefix": "3연동중문/컬렉션/베이직/", "directChildrenOnly": true, "role": "body" },
+            { "pathPrefix": "3연동중문/컬렉션/베이직/썸네일/", "role": "thumbnail" },
+            { "pathPrefix": "3연동중문/컬렉션/모던/", "directChildrenOnly": true, "role": "body" },
+            { "pathPrefix": "3연동중문/컬렉션/모던/썸네일/", "role": "thumbnail" },
+            { "pathPrefix": "3연동중문/컬렉션/클래식/", "directChildrenOnly": true, "role": "body" },
+            { "pathPrefix": "3연동중문/컬렉션/클래식/썸네일/", "role": "thumbnail" },
+            { "pathPrefix": "3연동중문/컬렉션/아트/", "directChildrenOnly": true, "role": "body" },
+            { "pathPrefix": "3연동중문/컬렉션/아트/썸네일/", "role": "thumbnail" }
+          ]
+        },
+        {
+          "sectionId": "color_options",
+          "order": 3,
+          "label": "컬러 옵션",
+          "summary": "컬러 소개 뒤 오리지널·퍼스널 화이트·발렌 스페셜·프리미엄 우드 네 그룹이 차례로 이어진다.",
+          "selectors": [
+            { "pathPrefix": "3연동중문/컬러/" },
+            { "pathPrefix": "3연동중문/", "sequenceFrom": 19, "sequenceTo": 36, "directChildrenOnly": true }
+          ]
+        },
+        {
+          "sectionId": "glass_options",
+          "order": 4,
+          "label": "유리 옵션",
+          "summary": "실물 샘플북, 강화유리, 무드 글라스, 스타일 유리로 이어지는 선택 자료다. 추가금과 현재 운영 옵션은 별도 확인한다.",
+          "selectors": [
+            { "pathPrefix": "3연동중문/유리/" },
+            { "pathPrefix": "3연동중문/", "sequenceFrom": 37, "sequenceTo": 38, "directChildrenOnly": true }
+          ]
+        },
+        {
+          "sectionId": "fit_and_consultation",
+          "order": 5,
+          "label": "현장 적합성·상담 흐름",
+          "summary": "무료 방문실측과 비대면 상담, 촬영·실측 안내를 통해 상품 선택이 현장 확인과 연결된다는 흐름이다.",
+          "selectors": [{ "pathPrefix": "3연동중문/", "sequenceFrom": 39, "sequenceTo": 52, "directChildrenOnly": true }]
+        },
+        {
+          "sectionId": "proof_and_performance",
+          "order": 6,
+          "label": "후기·성능 근거",
+          "summary": "리뷰와 냉난방·소음·외풍·먼지·냄새 관련 성능 주장을 모은 구역이다. 수치와 후기 범위는 외부 사용 전 근거를 다시 확인한다.",
+          "selectors": [{ "pathPrefix": "3연동중문/", "sequenceFrom": 53, "sequenceTo": 59, "directChildrenOnly": true }]
+        },
+        {
+          "sectionId": "related_products",
+          "order": 7,
+          "label": "연관 상품 안내",
+          "summary": "다른 중문·도어 상품으로 이어지는 교차 안내다. 3연동중문 고유 사양과 섞지 않는다.",
+          "selectors": [{ "pathPrefix": "3연동중문/", "sequenceFrom": 60, "sequenceTo": 67, "directChildrenOnly": true }]
+        },
+        {
+          "sectionId": "region_faq_cta",
+          "order": 8,
+          "label": "지역·FAQ·문의",
+          "summary": "출장 지역, FAQ, 예약·톡톡·전화 문의로 마무리되는 상세페이지 후반 흐름이다. 지역·비용은 최신 기준을 확인한다.",
+          "selectors": [{ "pathPrefix": "3연동중문/", "sequenceFrom": 68, "sequenceTo": 74, "directChildrenOnly": true }]
+        },
+        {
+          "sectionId": "event_and_notice",
+          "order": 9,
+          "label": "행사·공지",
+          "summary": "기부, 무이자, 리뷰·옵션 할인, 보증, 제작·시공·A/S 홍보를 모은 별도 묶음이다. 상품의 상시 구성으로 오인하지 말고 행사 기간과 claim을 확인한다.",
+          "selectors": [{ "pathPrefix": "3연동중문/이벤트 및 공지/" }]
+        }
+      ],
+      "constraints": [
+        {
+          "constraintId": "3panel-basic-only-white-source-claim",
+          "whenAll": [{"optionSetId":"collections","optionId":"basic"},{"optionSetId":"color_groups","optionId":"premium_wood"}],
+          "statement": "베이직 컬렉션 원본에는 ONLY WHITE와 1.5cm 화이트가 명시돼 있어 프리미엄 우드와의 조합을 가능하다고 추정할 수 없다.",
+          "status": "source_stated_current_operation_needs_confirmation",
+          "evidenceSelectors": [{"pathPrefix":"3연동중문/컬렉션/베이직/","sequenceFrom":2,"sequenceTo":2}]
+        }
+      ],
+      "sourceWarnings": [
+        {
+          "paths": [
+            "3연동중문/컬러/005.jpg",
+            "3연동중문/컬러/012.jpg",
+            "3연동중문/컬러/017.jpg"
+          ],
+          "reason": "3연동중문 컬러 폴더에 있으나 1차 화면 판독 요약에는 자동중문 표현이 보인다.",
+          "instruction": "폴더 소속은 전체 컬러 스토리 관계로 유지하되, 일반 3연동중문 사례나 옵션으로 외부 사용하기 전 원본 문구와 현재 적용 상품 범위를 다시 확인한다."
+        }
+      ],
+      "writingGuardrails": [
+        "전체 3연동중문 글은 검색 결과 상위 N개만 보고 옵션 범위를 확정하지 않는다.",
+        "네 컬렉션과 네 컬러 그룹을 내부적으로 먼저 확인한다. 글의 목적상 일부만 보여줄 수는 있지만 일부를 전체처럼 말하지 않는다.",
+        "우드 이미지만 쓸 때는 프리미엄 우드 컬러 그룹을 다루는 글임을 밝히고, 오리지널·퍼스널 화이트·발렌 스페셜도 존재함을 필요에 따라 안내한다.",
+        "컬렉션, 컬러, 유리는 서로 다른 선택 축이다. 우드 컬러를 모던 컬렉션 전체나 3연동중문 전체와 같은 뜻으로 쓰지 않는다.",
+        "가격·할인·월 납입·리뷰 수·성능 수치·이벤트·A/S·출장비·치수는 EVIDENCE_REGISTER.md와 선택 자산 원본을 확인한다.",
+        "현장 설치 가능 여부는 폭·벽공간·단차·신발장·스위치·몰딩을 실측해 판단한다."
+      ]
+    },
+    {
+      "contextId": "STORY-ONE-SLIDING-MIDDLE-DOOR-20260911",
+      "productId": "PROD-ONE-SLIDING-MIDDLE-DOOR",
+      "productNames": ["원슬라이딩중문", "원슬라이딩 중문", "원슬라이딩 도어"],
+      "sourceIds": ["SRC-2026-07-01-ONESLIDING-DETAILPAGE", "SRC-2026-09-04-ONESLIDING-DETAILPAGE"],
+      "summary": "원슬라이딩중문은 한 장의 문을 옆으로 밀어 여닫는 상품군이다. 현장 옆 벽의 문 수납 공간과 간섭을 먼저 확인하고, 네 컬렉션·네 컬러 그룹·유리 옵션을 서로 다른 선택 축으로 비교한다.",
+      "wholeProductRule": "전체 상품 글은 슬라이딩 구조와 현장 적합성, 네 컬렉션, 네 컬러 그룹, 유리 옵션을 먼저 확인한 뒤 목적에 맞는 일부 자산을 고른다.",
+      "subsetRule": "특정 컬렉션·컬러·유리만 다룰 때는 원슬라이딩중문의 일부 선택지임을 밝힌다. 한 컬러군이나 디자인을 전체 구성처럼 표현하지 않는다.",
+      "requiredOptionSetsForWholeProduct": ["collections", "color_groups"],
+      "requiredSectionsForWholeProduct": ["product_and_collection_overview", "collection_details", "color_options", "glass_options", "fit_and_consultation"],
+      "optionSets": [
+        {
+          "optionSetId": "collections", "label": "컬렉션", "relationship": "베이직·모던·클래식·아트는 원슬라이딩중문의 네 디자인 컬렉션이다.",
+          "options": [
+            {"optionId":"basic","label":"베이직","aliases":["베이직","basic"],"summary":"담백한 풀 윈도우 중심의 기준형.","selectors":[{"pathPrefix":"원슬라이딩중문/컬렉션/베이직/"}]},
+            {"optionId":"modern","label":"모던","aliases":["모던","modern","루버"],"summary":"패널·분할유리·루버 등 정돈된 디자인을 비교하는 라인.","selectors":[{"pathPrefix":"원슬라이딩중문/컬렉션/모던/"}]},
+            {"optionId":"classic","label":"클래식","aliases":["클래식","classic","에덴 아치","캔버스"],"summary":"마감·색상·유리·손잡이를 함께 살피는 클래식 라인.","selectors":[{"pathPrefix":"원슬라이딩중문/컬렉션/클래식/"}]},
+            {"optionId":"art","label":"아트","aliases":["아트","art","소프트 아치","라운드 아치","하프문","플로우 아치"],"summary":"곡선과 아치 디자인을 중심으로 선택하는 라인.","selectors":[{"pathPrefix":"원슬라이딩중문/컬렉션/아트/"}]}
+          ]
+        },
+        {
+          "optionSetId": "color_groups", "label": "컬러 그룹", "relationship": "우드는 전체 컬러가 아니라 오리지널·퍼스널 화이트·발렌 스페셜과 나란한 네 그룹 중 하나다.",
+          "overviewSelectors": [{"pathPrefix":"원슬라이딩중문/컬러/","sequenceFrom":1,"sequenceTo":2},{"pathPrefix":"원슬라이딩중문/","sequenceFrom":15,"sequenceTo":16,"directChildrenOnly":true}],
+          "options": [
+            {"optionId":"original","label":"오리지널 컬러","aliases":["오리지널","오리지널 컬러","original"],"summary":"10가지 컬러 코드로 구성된 기본 컬러군.","detailCatalogId":"frame_original_10","selectors":[{"pathPrefix":"원슬라이딩중문/컬러/","sequenceFrom":3,"sequenceTo":4},{"pathPrefix":"원슬라이딩중문/","sequenceFrom":17,"sequenceTo":18,"directChildrenOnly":true}],"evidenceRoles":[{"roleId":"option_catalog","label":"세부 색상표","required":true,"selectors":[{"pathPrefix":"원슬라이딩중문/컬러/","sequenceFrom":4,"sequenceTo":4}]}]},
+            {"optionId":"personal_white","label":"퍼스널 화이트","aliases":["퍼스널 화이트","personal white","화이트","백색"],"summary":"서로 다른 화이트 계열을 비교하는 컬러군.","detailCatalogId":"frame_white_5","selectors":[{"pathPrefix":"원슬라이딩중문/컬러/","sequenceFrom":5,"sequenceTo":7},{"pathPrefix":"원슬라이딩중문/","sequenceFrom":19,"sequenceTo":21,"directChildrenOnly":true}],"evidenceRoles":[{"roleId":"option_catalog","label":"세부 색상표","required":true,"selectors":[{"pathPrefix":"원슬라이딩중문/컬러/","sequenceFrom":7,"sequenceTo":7}]}]},
+            {"optionId":"valen_special","label":"발렌 스페셜","aliases":["발렌","발렌 스페셜","valen special","스톤"],"summary":"스톤 질감과 중립색을 중심으로 한 특수 마감 컬러군.","detailCatalogId":"frame_valen_3","selectors":[{"pathPrefix":"원슬라이딩중문/컬러/","sequenceFrom":8,"sequenceTo":9},{"pathPrefix":"원슬라이딩중문/","sequenceFrom":22,"sequenceTo":23,"directChildrenOnly":true}],"evidenceRoles":[{"roleId":"option_catalog","label":"세부 색상표","required":true,"selectors":[{"pathPrefix":"원슬라이딩중문/컬러/","sequenceFrom":9,"sequenceTo":9}]}]},
+            {"optionId":"premium_wood","label":"프리미엄 우드","aliases":["프리미엄 우드","premium wood","우드","나뭇결"],"summary":"6가지 우드 계열 선택지. 전체 컬러군의 한 갈래다.","detailCatalogId":"frame_wood_6","selectors":[{"pathPrefix":"원슬라이딩중문/컬러/","sequenceFrom":10,"sequenceTo":10},{"pathPrefix":"원슬라이딩중문/","sequenceFrom":24,"sequenceTo":24,"directChildrenOnly":true}],"evidenceRoles":[{"roleId":"option_catalog","label":"세부 색상표","required":true,"selectors":[{"pathPrefix":"원슬라이딩중문/컬러/","sequenceFrom":10,"sequenceTo":10}]}]}
+          ]
+        }
+      ],
+      "sections": [
+        {"sectionId":"product_and_collection_overview","order":1,"label":"상품 구조·컬렉션 소개","summary":"한 장을 옆으로 미는 구조와 네 컬렉션의 입구를 순서대로 보여준다.","selectors":[{"pathPrefix":"원슬라이딩중문/","sequenceFrom":1,"sequenceTo":14,"directChildrenOnly":true}]},
+        {"sectionId":"collection_details","order":2,"label":"컬렉션별 디자인 상세","summary":"베이직·모던·클래식·아트의 디자인과 적용 사례를 비교한다.","selectors":[{"pathPrefix":"원슬라이딩중문/컬렉션/베이직/","directChildrenOnly":true,"role":"body"},{"pathPrefix":"원슬라이딩중문/컬렉션/모던/","directChildrenOnly":true,"role":"body"},{"pathPrefix":"원슬라이딩중문/컬렉션/클래식/","directChildrenOnly":true,"role":"body"},{"pathPrefix":"원슬라이딩중문/컬렉션/아트/","directChildrenOnly":true,"role":"body"}]},
+        {"sectionId":"color_options","order":3,"label":"컬러 옵션","summary":"컬러 소개 뒤 네 컬러 그룹이 차례로 이어진다.","selectors":[{"pathPrefix":"원슬라이딩중문/컬러/"},{"pathPrefix":"원슬라이딩중문/","sequenceFrom":15,"sequenceTo":24,"directChildrenOnly":true}]},
+        {"sectionId":"glass_options","order":4,"label":"유리 옵션","summary":"강화유리·무드 글라스·스타일 유리 선택 자료다. 추가금과 운영 여부는 확인한다.","selectors":[{"pathPrefix":"원슬라이딩중문/유리/"},{"pathPrefix":"원슬라이딩중문/","sequenceFrom":25,"sequenceTo":26,"directChildrenOnly":true}],"evidenceRoles":[{"roleId":"tone_catalog","label":"톤 글라스 종류표","required":true,"selectors":[{"pathPrefix":"원슬라이딩중문/유리/","sequenceFrom":2,"sequenceTo":2}]},{"roleId":"mood_catalog","label":"무드 글라스 종류표","required":true,"selectors":[{"pathPrefix":"원슬라이딩중문/유리/","sequenceFrom":3,"sequenceTo":3}]},{"roleId":"style_catalog","label":"스타일 글라스 종류표","required":true,"selectors":[{"pathPrefix":"원슬라이딩중문/유리/","sequenceFrom":4,"sequenceTo":4}]}]},
+        {"sectionId":"fit_and_consultation","order":5,"label":"현장 적합성·상담","summary":"문이 옆으로 이동할 벽공간과 간섭을 방문실측·비대면 상담으로 확인하는 흐름이다.","selectors":[{"pathPrefix":"원슬라이딩중문/","sequenceFrom":27,"sequenceTo":40,"directChildrenOnly":true}]},
+        {"sectionId":"proof_and_performance","order":6,"label":"후기·성능 근거","summary":"후기와 냉난방·소음·외풍·먼지·냄새 수치 구역. 외부 사용 전 근거를 다시 확인한다.","selectors":[{"pathPrefix":"원슬라이딩중문/","sequenceFrom":41,"sequenceTo":47,"directChildrenOnly":true}]},
+        {"sectionId":"related_products","order":7,"label":"연관 상품 안내","summary":"공간별 제안과 다른 도어 상품 안내다. 원슬라이딩 고유 사양과 섞지 않는다.","selectors":[{"pathPrefix":"원슬라이딩중문/","sequenceFrom":48,"sequenceTo":55,"directChildrenOnly":true}]},
+        {"sectionId":"region_faq_cta","order":8,"label":"지역·FAQ·문의","summary":"출장 지역, FAQ와 문의로 마무리되는 흐름이다.","selectors":[{"pathPrefix":"원슬라이딩중문/","sequenceFrom":56,"sequenceTo":62,"directChildrenOnly":true}]},
+        {"sectionId":"event_and_notice","order":9,"label":"행사·공지","summary":"기간성 행사와 공지 묶음. 상시 상품 구성으로 오인하지 않는다.","selectors":[{"pathPrefix":"원슬라이딩중문/이벤트 및 공지/"}]}
+      ],
+      "sourceWarnings": [],
+      "writingGuardrails": ["전체 글은 네 컬렉션과 네 컬러 그룹을 내부적으로 먼저 확인한다.","우드만 선택할 때는 프리미엄 우드라는 일부 컬러군임을 밝힌다.","원슬라이딩의 핵심은 옆 벽 수납 공간과 간섭 여부이므로 사진만으로 설치 가능을 단정하지 않는다.","가격·할인·리뷰 수·성능 수치·A/S·출장비·치수는 최신 근거를 확인한다."]
+    },
+    {
+      "contextId": "STORY-3PANEL-AUTO-MIDDLE-DOOR-20260911",
+      "productId": "PROD-3PANEL-AUTO-MIDDLE-DOOR",
+      "productNames": ["3연동 자동중문", "3연동 자동 중문", "3연동중문 자동"],
+      "sourceIds": ["SRC-2026-07-01-3PANEL-AUTO-DETAILPAGE", "SRC-2026-09-04-3PANEL-AUTO-DETAILPAGE"],
+      "summary": "3연동 자동중문은 3연동 구조에 센서와 자동 개폐 편의를 더한 상품군이다. 전원·센서·수동 사용·동선 조건을 먼저 보고, 네 컬렉션·네 컬러 그룹·유리 옵션을 함께 비교한다.",
+      "wholeProductRule": "전체 상품 글은 자동 개폐 기능과 현장 조건을 빠뜨리지 않고, 네 컬렉션과 네 컬러 그룹, 유리 옵션까지 전체 선택 구조를 확인한다.",
+      "subsetRule": "특정 센서 기능·컬렉션·컬러만 다룰 때는 자동중문의 일부 주제임을 밝힌다. 한 컬러군이나 자동 편의 장면을 전체 사양처럼 확대하지 않는다.",
+      "requiredOptionSetsForWholeProduct": ["collections", "color_groups"],
+      "requiredSectionsForWholeProduct": ["automatic_operation", "product_and_collection_overview", "collection_details", "color_options", "glass_options", "fit_and_consultation"],
+      "optionSets": [
+        {"optionSetId":"collections","label":"컬렉션","relationship":"베이직·모던·클래식·아트는 자동 3연동 구조 안의 디자인 선택지다.","options":[
+          {"optionId":"basic","label":"베이직","aliases":["베이직","basic"],"summary":"풀 윈도우 중심 기준형.","selectors":[{"pathPrefix":"3연동 자동중문/컬렉션/베이직/"}]},
+          {"optionId":"modern","label":"모던","aliases":["모던","modern","분할선","세로살"],"summary":"분할선·고시·세로살을 비교하는 라인.","selectors":[{"pathPrefix":"3연동 자동중문/컬렉션/모던/"}]},
+          {"optionId":"classic","label":"클래식","aliases":["클래식","classic","포인트 라인","포인트 고시"],"summary":"하부 패널과 포인트 디자인을 비교하는 라인.","selectors":[{"pathPrefix":"3연동 자동중문/컬렉션/클래식/"}]},
+          {"optionId":"art","label":"아트","aliases":["아트","art","소프트 아치","라운드 아치","하프문 고시","플로우 아치"],"summary":"아치 디자인 중심 라인.","selectors":[{"pathPrefix":"3연동 자동중문/컬렉션/아트/"}]}
+        ]},
+        {"optionSetId":"color_groups","label":"컬러 그룹","relationship":"우드는 네 컬러 그룹 중 하나이며 자동중문의 전체 컬러를 뜻하지 않는다.","overviewSelectors":[{"pathPrefix":"3연동 자동중문/컬러/","sequenceFrom":1,"sequenceTo":2},{"pathPrefix":"3연동 자동중문/","sequenceFrom":28,"sequenceTo":29,"directChildrenOnly":true}],"options":[
+          {"optionId":"original","label":"오리지널 컬러","aliases":["오리지널","오리지널 컬러","original"],"summary":"기본 유채색과 프레임 컬러군.","detailCatalogId":"frame_original_10","selectors":[{"pathPrefix":"3연동 자동중문/컬러/","sequenceFrom":3,"sequenceTo":6},{"pathPrefix":"3연동 자동중문/","sequenceFrom":30,"sequenceTo":33,"directChildrenOnly":true}],"evidenceRoles":[{"roleId":"option_catalog","label":"세부 색상표","required":true,"selectors":[{"pathPrefix":"3연동 자동중문/컬러/","sequenceFrom":5,"sequenceTo":5}]}]},
+          {"optionId":"personal_white","label":"퍼스널 화이트","aliases":["퍼스널 화이트","personal white","화이트","백색"],"summary":"여러 화이트 계열을 비교하는 컬러군.","detailCatalogId":"frame_white_5","selectors":[{"pathPrefix":"3연동 자동중문/컬러/","sequenceFrom":7,"sequenceTo":10},{"pathPrefix":"3연동 자동중문/","sequenceFrom":34,"sequenceTo":37,"directChildrenOnly":true}],"evidenceRoles":[{"roleId":"option_catalog","label":"세부 색상표","required":true,"selectors":[{"pathPrefix":"3연동 자동중문/컬러/","sequenceFrom":9,"sequenceTo":9}]}]},
+          {"optionId":"valen_special","label":"발렌 스페셜","aliases":["발렌","발렌 스페셜","valen special","스톤"],"summary":"스톤 질감과 중립색 컬러군.","detailCatalogId":"frame_valen_3","selectors":[{"pathPrefix":"3연동 자동중문/컬러/","sequenceFrom":11,"sequenceTo":14},{"pathPrefix":"3연동 자동중문/","sequenceFrom":38,"sequenceTo":41,"directChildrenOnly":true}],"evidenceRoles":[{"roleId":"option_catalog","label":"세부 색상표","required":true,"selectors":[{"pathPrefix":"3연동 자동중문/컬러/","sequenceFrom":12,"sequenceTo":12}]}]},
+          {"optionId":"premium_wood","label":"프리미엄 우드","aliases":["프리미엄 우드","premium wood","우드","나뭇결"],"summary":"6가지 우드 계열. 전체 컬러군의 한 갈래다.","detailCatalogId":"frame_wood_6","selectors":[{"pathPrefix":"3연동 자동중문/컬러/","sequenceFrom":15,"sequenceTo":17},{"pathPrefix":"3연동 자동중문/","sequenceFrom":42,"sequenceTo":44,"directChildrenOnly":true}],"evidenceRoles":[{"roleId":"option_catalog","label":"세부 색상표","required":true,"selectors":[{"pathPrefix":"3연동 자동중문/컬러/","sequenceFrom":15,"sequenceTo":15}]}]}
+        ]}
+      ],
+      "sections": [
+        {"sectionId":"automatic_operation","order":1,"label":"자동 개폐 기능","summary":"센서·자동 작동·양방향 사용 장면과 편의 포인트를 소개한다. 실제 전원·감지·수동 사용 조건은 최신 사양을 확인한다.","selectors":[{"pathPrefix":"3연동 자동중문/","sequenceFrom":1,"sequenceTo":9,"directChildrenOnly":true}]},
+        {"sectionId":"product_and_collection_overview","order":2,"label":"3연동 구조·컬렉션 소개","summary":"3연동 기본 구조와 네 컬렉션의 입구를 보여준다.","selectors":[{"pathPrefix":"3연동 자동중문/","sequenceFrom":10,"sequenceTo":27,"directChildrenOnly":true}]},
+        {"sectionId":"collection_details","order":3,"label":"컬렉션별 디자인 상세","summary":"네 컬렉션의 세부 디자인을 비교한다.","selectors":[{"pathPrefix":"3연동 자동중문/컬렉션/베이직/","directChildrenOnly":true,"role":"body"},{"pathPrefix":"3연동 자동중문/컬렉션/모던/","directChildrenOnly":true,"role":"body"},{"pathPrefix":"3연동 자동중문/컬렉션/클래식/","directChildrenOnly":true,"role":"body"},{"pathPrefix":"3연동 자동중문/컬렉션/아트/","directChildrenOnly":true,"role":"body"}]},
+        {"sectionId":"color_options","order":4,"label":"컬러 옵션","summary":"네 컬러 그룹과 자료실 안내가 순서대로 이어진다.","selectors":[{"pathPrefix":"3연동 자동중문/컬러/"},{"pathPrefix":"3연동 자동중문/","sequenceFrom":28,"sequenceTo":45,"directChildrenOnly":true}]},
+        {"sectionId":"glass_options","order":5,"label":"유리 옵션","summary":"실물 샘플과 강화·무드·스타일 유리 선택 자료다.","selectors":[{"pathPrefix":"3연동 자동중문/유리/"},{"pathPrefix":"3연동 자동중문/","sequenceFrom":46,"sequenceTo":47,"directChildrenOnly":true}],"evidenceRoles":[{"roleId":"tone_catalog","label":"톤 글라스 종류표","required":true,"selectors":[{"pathPrefix":"3연동 자동중문/유리/","sequenceFrom":2,"sequenceTo":2}]},{"roleId":"mood_catalog","label":"무드 글라스 종류표","required":true,"selectors":[{"pathPrefix":"3연동 자동중문/유리/","sequenceFrom":3,"sequenceTo":3}]},{"roleId":"style_catalog","label":"스타일 글라스 종류표","required":true,"selectors":[{"pathPrefix":"3연동 자동중문/유리/","sequenceFrom":4,"sequenceTo":4}]}]},
+        {"sectionId":"fit_and_consultation","order":6,"label":"현장 적합성·상담","summary":"전원·센서 위치와 현장 구조를 방문실측·비대면 상담으로 확인하는 흐름이다.","selectors":[{"pathPrefix":"3연동 자동중문/","sequenceFrom":48,"sequenceTo":61,"directChildrenOnly":true}]},
+        {"sectionId":"proof_and_performance","order":7,"label":"후기·성능 근거","summary":"리뷰와 성능 수치 구역. 외부 사용 전 근거를 다시 확인한다.","selectors":[{"pathPrefix":"3연동 자동중문/","sequenceFrom":62,"sequenceTo":68,"directChildrenOnly":true}]},
+        {"sectionId":"related_products","order":8,"label":"연관 상품 안내","summary":"다른 도어 상품 안내다. 자동중문 고유 사양과 섞지 않는다.","selectors":[{"pathPrefix":"3연동 자동중문/","sequenceFrom":69,"sequenceTo":75,"directChildrenOnly":true}]},
+        {"sectionId":"region_faq_cta","order":9,"label":"지역·FAQ·문의","summary":"출장 지역, FAQ와 문의로 마무리된다.","selectors":[{"pathPrefix":"3연동 자동중문/","sequenceFrom":76,"sequenceTo":82,"directChildrenOnly":true}]},
+        {"sectionId":"event_and_notice","order":10,"label":"행사·공지","summary":"기간성 행사와 공지 묶음. 상시 구성으로 오인하지 않는다.","selectors":[{"pathPrefix":"3연동 자동중문/이벤트 및 공지/"}]}
+      ],
+      "sourceWarnings": [],
+      "writingGuardrails": ["자동 개폐를 설명할 때 센서·전원·수동 사용·안전 조건을 최신 사양으로 확인한다.","네 컬렉션과 네 컬러 그룹을 내부적으로 확인하고 일부를 전체처럼 말하지 않는다.","우드만 선택할 때는 프리미엄 우드라는 일부 컬러군임을 밝힌다.","가격·리뷰·성능·이벤트·A/S·출장비는 최신 근거를 확인한다."]
+    },
+    {
+      "contextId": "STORY-3PANEL-LSHAPE-MIDDLE-DOOR-20260911",
+      "productId": "PROD-3PANEL-LSHAPE-MIDDLE-DOOR",
+      "productNames": ["3연동ㄱ자", "3연동 ㄱ자 중문", "3연동 ㄱ자중문", "ㄱ자 3연동중문"],
+      "sourceIds": ["SRC-2026-07-01-3PANEL-LSHAPE-DETAILPAGE", "SRC-2026-09-04-3PANEL-LSHAPE-DETAILPAGE"],
+      "summary": "3연동 ㄱ자 중문은 코너 측면 고정창과 3연동 개폐부를 함께 구성하는 특수 구조 상품군이다. 코너 고정·보강·마감과 현장 치수를 먼저 보고 네 컬렉션·네 컬러 그룹·유리를 비교한다.",
+      "wholeProductRule": "전체 상품 글은 ㄱ자 코너 구조와 현장 적합성을 먼저 설명하고, 네 컬렉션·네 컬러 그룹·유리 옵션을 함께 확인한다.",
+      "subsetRule": "특정 디자인·컬러·유리만 다룰 때는 ㄱ자 중문의 일부 선택지임을 밝힌다. 일반 일자형이나 자동중문 사례를 ㄱ자 전체 사양처럼 쓰지 않는다.",
+      "requiredOptionSetsForWholeProduct": ["collections", "color_groups"],
+      "requiredSectionsForWholeProduct": ["product_and_collection_overview", "collection_details", "color_options", "glass_options", "fit_and_consultation"],
+      "optionSets": [
+        {"optionSetId":"collections","label":"컬렉션","relationship":"베이직·모던·클래식·아트는 ㄱ자 구조 안의 디자인 선택지다.","options":[
+          {"optionId":"basic","label":"베이직","aliases":["베이직","basic"],"summary":"ㄱ자 기본형.","selectors":[{"pathPrefix":"3연동ㄱ자/컬렉션/베이직/"}]},
+          {"optionId":"modern","label":"모던","aliases":["모던","modern","분할선","세로살"],"summary":"측면 고정창과 현대적 분할 디자인을 비교하는 라인.","selectors":[{"pathPrefix":"3연동ㄱ자/컬렉션/모던/"}]},
+          {"optionId":"classic","label":"클래식","aliases":["클래식","classic","포인트 라인","포인트 고시"],"summary":"하부 패널과 포인트 디자인 라인.","selectors":[{"pathPrefix":"3연동ㄱ자/컬렉션/클래식/"}]},
+          {"optionId":"art","label":"아트","aliases":["아트","art","아치","라운드 아치","플로우 아치"],"summary":"ㄱ자 측면과 곡선 디자인을 조합하는 라인.","selectors":[{"pathPrefix":"3연동ㄱ자/컬렉션/아트/"}]}
+        ]},
+        {"optionSetId":"color_groups","label":"컬러 그룹","relationship":"우드는 네 컬러 그룹 중 하나다.","overviewSelectors":[{"pathPrefix":"3연동ㄱ자/컬러/","sequenceFrom":1,"sequenceTo":2},{"pathPrefix":"3연동ㄱ자/","sequenceFrom":19,"sequenceTo":20,"directChildrenOnly":true}],"options":[
+          {"optionId":"original","label":"오리지널 컬러","aliases":["오리지널","오리지널 컬러","original"],"summary":"기본 유채색과 프레임 컬러군.","detailCatalogId":"frame_original_10","selectors":[{"pathPrefix":"3연동ㄱ자/컬러/","sequenceFrom":3,"sequenceTo":6},{"pathPrefix":"3연동ㄱ자/","sequenceFrom":21,"sequenceTo":24,"directChildrenOnly":true}],"evidenceRoles":[{"roleId":"option_catalog","label":"세부 색상표","required":true,"selectors":[{"pathPrefix":"3연동ㄱ자/컬러/","sequenceFrom":5,"sequenceTo":5}]}]},
+          {"optionId":"personal_white","label":"퍼스널 화이트","aliases":["퍼스널 화이트","personal white","화이트","백색"],"summary":"여러 화이트 계열 컬러군.","detailCatalogId":"frame_white_5","selectors":[{"pathPrefix":"3연동ㄱ자/컬러/","sequenceFrom":7,"sequenceTo":10},{"pathPrefix":"3연동ㄱ자/","sequenceFrom":25,"sequenceTo":28,"directChildrenOnly":true}],"evidenceRoles":[{"roleId":"option_catalog","label":"세부 색상표","required":true,"selectors":[{"pathPrefix":"3연동ㄱ자/컬러/","sequenceFrom":9,"sequenceTo":9}]}]},
+          {"optionId":"valen_special","label":"발렌 스페셜","aliases":["발렌","발렌 스페셜","valen special","스톤"],"summary":"스톤 질감과 중립색 컬러군.","detailCatalogId":"frame_valen_3","selectors":[{"pathPrefix":"3연동ㄱ자/컬러/","sequenceFrom":11,"sequenceTo":14},{"pathPrefix":"3연동ㄱ자/","sequenceFrom":29,"sequenceTo":32,"directChildrenOnly":true}],"evidenceRoles":[{"roleId":"option_catalog","label":"세부 색상표","required":true,"selectors":[{"pathPrefix":"3연동ㄱ자/컬러/","sequenceFrom":12,"sequenceTo":12}]}]},
+          {"optionId":"premium_wood","label":"프리미엄 우드","aliases":["프리미엄 우드","premium wood","우드","나뭇결"],"summary":"우드 계열 컬러군. 전체 컬러의 한 갈래다.","detailCatalogId":"frame_wood_6","selectors":[{"pathPrefix":"3연동ㄱ자/컬러/","sequenceFrom":15,"sequenceTo":17},{"pathPrefix":"3연동ㄱ자/","sequenceFrom":33,"sequenceTo":35,"directChildrenOnly":true}],"evidenceRoles":[{"roleId":"option_catalog","label":"세부 색상표","required":true,"selectors":[{"pathPrefix":"3연동ㄱ자/컬러/","sequenceFrom":15,"sequenceTo":15}]}]}
+        ]}
+      ],
+      "sections": [
+        {"sectionId":"product_and_collection_overview","order":1,"label":"ㄱ자 구조·컬렉션 소개","summary":"코너 측면 고정창과 네 컬렉션의 입구를 보여준다.","selectors":[{"pathPrefix":"3연동ㄱ자/","sequenceFrom":1,"sequenceTo":18,"directChildrenOnly":true}]},
+        {"sectionId":"collection_details","order":2,"label":"컬렉션별 디자인 상세","summary":"네 컬렉션의 ㄱ자 적용 디자인을 비교한다.","selectors":[{"pathPrefix":"3연동ㄱ자/컬렉션/베이직/","directChildrenOnly":true,"role":"body"},{"pathPrefix":"3연동ㄱ자/컬렉션/모던/","directChildrenOnly":true,"role":"body"},{"pathPrefix":"3연동ㄱ자/컬렉션/클래식/","directChildrenOnly":true,"role":"body"},{"pathPrefix":"3연동ㄱ자/컬렉션/아트/","directChildrenOnly":true,"role":"body"}]},
+        {"sectionId":"color_options","order":3,"label":"컬러 옵션","summary":"네 컬러 그룹과 자료실 안내가 이어진다.","selectors":[{"pathPrefix":"3연동ㄱ자/컬러/"},{"pathPrefix":"3연동ㄱ자/","sequenceFrom":19,"sequenceTo":36,"directChildrenOnly":true}]},
+        {"sectionId":"glass_options","order":4,"label":"유리 옵션","summary":"강화·무드·스타일 유리 선택 자료다.","selectors":[{"pathPrefix":"3연동ㄱ자/유리/"},{"pathPrefix":"3연동ㄱ자/","sequenceFrom":37,"sequenceTo":38,"directChildrenOnly":true}],"evidenceRoles":[{"roleId":"tone_catalog","label":"톤 글라스 종류표","required":true,"selectors":[{"pathPrefix":"3연동ㄱ자/유리/","sequenceFrom":2,"sequenceTo":2}]},{"roleId":"mood_catalog","label":"무드 글라스 종류표","required":true,"selectors":[{"pathPrefix":"3연동ㄱ자/유리/","sequenceFrom":3,"sequenceTo":3}]},{"roleId":"style_catalog","label":"스타일 글라스 종류표","required":true,"selectors":[{"pathPrefix":"3연동ㄱ자/유리/","sequenceFrom":4,"sequenceTo":4}]}]},
+        {"sectionId":"fit_and_consultation","order":5,"label":"코너 현장 적합성·상담","summary":"코너 고정·보강·마감과 치수를 방문실측으로 확인하는 흐름이다.","selectors":[{"pathPrefix":"3연동ㄱ자/","sequenceFrom":39,"sequenceTo":52,"directChildrenOnly":true}]},
+        {"sectionId":"proof_and_performance","order":6,"label":"후기·성능 근거","summary":"리뷰와 성능 수치 구역. 외부 사용 전 근거를 확인한다.","selectors":[{"pathPrefix":"3연동ㄱ자/","sequenceFrom":53,"sequenceTo":59,"directChildrenOnly":true}]},
+        {"sectionId":"related_products","order":7,"label":"연관 상품 안내","summary":"다른 상품 안내다. ㄱ자 고유 구조와 섞지 않는다.","selectors":[{"pathPrefix":"3연동ㄱ자/","sequenceFrom":60,"sequenceTo":66,"directChildrenOnly":true}]},
+        {"sectionId":"region_faq_cta","order":8,"label":"지역·FAQ·문의","summary":"출장 지역, FAQ와 문의로 마무리된다.","selectors":[{"pathPrefix":"3연동ㄱ자/","sequenceFrom":67,"sequenceTo":73,"directChildrenOnly":true}]},
+        {"sectionId":"event_and_notice","order":9,"label":"행사·공지","summary":"기간성 행사와 공지 묶음이다.","selectors":[{"pathPrefix":"3연동ㄱ자/이벤트 및 공지/"}]}
+      ],
+      "sourceWarnings": [{"paths":["3연동ㄱ자/컬러/005.jpg","3연동ㄱ자/컬러/012.jpg","3연동ㄱ자/컬러/017.jpg"],"reason":"ㄱ자 컬러 폴더에 있으나 1차 화면 판독 요약에는 자동중문 표현이 보인다.","instruction":"전체 컬러 스토리 관계는 유지하되 ㄱ자 적용 사례나 현재 옵션으로 외부 사용하기 전 원본과 적용 상품 범위를 확인한다."}],
+      "writingGuardrails": ["ㄱ자 코너 구조와 일반 일자형 3연동을 같은 상품처럼 섞지 않는다.","네 컬렉션과 네 컬러 그룹을 확인하고 일부를 전체처럼 말하지 않는다.","코너 고정·보강·마감·추가금·설치 가능 여부는 실측 후 판단한다.","가격·이벤트·리뷰·성능·A/S·출장비는 최신 근거를 확인한다."]
+    },
+    {
+      "contextId": "STORY-SWING-MIDDLE-DOOR-20260911",
+      "productId": "PROD-SWING-MIDDLE-DOOR",
+      "productNames": ["스윙중문", "스윙 중문", "스윙도어", "스윙 도어"],
+      "sourceIds": ["SRC-2026-07-01-SWING-DETAILPAGE", "SRC-2026-09-04-SWING-DETAILPAGE"],
+      "summary": "스윙중문은 여닫는 동작과 생활 동선이 핵심인 상품군이다. 일반 스윙과 폴딩형 작동 장면, 디자인, 오리지널·화이트·발렌·우드 네 컬러군, 유리 옵션을 현장 간섭과 함께 본다.",
+      "wholeProductRule": "전체 상품 글은 개폐 방향과 회전 반경·간섭을 먼저 설명하고, 디자인·네 컬러군·유리 선택을 함께 확인한다.",
+      "subsetRule": "특정 디자인이나 우드 컬러만 다룰 때는 스윙중문의 일부 선택지임을 밝힌다. 한 작동 방식이나 컬러를 전체 구성처럼 표현하지 않는다.",
+      "requiredOptionSetsForWholeProduct": ["color_groups"],
+      "requiredSectionsForWholeProduct": ["opening_and_fit", "design_options", "color_options", "glass_options", "fit_and_consultation"],
+      "optionSets": [{"optionSetId":"color_groups","label":"컬러 그룹","relationship":"우드는 오리지널·화이트·발렌과 나란한 네 컬러군 중 하나다.","overviewSelectors":[{"pathPrefix":"스윙중문/컬러/","sequenceFrom":1,"sequenceTo":1},{"pathPrefix":"스윙중문/","sequenceFrom":14,"sequenceTo":14,"directChildrenOnly":true}],"options":[
+        {"optionId":"original","label":"오리지널 컬러","aliases":["오리지널","오리지널 컬러","original"],"summary":"10가지 기본 색상과 적용 예시.","detailCatalogId":"frame_original_10","selectors":[{"pathPrefix":"스윙중문/컬러/","sequenceFrom":2,"sequenceTo":2},{"pathPrefix":"스윙중문/","sequenceFrom":15,"sequenceTo":15,"directChildrenOnly":true}],"evidenceRoles":[{"roleId":"catalog_and_examples","label":"세부 색상표·적용 예시","required":true,"selectors":[{"pathPrefix":"스윙중문/컬러/","sequenceFrom":2,"sequenceTo":2}]}]},
+        {"optionId":"personal_white","label":"화이트 컬러","aliases":["퍼스널 화이트","화이트 컬러","화이트","백색"],"summary":"여러 화이트 계열과 적용 예시.","detailCatalogId":"frame_white_5","selectors":[{"pathPrefix":"스윙중문/컬러/","sequenceFrom":3,"sequenceTo":3},{"pathPrefix":"스윙중문/","sequenceFrom":16,"sequenceTo":16,"directChildrenOnly":true}],"evidenceRoles":[{"roleId":"catalog_and_examples","label":"세부 색상표·적용 예시","required":true,"selectors":[{"pathPrefix":"스윙중문/컬러/","sequenceFrom":3,"sequenceTo":3}]}]},
+        {"optionId":"valen_special","label":"발렌 스페셜","aliases":["발렌","발렌 스페셜","valen special","스톤"],"summary":"발렌 스페셜 3색 컬러군.","detailCatalogId":"frame_valen_3","selectors":[{"pathPrefix":"스윙중문/컬러/","sequenceFrom":4,"sequenceTo":4},{"pathPrefix":"스윙중문/","sequenceFrom":17,"sequenceTo":17,"directChildrenOnly":true}],"evidenceRoles":[{"roleId":"catalog_and_examples","label":"세부 색상표·적용 예시","required":true,"selectors":[{"pathPrefix":"스윙중문/컬러/","sequenceFrom":4,"sequenceTo":4}]}]},
+        {"optionId":"premium_wood","label":"우드 컬러","aliases":["프리미엄 우드","우드 컬러","우드","나뭇결"],"summary":"6가지 우드 계열과 설치 예시. 전체 컬러군의 한 갈래다.","detailCatalogId":"frame_wood_6","selectors":[{"pathPrefix":"스윙중문/컬러/","sequenceFrom":5,"sequenceTo":5},{"pathPrefix":"스윙중문/","sequenceFrom":18,"sequenceTo":18,"directChildrenOnly":true}],"evidenceRoles":[{"roleId":"catalog_and_examples","label":"세부 색상표·적용 예시","required":true,"selectors":[{"pathPrefix":"스윙중문/컬러/","sequenceFrom":5,"sequenceTo":5}]}]}
+      ]}],
+      "sections": [
+        {"sectionId":"opening_and_fit","order":1,"label":"개폐 방식·동선 적합성","summary":"양방향 스윙과 폴딩형 작동, 회전 영역과 공간 절약 장면을 보여준다.","selectors":[{"pathPrefix":"스윙중문/","sequenceFrom":1,"sequenceTo":9,"directChildrenOnly":true}]},
+        {"sectionId":"design_options","order":2,"label":"디자인 옵션","summary":"풀윈도우·고시·간살·아치 등 스윙 디자인을 비교한다.","selectors":[{"pathPrefix":"스윙중문/디자인/"},{"pathPrefix":"스윙중문/","sequenceFrom":10,"sequenceTo":13,"directChildrenOnly":true}]},
+        {"sectionId":"color_options","order":3,"label":"컬러 옵션","summary":"오리지널·화이트·발렌·우드 네 컬러군과 자료실 안내다.","selectors":[{"pathPrefix":"스윙중문/컬러/"},{"pathPrefix":"스윙중문/","sequenceFrom":14,"sequenceTo":19,"directChildrenOnly":true}]},
+        {"sectionId":"glass_options","order":4,"label":"유리 옵션","summary":"강화·무드·스타일 유리 선택 자료다.","selectors":[{"pathPrefix":"스윙중문/유리/"},{"pathPrefix":"스윙중문/","sequenceFrom":20,"sequenceTo":20,"directChildrenOnly":true}],"evidenceRoles":[{"roleId":"tone_catalog","label":"톤 글라스 종류표","required":true,"selectors":[{"pathPrefix":"스윙중문/유리/","sequenceFrom":2,"sequenceTo":2}]},{"roleId":"mood_catalog","label":"무드 글라스 종류표","required":true,"selectors":[{"pathPrefix":"스윙중문/유리/","sequenceFrom":3,"sequenceTo":3}]},{"roleId":"style_catalog","label":"스타일 글라스 종류표","required":true,"selectors":[{"pathPrefix":"스윙중문/유리/","sequenceFrom":4,"sequenceTo":4}]}]},
+        {"sectionId":"fit_and_consultation","order":5,"label":"현장 적합성·상담","summary":"열림 방향·회전 반경·신발장·현관문·생활 동선 간섭을 실측으로 확인한다.","selectors":[{"pathPrefix":"스윙중문/","sequenceFrom":21,"sequenceTo":34,"directChildrenOnly":true}]},
+        {"sectionId":"proof_and_performance","order":6,"label":"후기·성능 근거","summary":"리뷰와 성능 수치 구역이다.","selectors":[{"pathPrefix":"스윙중문/","sequenceFrom":35,"sequenceTo":41,"directChildrenOnly":true}]},
+        {"sectionId":"related_products","order":7,"label":"연관 상품 안내","summary":"다른 상품 안내다. 스윙 고유 사양과 섞지 않는다.","selectors":[{"pathPrefix":"스윙중문/","sequenceFrom":42,"sequenceTo":48,"directChildrenOnly":true}]},
+        {"sectionId":"region_faq_cta","order":8,"label":"지역·FAQ·문의","summary":"출장 지역, FAQ와 문의로 마무리된다.","selectors":[{"pathPrefix":"스윙중문/","sequenceFrom":49,"sequenceTo":55,"directChildrenOnly":true}]},
+        {"sectionId":"event_and_notice","order":9,"label":"행사·공지","summary":"기간성 행사와 공지 묶음이다.","selectors":[{"pathPrefix":"스윙중문/이벤트 및 공지/"}]}
+      ],
+      "sourceWarnings": [],
+      "writingGuardrails": ["디자인보다 열림 방향과 회전 반경·생활 동선 간섭을 먼저 확인한다.","네 컬러군을 확인하고 우드 등 일부만 전체처럼 말하지 않는다.","양방향·폴딩 작동 자료는 해당 모델과 현재 운영 여부를 확인한다.","가격·옵션·이벤트·성능·A/S·출장비는 최신 근거를 확인한다."]
+    },
+    {
+      "contextId": "STORY-WIDE-SLIDING-MIDDLE-DOOR-20260911",
+      "productId": "PROD-WIDE-SLIDING-MIDDLE-DOOR",
+      "productNames": ["양개형중문 미서기", "양개형중문/미서기", "양개형 중문 미서기", "와이드 슬라이딩 중문"],
+      "sourceIds": ["SRC-2026-07-01-WIDE-SLIDING-DETAILPAGE", "SRC-2026-09-04-WIDE-SLIDING-DETAILPAGE"],
+      "summary": "양개형중문/미서기는 넓은 개구부용 단일 상품이 아니라 3연동 양개·4연동·미서기 양개·미서기 중문 네 구조를 묶은 상품군이다. 구조를 먼저 고른 뒤 컬렉션·네 컬러 그룹·유리를 비교한다.",
+      "wholeProductRule": "전체 상품 글은 네 와이드 구조의 차이를 먼저 보여주고, 컬렉션·네 컬러 그룹·유리와 현장 폭·이동 공간을 함께 확인한다.",
+      "subsetRule": "특정 양개·4연동·미서기 구조나 컬러만 다룰 때는 와이드 상품군의 일부임을 밝힌다. 한 구조를 전체 상품군처럼 표현하지 않는다.",
+      "requiredOptionSetsForWholeProduct": ["wide_structures", "collections", "color_groups"],
+      "requiredSectionsForWholeProduct": ["wide_structure_overview", "collection_details", "color_options", "glass_options", "fit_and_consultation"],
+      "optionSets": [
+        {"optionSetId":"wide_structures","label":"와이드 구조","relationship":"네 구조는 폭과 문짝 이동 방식이 다른 별도 선택지다.","options":[
+          {"optionId":"three_panel_double","label":"3연동 양개 중문","aliases":["3연동 양개","3연동 양개 중문"],"summary":"3연동 감각을 좌우로 확장해 중앙을 여는 구조.","selectors":[{"pathPrefix":"양개형중문 미서기/컬렉션_와이드/3연동 양개 중문/"}]},
+          {"optionId":"four_panel","label":"4연동 중문","aliases":["4연동","4연동 중문"],"summary":"여러 문짝이 한쪽으로 포개지는 넓은 개구부 구조.","selectors":[{"pathPrefix":"양개형중문 미서기/컬렉션_와이드/4연동 중문/"}]},
+          {"optionId":"double_bypass","label":"미서기 양개 중문","aliases":["미서기 양개","미서기 양개 중문"],"summary":"좌우 문짝을 양쪽으로 밀어 중앙을 여는 구조.","selectors":[{"pathPrefix":"양개형중문 미서기/컬렉션_와이드/미서기 양개 중문/"}]},
+          {"optionId":"bypass","label":"미서기 중문","aliases":["미서기 중문","단일 미서기"],"summary":"문짝을 좌우로 이동해 한쪽 통로를 여는 구조.","selectors":[{"pathPrefix":"양개형중문 미서기/컬렉션_와이드/미서기 중문/"}]}
+        ]},
+        {"optionSetId":"collections","label":"디자인 컬렉션","relationship":"베이직·모던·클래식·아트는 구조와 별도로 고르는 디자인 축이다.","options":[
+          {"optionId":"basic","label":"베이직","aliases":["베이직","basic"],"summary":"기본 디자인 라인.","selectors":[{"pathPrefix":"양개형중문 미서기/컬렉션/베이직/"}]},
+          {"optionId":"modern","label":"모던","aliases":["모던","modern","분할선","세로살"],"summary":"현대적 분할·고시 디자인 라인.","selectors":[{"pathPrefix":"양개형중문 미서기/컬렉션/모던/"}]},
+          {"optionId":"classic","label":"클래식","aliases":["클래식","classic","포인트 라인","포인트 고시"],"summary":"하부 패널과 포인트 디자인 라인.","selectors":[{"pathPrefix":"양개형중문 미서기/컬렉션/클래식/"}]},
+          {"optionId":"art","label":"아트","aliases":["아트","art","아치","플로우 아치"],"summary":"곡선·아치 디자인 라인.","selectors":[{"pathPrefix":"양개형중문 미서기/컬렉션/아트/"}]}
+        ]},
+        {"optionSetId":"color_groups","label":"컬러 그룹","relationship":"우드는 네 컬러 그룹 중 하나이며 와이드 구조 자체를 뜻하지 않는다.","overviewSelectors":[{"pathPrefix":"양개형중문 미서기/컬러/","sequenceFrom":1,"sequenceTo":2},{"pathPrefix":"양개형중문 미서기/","sequenceFrom":31,"sequenceTo":32,"directChildrenOnly":true}],"options":[
+          {"optionId":"original","label":"오리지널 컬러","aliases":["오리지널","오리지널 컬러","original"],"summary":"기본 유채색과 프레임 컬러군.","detailCatalogId":"frame_original_10","selectors":[{"pathPrefix":"양개형중문 미서기/컬러/","sequenceFrom":3,"sequenceTo":6},{"pathPrefix":"양개형중문 미서기/","sequenceFrom":33,"sequenceTo":36,"directChildrenOnly":true}],"evidenceRoles":[{"roleId":"option_catalog","label":"세부 색상표","required":true,"selectors":[{"pathPrefix":"양개형중문 미서기/컬러/","sequenceFrom":5,"sequenceTo":5}]}]},
+          {"optionId":"personal_white","label":"퍼스널 화이트","aliases":["퍼스널 화이트","personal white","화이트","백색"],"summary":"여러 화이트 계열 컬러군.","detailCatalogId":"frame_white_5","selectors":[{"pathPrefix":"양개형중문 미서기/컬러/","sequenceFrom":7,"sequenceTo":10},{"pathPrefix":"양개형중문 미서기/","sequenceFrom":37,"sequenceTo":40,"directChildrenOnly":true}],"evidenceRoles":[{"roleId":"option_catalog","label":"세부 색상표","required":true,"selectors":[{"pathPrefix":"양개형중문 미서기/컬러/","sequenceFrom":9,"sequenceTo":9}]}]},
+          {"optionId":"valen_special","label":"발렌 스페셜","aliases":["발렌","발렌 스페셜","valen special","스톤"],"summary":"스톤 질감과 중립색 컬러군.","detailCatalogId":"frame_valen_3","selectors":[{"pathPrefix":"양개형중문 미서기/컬러/","sequenceFrom":11,"sequenceTo":14},{"pathPrefix":"양개형중문 미서기/","sequenceFrom":41,"sequenceTo":44,"directChildrenOnly":true}],"evidenceRoles":[{"roleId":"option_catalog","label":"세부 색상표","required":true,"selectors":[{"pathPrefix":"양개형중문 미서기/컬러/","sequenceFrom":12,"sequenceTo":12}]}]},
+          {"optionId":"premium_wood","label":"프리미엄 우드","aliases":["프리미엄 우드","premium wood","우드","나뭇결"],"summary":"우드 계열 컬러군. 전체 컬러의 한 갈래다.","detailCatalogId":"frame_wood_6","selectors":[{"pathPrefix":"양개형중문 미서기/컬러/","sequenceFrom":15,"sequenceTo":17},{"pathPrefix":"양개형중문 미서기/","sequenceFrom":45,"sequenceTo":47,"directChildrenOnly":true}],"evidenceRoles":[{"roleId":"option_catalog","label":"세부 색상표","required":true,"selectors":[{"pathPrefix":"양개형중문 미서기/컬러/","sequenceFrom":15,"sequenceTo":15}]}]}
+        ]}
+      ],
+      "sections": [
+        {"sectionId":"wide_structure_overview","order":1,"label":"네 와이드 구조 비교","summary":"미서기 양개·미서기·4연동·3연동 양개의 작동 방식과 추천 공간을 비교한다.","selectors":[{"pathPrefix":"양개형중문 미서기/","sequenceFrom":1,"sequenceTo":17,"directChildrenOnly":true,"role":"overview"},{"pathPrefix":"양개형중문 미서기/컬렉션_와이드/3연동 양개 중문/","directChildrenOnly":true,"role":"body"},{"pathPrefix":"양개형중문 미서기/컬렉션_와이드/4연동 중문/","directChildrenOnly":true,"role":"body"},{"pathPrefix":"양개형중문 미서기/컬렉션_와이드/미서기 양개 중문/","directChildrenOnly":true,"role":"body"},{"pathPrefix":"양개형중문 미서기/컬렉션_와이드/미서기 중문/","directChildrenOnly":true,"role":"body"}]},
+        {"sectionId":"collection_details","order":2,"label":"디자인 컬렉션 상세","summary":"네 디자인 컬렉션을 구조 선택과 별도 축으로 비교한다.","selectors":[{"pathPrefix":"양개형중문 미서기/","sequenceFrom":18,"sequenceTo":30,"directChildrenOnly":true,"role":"overview"},{"pathPrefix":"양개형중문 미서기/컬렉션/베이직/","directChildrenOnly":true,"role":"body"},{"pathPrefix":"양개형중문 미서기/컬렉션/모던/","directChildrenOnly":true,"role":"body"},{"pathPrefix":"양개형중문 미서기/컬렉션/클래식/","directChildrenOnly":true,"role":"body"},{"pathPrefix":"양개형중문 미서기/컬렉션/아트/","directChildrenOnly":true,"role":"body"}]},
+        {"sectionId":"color_options","order":3,"label":"컬러 옵션","summary":"네 컬러 그룹과 자료실 안내다.","selectors":[{"pathPrefix":"양개형중문 미서기/컬러/"},{"pathPrefix":"양개형중문 미서기/","sequenceFrom":31,"sequenceTo":48,"directChildrenOnly":true}]},
+        {"sectionId":"glass_options","order":4,"label":"유리 옵션","summary":"강화·무드·스타일 유리 선택 자료다.","selectors":[{"pathPrefix":"양개형중문 미서기/유리/"},{"pathPrefix":"양개형중문 미서기/","sequenceFrom":49,"sequenceTo":50,"directChildrenOnly":true}],"evidenceRoles":[{"roleId":"tone_catalog","label":"톤 글라스 종류표","required":true,"selectors":[{"pathPrefix":"양개형중문 미서기/유리/","sequenceFrom":2,"sequenceTo":2}]},{"roleId":"mood_catalog","label":"무드 글라스 종류표","required":true,"selectors":[{"pathPrefix":"양개형중문 미서기/유리/","sequenceFrom":3,"sequenceTo":3}]},{"roleId":"style_catalog","label":"스타일 글라스 종류표","required":true,"selectors":[{"pathPrefix":"양개형중문 미서기/유리/","sequenceFrom":4,"sequenceTo":4}]}]},
+        {"sectionId":"fit_and_consultation","order":5,"label":"폭·이동 공간·상담","summary":"개구부 폭, 고정면, 레일과 좌우 이동 공간을 실측으로 확인한다.","selectors":[{"pathPrefix":"양개형중문 미서기/","sequenceFrom":51,"sequenceTo":64,"directChildrenOnly":true}]},
+        {"sectionId":"proof_and_performance","order":6,"label":"후기·성능 근거","summary":"리뷰와 성능 수치 구역이다.","selectors":[{"pathPrefix":"양개형중문 미서기/","sequenceFrom":65,"sequenceTo":71,"directChildrenOnly":true}]},
+        {"sectionId":"related_products","order":7,"label":"연관 상품 안내","summary":"다른 상품 안내다. 와이드 구조와 섞지 않는다.","selectors":[{"pathPrefix":"양개형중문 미서기/","sequenceFrom":72,"sequenceTo":79,"directChildrenOnly":true}]},
+        {"sectionId":"region_faq_cta","order":8,"label":"지역·FAQ·문의","summary":"출장 지역, FAQ와 문의로 마무리된다.","selectors":[{"pathPrefix":"양개형중문 미서기/","sequenceFrom":80,"sequenceTo":86,"directChildrenOnly":true}]},
+        {"sectionId":"event_and_notice","order":9,"label":"행사·공지","summary":"기간성 행사와 공지 묶음이다.","selectors":[{"pathPrefix":"양개형중문 미서기/이벤트 및 공지/"}]}
+      ],
+      "sourceWarnings": [{"paths":["양개형중문 미서기/컬러/005.jpg","양개형중문 미서기/컬러/012.jpg","양개형중문 미서기/컬러/017.jpg"],"reason":"와이드 상품 컬러 폴더에 있으나 1차 화면 판독 요약에는 자동중문 또는 3연동 표현이 보인다.","instruction":"컬러 그룹 관계는 유지하되 와이드 상품 적용 사례로 외부 사용하기 전 원본과 적용 범위를 확인한다."}],
+      "writingGuardrails": ["네 와이드 구조를 먼저 구분하고 한 구조를 전체 상품군처럼 말하지 않는다.","구조·디자인 컬렉션·컬러·유리는 서로 다른 선택 축이다.","폭·레일·고정면·좌우 이동 공간은 실측 전 확정하지 않는다.","가격·옵션·이벤트·성능·A/S·출장비는 최신 근거를 확인한다."]
+    },
+    {
+      "contextId": "STORY-ABS-DOOR-REPLACEMENT-20260911",
+      "productId": "PROD-ABS-DOOR-REPLACEMENT",
+      "productNames": ["ABS도어 방문교체", "ABS 방문교체", "ABS도어 교체"],
+      "sourceIds": ["SRC-2026-07-01-ABS-DOOR-REPLACEMENT-DETAILPAGE", "SRC-2026-09-04-ABS-DOOR-REPLACEMENT-DETAILPAGE"],
+      "summary": "ABS도어 방문교체는 문짝만 바꾸는 패키지1과 문짝·문틀·문선 케이싱까지 정리하는 패키지2의 범위를 구분하는 상품군이다. 디자인·컬러·손잡이·안전 옵션보다 먼저 기존 문틀 상태와 시공 범위를 확인한다.",
+      "wholeProductRule": "전체 상품 글은 중앙 상품 위키의 확정 패키지1·2 범위를 먼저 비교하고, 디자인·컬러·하드웨어·안전·현장 조건을 이어서 설명한다.",
+      "subsetRule": "문짝교체·문틀세트·특정 컬러나 디자인만 다룰 때는 전체 패키지 중 어느 범위인지 밝힌다. 문짝 가격을 문틀·문선 포함 가격처럼 표현하지 않는다.",
+      "requiredOptionSetsForWholeProduct": ["packages"],
+      "requiredSectionsForWholeProduct": ["product_and_package_overview", "package_details", "design_options", "color_options", "fit_and_consultation"],
+      "optionSets": [{"optionSetId":"packages","label":"확정 패키지 범위","relationship":"중앙 상품 위키 기준 패키지1은 문짝교체, 패키지2는 문짝·문틀·문선 케이싱 마감까지의 세트다.","options":[
+        {"optionId":"package_1","label":"패키지1 문짝교체","aliases":["패키지1","패키지 1","문짝교체","문짝 교체"],"summary":"문짝·손잡이·경첩을 교체하고 기존 문짝을 수거하는 범위.","selectors":[{"pathPrefix":"ABS도어 방문교체/패키지/패키지1_ABS도어 교체/"},{"pathPrefix":"ABS도어 방문교체/","sequenceFrom":7,"sequenceTo":7,"directChildrenOnly":true}],"evidenceRoles":[{"roleId":"package_scope","label":"패키지 포함 범위표","required":true,"selectors":[{"pathPrefix":"ABS도어 방문교체/패키지/패키지1_ABS도어 교체/"}]}]},
+        {"optionId":"package_2","label":"패키지2 ABS도어 세트","aliases":["패키지2","패키지 2","ABS도어 세트","문틀 세트"],"summary":"문짝·문틀·문선 케이싱 마감·손잡이·경첩을 함께 정리하는 범위. 별도 비용 조건을 확인한다.","selectors":[{"pathPrefix":"ABS도어 방문교체/패키지/패키지2_ABS도어+문틀 세트 시공/"},{"pathPrefix":"ABS도어 방문교체/","sequenceFrom":8,"sequenceTo":8,"directChildrenOnly":true}],"evidenceRoles":[{"roleId":"package_scope","label":"패키지 포함 범위표","required":true,"selectors":[{"pathPrefix":"ABS도어 방문교체/패키지/패키지2_ABS도어+문틀 세트 시공/"}]}]},
+        {"optionId":"package_3_conflict","label":"패키지3 신규 소스 충돌","aliases":["패키지3","패키지 3"],"summary":"신규 자산에만 보이며 중앙 확정 패키지1·2 체계와 충돌한다. 운영 확인 전 상품 옵션으로 확정하지 않는다.","requiredForWholeProduct":false,"status":"source_conflict_not_vetted","selectors":[{"pathPrefix":"ABS도어 방문교체/패키지/패키지3_ABS도어+문틀+슬림 문선 세트 시공/"},{"pathPrefix":"ABS도어 방문교체/","sequenceFrom":9,"sequenceTo":9,"directChildrenOnly":true}]}
+      ]}],
+      "sections": [
+        {"sectionId":"product_and_package_overview","order":1,"label":"상품·패키지 범위 소개","summary":"문짝교체와 문틀 세트 범위, 가격표 링크를 보여준다. 중앙 확정 범위와 최신 가격을 분리해 확인한다.","selectors":[{"pathPrefix":"ABS도어 방문교체/","sequenceFrom":1,"sequenceTo":4,"directChildrenOnly":true}]},
+        {"sectionId":"product_features","order":2,"label":"ABS도어 소재·기능","summary":"ABS도어 구조와 생활방수 등 소재 설명 구역이다.","selectors":[{"pathPrefix":"ABS도어 방문교체/","sequenceFrom":5,"sequenceTo":6,"directChildrenOnly":true}]},
+        {"sectionId":"package_details","order":3,"label":"패키지별 시공 상세","summary":"패키지1·2의 포함 범위를 비교한다. 패키지3로 표시된 신규 소스는 중앙 위키와 충돌하므로 경고 대상으로 둔다.","selectors":[{"pathPrefix":"ABS도어 방문교체/패키지/"},{"pathPrefix":"ABS도어 방문교체/","sequenceFrom":7,"sequenceTo":9,"directChildrenOnly":true}]},
+        {"sectionId":"design_options","order":4,"label":"도어 디자인","summary":"오리지널·내추럴·프리미엄·유리 타공 등 디자인 카탈로그다.","selectors":[{"pathPrefix":"ABS도어 방문교체/디자인/"},{"pathPrefix":"ABS도어 방문교체/","sequenceFrom":10,"sequenceTo":11,"directChildrenOnly":true}]},
+        {"sectionId":"color_options","order":5,"label":"도어·필름 컬러","summary":"ABS도어와 문틀·리폼 필름 색상표다. 적용 대상과 현재 운영 색상을 구분한다.","selectors":[{"pathPrefix":"ABS도어 방문교체/컬러/"},{"pathPrefix":"ABS도어 방문교체/","sequenceFrom":12,"sequenceTo":13,"directChildrenOnly":true}]},
+        {"sectionId":"hardware_and_safety","order":6,"label":"손잡이·경첩·안전 옵션","summary":"손잡이 매칭, 경첩 관리와 손끼임 방지 자료다.","selectors":[{"pathPrefix":"ABS도어 방문교체/","sequenceFrom":14,"sequenceTo":23,"directChildrenOnly":true}]},
+        {"sectionId":"fit_and_consultation","order":7,"label":"시공 절차·현장 상담","summary":"기존 문틀 상태와 마감 범위를 확인하고 시공·A/S 절차로 연결한다.","selectors":[{"pathPrefix":"ABS도어 방문교체/","sequenceFrom":24,"sequenceTo":28,"directChildrenOnly":true}]},
+        {"sectionId":"related_products","order":8,"label":"연관 상품 안내","summary":"다른 상품 안내다. ABS 방문교체 패키지와 섞지 않는다.","selectors":[{"pathPrefix":"ABS도어 방문교체/","sequenceFrom":29,"sequenceTo":34,"directChildrenOnly":true}]},
+        {"sectionId":"region_faq_cta","order":9,"label":"지역·FAQ·문의","summary":"출장 지역, 방문·문틀 조건 FAQ와 문의로 마무리된다.","selectors":[{"pathPrefix":"ABS도어 방문교체/","sequenceFrom":35,"sequenceTo":41,"directChildrenOnly":true}]},
+        {"sectionId":"event_and_notice","order":10,"label":"행사·공지","summary":"기간성 행사와 공지 묶음이다.","selectors":[{"pathPrefix":"ABS도어 방문교체/이벤트 및 공지/"}]}
+      ],
+      "sourceWarnings": [{"paths":["ABS도어 방문교체/009.jpg","ABS도어 방문교체/패키지/패키지3_ABS도어+문틀+슬림 문선 세트 시공/009.jpg"],"reason":"신규 자산에는 패키지3가 보이지만 중앙 상품 위키의 확정 패키지는 패키지1·2이며 패키지2에 문선 케이싱 마감을 포함한다.","instruction":"중앙 사실을 임의로 패키지3 체계로 바꾸지 않는다. 실제 운영 체계와 가격을 사장 확인해 중앙 위키를 갱신하기 전 외부 발행하지 않는다."}],
+      "writingGuardrails": ["문짝교체와 문짝·문틀·문선 세트 범위를 첫 단계에서 구분한다.","문짝교체 가격을 문틀·문선 포함 가격처럼 말하지 않는다.","디자인·컬러·필름·손잡이는 적용 대상과 시공 패키지를 구분한다.","패키지3 자료는 중앙 위키 충돌이 해소되기 전 발행하지 않는다.","가격·A/S·철거폐기물처리비·시공 범위·이벤트는 최신 근거를 확인한다."]
+    }
+  ]
+}
