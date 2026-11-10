@@ -1,7 +1,7 @@
 # WIDE_SLIDING_MIDDLE_DOOR_DETAILPAGE_ASSET_INDEX_2026-07-01
 
-> 버전: v1.1
-> 최종 업데이트: 2026-07-01
+> 버전: v1.2
+> 최종 업데이트: 2026-11-10
 > source_id: `SRC-2026-07-01-WIDE-SLIDING-DETAILPAGE`
 > product_id: `PROD-WIDE-SLIDING-MIDDLE-DOOR`
 > proof_id: `PROOF-WIDE-SLIDING-DETAILPAGE-ASSETS-2026-07-01`
@@ -9,7 +9,7 @@
 
 ## 1. 소스 요약
 
-양개형중문/미서기 상세페이지 이미지/GIF 원본 묶음이다. 총 147개 자산이며, 넓은 현관에서 3연동 양개, 4연동, 미서기 양개, 미서기 중문을 비교할 때 사용한다.
+양개형중문/미서기 상세페이지 이미지/GIF 원본 묶음이다. 총 147개 자산이며, 3연동 양개, 4연동, 미서기 양개, 미서기 중문을 비교할 때 사용한다. 현관 전용 자료로 쓰지 않는다. 넓은 현관뿐 아니라 거실·공간분리·주방·드레스룸·계단 앞 같은 자리별 설명에도 쓴다(2026-11-10 사장 확인).
 
 ## 2. 자산 구성
 
@@ -29,6 +29,6 @@
 - 운영 상태 요약: `usageStatus=candidate` 147개, `privacyStatus=official_reviewed` 147개, `claimRisk=high` 9개 / `medium` 128개 / `low` 10개.
 - 개별 자산의 최종 상태, 순서, 파일 경로, 해시는 manifest를 우선한다.
 - 증거 묶음 상태는 `PROOF_ASSET_INDEX.md`의 `PROOF-WIDE-SLIDING-DETAILPAGE-ASSETS-2026-07-01`을 함께 본다.
-- 넓은 현관 구조 비교와 이미지 탐색은 가능하다.
+- 구조 비교(현관과 집 안 여러 자리)와 이미지 탐색은 가능하다. 구조 움직임은 `004.gif`(네 구조), `006·009·012·015.gif`(구조별), 자리 예시는 `007·010·013·016.jpg`의 추천 설치 공간 사진을 우선 본다.
 - 폭, 좌우 벽공간, 중앙 개방 폭, 레일, 문짝 수는 무료 방문실측에서 확인한다고 안내한다.
 - 가격, 이벤트, 월 납입, 구조별 옵션 문구는 `EVIDENCE_REGISTER.md`를 확인한다.
