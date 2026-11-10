@@ -1,5 +1,14 @@
 # CHANGELOG - 문장군 중앙 브랜드 문서
 
+## v5.30 - 2026-11-10
+
+- 양개형중문/미서기 계열을 '넓은 현관 전용'으로 읽히지 않게 고침 (사장 확인)
+  - 사장 말: 미서기·4연동·양개는 현관에만 설치하지 않는다. 양개는 2m대뿐 아니라 3m 이상에도 쓴다. 드레스룸, 공간분리에도 쓰고, 계단 앞은 2짝 미서기로 계단 폭에 맞춰 반반
+  - `PRODUCT_WIKI_WIDE_SLIDING_MIDDLE_DOOR.md` v1.3: 목적·정의·하위 구조 표에 쓰는 자리 예 추가, 금지 표현 2개 추가, 구조 설명용 GIF·추천 공간 자산 안내
+  - `FIELD_JUDGMENT_RULES.md` v1.2: 양개 폭 범위, 현관이 아닌 자리, 계단 앞 기준 추가
+  - `PRODUCT_SELECTION_GUIDE.md` v1.3, `WIDE_SLIDING_MIDDLE_DOOR_DETAILPAGE_ASSET_INDEX_2026-07-01.md` v1.2, `EVIDENCE_REGISTER.md`, `OPEN_QUESTIONS_REGISTER.md` OQ-021 문구를 같은 기준으로 맞춤
+  - 계기: 블로그 자동 글이 위키의 '넓은 현관' 틀만 따라 써서 사장 지적
+
 ## v5.29 - 2026-09-11
 
 - 패키지5 3개 선택 옵션의 현재 판매 화면 가격을 독립 재확인
